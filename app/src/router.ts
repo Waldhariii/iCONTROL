@@ -15,6 +15,7 @@ export function getRouteId(): RouteId {
   if (seg === "dashboard") return "dashboard";
   if (seg === "settings") return canAccessSettings() ? "settings" : "dashboard";
   if (seg === "settings/branding") return canAccessSettings() ? "settings_branding" : "dashboard";
+  if (seg === "runtime-smoke" || seg === "runtime_smoke") return "runtime_smoke";
   return "notfound";
 }
 
