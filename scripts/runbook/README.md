@@ -11,3 +11,7 @@ This folder contains local runbooks that enforce project gates.
 
 - `./scripts/runbook/doctor.zsh`
 - `./scripts/runbook/new-feature.zsh <feature-name>`
+
+## Policy Toggles
+
+- `ICONTROL_SAFE_MODE=STRICT` enforces builtin-only rendering in runtime.

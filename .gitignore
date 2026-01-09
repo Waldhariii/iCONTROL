@@ -26,3 +26,10 @@ app/dist/
 # local reports (generated)
 _REPORTS/
 ICONTROL_SYSTEM_*.md
+
+# iCONTROL local artifacts
+**/.DS_Store
+**/_REPORTS/
+app/node_modules/
+**/node_modules/
+**/dist/
