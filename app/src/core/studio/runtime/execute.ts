@@ -31,10 +31,8 @@ function renderOp(op: RenderOp, registry?: RegistryLike): string {
   }
 
   if (op.op === "component") {
-    const id = String((op as any).id ?? "");
-    const props = ((op as any).props && typeof (op as any).props === "object")
-      ? ((op as any).props as Record<string, unknown>)
-      : {};
+    const id = String(op.id ?? "");
+    const props = (op.props && typeof op.props === "object") ? op.props : {};
 
     // 1) First-class builtins (framework-agnostic rendering)
     if (id === "builtin.table") return renderBuiltinTable(props);
@@ -130,7 +128,7 @@ function renderBuiltinForm(props: Record<string, unknown>): string {
   return [
     `<section data-builtin="form" style="margin:8px 0;">`,
     `<div style="font-weight:600;margin:0 0 6px 0;">${escapeHtml(title)}</div>`,
-    `<form onsubmit="return false;">`,
+    `<form>`,
     body,
     `<button type="button" style="padding:8px 12px;border-radius:10px;border:1px solid #666;background:transparent;color:inherit;cursor:pointer;">Submit</button>`,
     `</form>`,

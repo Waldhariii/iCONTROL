@@ -21,3 +21,11 @@ export type Rendered = {
   html: string;
   // Expand later: diagnostics, warnings, trace id
 };
+
+export type RenderOp =
+  | { op: "text"; value: string }
+  | { op: "component"; id: string; props?: Record<string, unknown> };
+
+export type RenderPlan = {
+  ops: RenderOp[];
+};
