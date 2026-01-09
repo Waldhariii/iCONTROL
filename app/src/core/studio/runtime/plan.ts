@@ -99,7 +99,16 @@ export function compilePlan(doc: BlueprintDoc): ReturnType<typeof ok<RenderPlan>
           }
 
           // Fallback block -> stringify into text op
+          
+          // Text block (runtime-smoke V1): emit text op instead of raw JSON
+          if ("text" in bo && (typeof (bo as any).text === "string" || typeof (bo as any).text === "number")) {
+            pushText(ops, (bo as any).text);
+            continue;
+          }
+
+          // Fallback block -> stringify into text op
           pushText(ops, JSON.stringify(bo));
+
         }
       }
       if (ops.length) return ok({ ops });
