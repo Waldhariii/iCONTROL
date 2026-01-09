@@ -1,0 +1,13 @@
+{
+  "id": "inventory",
+  "name": "Inventory",
+  "type": "complementary",
+  "version": "0.1.0",
+  "routes": [
+    { "id": "inventory_home", "path": "/inventory", "roles": ["ADMIN","SYSADMIN","DEVELOPER"] }
+  ],
+  "permissions": ["inventory:read", "inventory:write"],
+  "storageScopes": ["inventory:*"],
+  "endpoints": [],
+  "flags": ["INVENTORY_V1"]
+}

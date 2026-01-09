@@ -1,0 +1,22 @@
+{
+  "id": "core-system",
+  "name": "Core System",
+  "type": "core",
+  "version": "0.1.0",
+  "routes": [
+    { "id": "login", "path": "/login" },
+    { "id": "dashboard", "path": "/dashboard" },
+    { "id": "selfcheck", "path": "/selfcheck", "roles": ["SYSADMIN","DEVELOPER"] },
+    { "id": "developer", "path": "/developer", "roles": ["SYSADMIN","DEVELOPER"] },
+    { "id": "account", "path": "/account" },
+    { "id": "users", "path": "/users", "roles": ["ADMIN","SYSADMIN","DEVELOPER"] },
+    { "id": "permissions", "path": "/permissions", "roles": ["ADMIN","SYSADMIN","DEVELOPER"] },
+    { "id": "settings", "path": "/settings", "roles": ["ADMIN","SYSADMIN","DEVELOPER"] },
+    { "id": "system", "path": "/system", "roles": ["SYSADMIN","DEVELOPER"] },
+    { "id": "logs", "path": "/logs", "roles": ["SYSADMIN","DEVELOPER"] }
+  ],
+  "permissions": ["rbac:core", "safe_mode:toggle", "edit_mode:core_pages_only"],
+  "storageScopes": ["core:*"],
+  "endpoints": [],
+  "flags": ["SAFE_MODE", "EDIT_MODE", "FEATURE_FLAGS"]
+}

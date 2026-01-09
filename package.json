@@ -1,0 +1,16 @@
+{
+  "name": "icontrol-monorepo",
+  "private": true,
+  "version": "0.1.0",
+  "workspaces": [
+    "langs/frontend-ts",
+    "modules/*/ui/frontend-ts",
+    "app",
+    "shared/*",
+    "modules/**/ui/frontend-ts"
+  ],
+  "scripts": {
+    "lint": "echo \"lint placeholder\"",
+    "test": "echo \"test placeholder\""
+  }
+}

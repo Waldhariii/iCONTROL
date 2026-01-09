@@ -1,0 +1,25 @@
+{
+  "version": "1.0",
+  "policy": {
+    "coreModulesAlwaysOn": ["core-system"],
+    "nonHideablePages": ["dashboard", "login"],
+    "onlyDeveloperCanToggleModules": true
+  },
+  "modules": {
+    "core-system": { "enabled": true, "type": "core" },
+    "dossiers":    { "enabled": false, "type": "complementary" },
+    "clients":     { "enabled": false, "type": "complementary" },
+    "inventory":   { "enabled": false, "type": "complementary" },
+    "documents":   { "enabled": false, "type": "complementary" },
+    "ocr":         { "enabled": false, "type": "complementary" },
+    "finance":     { "enabled": false, "type": "complementary" },
+    "billing":     { "enabled": false, "type": "complementary" },
+    "quotes":      { "enabled": false, "type": "complementary" },
+    "jobs":        { "enabled": false, "type": "complementary" },
+    "calendar":    { "enabled": false, "type": "complementary" },
+    "reports":     { "enabled": false, "type": "complementary" },
+    "contacts":    { "enabled": false, "type": "complementary" },
+    "payments":    { "enabled": false, "type": "complementary" },
+    "integrations-hub": { "enabled": false, "type": "complementary" }
+  }
+}

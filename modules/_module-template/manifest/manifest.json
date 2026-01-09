@@ -1,0 +1,11 @@
+{
+  "id": "module-template",
+  "name": "Module Template",
+  "type": "complementary",
+  "version": "0.1.0",
+  "routes": [],
+  "permissions": [],
+  "storageScopes": [],
+  "endpoints": [],
+  "flags": []
+}
