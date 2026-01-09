@@ -1,0 +1,157 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "iCONTROL Blueprint Structure",
+  "type": "object",
+  "properties": {
+    "datasources": {
+      "type": "object",
+      "additionalProperties": { "$ref": "#/definitions/DatasourceDef" }
+    },
+    "tables": {
+      "type": "object",
+      "additionalProperties": { "$ref": "#/definitions/TableDef" }
+    },
+    "rules": {
+      "type": "object",
+      "additionalProperties": { "$ref": "#/definitions/RuleDef" }
+    },
+    "forms": {
+      "type": "object",
+      "additionalProperties": { "$ref": "#/definitions/FormDef" }
+    }
+  },
+  "additionalProperties": true,
+  "definitions": {
+    "DatasourceDef": {
+      "type": "object",
+      "required": ["id", "type"],
+      "properties": {
+        "id": { "type": "string" },
+        "type": {
+          "type": "string",
+          "enum": ["static", "localStorage", "files", "logs", "api_stub"]
+        },
+        "config": { "type": "object" },
+        "schema": {
+          "type": "object",
+          "properties": {
+            "fields": { "type": "array", "items": { "type": "string" } }
+          },
+          "additionalProperties": true
+        }
+      },
+      "additionalProperties": true
+    },
+    "TableDef": {
+      "type": "object",
+      "required": ["id", "columns"],
+      "properties": {
+        "id": { "type": "string" },
+        "columns": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/ColumnDef" }
+        },
+        "actions": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/ActionDef" }
+        }
+      },
+      "additionalProperties": true
+    },
+    "ColumnDef": {
+      "type": "object",
+      "required": ["id", "key", "label", "type"],
+      "properties": {
+        "id": { "type": "string" },
+        "key": { "type": "string" },
+        "label": { "type": "string" },
+        "type": {
+          "type": "string",
+          "enum": ["text", "date", "money", "badge", "action"]
+        },
+        "rules": { "type": "array", "items": { "type": "string" } },
+        "visibleForRoles": { "type": "array", "items": { "type": "string" } },
+        "format": { "type": "string" },
+        "width": { "type": "number" },
+        "align": { "type": "string", "enum": ["left", "center", "right"] },
+        "computed": { "type": "string" }
+      },
+      "additionalProperties": true
+    },
+    "ActionDef": {
+      "type": "object",
+      "required": ["id", "label", "actionType"],
+      "properties": {
+        "id": { "type": "string" },
+        "label": { "type": "string" },
+        "actionType": {
+          "type": "string",
+          "enum": ["navigate", "openModal", "exportCsv", "noop"]
+        },
+        "rules": { "type": "array", "items": { "type": "string" } },
+        "requiredRoles": { "type": "array", "items": { "type": "string" } },
+        "config": { "type": "object" }
+      },
+      "additionalProperties": true
+    },
+    "RuleDef": {
+      "type": "object",
+      "required": ["id", "name", "enabled", "priority", "when", "then"],
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "enabled": { "type": "boolean" },
+        "priority": { "type": "number" },
+        "when": { "type": "object" },
+        "then": { "type": "array", "items": { "type": "object" } }
+      },
+      "additionalProperties": true
+    },
+    "FormDef": {
+      "type": "object",
+      "required": ["id", "fields"],
+      "properties": {
+        "id": { "type": "string" },
+        "fields": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/FieldDef" }
+        }
+      },
+      "additionalProperties": true
+    },
+    "FieldDef": {
+      "type": "object",
+      "required": ["id", "key", "label", "type"],
+      "properties": {
+        "id": { "type": "string" },
+        "key": { "type": "string" },
+        "label": { "type": "string" },
+        "type": {
+          "type": "string",
+          "enum": ["text", "textarea", "date", "money", "email", "phone", "select", "checkbox"]
+        },
+        "required": { "type": "boolean" },
+        "rules": { "type": "array", "items": { "type": "string" } },
+        "visibleForRoles": { "type": "array", "items": { "type": "string" } },
+        "options": { "type": "array", "items": { "type": "string" } },
+        "defaultValue": {},
+        "validation": {
+          "type": "object",
+          "properties": {
+            "regex": { "type": "string" },
+            "range": {
+              "type": "object",
+              "properties": {
+                "min": { "type": "number" },
+                "max": { "type": "number" }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": true
+        }
+      },
+      "additionalProperties": true
+    }
+  }
+}
