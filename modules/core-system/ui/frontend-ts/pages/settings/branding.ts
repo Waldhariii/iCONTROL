@@ -1,5 +1,5 @@
-import { getSession } from "../../../../../../app/src/localAuth";
-import { navigate } from "../../../../../../app/src/router";
+import { getSession } from "/src/localAuth";
+import { navigate } from "/src/router";
 import { getBrandResolved, setBrandLocalOverride, clearBrandLocalOverride } from "../../../../../../platform-services/branding/brandService";
 
 type Role = "USER" | "ADMIN" | "SYSADMIN" | "DEVELOPER";

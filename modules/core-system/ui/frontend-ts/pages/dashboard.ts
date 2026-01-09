@@ -1,4 +1,4 @@
-import { getUserLabel } from "../../../../app/src/router";
+import { getUserLabel } from "/src/router";
 
 export function renderDashboard(root: HTMLElement): void {
   root.innerHTML = `

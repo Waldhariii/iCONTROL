@@ -1,5 +1,5 @@
-import { authenticate } from "../../../../app/src/localAuth";
-import { navigate } from "../../../../app/src/router";
+import { authenticate } from "/src/localAuth";
+import { navigate } from "/src/router";
 
 export function renderLogin(root: HTMLElement): void {
   root.innerHTML = `
