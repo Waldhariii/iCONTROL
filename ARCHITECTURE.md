@@ -18,3 +18,20 @@ Plateforme modulaire long terme, avec isolation stricte par modules et UI shell 
 ## Qualité & garde-fous
 - scripts/audit/audit-no-leaks.zsh (pre-commit)
 - build: app -> Vite build
+
+## Baseline Governance
+
+### Tags (source of truth)
+- **golden-baseline** : alias mobile (peut bouger quand une baseline est re-validée).
+- **golden-baseline-2026-01-09-r1** : snapshot immuable (référence stable pour audit/rollback).
+
+### SOP (opérations)
+- Créer une branche de travail depuis la baseline immuable:
+  - `git checkout -b feature/<nom> golden-baseline-2026-01-09-r1`
+- Ou depuis l’alias (si tu acceptes que ça bouge dans le temps):
+  - `git checkout -b feature/<nom> golden-baseline`
+
+### Qualité (hard gates)
+- Audit: `./scripts/audit/audit-no-leaks.zsh`
+- Build: `(cd app && npm run build)`
+
