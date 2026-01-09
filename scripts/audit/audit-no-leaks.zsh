@@ -94,9 +94,5 @@ md "- Status: **PASS**"
 md ""
 
 mv -f "$TMP" "$REPORT"
-
-# UPDATE_REPORTS_INDEX_V1
-./scripts/maintenance/rebuild-reports-index.zsh
-# END UPDATE_REPORTS_INDEX_V1
 echo "OK: AUDIT PASS"
 echo "Report: $REPORT"
