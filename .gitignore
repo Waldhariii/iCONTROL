@@ -12,3 +12,10 @@ dist/
 _REPORTS/*
 !_REPORTS/.gitkeep
 !_REPORTS/INDEX.md
+
+# --- Reports hygiene (keep INDEX.md tracked, ignore volatile artifacts) ---
+_REPORTS/_TMP_*.md
+_REPORTS/ICONTROL_AUDIT_*.md
+_REPORTS/CORE_KERNEL_FREEZE_REPORT_*.md
+_REPORTS/_BK_*/
+_REPORTS/_BACKUPS_*/

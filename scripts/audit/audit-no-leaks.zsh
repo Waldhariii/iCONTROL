@@ -40,6 +40,7 @@ if [ -n "$HIT_A1" ]; then
   echo "$HIT_A1" | head -200 >> "$TMP"
   md '```'
   mv -f "$TMP" "$REPORT"
+
   die "Hardcoded /Users path leak detected (see report)" 11
 else
   md "## OK A1 — No hardcoded \`/Users/\` paths"
@@ -54,6 +55,7 @@ if [ -n "$HIT_B1" ]; then
   echo "$HIT_B1" | head -200 >> "$TMP"
   md '```'
   mv -f "$TMP" "$REPORT"
+
   die "Legacy token found in active source (see report)" 12
 else
   md "## OK B1 — No legacy token in active source"
@@ -68,6 +70,7 @@ if [ -n "$HIT_C1" ]; then
   echo "$HIT_C1" | head -200 >> "$TMP"
   md '```'
   mv -f "$TMP" "$REPORT"
+
   die "core-kernel imports modules (see report)" 13
 else
   md "## OK C1 — core-kernel does not import modules"
@@ -91,5 +94,9 @@ md "- Status: **PASS**"
 md ""
 
 mv -f "$TMP" "$REPORT"
+
+# UPDATE_REPORTS_INDEX_V1
+./scripts/maintenance/rebuild-reports-index.zsh
+# END UPDATE_REPORTS_INDEX_V1
 echo "OK: AUDIT PASS"
 echo "Report: $REPORT"
