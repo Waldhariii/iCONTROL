@@ -99,7 +99,6 @@ export function compilePlan(doc: BlueprintDoc): ReturnType<typeof ok<RenderPlan>
           }
           // Fallback block -> stringify into text op
           
-          // Fallback block -> stringify into text op
           pushText(ops, JSON.stringify(bo));
 
         }
