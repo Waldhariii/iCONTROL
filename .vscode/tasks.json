@@ -1,0 +1,23 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "iCONTROL: dev (Vite)",
+      "type": "shell",
+      "command": "cd app && npm run dev -- --host 127.0.0.1 --port 5176",
+      "problemMatcher": []
+    },
+    {
+      "label": "iCONTROL: build",
+      "type": "shell",
+      "command": "cd app && npm run build",
+      "problemMatcher": []
+    },
+    {
+      "label": "iCONTROL: audit-no-leaks",
+      "type": "shell",
+      "command": "./scripts/audit/audit-no-leaks.zsh",
+      "problemMatcher": []
+    }
+  ]
+}

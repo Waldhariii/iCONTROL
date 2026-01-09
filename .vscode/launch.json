@@ -1,0 +1,12 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Open iCONTROL (browser)",
+      "type": "pwa-chrome",
+      "request": "launch",
+      "url": "http://127.0.0.1:5176/",
+      "webRoot": "${workspaceFolder}/app"
+    }
+  ]
+}

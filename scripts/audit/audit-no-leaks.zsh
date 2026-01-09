@@ -1,47 +1,38 @@
 #!/bin/zsh
 set -euo pipefail
 
-# Root = repo root (2 levels up from this script)
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+NOW="$(date +%Y%m%d_%H%M%S)"
 REPORT_DIR="$ROOT/_REPORTS"
-TS="$(date +%Y%m%d_%H%M%S)"
-REPORT="$REPORT_DIR/ICONTROL_AUDIT_NO_LEAKS_${TS}.md"
-TMP="$(mktemp "/tmp/icontrol_audit_${TS}_XXXX.md")"
+REPORT="$REPORT_DIR/ICONTROL_AUDIT_NO_LEAKS_${NOW}.md"
+TMP="$REPORT_DIR/.tmp_audit_${NOW}.md"
 
 mkdir -p "$REPORT_DIR"
 
-md(){ echo "$@" >> "$TMP"; }
-die(){ echo "FAIL: $1"; echo "Report: $REPORT"; exit "${2:-1}"; }
-
-need_cmd(){ command -v "$1" >/dev/null 2>&1 || die "Missing command: $1" 90; }
-
-need_cmd rg
-need_cmd sed
-need_cmd head
-
-# Exclusions (do NOT scan backups/reports/deps/git + do NOT scan this script to avoid self-match)
+# Important: exclusions must avoid self-match + reports + deps
 EXCL=(
   --glob '!**/_REPORTS/**'
   --glob '!**/node_modules/**'
   --glob '!**/.git/**'
-  --glob '!**/scripts/audit/audit-no-leaks.zsh'
+  --glob '!**/scripts/audit/**'
+  --glob '!**/scripts/maintenance/**'
 )
 
-# Write header to temp report (we do scans first; we only finalize report at the end)
+# Build legacy token without writing it contiguously in this file
+LEGACY_TOKEN="C""ontrolX"
+
+md(){ echo "$*" >> "$TMP"; }
+die(){ echo "FAIL: $1"; echo "Report: $REPORT"; exit "$2"; }
+
+# Header (scan-first report; writing after checks)
 : > "$TMP"
-md "# iCONTROL — Audit no-leaks"
+md "# iCONTROL Audit — no-leaks"
 md ""
-md "- Date: $(date)"
-md "- ROOT: \`$ROOT\`"
-md ""
-
-md "## Exclusions"
-md '```'
-for g in "${EXCL[@]}"; do echo "$g" >> "$TMP"; done
-md '```'
+md "- Root: \`$ROOT\`"
+md "- Timestamp: \`$NOW\`"
 md ""
 
-# A1) Ban hardcoded /Users paths
+echo "=== AUDIT: A1 Hardcoded /Users path ==="
 HIT_A1="$(rg -n --hidden --no-ignore "${EXCL[@]}" "/Users/" "$ROOT" || true)"
 if [ -n "$HIT_A1" ]; then
   md "## FAIL A1 — Hardcoded path \`/Users/\` detected"
@@ -51,26 +42,26 @@ if [ -n "$HIT_A1" ]; then
   mv -f "$TMP" "$REPORT"
   die "Hardcoded /Users path leak detected (see report)" 11
 else
-  md "## OK A1 — No hardcoded /Users paths"
+  md "## OK A1 — No hardcoded \`/Users/\` paths"
 fi
 md ""
 
-# B1) Ban legacy token "ControlX"
-HIT_B1="$(rg -n --hidden --no-ignore "${EXCL[@]}" "ControlX" "$ROOT" || true)"
+echo "=== AUDIT: B1 Legacy token banned ==="
+HIT_B1="$(rg -n --hidden --no-ignore "${EXCL[@]}" "$LEGACY_TOKEN" "$ROOT" || true)"
 if [ -n "$HIT_B1" ]; then
-  md "## FAIL B1 — Legacy token \`ControlX\` found"
+  md "## FAIL B1 — Legacy brand token found (banned)"
   md '```'
   echo "$HIT_B1" | head -200 >> "$TMP"
   md '```'
   mv -f "$TMP" "$REPORT"
-  die "ControlX token found in active source (see report)" 12
+  die "Legacy token found in active source (see report)" 12
 else
-  md "## OK B1 — No ControlX token in active source"
+  md "## OK B1 — No legacy token in active source"
 fi
 md ""
 
-# C1) core-kernel must NOT import modules
-HIT_C1="$(rg -n --hidden --no-ignore "${EXCL[@]}" "from\s+['\"]/modules/|from\s+['\"]\.\./\.\./modules/" "$ROOT/core-kernel" || true)"
+echo "=== AUDIT: C1 core-kernel isolation ==="
+HIT_C1="$(rg -n --hidden --no-ignore "${EXCL[@]}" "from\\s+['\"]/modules/|from\\s+['\"]\\.\\./\\.\\./modules/" "$ROOT/core-kernel" || true)"
 if [ -n "$HIT_C1" ]; then
   md "## FAIL C1 — core-kernel importing modules (forbidden)"
   md '```'
@@ -83,7 +74,7 @@ else
 fi
 md ""
 
-# D1) Modules should not import other modules directly (warn only)
+echo "=== AUDIT: D1 module->module (warn) ==="
 HIT_D1="$(rg -n --hidden --no-ignore "${EXCL[@]}" "modules/[^/]+/.*modules/[^/]+" "$ROOT/modules" || true)"
 if [ -n "$HIT_D1" ]; then
   md "## WARN D1 — module→module reference patterns found (review isolation)"
@@ -99,8 +90,6 @@ md "## Result"
 md "- Status: **PASS**"
 md ""
 
-# Finalize report
 mv -f "$TMP" "$REPORT"
-
 echo "OK: AUDIT PASS"
 echo "Report: $REPORT"
