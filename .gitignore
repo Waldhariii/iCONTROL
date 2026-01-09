@@ -1,0 +1,14 @@
+# Dependencies / builds
+node_modules/
+dist/
+.DS_Store
+
+# Local env
+*.local
+.env
+.env.*
+
+# Reports: keep the folder, ignore contents except index
+_REPORTS/*
+!_REPORTS/.gitkeep
+!_REPORTS/INDEX.md
