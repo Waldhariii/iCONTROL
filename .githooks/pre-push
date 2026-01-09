@@ -1,0 +1,18 @@
+#!/bin/zsh
+set -euo pipefail
+
+# Block pushing updates to the immutable release snapshot tag.
+IMMUTABLE="golden-baseline-2026-01-09-r2"
+
+# If no remote refs are being pushed, allow.
+# Git provides lines: <local ref> <local sha> <remote ref> <remote sha>
+while read -r local_ref local_sha remote_ref remote_sha; do
+  # If this push includes the immutable tag, block.
+  if [[ "$local_ref" == "refs/tags/${IMMUTABLE}" || "$remote_ref" == "refs/tags/${IMMUTABLE}" ]]; then
+    echo "BLOCKED: Attempt to push immutable tag '${IMMUTABLE}'. This tag is release-locked."
+    echo "Use a new release tag (r3, r4, ...) instead of moving r2."
+    exit 12
+  fi
+done
+
+exit 0
