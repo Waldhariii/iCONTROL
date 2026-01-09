@@ -1,12 +1,4 @@
 #!/bin/zsh
-set -euo pipefail
-
-ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-
-# Post-commit hygiene:
-# - refresh _REPORTS/INDEX.md after any commit
-# - DO NOT auto-commit (avoid commit loops / noise)
-# - keep developer in control
-
-"$ROOT/scripts/maintenance/rebuild-reports-index.zsh" >/dev/null 2>&1 || true
+# Intentionally empty (governed workflow):
+# INDEX is updated manually by operator to avoid any working-tree churn.
 exit 0
