@@ -45,3 +45,15 @@ export function validateBlueprint(kind: BlueprintKind, doc: unknown): ValidateRe
 
   return { ok: true };
 }
+
+// --- iCONTROL stable export alias (compat) ---
+// Goal: runtime expects validateBlueprintDoc; keep surface stable and decouple internal naming.
+export function validateBlueprintDoc(...args: any[]): any {
+  // Prefer existing exported validator if present; fallback to validateDoc symbol if available.
+  try {
+    return (validateBlueprint as any)(...args);
+  } catch (e) {
+    // Defensive: never throw across package boundary
+    return { ok: false, reason: "internal_error", detail: e instanceof Error ? e.message : "unknown" };
+  }
+}

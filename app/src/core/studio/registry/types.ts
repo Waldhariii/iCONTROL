@@ -1,18 +1,21 @@
-import type { ComponentType } from "react";
-
+/**
+ * Registry is framework-agnostic in iCONTROL core.
+ * We intentionally avoid React/JSX types here to keep the core portable and low-risk.
+ */
 export type ComponentId = string;
+
+export type ComponentMeta = {
+  displayName?: string;
+  description?: string;
+  version?: number;
+};
 
 export type RegisteredComponent = {
   id: ComponentId;
-  component: ComponentType<any>;
-  meta?: {
-    displayName?: string;
-    description?: string;
-    tags?: string[];
-  };
-};
-
-export type RegistrySnapshot = {
-  readonly ids: readonly ComponentId[];
-  readonly get: (id: ComponentId) => RegisteredComponent | undefined;
+  /**
+   * 'component' is an opaque handle. In DOM apps it can be a descriptor object,
+   * and later it can become a React component or other renderer contract.
+   */
+  component: unknown;
+  meta?: ComponentMeta;
 };
