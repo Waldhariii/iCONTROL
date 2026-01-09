@@ -53,5 +53,17 @@ function renderShell(rid: RouteId): void {
 
 // UI_SHELL_NAV_V1_BOOT: ensure shell mount is completed before first route render
 queueMicrotask(() => {
+  /* RUNTIME_SMOKE_TOGGLE_V1 */
+  try {
+    const __q = new URLSearchParams(window.location.search);
+    if (__q.get("runtime") === "1") {
+      const mount = getMountEl();
+      import("./pages/runtime-smoke").then((m) => m.renderRuntimeSmoke(mount));
+      return;
+    }
+  } catch (e) {
+    console.warn("WARN_RUNTIME_SMOKE_TOGGLE", String(e));
+  }
+
   bootRouter((rid) => renderShell(rid));
 });
