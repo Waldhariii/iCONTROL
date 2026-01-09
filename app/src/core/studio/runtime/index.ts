@@ -4,3 +4,5 @@ export * from "./render";
 
 export * from "./plan";
 export * from "./execute";
+
+export * from "./adapters/registry-adapter";
