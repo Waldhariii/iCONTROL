@@ -106,6 +106,62 @@ export function compilePlan(doc: BlueprintDoc): ReturnType<typeof ok<RenderPlan>
       if (ops.length) return ok({ ops });
     }
 
+    /* COMPILEPLAN_BLOCKS_RECOVERY_V1
+       Goal: if upstream parsing misses doc.data.blocks, recover in a tolerant, low-risk way.
+       Prevent JSON-stringify fallback when blocks are valid.
+    */
+    try {
+      if (ops.length === 0 && isObj(doc)) {
+        const d: any = (doc as any);
+        const blocks: any[] | null = Array.isArray(d?.data?.blocks)
+          ? d.data.blocks
+          : (Array.isArray(d?.blocks) ? d.blocks : null);
+
+        if (blocks && blocks.length) {
+          const mapId = (t: unknown): string => {
+            const s = String(t ?? "").trim();
+            if (s === "table") return "builtin.table";
+            if (s === "form") return "builtin.form";
+            return s; // default: raw type as component id
+          };
+
+          for (const b of blocks) {
+            const bo: any = b;
+
+            if (!isObj(bo)) {
+              pushText(ops, String(bo));
+              continue;
+            }
+
+            // Canonical text block
+            if (String(bo.type ?? "") === "text" && (typeof bo.text === "string" || typeof bo.text === "number")) {
+              pushText(ops, String(bo.text));
+              continue;
+            }
+
+            // If block has text, prefer text
+            if ("text" in bo && (typeof bo.text === "string" || typeof bo.text === "number")) {
+              pushText(ops, String(bo.text));
+              continue;
+            }
+
+            // Otherwise, treat as component
+            if ("type" in bo) {
+              pushComponent(ops, mapId(bo.type));
+              continue;
+            }
+
+            // Last resort
+            pushText(ops, JSON.stringify(bo));
+          }
+
+          if (ops.length) return ok({ ops });
+        }
+      }
+    } catch {
+      // no-op: fallback continues below
+    }
+
     // 4) Final fallback (guaranteed non-empty output)
     return ok({ ops: [{ op: "text", value: JSON.stringify(doc) }] });
   } catch (e) {
