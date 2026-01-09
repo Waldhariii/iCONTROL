@@ -33,3 +33,4 @@ ICONTROL_SYSTEM_*.md
 app/node_modules/
 **/node_modules/
 **/dist/
+_REPORTS/**
