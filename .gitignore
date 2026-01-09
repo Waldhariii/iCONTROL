@@ -22,3 +22,7 @@ _REPORTS/_BACKUPS_*/
 _INTAKE/
 iCONTROL/
 app/dist/
+
+# local reports (generated)
+_REPORTS/
+ICONTROL_SYSTEM_*.md
