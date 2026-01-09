@@ -4,7 +4,7 @@
  */
 const BLOCK_PATTERNS: RegExp[] = [
   /<\s*script\b/i,
-  /\bon\w+\s*=/i,          // onclick=, onload=, etc.
+  /<[^>]*onw+s*=/i,          // onclick=, onload=, etc.
   /\bjavascript\s*:/i,
   /\bdata\s*:\s*text\/html/i,
 ];
