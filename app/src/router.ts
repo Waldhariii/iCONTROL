@@ -6,8 +6,8 @@ import { canAccessSettings } from "./runtime/rbac";
  * Public:  #/login
  * Private: #/dashboard (and everything else by default)
  */
-export type RouteId = "login" | "dashboard" | "settings" | "settings_branding" | "notfound";
-
+export type RouteId = "login" | "dashboard" | "settings" | "settings_branding" | "notfound"
+  | "runtime_smoke";
 export function getRouteId(): RouteId {
   const h = (location.hash || "").replace(/^#\/?/, "");
   const seg = (h.split("?")[0] || "").trim();
