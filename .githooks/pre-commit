@@ -1,0 +1,4 @@
+#!/bin/zsh
+set -euo pipefail
+./scripts/audit/audit-no-leaks.zsh >/dev/null
+echo "OK: audit-no-leaks PASS"
