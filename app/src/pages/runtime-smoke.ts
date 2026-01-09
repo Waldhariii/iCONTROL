@@ -40,7 +40,7 @@ export function renderRuntimeSmoke(mount: HTMLElement): void {
   if (!ex.ok) { mount.appendChild(el("pre", {}, "Execute error")); return; }
 
   const sr = safeRender(ex.value);
-  if (!sr.ok) { mount.appendChild(el("pre", {}, "SafeRender blocked")); return; }
+  if (!sr.ok) { mount.appendChild(el("pre", {}, "SafeRender BLOCKED:\n" + JSON.stringify(sr, null, 2))); return; }
 
   mount.appendChild(el("h3", {}, "Output"));
   const preview = el("div", { style: "padding:12px;border:1px solid #ccc;margin-top:8px;" });
