@@ -53,4 +53,13 @@ describe("compilePlan", () => {
       expect(res.value.ops.length).toBe(2);
     }
   });
+  it("does not stringify valid text blocks (anti-regression)", () => {
+    const doc: any = { data: { blocks: [{ type: "text", text: "hello" }] } };
+    const r = compilePlan(doc);
+    expect(r.ok).toBe(true);
+    if (!r.ok) return;
+    const text = r.value.ops.filter((op: any) => op.op === "text").map((op: any) => String(op.value)).join("\n");
+    expect(text).toContain("hello");
+    expect(text).not.toContain('{"type":"text"');
+  });
 });
