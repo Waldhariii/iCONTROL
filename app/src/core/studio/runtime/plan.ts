@@ -1,20 +1,112 @@
 import type { BlueprintDoc } from "../blueprints/types";
-import type { RuntimeResult } from "./result";
-import { err, ok } from "./result";
+import type { RenderOp, RenderPlan } from "./types";
+import { ok, err } from "./result";
 
-export type RenderOp =
-  | { op: "text"; value: string }
-  | { op: "component"; id: string; props?: Record<string, unknown> };
+type Obj = Record<string, unknown>;
 
-export type RenderPlan = {
-  ops: RenderOp[];
-};
+function isObj(x: unknown): x is Obj {
+  return typeof x === "object" && x !== null && !Array.isArray(x);
+}
+function isStr(x: unknown): x is string {
+  return typeof x === "string";
+}
+function asObj(x: unknown): Obj | null {
+  return isObj(x) ? x : null;
+}
+function asArr(x: unknown): unknown[] | null {
+  return Array.isArray(x) ? x : null;
+}
 
-export function compilePlan(blueprint: BlueprintDoc): RuntimeResult<RenderPlan> {
+function pushText(ops: RenderOp[], value: unknown) {
+  ops.push({ op: "text", value: isStr(value) ? value : String(value) });
+}
+
+function pushComponent(ops: RenderOp[], id: unknown) {
+  ops.push({ op: "component", id: isStr(id) ? id : String(id) });
+}
+
+/**
+ * compilePlan:
+ * - Goal: best-effort blueprint->render ops extraction (pure, no side-effects).
+ * - Always returns a Result; never throws.
+ * - Strategy:
+ *   1) If blueprint.data.ops[] exists -> map supported ops.
+ *   2) Else if blueprint.data.components[] exists -> emit component ops.
+ *   3) Else if blueprint.data.pages[].blocks[] exists -> emit ops from blocks.
+ *   4) Else fallback -> single text op with stable JSON.
+ */
+export function compilePlan(doc: BlueprintDoc): ReturnType<typeof ok<RenderPlan> | typeof err> {
   try {
-    // Deterministic compile v1; map blueprint->ops later.
-    const ops: RenderOp[] = [{ op: "text", value: JSON.stringify(blueprint) }];
-    return ok({ ops });
+    const data = asObj((doc as any).data);
+    if (!data) return err("invalid_input", "blueprint_missing_data_object");
+
+    const ops: RenderOp[] = [];
+
+    // 1) data.ops[] passthrough (highest ROI / lowest risk)
+    const opsArr = asArr(data.ops);
+    if (opsArr) {
+      for (const raw of opsArr) {
+        const o = asObj(raw);
+        if (!o) continue;
+        const op = o.op;
+        if (op === "text") {
+          pushText(ops, o.value ?? "");
+        } else if (op === "component") {
+          pushComponent(ops, o.id ?? "unknown");
+        }
+      }
+      if (ops.length) return ok({ ops });
+    }
+
+    // 2) data.components[] -> component ops
+    const comps = asArr(data.components);
+    if (comps) {
+      for (const c of comps) {
+        const o = asObj(c);
+        if (o && "id" in o) pushComponent(ops, (o as any).id);
+        else pushComponent(ops, c);
+      }
+      if (ops.length) return ok({ ops });
+    }
+
+    // 3) data.pages[].blocks[] (common blueprint pattern)
+    const pages = asArr(data.pages);
+    if (pages) {
+      for (const p of pages) {
+        const po = asObj(p);
+        if (!po) continue;
+        const blocks = asArr(po.blocks);
+        if (!blocks) continue;
+
+        for (const b of blocks) {
+          const bo = asObj(b);
+          if (!bo) continue;
+
+          // Prefer explicit component id/type if present
+          if ("componentId" in bo) {
+            pushComponent(ops, (bo as any).componentId);
+            continue;
+          }
+          if ("type" in bo) {
+            const t = (bo as any).type;
+            // If block has "text" content, emit text; else treat type as component id.
+            if ("text" in bo && (typeof (bo as any).text === "string" || typeof (bo as any).text === "number")) {
+              pushText(ops, (bo as any).text);
+            } else {
+              pushComponent(ops, t);
+            }
+            continue;
+          }
+
+          // Fallback block -> stringify into text op
+          pushText(ops, JSON.stringify(bo));
+        }
+      }
+      if (ops.length) return ok({ ops });
+    }
+
+    // 4) Final fallback (guaranteed non-empty output)
+    return ok({ ops: [{ op: "text", value: JSON.stringify(doc) }] });
   } catch (e) {
     return err("internal_error", e instanceof Error ? e.message : "unknown");
   }
