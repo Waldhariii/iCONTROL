@@ -1,20 +1,11 @@
-export type StructureBlueprint = {
-  version?: number;
-  datasources?: Record<string, unknown>;
-  tables?: Record<string, unknown>;
-  forms?: Record<string, unknown>;
-  pages?: Record<string, unknown>;
-  rules?: Record<string, unknown>;
-};
+import type { JsonValue } from "./types";
+import { isJsonValue, stableStringify } from "./internal/json";
 
-export function serializeStructure(bp: StructureBlueprint): string {
-  return JSON.stringify(bp, null, 2);
-}
-
-export function deserializeStructure(text: string): StructureBlueprint {
-  try {
-    return JSON.parse(text);
-  } catch {
-    return {};
-  }
+/**
+ * Serializer: small, deterministic JSON serializer for core governance.
+ * Throws only on invalid input (explicit contract).
+ */
+export function serializeJson(input: unknown): string {
+  if (!isJsonValue(input)) throw new Error("serializeJson: invalid_json_value");
+  return stableStringify(input as JsonValue);
 }
