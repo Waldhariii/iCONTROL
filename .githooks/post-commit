@@ -1,0 +1,13 @@
+#!/bin/zsh
+set -euo pipefail
+
+# Rebuild reports index after commit (safe: avoids pre-commit churn)
+./scripts/maintenance/rebuild-reports-index.zsh >/dev/null || true
+
+# Auto-commit INDEX only if changed (and only if it's already tracked)
+if git ls-files --error-unmatch _REPORTS/INDEX.md >/dev/null 2>&1; then
+  if ! git diff --quiet -- _REPORTS/INDEX.md; then
+    git add _REPORTS/INDEX.md
+    git commit -m "chore: update _REPORTS index (post-commit)" >/dev/null 2>&1 || true
+  fi
+fi
