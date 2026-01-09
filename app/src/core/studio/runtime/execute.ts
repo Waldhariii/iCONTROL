@@ -1,6 +1,10 @@
 import type { RenderOp, RenderPlan } from "./types";
 import { ok, err } from "./result";
 import { escapeHtml } from "./internal/escape";
+import { CODES } from "../internal/codes";
+import { getSafeMode, isBuiltinId } from "../internal/policy";
+import type { Claims } from "../internal/rbac";
+import { hasAllPermissions } from "../internal/rbac";
 
 /**
  * Registry contract (kept tiny to avoid coupling).
@@ -13,14 +17,17 @@ export type RegistryLike = {
 
 export function executePlan(
   plan: RenderPlan,
-  deps?: { registry?: RegistryLike }
+  deps?: { registry?: RegistryLike; claims?: Claims }
 ): ReturnType<typeof ok<string> | typeof err> {
   try {
+    if (!hasAllPermissions(deps?.claims, plan.requires)) {
+      return err("forbidden", CODES.ERR_FORBIDDEN);
+    }
     let out = "";
     for (const op of plan.ops) out += renderOp(op, deps?.registry);
     return ok(out);
   } catch (e) {
-    return err("internal_error", e instanceof Error ? e.message : "unknown");
+    return err("internal_error", e instanceof Error ? e.message : CODES.ERR_INTERNAL);
   }
 }
 
@@ -35,13 +42,23 @@ function renderOp(op: RenderOp, registry?: RegistryLike): string {
     const props = (op.props && typeof op.props === "object") ? op.props : {};
 
     // 1) First-class builtins (framework-agnostic rendering)
+    const mode = getSafeMode();
+    if (mode === "STRICT" && !isBuiltinId(id)) {
+      return `<div data-error="${escapeHtml(CODES.ERR_FORBIDDEN)}">forbidden_component:${escapeHtml(id)}</div>`;
+    }
     if (id === "builtin.table") return renderBuiltinTable(props);
     if (id === "builtin.form") return renderBuiltinForm(props);
 
     // 2) Registry resolution (optional)
+    if (!registry?.resolve) {
+      return `<div data-component="${escapeHtml(id)}" data-warn="${escapeHtml(CODES.WARN_REGISTRY_MISS)}">component:${escapeHtml(id)}</div>`;
+    }
     const r = registry?.resolve?.(id);
     if (r) {
       const result = safeCall(() => r(props));
+      if (result === undefined) {
+        return `<div data-component="${escapeHtml(id)}" data-warn="${escapeHtml(CODES.WARN_REGISTRY_THROW)}">component:${escapeHtml(id)}:error</div>`;
+      }
 
       // If registry returns a builtin payload, render it
       if (isObj(result) && typeof (result as any).kind === "string") {
@@ -60,7 +77,7 @@ function renderOp(op: RenderOp, registry?: RegistryLike): string {
     }
 
     // 3) Unresolved
-    return `<div data-component="${escapeHtml(id)}">component:${escapeHtml(id)}</div>`;
+    return `<div data-component="${escapeHtml(id)}" data-warn="${escapeHtml(CODES.WARN_REGISTRY_MISS)}">component:${escapeHtml(id)}</div>`;
   }
 
   const _never: never = op;

@@ -3,6 +3,7 @@ import type { ComponentRegistry } from "../registry";
 import type { DataSources } from "../datasources";
 import type { BlueprintDoc } from "../blueprints/types";
 import type { Rule } from "../rules/types";
+import type { Permission } from "../internal/rbac";
 
 export type RuntimeDeps = {
   claims: Claims;
@@ -28,4 +29,9 @@ export type RenderOp =
 
 export type RenderPlan = {
   ops: RenderOp[];
+  /**
+   * Optional RBAC requirements for executing the plan.
+   * Enforced by executePlan() prior to rendering.
+   */
+  requires?: Permission[];
 };
