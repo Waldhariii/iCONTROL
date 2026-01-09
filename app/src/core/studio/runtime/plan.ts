@@ -21,8 +21,10 @@ function pushText(ops: RenderOp[], value: unknown) {
   ops.push({ op: "text", value: isStr(value) ? value : String(value) });
 }
 
-function pushComponent(ops: RenderOp[], id: unknown) {
-  ops.push({ op: "component", id: isStr(id) ? id : String(id) });
+function pushComponent(ops: RenderOp[], id: unknown, props?: Record<string, unknown>) {
+  const next: RenderOp = { op: "component", id: isStr(id) ? id : String(id) };
+  if (props && isObj(props)) next.props = props;
+  ops.push(next);
 }
 
 /**
@@ -84,19 +86,24 @@ export function compilePlan(doc: BlueprintDoc): ReturnType<typeof ok<RenderPlan>
 
           // Prefer explicit component id/type if present
           if ("componentId" in bo) {
-            pushComponent(ops, (bo as any).componentId);
+            const props = isObj((bo as any).props) ? (bo as any).props : undefined;
+            pushComponent(ops, (bo as any).componentId, props);
             continue;
           }
 
           if ("type" in bo) {
             const t = (bo as any).type;
+            const tStr = isStr(t) ? t : "";
 
             /* ICONTROL_BUILTIN_BLOCK_MAP_V1
                Goal: convert blueprint blocks into builtin component ids + pass props
                - type:"table" => builtin.table { title, columns, rows }
                - type:"form"  => builtin.form  { title, fields }
             */
-            const tStr = String(t ?? "");
+            if (tStr === "text" && (typeof (bo as any).text === "string" || typeof (bo as any).text === "number")) {
+              pushText(ops, (bo as any).text);
+              continue;
+            }
             if (tStr === "table") {
               const title = typeof (bo as any).title === "string" ? (bo as any).title : "Demo Table";
               const columns = Array.isArray((bo as any).columns) ? (bo as any).columns : [];
@@ -111,16 +118,18 @@ export function compilePlan(doc: BlueprintDoc): ReturnType<typeof ok<RenderPlan>
               continue;
             }
 
-            // If block has "text" content, emit text; else treat type as component id.
-            if ("text" in bo && (typeof (bo as any).text === "string" || typeof (bo as any).text === "number")) {
-              pushText(ops, (bo as any).text);
-            } else {
-              pushComponent(ops, t);
+            if (tStr) {
+              const props = isObj((bo as any).props) ? (bo as any).props : undefined;
+              pushComponent(ops, tStr, props);
             }
             continue;
           }
+          if ("text" in bo && (typeof (bo as any).text === "string" || typeof (bo as any).text === "number")) {
+            pushText(ops, (bo as any).text);
+            continue;
+          }
+
           // Fallback block -> stringify into text op
-          
           pushText(ops, JSON.stringify(bo));
 
         }
@@ -155,21 +164,31 @@ export function compilePlan(doc: BlueprintDoc): ReturnType<typeof ok<RenderPlan>
               continue;
             }
 
-            // Canonical text block
-            if (String(bo.type ?? "") === "text" && (typeof bo.text === "string" || typeof bo.text === "number")) {
+            const tStr = isStr(bo.type) ? String(bo.type) : "";
+            if (tStr === "text" && (typeof bo.text === "string" || typeof bo.text === "number")) {
               pushText(ops, String(bo.text));
               continue;
             }
-
-            // If block has text, prefer text
+            if (tStr === "table") {
+              const title = typeof bo.title === "string" ? bo.title : "Demo Table";
+              const columns = Array.isArray(bo.columns) ? bo.columns : [];
+              const rows = Array.isArray(bo.rows) ? bo.rows : [];
+              pushComponent(ops, "builtin.table", { title, columns, rows });
+              continue;
+            }
+            if (tStr === "form") {
+              const title = typeof bo.title === "string" ? bo.title : "Demo Form";
+              const fields = Array.isArray(bo.fields) ? bo.fields : [];
+              pushComponent(ops, "builtin.form", { title, fields });
+              continue;
+            }
+            if (tStr) {
+              const props = isObj(bo.props) ? bo.props : undefined;
+              pushComponent(ops, mapId(bo.type), props);
+              continue;
+            }
             if ("text" in bo && (typeof bo.text === "string" || typeof bo.text === "number")) {
               pushText(ops, String(bo.text));
-              continue;
-            }
-
-            // Otherwise, treat as component
-            if ("type" in bo) {
-              pushComponent(ops, mapId(bo.type));
               continue;
             }
 
