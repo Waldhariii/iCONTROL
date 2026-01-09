@@ -7,7 +7,18 @@ import { renderSettingsPage } from "../../modules/core-system/ui/frontend-ts/pag
 import { renderBrandingSettings } from "../../modules/core-system/ui/frontend-ts/pages/settings/branding";
 
 export function renderRoute(rid: RouteId, root: HTMLElement): void {
-  if (rid === "login") return renderLogin(root);
+  
+  // RUNTIME_SMOKE_ROUTE_V2
+  try {
+    if ((rid as any) === "runtime_smoke") {
+      import("./pages/runtime-smoke").then((m) => m.renderRuntimeSmoke(mount));
+      return;
+    }
+  } catch (e) {
+    console.warn("WARN_RUNTIME_SMOKE_ROUTE", String(e));
+  }
+
+if (rid === "login") return renderLogin(root);
   if (rid === "dashboard") return renderDashboard(root);
   if (rid === "settings") return renderSettingsPage(root);
   if (rid === "settings_branding") return renderBrandingSettings(root);
