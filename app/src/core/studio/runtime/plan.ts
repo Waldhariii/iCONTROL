@@ -87,8 +87,30 @@ export function compilePlan(doc: BlueprintDoc): ReturnType<typeof ok<RenderPlan>
             pushComponent(ops, (bo as any).componentId);
             continue;
           }
+
           if ("type" in bo) {
             const t = (bo as any).type;
+
+            /* ICONTROL_BUILTIN_BLOCK_MAP_V1
+               Goal: convert blueprint blocks into builtin component ids + pass props
+               - type:"table" => builtin.table { title, columns, rows }
+               - type:"form"  => builtin.form  { title, fields }
+            */
+            const tStr = String(t ?? "");
+            if (tStr === "table") {
+              const title = typeof (bo as any).title === "string" ? (bo as any).title : "Demo Table";
+              const columns = Array.isArray((bo as any).columns) ? (bo as any).columns : [];
+              const rows = Array.isArray((bo as any).rows) ? (bo as any).rows : [];
+              pushComponent(ops, "builtin.table", { title, columns, rows });
+              continue;
+            }
+            if (tStr === "form") {
+              const title = typeof (bo as any).title === "string" ? (bo as any).title : "Demo Form";
+              const fields = Array.isArray((bo as any).fields) ? (bo as any).fields : [];
+              pushComponent(ops, "builtin.form", { title, fields });
+              continue;
+            }
+
             // If block has "text" content, emit text; else treat type as component id.
             if ("text" in bo && (typeof (bo as any).text === "string" || typeof (bo as any).text === "number")) {
               pushText(ops, (bo as any).text);
