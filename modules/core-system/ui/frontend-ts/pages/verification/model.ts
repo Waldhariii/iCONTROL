@@ -1,20 +1,22 @@
-export type VerificationItem = {
-  id: string;
-  status: "pending" | "approved" | "rejected";
-  subject: string;
-};
+import { MAIN_SYSTEM_MODULES, MAIN_SYSTEM_RULES } from "../_shared/mainSystem.data";
 
 export type VerificationModel = {
   title: string;
-  items: VerificationItem[];
+  description: string;
+  selfcheckRoute: string;
+  ruleConditions: string[];
+  ruleEffects: string[];
+  ruleValueRefs: string[];
 };
 
 export function createVerificationModel(): VerificationModel {
+  const core = MAIN_SYSTEM_MODULES.find((mod) => mod.id === "CORE_SYSTEM");
   return {
     title: "Verification",
-    items: [
-      { id: "ver-001", status: "pending", subject: "Onboarding company" },
-      { id: "ver-002", status: "approved", subject: "Billing profile" }
-    ]
+    description: "Selfcheck route and rule engine inventory (from intake).",
+    selfcheckRoute: core?.routes.includes("selfcheck") ? "selfcheck" : "unknown",
+    ruleConditions: MAIN_SYSTEM_RULES.conditions,
+    ruleEffects: MAIN_SYSTEM_RULES.effects,
+    ruleValueRefs: MAIN_SYSTEM_RULES.valueRefs
   };
 }

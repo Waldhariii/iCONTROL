@@ -39,7 +39,8 @@ describe("verification page", () => {
     const root = document.createElement("div");
     renderVerification(root);
     expect(root.textContent || "").toContain("Verification");
-    expect(verificationSections.length).toBe(1);
+    expect(verificationSections.length).toBe(3);
+    expect(root.textContent || "").toContain("Selfcheck");
     expect(root.innerHTML).not.toMatch(/\\bon\\w+\\s*=/i);
   });
 });
