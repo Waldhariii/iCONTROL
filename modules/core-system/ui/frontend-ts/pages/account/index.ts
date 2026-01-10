@@ -4,6 +4,11 @@ import { renderAccessDenied, safeRender } from "../_shared/mainSystem.shared";
 import { mountSections, type SectionSpec } from "../_shared/sections";
 import { canAccess } from "./contract";
 import { createAccountModel } from "./model";
+import {
+  renderAccountSettingsKeys,
+  renderAccountStorageAllow,
+  renderAccountSummary
+} from "./view";
 
 export function renderAccount(root: HTMLElement): void {
   const role = getRole();
@@ -19,18 +24,17 @@ export function renderAccount(root: HTMLElement): void {
     {
       id: "account-summary",
       title: model.title,
-      render: (host) => {
-        const wrap = document.createElement("section");
-        const h2 = document.createElement("h2");
-        h2.textContent = model.title;
-        wrap.appendChild(h2);
-
-        const p = document.createElement("p");
-        p.textContent = model.description;
-        wrap.appendChild(p);
-
-        host.appendChild(wrap);
-      }
+      render: (host) => renderAccountSummary(host, model)
+    },
+    {
+      id: "account-settings-keys",
+      title: "Settings keys",
+      render: (host) => renderAccountSettingsKeys(host, model)
+    },
+    {
+      id: "account-storage-allow",
+      title: "Storage allow list",
+      render: (host) => renderAccountStorageAllow(host, model)
     }
   ];
 
@@ -40,4 +44,8 @@ export function renderAccount(root: HTMLElement): void {
   });
 }
 
-export const accountSections = ["account-summary"];
+export const accountSections = [
+  "account-summary",
+  "account-settings-keys",
+  "account-storage-allow"
+];
