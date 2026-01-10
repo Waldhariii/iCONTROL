@@ -1,5 +1,5 @@
 import type { UsersModel } from "./model";
-import { appendList, appendPillRow, appendTable, sectionCard } from "../_shared/uiBlocks";
+import { appendList, appendTable, sectionCard } from "../_shared/uiBlocks";
 
 export function renderUsersOverview(root: HTMLElement, model: UsersModel): void {
   const card = sectionCard(model.title);
@@ -13,7 +13,11 @@ export function renderUsersOverview(root: HTMLElement, model: UsersModel): void 
 
 export function renderUsersRoles(root: HTMLElement, model: UsersModel): void {
   const card = sectionCard("Roles catalog");
-  appendPillRow(card, model.roles);
+  appendTable(
+    card,
+    ["Role"],
+    model.roles.map((role) => ({ Role: role }))
+  );
   root.appendChild(card);
 }
 
