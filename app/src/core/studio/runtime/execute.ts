@@ -89,33 +89,83 @@ function renderOp(op: RenderOp, registry?: RegistryLike): string {
    ========================= */
 
 function renderBuiltinTable(props: Record<string, unknown>): string {
+  const normalized = normalizeTable(props);
   const title = typeof props.title === "string" ? props.title : "Table";
-  const columns = Array.isArray(props.columns) ? props.columns.map(String) : [];
-  const rows = Array.isArray(props.rows) ? (props.rows as Array<Record<string, unknown>>) : [];
+  const caption = typeof (props as any).caption === "string" ? (props as any).caption : "";
+  const emptyText = typeof (props as any).emptyText === "string" ? (props as any).emptyText : "(empty)";
+
+  const columns = normalized.columns;
+  const rows = normalized.rows;
+  const maxRows = 200;
+  const sliced = rows.slice(0, maxRows);
+  const truncated = rows.length > maxRows;
 
   const thead = columns.length
     ? `<thead><tr>${columns.map((c) => `<th>${escapeHtml(c)}</th>`).join("")}</tr></thead>`
     : "";
 
-  const tbody = rows.length
-    ? `<tbody>${rows.map((r) => {
+  const tbody = sliced.length
+    ? `<tbody>${sliced.map((r) => {
         const cells = (columns.length ? columns : Object.keys(r)).map((col) => {
           const v = (r as any)[col];
           return `<td>${escapeHtml(v == null ? "" : String(v))}</td>`;
         }).join("");
         return `<tr>${cells}</tr>`;
       }).join("")}</tbody>`
-    : `<tbody><tr><td>${escapeHtml("(empty)")}</td></tr></tbody>`;
+    : `<tbody><tr><td>${escapeHtml(emptyText)}</td></tr></tbody>`;
+
+  const note = truncated
+    ? `<div style="opacity:.7;margin-top:6px;">${escapeHtml("(truncated)")}</div>`
+    : "";
 
   return [
     `<section data-builtin="table" style="margin:8px 0;">`,
     `<div style="font-weight:600;margin:0 0 6px 0;">${escapeHtml(title)}</div>`,
-    `<table style="width:100%;border-collapse:collapse;">`,
+    `<table class="cxTable" style="width:100%;border-collapse:collapse;">`,
+    caption ? `<caption style="caption-side:bottom;opacity:.7;padding-top:6px;">${escapeHtml(caption)}</caption>` : "",
     thead,
     tbody,
     `</table>`,
+    note,
     `</section>`
   ].join("");
+}
+
+function normalizeTable(input: Record<string, unknown>): { columns: string[]; rows: Array<Record<string, unknown>> } {
+  const rawColumns = (input as any).columns;
+  const rawRows = (input as any).rows;
+
+  let columns: string[] = [];
+  if (Array.isArray(rawColumns)) {
+    if (rawColumns.length > 0 && isObj(rawColumns[0])) {
+      columns = rawColumns
+        .map((c: any) => typeof c?.label === "string" ? c.label : c?.key)
+        .filter((c: any) => typeof c === "string") as string[];
+    } else {
+      columns = rawColumns.map((c: any) => String(c));
+    }
+  }
+
+  let rows: Array<Record<string, unknown>> = [];
+  if (Array.isArray(rawRows)) {
+    if (rawRows.length > 0 && Array.isArray(rawRows[0])) {
+      rows = rawRows.map((r: unknown[]) => {
+        const obj: Record<string, unknown> = {};
+        columns.forEach((col, idx) => {
+          obj[col] = r[idx];
+        });
+        return obj;
+      });
+    } else {
+      rows = rawRows.map((r: unknown) => (isObj(r) ? r : { value: r }));
+    }
+  }
+
+  if (!columns.length && rows.length > 0) {
+    columns = Object.keys(rows[0] || {});
+  }
+
+  return { columns, rows };
 }
 
 function renderBuiltinForm(props: Record<string, unknown>): string {

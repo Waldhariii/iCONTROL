@@ -25,6 +25,23 @@ describe("executePlan", () => {
     if (res.ok) {
       expect(res.value).toContain('data-builtin="table"');
       expect(res.value).toContain("T");
+      expect(res.value).toContain("<table");
+    }
+  });
+
+  it("supports caption + emptyText when rows are empty", () => {
+    const plan: RenderPlan = {
+      ops: [{
+        op: "component",
+        id: "builtin.table",
+        props: { title: "X", caption: "Cap", emptyText: "No rows", rows: [] }
+      }]
+    };
+    const res = executePlan(plan);
+    expect(res.ok).toBe(true);
+    if (res.ok) {
+      expect(res.value).toContain("Cap");
+      expect(res.value).toContain("No rows");
     }
   });
 

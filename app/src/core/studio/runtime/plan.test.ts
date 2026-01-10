@@ -42,6 +42,30 @@ describe("compilePlan", () => {
     }
   });
 
+  it("accepts legacy table shapes (columns objects, rows arrays)", () => {
+    const blueprint = {
+      data: {
+        pages: [{
+          blocks: [
+            {
+              type: "table",
+              title: "Legacy",
+              columns: [{ key: "id", label: "ID" }, { key: "name", label: "Nom" }],
+              rows: [["1", "Alice"], ["2", "Bob"]]
+            }
+          ]
+        }]
+      }
+    };
+    const res = compilePlan(blueprint as any);
+    expect(res.ok).toBe(true);
+    if (res.ok) {
+      const [table] = res.value.ops as any[];
+      expect(table.id).toBe("builtin.table");
+      expect(table.props.title).toBe("Legacy");
+    }
+  });
+
   it("does not stringify valid blocks when mixed with invalid ones", () => {
     const blueprint = {
       data: { pages: [{ blocks: [{ type: "text", text: "A" }, { foo: "bar" }] }] }
