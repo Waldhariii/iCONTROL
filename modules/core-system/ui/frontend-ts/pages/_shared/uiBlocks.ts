@@ -61,6 +61,8 @@ export function appendTable(
   columns: string[],
   rows: Array<Record<string, string>>
 ): void {
+  const maxRows = 200;
+  const safeRows = rows.slice(0, maxRows);
   const table = el("table");
   table.style.cssText = "width:100%;border-collapse:collapse";
 
@@ -75,7 +77,15 @@ export function appendTable(
   table.appendChild(thead);
 
   const tbody = el("tbody");
-  rows.forEach((row) => {
+  if (safeRows.length === 0) {
+    const tr = el("tr");
+    const td = el("td", undefined, "Aucune donnée");
+    td.style.cssText = "padding:8px;border-bottom:1px solid var(--line);opacity:.7";
+    td.colSpan = columns.length || 1;
+    tr.appendChild(td);
+    tbody.appendChild(tr);
+  }
+  safeRows.forEach((row) => {
     const tr = el("tr");
     columns.forEach((c) => {
       const td = el("td", undefined, row[c] ?? "");
@@ -87,6 +97,12 @@ export function appendTable(
   table.appendChild(tbody);
 
   host.appendChild(table);
+
+  if (rows.length > maxRows) {
+    const note = el("div", undefined, `Affichage limité à ${maxRows} lignes (sur ${rows.length}).`);
+    note.style.cssText = "margin-top:8px;opacity:.7;font-size:12px";
+    host.appendChild(note);
+  }
 }
 
 export type UiAction = {
@@ -101,6 +117,7 @@ export function appendActionRow(host: HTMLElement, actions: UiAction[]): HTMLDiv
   row.style.cssText = "display:flex;gap:10px;flex-wrap:wrap;margin-top:10px";
   actions.forEach((action) => {
     const btn = el("button", { type: "button", "data-action-id": action.id }, action.label);
+    btn.setAttribute("aria-label", action.label);
     btn.style.cssText = [
       "padding:8px 12px",
       "border-radius:10px",

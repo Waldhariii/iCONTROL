@@ -30,6 +30,10 @@ body{margin:0;background:radial-gradient(1200px 800px at 20% 0%, #1a1f23 0%, var
   display:grid; place-items:center; cursor:pointer;
 }
 .cxBurger:hover{background:var(--btn2)}
+.cxBurger:focus-visible{
+  outline:2px solid var(--accent);
+  outline-offset:2px;
+}
 .cxMain{
   padding:18px; max-width:1280px; margin:0 auto;
 }
@@ -62,6 +66,10 @@ body{margin:0;background:radial-gradient(1200px 800px at 20% 0%, #1a1f23 0%, var
   color:var(--text); cursor:pointer;
 }
 .cxClose:hover{background:rgba(255,255,255,.06)}
+.cxClose:focus-visible{
+  outline:2px solid var(--accent);
+  outline-offset:2px;
+}
 .cxNav{
   display:flex; flex-direction:column; gap:8px; margin-top:10px;
 }
@@ -72,6 +80,10 @@ body{margin:0;background:radial-gradient(1200px 800px at 20% 0%, #1a1f23 0%, var
   border:1px solid rgba(255,255,255,.06);
 }
 .cxNav a:hover{background:rgba(255,255,255,.06)}
+.cxNav a:focus-visible{
+  outline:2px solid var(--accent);
+  outline-offset:2px;
+}
 .cxNav a.active{
   border-color: rgba(123,44,255,.55);
   background: rgba(123,44,255,.10);
