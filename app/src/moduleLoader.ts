@@ -49,6 +49,18 @@ export function renderRoute(rid: RouteId, root: HTMLElement): void {
         });
       return;
     }
+    if ((rid as any) === "dossiers") {
+      import("../../modules/core-system/ui/frontend-ts/pages/dossiers")
+        .then((m) => m.renderDossiersPage(root))
+        .catch((e) => {
+          /* ICONTROL_LOADER_IMPORT_GUARD_V1 */
+          console.warn("WARN_ROUTE_IMPORT_FAILED", {
+            spec: "../../modules/core-system/ui/frontend-ts/pages/dossiers",
+            err: String(e)
+          });
+        });
+      return;
+    }
     if ((rid as any) === "developer") {
       import("../../modules/core-system/ui/frontend-ts/pages/developer")
         .then((m) => m.renderDeveloper(root))

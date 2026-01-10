@@ -23,6 +23,13 @@ function setActiveLinks(drawer: HTMLElement){
   });
 }
 
+function canSeeDossiers(): boolean {
+  if (!isLoggedIn()) return false;
+  const s = getSession() as any;
+  const r = String(s?.role || "USER").toUpperCase();
+  return r === "SYSADMIN" || r === "DEVELOPER" || r === "ADMIN" || r === "USER";
+}
+
 export function createShell(navItems: NavItem[]){
   const shell = buildMainSystemShell();
   const { root, header, drawer, overlay, main, nav, burger, close, logoutLink, sessionHint } = shell;
@@ -96,6 +103,7 @@ export function createShell(navItems: NavItem[]){
 export function getDefaultNavItems(): NavItem[] {
   return [
     { id:"dashboard", label:"Dashboard", hash:"#/dashboard", show: ()=> true },
+    { id:"dossiers", label:"Dossiers", hash:"#/dossiers", show: ()=> canSeeDossiers() },
     /* ICONTROL_NAV_SYSTEM_LOGS_V1 */
     { id:"system", label:"Systeme", hash:"#/system", show: ()=> isLoggedIn() },
     { id:"logs", label:"Logs", hash:"#/logs", show: ()=> isLoggedIn() },
