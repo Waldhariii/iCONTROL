@@ -59,12 +59,11 @@ describe("dossiers page", () => {
     expect(btn?.disabled).toBe(false);
   });
 
-  it("USER cannot create", () => {
+  it("USER cannot access", () => {
     setSession({ username: "user", role: "USER", issuedAt: Date.now() });
     const root = document.createElement("div");
     renderDossiersPage(root);
-    const btn = root.querySelector("#dossier_create_btn") as HTMLButtonElement | null;
-    expect(btn?.disabled).toBe(true);
+    expect(root.textContent || "").toContain("Access denied");
   });
 
   it("state transition blocked when CLOSED", () => {

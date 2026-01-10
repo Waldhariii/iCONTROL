@@ -1,10 +1,9 @@
 import { getSession } from "/src/localAuth";
+import type { Role } from "/src/runtime/rbac";
 import { navigate } from "/src/router";
 import { safeRender } from "../_shared/mainSystem.shared";
 import { getBrandResolved, setBrandLocalOverride, clearBrandLocalOverride } from "../../../../../../platform-services/branding/brandService";
 import { MAIN_SYSTEM_THEME } from "../_shared/mainSystem.data";
-
-type Role = "USER" | "ADMIN" | "SYSADMIN" | "DEVELOPER";
 
 function getRole(): Role {
   const s = getSession();

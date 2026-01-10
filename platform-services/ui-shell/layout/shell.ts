@@ -27,7 +27,7 @@ function canSeeDossiers(): boolean {
   if (!isLoggedIn()) return false;
   const s = getSession() as any;
   const r = String(s?.role || "USER").toUpperCase();
-  return r === "SYSADMIN" || r === "DEVELOPER" || r === "ADMIN" || r === "USER";
+  return r === "SYSADMIN" || r === "DEVELOPER" || r === "ADMIN";
 }
 
 export function createShell(navItems: NavItem[]){

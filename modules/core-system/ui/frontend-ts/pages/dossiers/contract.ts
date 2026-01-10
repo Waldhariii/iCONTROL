@@ -3,7 +3,7 @@ import type { SafeMode } from "../_shared/safeMode";
 
 export const PAGE_ID = "dossiers";
 export const SAFE_MODE_ALLOWED = true;
-export const REQUIRED_ROLES: Role[] = ["SYSADMIN", "DEVELOPER", "ADMIN", "USER"];
+export const REQUIRED_ROLES: Role[] = ["SYSADMIN", "DEVELOPER", "ADMIN"];
 export const WRITE_ROLES: Role[] = ["SYSADMIN", "DEVELOPER", "ADMIN"];
 
 export function canAccess(role: Role, safeMode: SafeMode): boolean {
