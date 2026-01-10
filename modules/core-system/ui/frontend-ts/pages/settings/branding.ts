@@ -1,6 +1,6 @@
 import { getSession } from "/src/localAuth";
 import { navigate } from "/src/router";
-import { safeRender as safeHtml } from "/src/core/studio/engine/safe-render";
+import { safeRender } from "../_shared/mainSystem.shared";
 import { getBrandResolved, setBrandLocalOverride, clearBrandLocalOverride } from "../../../../../../platform-services/branding/brandService";
 import { MAIN_SYSTEM_THEME } from "../_shared/mainSystem.data";
 
@@ -51,8 +51,9 @@ export function renderBrandingSettings(root: HTMLElement): void {
         <div style="opacity:.8;margin-top:8px">Acces refuse (SYSADMIN/DEVELOPER requis).</div>
       </div>
     `;
-    const verdict = safeHtml(html);
-    root.innerHTML = verdict.ok ? verdict.html : "<div>render_blocked</div>";
+    safeRender(root, () => {
+      root.innerHTML = html;
+    });
     return;
   }
 
@@ -81,8 +82,9 @@ export function renderBrandingSettings(root: HTMLElement): void {
       </div>
     </div>
   `;
-  const verdict = safeHtml(html);
-  root.innerHTML = verdict.ok ? verdict.html : "<div>render_blocked</div>";
+  safeRender(root, () => {
+    root.innerHTML = html;
+  });
 
   const input = root.querySelector<HTMLInputElement>("#brand_app_name");
   const status = root.querySelector<HTMLDivElement>("#brand_status");

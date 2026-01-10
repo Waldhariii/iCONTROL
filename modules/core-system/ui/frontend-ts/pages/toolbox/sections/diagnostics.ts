@@ -1,7 +1,5 @@
 import type { ToolboxSection } from "../contracts";
 import { createSectionCard, appendAction } from "../ui";
-import { executePlan } from "/src/core/studio/runtime/execute";
-import { safeRender } from "/src/core/studio/engine/safe-render";
 
 export const diagnosticsSection: ToolboxSection = {
   id: "diagnostics",
@@ -11,32 +9,42 @@ export const diagnosticsSection: ToolboxSection = {
     card.setAttribute("data-toolbox-section", "diagnostics");
     const body = card.querySelector(".cxBody") as HTMLElement;
 
-    const plan = {
-      ops: [{
-        op: "component",
-        id: "builtin.table",
-        props: {
-          title: "",
-          columns: ["Signal", "Value"],
-          rows: [
-            { Signal: "SAFE_MODE", Value: ctx.safeMode ? "ON" : "OFF" },
-            { Signal: "Role", Value: ctx.role },
-            { Signal: "User", Value: ctx.username },
-            { Signal: "Contract", Value: "RenderPlan SSOT" }
-          ],
-          emptyText: "(empty)"
-        }
-      }]
-    };
+    const table = document.createElement("table");
+    table.style.cssText = "width:100%;border-collapse:collapse;";
+    const thead = document.createElement("thead");
+    const trh = document.createElement("tr");
+    ["Signal", "Value"].forEach((h) => {
+      const th = document.createElement("th");
+      th.textContent = h;
+      th.style.cssText = "text-align:left;padding:6px;border-bottom:1px solid rgba(255,255,255,0.08);opacity:.8;";
+      trh.appendChild(th);
+    });
+    thead.appendChild(trh);
+    table.appendChild(thead);
 
-    const exec = executePlan(plan as any);
-    if (!exec.ok) throw new Error("EXECUTE_PLAN_FAILED");
-    const verdict = safeRender(exec.value);
-    if (!verdict.ok) throw new Error("SAFE_RENDER_BLOCKED");
-    body.innerHTML = verdict.html;
+    const tbody = document.createElement("tbody");
+    [
+      { Signal: "SAFE_MODE", Value: ctx.safeMode ? "ON" : "OFF" },
+      { Signal: "Role", Value: ctx.role },
+      { Signal: "User", Value: ctx.username },
+      { Signal: "Contract", Value: "RenderPlan SSOT" }
+    ].forEach((row) => {
+      const tr = document.createElement("tr");
+      Object.values(row).forEach((v) => {
+        const td = document.createElement("td");
+        td.textContent = String(v);
+        td.style.cssText = "padding:6px;border-bottom:1px solid rgba(255,255,255,0.06);";
+        tr.appendChild(td);
+      });
+      tbody.appendChild(tr);
+    });
+    table.appendChild(tbody);
+    body.innerHTML = "";
+    body.appendChild(table);
 
     appendAction(body, "Refresh", () => {
-      body.innerHTML = verdict.html;
+      body.innerHTML = "";
+      body.appendChild(table);
     }, ctx.safeMode);
 
     root.appendChild(card);
