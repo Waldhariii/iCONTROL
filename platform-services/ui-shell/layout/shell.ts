@@ -1,6 +1,6 @@
 import "./shell.css";
 import { getSession, isLoggedIn, logout } from "../../../app/src/localAuth";
-import { canSeeSettings } from "../../../app/src/runtime/rbac";
+import { canAccessToolbox, canSeeSettings } from "../../../app/src/runtime/rbac";
 import { buildMainSystemShell } from "../../../modules/core-system/ui/frontend-ts/pages/_shared/mainSystem.ui";
 
 export type NavItem = {
@@ -101,6 +101,7 @@ export function getDefaultNavItems(): NavItem[] {
     { id:"account", label:"Compte", hash:"#/account", show: ()=> isLoggedIn() },
     { id:"developer", label:"Développeur", hash:"#/developer", show: ()=> isLoggedIn() },
     { id:"verification", label:"Vérification", hash:"#/verification", show: ()=> isLoggedIn() },
+    { id:"toolbox", label:"Toolbox", hash:"#/toolbox", show: ()=> canAccessToolbox() },
     { id:"settings", label:"Paramètres", hash:"#/settings", show: ()=> canSeeSettings() },
   ];
 }

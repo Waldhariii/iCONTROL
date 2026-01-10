@@ -5,6 +5,7 @@ import { renderLogin } from "../../modules/core-system/ui/frontend-ts/pages/logi
 import { renderDashboard } from "../../modules/core-system/ui/frontend-ts/pages/dashboard";
 import { renderSettingsPage } from "../../modules/core-system/ui/frontend-ts/pages/settings";
 import { renderBrandingSettings } from "../../modules/core-system/ui/frontend-ts/pages/settings/branding";
+import { canAccessToolbox } from "./runtime/rbac";
 
 export function renderRoute(rid: RouteId, root: HTMLElement): void {
 
@@ -67,6 +68,22 @@ export function renderRoute(rid: RouteId, root: HTMLElement): void {
           /* ICONTROL_LOADER_IMPORT_GUARD_V1 */
           console.warn("WARN_ROUTE_IMPORT_FAILED", {
             spec: "../../modules/core-system/ui/frontend-ts/pages/verification",
+            err: String(e)
+          });
+        });
+      return;
+    }
+    if ((rid as any) === "toolbox") {
+      if (!canAccessToolbox()) {
+        root.innerHTML = "<div style=\"padding:12px;opacity:0.9;\"><h2 style=\"margin:0 0 8px 0;\">Access denied</h2><div>Toolbox requires elevated role.</div></div>";
+        return;
+      }
+      import("../../modules/core-system/ui/frontend-ts/pages/toolbox")
+        .then((m) => m.renderToolbox(root))
+        .catch((e) => {
+          /* ICONTROL_LOADER_IMPORT_GUARD_V1 */
+          console.warn("WARN_ROUTE_IMPORT_FAILED", {
+            spec: "../../modules/core-system/ui/frontend-ts/pages/toolbox",
             err: String(e)
           });
         });
