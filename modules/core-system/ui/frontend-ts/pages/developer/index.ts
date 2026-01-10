@@ -8,6 +8,7 @@ import { render_contracts_table } from "./sections/contracts-table";
 import { render_contracts_form } from "./sections/contracts-form";
 import { render_datasources_viewer } from "./sections/datasources-viewer";
 import { render_rules_viewer } from "./sections/rules-viewer";
+import { render_audit_log } from "./sections/audit-log";
 
 export function renderDeveloper(root: HTMLElement): void {
   const role = getRole();
@@ -48,6 +49,12 @@ export function renderDeveloper(root: HTMLElement): void {
       title: "Rules",
       render: (host) => render_rules_viewer(host),
       requiresRole: "SYSADMIN"
+    },
+    {
+      id: "toolbox-audit-log",
+      title: "Audit log",
+      render: (host) => render_audit_log(host),
+      requiresRoles: ["SYSADMIN", "DEVELOPER"]
     }
   ];
 
@@ -62,5 +69,6 @@ export const developerSections = [
   "toolbox-contracts-table",
   "toolbox-contracts-form",
   "toolbox-datasources",
-  "toolbox-rules"
+  "toolbox-rules",
+  "toolbox-audit-log"
 ];

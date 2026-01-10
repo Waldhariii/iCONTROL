@@ -1,3 +1,6 @@
+import { recordObs } from "./audit";
+import { OBS } from "./obsCodes";
+
 export function el<K extends keyof HTMLElementTagNameMap>(
   tag: K,
   attrs?: Record<string, string>,
@@ -146,13 +149,20 @@ export function bindActions(
     btn.addEventListener("click", () => {
       if (action.type === "navigate") {
         const target = action.payload || "#/dashboard";
-        if (!opts.allowRoutes.includes(target)) return;
+        if (!opts.allowRoutes.includes(target)) {
+          recordObs({ code: OBS.WARN_ACTION_BLOCKED, actionId: action.id, detail: "route_not_allowed" });
+          return;
+        }
         window.location.hash = target;
+        recordObs({ code: OBS.WARN_ACTION_EXECUTED, actionId: action.id, detail: `navigate:${target}` });
         return;
       }
       if (action.type === "exportCsv") {
         const rows = opts.exportRows || [];
-        if (!rows.length) return;
+        if (!rows.length) {
+          recordObs({ code: OBS.WARN_EXPORT_EMPTY, actionId: action.id, detail: "export_empty" });
+          return;
+        }
         const built = buildCsv(rows, maxExportRows);
         const blob = new Blob([built.csv], { type: "text/csv" });
         const url = URL.createObjectURL(blob);
@@ -161,9 +171,14 @@ export function bindActions(
         a.click();
         a.remove();
         URL.revokeObjectURL(url);
+        recordObs({
+          code: OBS.WARN_ACTION_EXECUTED,
+          actionId: action.id,
+          detail: `exportCsv:rows=${built.rowCount}`
+        });
         return;
       }
-      // noop: explicit no-op
+      recordObs({ code: OBS.WARN_ACTION_EXECUTED, actionId: action.id, detail: "noop" });
     });
   });
 }

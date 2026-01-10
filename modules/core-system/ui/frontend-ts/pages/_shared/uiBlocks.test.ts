@@ -1,7 +1,9 @@
 // @vitest-environment jsdom
 // @vitest-environment-options { "url": "http://localhost" }
 import { describe, expect, it } from "vitest";
-import { appendActionRow, appendTable, buildCsv } from "./uiBlocks";
+import { clearAuditLog, getAuditLog } from "./audit";
+import { OBS } from "./obsCodes";
+import { appendActionRow, appendTable, bindActions, buildCsv } from "./uiBlocks";
 
 function makeHost(): HTMLElement {
   const host = document.createElement("div");
@@ -42,5 +44,18 @@ describe("uiBlocks accessibility", () => {
     expect(result.rowCount).toBe(200);
     const lines = result.csv.trim().split("\n");
     expect(lines.length).toBe(201);
+  });
+
+  it("logs blocked actions for observability", () => {
+    clearAuditLog();
+    const host = makeHost();
+    const row = appendActionRow(host, [{ id: "nav", label: "Nav", type: "navigate", payload: "#/nope" }]);
+    bindActions(row, [{ id: "nav", label: "Nav", type: "navigate", payload: "#/nope" }], {
+      allowRoutes: []
+    });
+    const btn = row.querySelector("button[data-action-id='nav']") as HTMLButtonElement | null;
+    btn?.click();
+    const log = getAuditLog();
+    expect(log.some((entry) => entry.code === OBS.WARN_ACTION_BLOCKED)).toBe(true);
   });
 });

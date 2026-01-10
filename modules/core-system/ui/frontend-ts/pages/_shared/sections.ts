@@ -1,3 +1,6 @@
+import { recordObs } from "./audit";
+import { OBS } from "./obsCodes";
+
 export type SectionSpec = {
   id: string;
   title: string;
@@ -56,28 +59,46 @@ export function mountSections(
 
   sections.forEach((section) => {
     if (section.requiresRoles && ctx.role && !section.requiresRoles.includes(ctx.role)) {
-      renderErrorCard(root, "WARN_SECTION_BLOCKED", {
+      renderErrorCard(root, OBS.WARN_SECTION_BLOCKED, {
         page: ctx.page,
         section: section.id,
         message: `requiresRoles=${section.requiresRoles.join(",")}`
+      });
+      recordObs({
+        code: OBS.WARN_SECTION_BLOCKED,
+        page: ctx.page,
+        section: section.id,
+        detail: "requiresRoles"
       });
       failed.push(section.id);
       return;
     }
     if (section.requiresRole && ctx.role && ctx.role !== section.requiresRole) {
-      renderErrorCard(root, "WARN_SECTION_BLOCKED", {
+      renderErrorCard(root, OBS.WARN_SECTION_BLOCKED, {
         page: ctx.page,
         section: section.id,
         message: `requiresRole=${section.requiresRole}`
+      });
+      recordObs({
+        code: OBS.WARN_SECTION_BLOCKED,
+        page: ctx.page,
+        section: section.id,
+        detail: "requiresRole"
       });
       failed.push(section.id);
       return;
     }
     if (section.safeModeOk === false && ctx.safeMode === "STRICT") {
-      renderErrorCard(root, "WARN_SECTION_BLOCKED", {
+      renderErrorCard(root, OBS.WARN_SECTION_BLOCKED, {
         page: ctx.page,
         section: section.id,
         message: "safeMode=STRICT"
+      });
+      recordObs({
+        code: OBS.WARN_SECTION_BLOCKED,
+        page: ctx.page,
+        section: section.id,
+        detail: "safeMode=STRICT"
       });
       failed.push(section.id);
       return;
@@ -88,10 +109,16 @@ export function mountSections(
       rendered.push(section.id);
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
-      renderErrorCard(root, "WARN_SECTION_CRASH", {
+      renderErrorCard(root, OBS.WARN_SECTION_CRASH, {
         page: ctx.page,
         section: section.id,
         message: msg
+      });
+      recordObs({
+        code: OBS.WARN_SECTION_CRASH,
+        page: ctx.page,
+        section: section.id,
+        detail: "exception"
       });
       failed.push(section.id);
     }
