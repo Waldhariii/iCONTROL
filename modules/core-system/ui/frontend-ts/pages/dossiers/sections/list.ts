@@ -1,15 +1,39 @@
 import type { Role } from "/src/runtime/rbac";
-import { appendActionRow, bindActions, sectionCard } from "../../_shared/uiBlocks";
+import { recordObs } from "../../_shared/audit";
+import { OBS } from "../../_shared/obsCodes";
+import { sectionCard } from "../../_shared/uiBlocks";
 import { getSafeMode } from "../../_shared/safeMode";
-import { listDossiers, setDossierState, type Dossier } from "../model";
+import { getDossiersFilters } from "./filters";
 import { canWrite } from "../contract";
+import { listDossiers, transitionDossier, type Dossier } from "../model";
 
-function buildTable(rows: Dossier[], role: Role, canEdit: boolean, safeModeStrict: boolean, onAction: () => void): HTMLElement {
+const selected = new Set<string>();
+
+export function getSelectedIds(): string[] {
+  return Array.from(selected);
+}
+
+export function clearSelected(): void {
+  selected.clear();
+}
+
+function setSelected(id: string, next: boolean): void {
+  if (next) selected.add(id);
+  else selected.delete(id);
+}
+
+function buildTable(
+  rows: Dossier[],
+  role: Role,
+  canEdit: boolean,
+  safeModeStrict: boolean,
+  onAction: () => void
+): HTMLElement {
   const table = document.createElement("table");
   table.style.cssText = "width:100%;border-collapse:collapse";
   const thead = document.createElement("thead");
   const trh = document.createElement("tr");
-  ["ID", "Titre", "Etat", "Owner", "Actions"].forEach((h) => {
+  ["Sel", "ID", "Titre", "Etat", "Owner", "Actions"].forEach((h) => {
     const th = document.createElement("th");
     th.textContent = h;
     th.style.cssText = "text-align:left;padding:8px;border-bottom:1px solid var(--line);font-size:12px;opacity:.85";
@@ -21,6 +45,16 @@ function buildTable(rows: Dossier[], role: Role, canEdit: boolean, safeModeStric
   const tbody = document.createElement("tbody");
   rows.forEach((d) => {
     const tr = document.createElement("tr");
+
+    const tdSel = document.createElement("td");
+    tdSel.style.cssText = "padding:8px;border-bottom:1px solid var(--line)";
+    const cb = document.createElement("input");
+    cb.type = "checkbox";
+    cb.checked = selected.has(d.id);
+    cb.addEventListener("change", () => setSelected(d.id, cb.checked));
+    tdSel.appendChild(cb);
+    tr.appendChild(tdSel);
+
     [d.id, d.title, d.state, d.owner].forEach((v) => {
       const td = document.createElement("td");
       td.textContent = String(v);
@@ -33,35 +67,55 @@ function buildTable(rows: Dossier[], role: Role, canEdit: boolean, safeModeStric
     const actionsWrap = document.createElement("div");
     actionsWrap.style.cssText = "display:flex;gap:6px;flex-wrap:wrap";
 
-    const mkBtn = (label: string, onClick: () => void, disabled: boolean) => {
+    const mkBtn = (label: string, onClick: () => void, blockedReason?: string) => {
       const btn = document.createElement("button");
       btn.type = "button";
       btn.textContent = label;
       btn.style.cssText = "padding:4px 8px;border-radius:8px;border:1px solid var(--line);background:transparent;color:inherit;cursor:pointer;";
-      if (disabled) {
-        btn.disabled = true;
+      if (blockedReason) {
         btn.style.opacity = "0.5";
+        btn.addEventListener("click", () => {
+          if (blockedReason === "safeMode") {
+            recordObs({ code: OBS.WARN_SAFE_MODE_WRITE_BLOCKED, actionId: "dossier.state", detail: "safeModeStrict" });
+            return;
+          }
+          recordObs({ code: OBS.WARN_ACTION_BLOCKED, actionId: "dossier.state", detail: blockedReason });
+        });
       } else {
         btn.addEventListener("click", onClick);
       }
       return btn;
     };
 
-    actionsWrap.appendChild(mkBtn("Ouvrir", () => {
-      window.location.hash = `#/dossiers/${d.id}`;
-    }, false));
+    actionsWrap.appendChild(
+      mkBtn("Ouvrir", () => {
+        window.location.hash = `#/dossiers/${d.id}`;
+      })
+    );
 
-    const writeBlocked = !canEdit || safeModeStrict || d.state === "CLOSED";
+    let blockedReason: string | undefined;
+    if (safeModeStrict) blockedReason = "safeMode";
+    else if (!canEdit) blockedReason = "rbac";
+    else if (d.state === "CLOSED") blockedReason = "closed";
     if (d.state !== "CLOSED") {
-      actionsWrap.appendChild(mkBtn(d.state === "LOCKED" ? "Delocker" : "Locker", () => {
-        setDossierState(role, d.id, d.state === "LOCKED" ? "OPEN" : "LOCKED");
-        onAction();
-      }, writeBlocked));
-
-      actionsWrap.appendChild(mkBtn("Fermer", () => {
-        setDossierState(role, d.id, "CLOSED");
-        onAction();
-      }, writeBlocked));
+      actionsWrap.appendChild(
+        mkBtn("En cours", () => {
+          transitionDossier(role, d.id, "IN_PROGRESS");
+          onAction();
+        }, blockedReason)
+      );
+      actionsWrap.appendChild(
+        mkBtn("En attente", () => {
+          transitionDossier(role, d.id, "WAITING");
+          onAction();
+        }, blockedReason)
+      );
+      actionsWrap.appendChild(
+        mkBtn("Fermer", () => {
+          transitionDossier(role, d.id, "CLOSED");
+          onAction();
+        }, blockedReason)
+      );
     }
 
     tdActions.appendChild(actionsWrap);
@@ -76,7 +130,13 @@ export function renderDossiersList(root: HTMLElement, role: Role): void {
   const card = sectionCard("Dossiers — liste");
   const safeMode = getSafeMode();
   const canEdit = canWrite(role);
-  const rows = listDossiers();
+  const filters = getDossiersFilters();
+  const rows = listDossiers().filter((d) => {
+    if (filters.status !== "ALL" && d.state !== filters.status) return false;
+    const hay = `${d.id} ${d.title} ${d.owner} ${d.clientName || ""}`.toLowerCase();
+    if (filters.query && !hay.includes(filters.query.toLowerCase())) return false;
+    return true;
+  });
   const refresh = () => renderDossiersList(root, role);
 
   if (rows.length === 0) {
@@ -87,20 +147,5 @@ export function renderDossiersList(root: HTMLElement, role: Role): void {
   } else {
     card.appendChild(buildTable(rows, role, canEdit, safeMode === "STRICT", refresh));
   }
-
-  // Export CSV (read-only, still blocked in SAFE_MODE strict by uiBlocks)
-  const actions = [
-    { id: "export_csv", label: "Exporter CSV", type: "exportCsv" as const }
-  ];
-  const row = appendActionRow(card, actions);
-  bindActions(row, actions, {
-    allowRoutes: ["#/dossiers"],
-    exportRows: rows.map((d) => ({
-      id: d.id,
-      title: d.title,
-      state: d.state,
-      owner: d.owner
-    }))
-  });
   root.appendChild(card);
 }

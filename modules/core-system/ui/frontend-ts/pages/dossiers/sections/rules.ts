@@ -8,7 +8,8 @@ export function renderDossiersRules(root: HTMLElement): void {
         { key: "Roles", value: "SYSADMIN / DEVELOPER / ADMIN / USER" },
         { key: "Ecriture", value: "SYSADMIN/DEVELOPER/ADMIN seulement" },
         { key: "SAFE_MODE STRICT", value: "actions d'ecriture bloquees" },
-        { key: "CLOSED", value: "edits bloques, actions masquees" }
+        { key: "CLOSED", value: "edits bloques, actions masquees" },
+        { key: "Workflow", value: "OPEN → IN_PROGRESS → WAITING → CLOSED" }
       ]
     })
   );

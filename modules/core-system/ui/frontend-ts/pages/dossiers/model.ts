@@ -4,8 +4,15 @@ import { recordObs } from "../_shared/audit";
 import { OBS } from "../_shared/obsCodes";
 import { canWrite } from "./contract";
 
-export type DossierState = "OPEN" | "LOCKED" | "CLOSED";
+export type DossierState = "OPEN" | "IN_PROGRESS" | "WAITING" | "CLOSED";
 export type DossierKind = "INTERVENTION";
+
+export type DossierHistoryEntry = {
+  ts: string;
+  actorRole: Role;
+  actionId: string;
+  meta?: string;
+};
 
 export type Dossier = {
   id: string;
@@ -18,6 +25,7 @@ export type Dossier = {
   notes?: string;
   clientName?: string;
   address?: string;
+  history: DossierHistoryEntry[];
 };
 
 const STORAGE_KEY = "icontrol_dossiers_v1";
@@ -27,7 +35,11 @@ export function listDossiers(storage: Storage = window.localStorage): Dossier[] 
     const raw = storage.getItem(STORAGE_KEY);
     if (!raw) return [];
     const parsed = JSON.parse(raw) as Dossier[];
-    return Array.isArray(parsed) ? parsed : [];
+    if (!Array.isArray(parsed)) return [];
+    return parsed.map((d) => ({
+      ...d,
+      history: Array.isArray(d.history) ? d.history : []
+    }));
   } catch {
     return [];
   }
@@ -47,7 +59,7 @@ export function createDossier(
     return { ok: false, reason: "rbac" };
   }
   if (getSafeMode() === "STRICT") {
-    recordObs({ code: OBS.WARN_ACTION_BLOCKED, actionId: "dossier.create", detail: "safe_mode" });
+    recordObs({ code: OBS.WARN_SAFE_MODE_WRITE_BLOCKED, actionId: "dossier.create", detail: "safe_mode" });
     return { ok: false, reason: "safe_mode" };
   }
   const now = new Date().toISOString();
@@ -55,12 +67,14 @@ export function createDossier(
     ...payload,
     id: `DOS-${Math.random().toString(36).slice(2, 10).toUpperCase()}`,
     createdAt: now,
-    updatedAt: now
+    updatedAt: now,
+    history: []
   };
+  appendHistory(dossier, role, "dossier.create", dossier.id);
   const rows = listDossiers(storage);
   rows.unshift(dossier);
   writeAll(storage, rows);
-  recordObs({ code: OBS.WARN_ACTION_EXECUTED, actionId: "dossier.create", detail: dossier.id });
+  recordObs({ code: OBS.INFO_WRITE_OK, actionId: "dossier.create", detail: dossier.id });
   return { ok: true, dossier };
 }
 
@@ -79,21 +93,31 @@ export function updateDossier(
     return { ok: false, reason: "rbac" };
   }
   if (getSafeMode() === "STRICT") {
-    recordObs({ code: OBS.WARN_ACTION_BLOCKED, actionId: "dossier.update", detail: "safe_mode" });
+    recordObs({ code: OBS.WARN_SAFE_MODE_WRITE_BLOCKED, actionId: "dossier.update", detail: "safe_mode" });
     return { ok: false, reason: "safe_mode" };
   }
-  if (current.state === "LOCKED" || current.state === "CLOSED") {
+  if (current.state === "CLOSED") {
     recordObs({ code: OBS.WARN_ACTION_BLOCKED, actionId: "dossier.update", detail: "state_blocked" });
     return { ok: false, reason: "state_blocked" };
   }
   const next: Dossier = { ...current, ...patch, updatedAt: new Date().toISOString() };
+  appendHistory(next, role, "dossier.update", id);
   rows[idx] = next;
   writeAll(storage, rows);
-  recordObs({ code: OBS.WARN_ACTION_EXECUTED, actionId: "dossier.update", detail: id });
+  recordObs({ code: OBS.INFO_WRITE_OK, actionId: "dossier.update", detail: id });
   return { ok: true, dossier: next };
 }
 
 export function setDossierState(
+  role: Role,
+  id: string,
+  nextState: DossierState,
+  storage: Storage = window.localStorage
+): { ok: true; dossier: Dossier } | { ok: false; reason: string } {
+  return transitionDossier(role, id, nextState, storage);
+}
+
+export function transitionDossier(
   role: Role,
   id: string,
   nextState: DossierState,
@@ -108,7 +132,7 @@ export function setDossierState(
     return { ok: false, reason: "rbac" };
   }
   if (getSafeMode() === "STRICT") {
-    recordObs({ code: OBS.WARN_ACTION_BLOCKED, actionId: "dossier.state", detail: "safe_mode" });
+    recordObs({ code: OBS.WARN_SAFE_MODE_WRITE_BLOCKED, actionId: "dossier.state", detail: "safe_mode" });
     return { ok: false, reason: "safe_mode" };
   }
   if (current.state === "CLOSED") {
@@ -116,10 +140,26 @@ export function setDossierState(
     return { ok: false, reason: "closed" };
   }
   const next: Dossier = { ...current, state: nextState, updatedAt: new Date().toISOString() };
+  appendHistory(next, role, "dossier.state", `${id}:${nextState}`);
   rows[idx] = next;
   writeAll(storage, rows);
-  recordObs({ code: OBS.WARN_ACTION_EXECUTED, actionId: "dossier.state", detail: `${id}:${nextState}` });
+  recordObs({ code: OBS.INFO_WRITE_OK, actionId: "dossier.state", detail: `${id}:${nextState}` });
   return { ok: true, dossier: next };
+}
+
+export function appendHistory(
+  dossier: Dossier,
+  role: Role,
+  actionId: string,
+  meta?: string
+): void {
+  const entry: DossierHistoryEntry = {
+    ts: new Date().toISOString(),
+    actorRole: role,
+    actionId,
+    meta
+  };
+  dossier.history = [...(dossier.history || []), entry];
 }
 
 export function getDossier(id: string, storage: Storage = window.localStorage): Dossier | undefined {
@@ -133,6 +173,23 @@ export function getStorageUsage(storage: Storage = window.localStorage): { key: 
 
 export function getStorageKey(): string {
   return STORAGE_KEY;
+}
+
+export function resetDossiers(
+  role: Role,
+  storage: Storage = window.localStorage
+): { ok: true } | { ok: false; reason: string } {
+  if (!canWrite(role)) {
+    recordObs({ code: OBS.WARN_ACTION_BLOCKED, actionId: "dossier.reset", detail: "rbac" });
+    return { ok: false, reason: "rbac" };
+  }
+  if (getSafeMode() === "STRICT") {
+    recordObs({ code: OBS.WARN_SAFE_MODE_WRITE_BLOCKED, actionId: "dossier.reset", detail: "safe_mode" });
+    return { ok: false, reason: "safe_mode" };
+  }
+  storage.removeItem(STORAGE_KEY);
+  recordObs({ code: OBS.INFO_WRITE_OK, actionId: "dossier.reset", detail: "cleared" });
+  return { ok: true };
 }
 
 export function createDossiersModel(storage: Storage = window.localStorage): {
