@@ -1,5 +1,7 @@
 import { getRole } from "/src/runtime/rbac";
 import { getSafeMode } from "/src/core/studio/internal/policy";
+import { safeRender as safeHtml } from "/src/core/studio/engine/safe-render";
+import { executePlan } from "/src/core/studio/runtime/execute";
 import { renderAccessDenied, safeRender } from "../_shared/mainSystem.shared";
 import { mountSections, type SectionSpec } from "../_shared/sections";
 import { canAccess } from "./contract";
@@ -33,45 +35,34 @@ export function renderVerification(root: HTMLElement): void {
         p.textContent = "Audit trail for verification requests.";
         wrap.appendChild(p);
 
-        const table = document.createElement("table");
-        table.setAttribute("style", "width:100%;border-collapse:collapse;");
-        const thead = document.createElement("thead");
-        const headRow = document.createElement("tr");
-        const thId = document.createElement("th");
-        thId.setAttribute("style", "text-align:left;padding:8px;border-bottom:1px solid #444;");
-        thId.textContent = "ID";
-        const thSub = document.createElement("th");
-        thSub.setAttribute("style", "text-align:left;padding:8px;border-bottom:1px solid #444;");
-        thSub.textContent = "Sujet";
-        const thStatus = document.createElement("th");
-        thStatus.setAttribute("style", "text-align:left;padding:8px;border-bottom:1px solid #444;");
-        thStatus.textContent = "Statut";
-        headRow.appendChild(thId);
-        headRow.appendChild(thSub);
-        headRow.appendChild(thStatus);
-        thead.appendChild(headRow);
+        const columns = ["ID", "Sujet", "Statut"];
+        const rows = model.items.map((item) => ({
+          ID: item.id,
+          Sujet: item.subject,
+          Statut: item.status
+        }));
 
-        const tbody = document.createElement("tbody");
-        model.items.forEach((item) => {
-          const row = document.createElement("tr");
-          const tdId = document.createElement("td");
-          tdId.setAttribute("style", "padding:8px;border-bottom:1px solid #2a2a2a;");
-          tdId.textContent = item.id;
-          const tdSub = document.createElement("td");
-          tdSub.setAttribute("style", "padding:8px;border-bottom:1px solid #2a2a2a;");
-          tdSub.textContent = item.subject;
-          const tdStatus = document.createElement("td");
-          tdStatus.setAttribute("style", "padding:8px;border-bottom:1px solid #2a2a2a;");
-          tdStatus.textContent = item.status;
-          row.appendChild(tdId);
-          row.appendChild(tdSub);
-          row.appendChild(tdStatus);
-          tbody.appendChild(row);
-        });
+        const plan = {
+          ops: [{
+            op: "component",
+            id: "builtin.table",
+            props: {
+              title: "",
+              columns,
+              rows,
+              emptyText: "(aucune ligne)"
+            }
+          }]
+        };
 
-        table.appendChild(thead);
-        table.appendChild(tbody);
-        wrap.appendChild(table);
+        const exec = executePlan(plan as any);
+        if (!exec.ok) throw new Error("EXECUTE_PLAN_FAILED");
+        const verdict = safeHtml(exec.value);
+        if (!verdict.ok) throw new Error("SAFE_RENDER_BLOCKED");
+
+        const tableHost = document.createElement("div");
+        tableHost.innerHTML = verdict.html;
+        wrap.appendChild(tableHost);
         host.appendChild(wrap);
       }
     }
