@@ -1,5 +1,5 @@
 import { getSafeMode } from "../_shared/safeMode";
-import { listFlags, setFlag } from "../../shared/featureFlags";
+import { listFlags, setFlag, FLAG_DEFS } from "../../shared/featureFlags";
 import { MAIN_SYSTEM_LAYOUT } from "../_shared/mainSystem.data";
 
 export type SystemFlagVM = {
@@ -46,4 +46,12 @@ export function createSystemModel(storage: Storage = window.localStorage): Syste
 
 export function updateFlag(id: string, next: boolean, storage: Storage = window.localStorage): void {
   setFlag(id as any, next, storage);
+}
+
+export function setAllFlags(next: boolean, storage: Storage = window.localStorage): void {
+  listFlags(storage).forEach((f) => setFlag(f.def.id, next, storage));
+}
+
+export function resetFlags(storage: Storage = window.localStorage): void {
+  FLAG_DEFS.forEach((f) => setFlag(f.id, f.defaultValue, storage));
 }

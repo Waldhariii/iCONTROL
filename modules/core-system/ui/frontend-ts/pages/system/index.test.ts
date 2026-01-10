@@ -36,7 +36,7 @@ describe("system page", () => {
     setSession({ username: "admin", role: "ADMIN", issuedAt: Date.now() });
     const root = document.createElement("div");
     renderSystemPage(root);
-    expect(systemSections.length).toBe(3);
+    expect(systemSections.length).toBe(5);
     expect(root.textContent || "").toContain("SAFE_MODE");
   });
 
@@ -45,5 +45,14 @@ describe("system page", () => {
     const root = document.createElement("div");
     renderSystemPage(root);
     expect(root.textContent || "").toContain("Access denied");
+  });
+
+  it("STRICT hides write actions", () => {
+    setSession({ username: "admin", role: "ADMIN", issuedAt: Date.now() });
+    (globalThis as any).ICONTROL_SAFE_MODE = "STRICT";
+    const root = document.createElement("div");
+    renderSystemPage(root);
+    const btn = root.querySelector("button[data-action-id='flags_enable_all']") as HTMLButtonElement | null;
+    expect(btn?.style.display).toBe("none");
   });
 });
