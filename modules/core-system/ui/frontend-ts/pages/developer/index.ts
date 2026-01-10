@@ -2,6 +2,7 @@ import { getRole } from "/src/runtime/rbac";
 import { getSafeMode } from "../_shared/safeMode";
 import { renderAccessDenied, safeRender } from "../_shared/mainSystem.shared";
 import { mountSections, type SectionSpec } from "../_shared/sections";
+import { sectionCard } from "../_shared/uiBlocks";
 import { canAccess } from "./contract";
 import { render_registry_viewer } from "./sections/registry-viewer";
 import { render_contracts_table } from "./sections/contracts-table";
@@ -58,9 +59,34 @@ export function renderDeveloper(root: HTMLElement): void {
     }
   ];
 
+  const isAllowedForRole = (section: SectionSpec): boolean => {
+    if (section.requiresRoles) return section.requiresRoles.includes(role);
+    if (section.requiresRole) return section.requiresRole === role;
+    return true;
+  };
+
+  const allowedSections = sections.filter(isAllowedForRole);
+  const hiddenSections = sections.filter((s) => !isAllowedForRole(s));
+
   safeRender(root, () => {
     root.innerHTML = "";
-    mountSections(root, sections, { page: "developer", role, safeMode });
+    if (hiddenSections.length > 0) {
+      const card = sectionCard("Sections réservées");
+      const note = document.createElement("div");
+      note.style.cssText = "opacity:.8;margin-bottom:8px";
+      note.textContent = "Certaines sections sont visibles uniquement pour SYSADMIN.";
+      card.appendChild(note);
+      const list = document.createElement("ul");
+      list.style.cssText = "margin:0;padding-left:18px;opacity:.9";
+      hiddenSections.forEach((s) => {
+        const li = document.createElement("li");
+        li.textContent = `${s.title} (${s.id})`;
+        list.appendChild(li);
+      });
+      card.appendChild(list);
+      root.appendChild(card);
+    }
+    mountSections(root, allowedSections, { page: "developer", role, safeMode });
   });
 }
 

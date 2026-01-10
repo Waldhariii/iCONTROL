@@ -65,7 +65,9 @@ describe("developer page", () => {
     (globalThis as any).ICONTROL_SAFE_MODE = "COMPAT";
     const root = document.createElement("div");
     renderDeveloper(root);
-    expect(root.textContent || "").toContain("WARN_SECTION_BLOCKED");
+    expect(root.textContent || "").toContain("Sections réservées");
+    expect(root.textContent || "").toContain("toolbox-rules");
+    expect(root.textContent || "").not.toContain("WARN_SECTION_BLOCKED");
   });
 
   it("denies access for non-authorized roles", () => {
@@ -73,5 +75,13 @@ describe("developer page", () => {
     const root = document.createElement("div");
     renderDeveloper(root);
     expect(root.textContent || "").toContain("Access denied");
+  });
+
+  it("does not show reserved card for SYSADMIN", () => {
+    setSession({ username: "admin", role: "SYSADMIN", issuedAt: Date.now() });
+    const root = document.createElement("div");
+    renderDeveloper(root);
+    expect(root.textContent || "").not.toContain("Sections réservées");
+    expect(root.textContent || "").toContain("Rules");
   });
 });
