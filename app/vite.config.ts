@@ -6,7 +6,7 @@ export default defineConfig({
   test: {
     include: [
       "src/**/*.{test,spec}.ts",
-      "../modules/core-system/ui/frontend-ts/pages/**/index.test.ts"
+      "../modules/core-system/ui/frontend-ts/pages/**/*.test.ts"
     ]
   }
 });

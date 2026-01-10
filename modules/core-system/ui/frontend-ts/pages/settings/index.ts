@@ -1,53 +1,71 @@
-import { getSession } from "/src/localAuth";
-import { navigate } from "/src/router";
-
-type Role = "USER" | "ADMIN" | "SYSADMIN" | "DEVELOPER";
-
-function getRole(): Role {
-  const s = getSession();
-  return (s?.role || "USER") as Role;
-}
-
-function canSeeBranding(): boolean {
-  const r = getRole();
-  return r === "SYSADMIN" || r === "DEVELOPER";
-}
+import { safeRender } from "../_shared/mainSystem.shared";
+import { mountSections, type SectionSpec } from "../_shared/sections";
 
 export function renderSettingsPage(root: HTMLElement): void {
   if (!root) return;
 
-  const showBranding = canSeeBranding();
+  const sections: SectionSpec[] = [
+    {
+      id: "settings-header",
+      title: "Parametres",
+      render: (host) => {
+        const wrap = document.createElement("div");
+        wrap.setAttribute("style", "max-width:980px;margin:26px auto;padding:0 16px");
+        const title = document.createElement("div");
+        title.setAttribute("style", "font-size:22px;font-weight:900");
+        title.textContent = "Parametres";
+        const desc = document.createElement("div");
+        desc.setAttribute("style", "opacity:.8;margin-top:8px");
+        desc.textContent = "Configuration du systeme.";
+        wrap.appendChild(title);
+        wrap.appendChild(desc);
+        host.appendChild(wrap);
+      }
+    },
+    {
+      id: "settings-cards",
+      title: "Cartes",
+      render: (host) => {
+        const grid = document.createElement("div");
+        grid.setAttribute("style", "margin-top:16px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px");
 
-  root.innerHTML = `
-    <div style="max-width:980px;margin:26px auto;padding:0 16px">
-      <div style="font-size:22px;font-weight:900">Parametres</div>
-      <div style="opacity:.8;margin-top:8px">Configuration du systeme.</div>
+        const cardAccount = document.createElement("div");
+        cardAccount.setAttribute("style", "padding:14px;border-radius:18px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06)");
+        const accountTitle = document.createElement("div");
+        accountTitle.setAttribute("style", "font-weight:900");
+        accountTitle.textContent = "Compte";
+        const accountText = document.createElement("div");
+        accountText.setAttribute("style", "opacity:.8;margin-top:6px");
+        accountText.textContent = "Preferences et securite.";
+        cardAccount.appendChild(accountTitle);
+        cardAccount.appendChild(accountText);
 
-      <div style="margin-top:16px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px">
-        <div style="padding:14px;border-radius:18px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06)">
-          <div style="font-weight:900">Compte</div>
-          <div style="opacity:.8;margin-top:6px">Preferences et securite.</div>
-        </div>
-        <div style="padding:14px;border-radius:18px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06)">
-          <div style="font-weight:900">Systeme</div>
-          <div style="opacity:.8;margin-top:6px">Diagnostics et maintenance.</div>
-        </div>
-      </div>
+        const cardSystem = document.createElement("div");
+        cardSystem.setAttribute("style", "padding:14px;border-radius:18px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06)");
+        const systemTitle = document.createElement("div");
+        systemTitle.setAttribute("style", "font-weight:900");
+        systemTitle.textContent = "Systeme";
+        const systemText = document.createElement("div");
+        systemText.setAttribute("style", "opacity:.8;margin-top:6px");
+        systemText.textContent = "Diagnostics et maintenance.";
+        cardSystem.appendChild(systemTitle);
+        cardSystem.appendChild(systemText);
 
-      ${showBranding ? `
-      <div style="margin-top:16px;padding:14px;border-radius:18px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06)">
-        <div style="font-weight:900">Identite & Marque</div>
-        <div style="opacity:.8;margin-top:6px">Nom, logo, et presentation.</div>
-        <button id="go_branding" style="margin-top:10px;padding:10px 12px;border-radius:12px;border:1px solid rgba(255,255,255,0.15);background:transparent;color:inherit;cursor:pointer">Branding</button>
-      </div>
-      ` : ""}
-    </div>
-  `;
+        grid.appendChild(cardAccount);
+        grid.appendChild(cardSystem);
 
-  if (showBranding) {
-    const btn = root.querySelector<HTMLButtonElement>("#go_branding");
-    if (btn) btn.onclick = () => navigate("#/settings/branding");
-  }
+        const wrap = document.createElement("div");
+        wrap.setAttribute("style", "max-width:980px;margin:0 auto;padding:0 16px");
+        wrap.appendChild(grid);
+        host.appendChild(wrap);
+      }
+    }
+  ];
+
+  safeRender(root, () => {
+    root.innerHTML = "";
+    mountSections(root, sections, { page: "settings" });
+  });
 }
 
 // EXPECTED RESULT:
