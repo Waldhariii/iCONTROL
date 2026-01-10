@@ -7,18 +7,39 @@ import { renderSettingsPage } from "../../modules/core-system/ui/frontend-ts/pag
 import { renderBrandingSettings } from "../../modules/core-system/ui/frontend-ts/pages/settings/branding";
 
 export function renderRoute(rid: RouteId, root: HTMLElement): void {
-  
+
   // RUNTIME_SMOKE_ROUTE_V2
   try {
     if ((rid as any) === "runtime_smoke") {
-      import("./pages/runtime-smoke").then((m) => m.renderRuntimeSmoke(mount));
+      import("./pages/runtime-smoke").then((m) => m.renderRuntimeSmoke(root));
       return;
     }
   } catch (e) {
     console.warn("WARN_RUNTIME_SMOKE_ROUTE", String(e));
   }
 
-if (rid === "login") return renderLogin(root);
+  try {
+    if ((rid as any) === "users") {
+      import("../../modules/core-system/ui/frontend-ts/pages/users").then((m) => m.renderUsers(root));
+      return;
+    }
+    if ((rid as any) === "account") {
+      import("../../modules/core-system/ui/frontend-ts/pages/account").then((m) => m.renderAccount(root));
+      return;
+    }
+    if ((rid as any) === "developer") {
+      import("../../modules/core-system/ui/frontend-ts/pages/developer").then((m) => m.renderDeveloper(root));
+      return;
+    }
+    if ((rid as any) === "verification") {
+      import("../../modules/core-system/ui/frontend-ts/pages/verification").then((m) => m.renderVerification(root));
+      return;
+    }
+  } catch (e) {
+    console.warn("WARN_MAIN_SYSTEM_ROUTE", String(e));
+  }
+
+  if (rid === "login") return renderLogin(root);
   if (rid === "dashboard") return renderDashboard(root);
   if (rid === "settings") return renderSettingsPage(root);
   if (rid === "settings_branding") return renderBrandingSettings(root);
