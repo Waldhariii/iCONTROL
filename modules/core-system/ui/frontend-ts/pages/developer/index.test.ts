@@ -67,4 +67,11 @@ describe("developer page", () => {
     renderDeveloper(root);
     expect(root.textContent || "").toContain("WARN_SECTION_BLOCKED");
   });
+
+  it("denies access for non-authorized roles", () => {
+    setSession({ username: "user", role: "USER", issuedAt: Date.now() });
+    const root = document.createElement("div");
+    renderDeveloper(root);
+    expect(root.textContent || "").toContain("Access denied");
+  });
 });
