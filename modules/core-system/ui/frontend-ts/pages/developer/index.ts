@@ -4,6 +4,13 @@ import { renderAccessDenied, safeRender } from "../_shared/mainSystem.shared";
 import { mountSections, type SectionSpec } from "../_shared/sections";
 import { canAccess } from "./contract";
 import { createDeveloperModel } from "./model";
+import {
+  renderDeveloperDatasources,
+  renderDeveloperFormContract,
+  renderDeveloperOverview,
+  renderDeveloperTableContract,
+  renderDeveloperToolbox
+} from "./view";
 
 export function renderDeveloper(root: HTMLElement): void {
   const role = getRole();
@@ -17,23 +24,29 @@ export function renderDeveloper(root: HTMLElement): void {
   const model = createDeveloperModel();
   const sections: SectionSpec[] = [
     {
-      id: "developer-notes",
+      id: "developer-overview",
       title: model.title,
-      render: (host) => {
-        const wrap = document.createElement("section");
-        const h2 = document.createElement("h2");
-        h2.textContent = model.title;
-        wrap.appendChild(h2);
-
-        const list = document.createElement("ul");
-        model.notes.forEach((note) => {
-          const li = document.createElement("li");
-          li.textContent = note;
-          list.appendChild(li);
-        });
-        wrap.appendChild(list);
-        host.appendChild(wrap);
-      }
+      render: (host) => renderDeveloperOverview(host, model)
+    },
+    {
+      id: "developer-toolbox",
+      title: "Toolbox",
+      render: (host) => renderDeveloperToolbox(host)
+    },
+    {
+      id: "developer-table-contract",
+      title: "Table contract",
+      render: (host) => renderDeveloperTableContract(host, model)
+    },
+    {
+      id: "developer-form-contract",
+      title: "Form contract",
+      render: (host) => renderDeveloperFormContract(host, model)
+    },
+    {
+      id: "developer-datasources",
+      title: "Datasource types",
+      render: (host) => renderDeveloperDatasources(host, model)
     }
   ];
 
@@ -43,4 +56,10 @@ export function renderDeveloper(root: HTMLElement): void {
   });
 }
 
-export const developerSections = ["developer-notes"];
+export const developerSections = [
+  "developer-overview",
+  "developer-toolbox",
+  "developer-table-contract",
+  "developer-form-contract",
+  "developer-datasources"
+];

@@ -39,7 +39,8 @@ describe("developer page", () => {
     const root = document.createElement("div");
     renderDeveloper(root);
     expect(root.textContent || "").toContain("Developpeur");
-    expect(developerSections.length).toBe(1);
+    expect(developerSections.length).toBe(5);
+    expect(root.textContent || "").toContain("Toolbox");
     expect(root.innerHTML).not.toMatch(/\\bon\\w+\\s*=/i);
   });
 });
