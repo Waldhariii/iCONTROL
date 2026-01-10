@@ -70,7 +70,7 @@ export function renderBrandingSettings(root: HTMLElement): void {
       <div style="margin-top:16px;max-width:520px;display:flex;flex-direction:column;gap:10px">
         <label style="opacity:.8">Nom de l'application</label>
         <input id="brand_app_name" value="${escapeHtml(currentName)}" placeholder="Ex: Innovex Control"
-          style="padding:10px 12px;border-radius:12px;border:1px solid rgba(255,255,255,0.12);background:rgba(0,0,0,0.25);color:inherit" />
+          style="padding:10px 12px;border-radius:12px;border:1px solid ${MAIN_SYSTEM_THEME.tokens.border};background:${MAIN_SYSTEM_THEME.tokens.panel};color:inherit" />
 
         <div style="display:flex;gap:10px;margin-top:8px;flex-wrap:wrap">
           <button id="brand_save" style="padding:10px 12px;border-radius:12px;border:1px solid rgba(255,255,255,0.15);background:rgba(183,217,75,0.15);color:inherit;font-weight:800;cursor:pointer">Sauvegarder</button>
@@ -147,7 +147,7 @@ function renderThemePackSection(root: HTMLElement): void {
   Object.entries(MAIN_SYSTEM_THEME.tokens).forEach(([key, value]) => {
     const tr = document.createElement("tr");
     const tdKey = document.createElement("td");
-    tdKey.setAttribute("style", "padding:8px;border-bottom:1px solid rgba(255,255,255,0.08);opacity:.85;width:40%");
+    tdKey.setAttribute("style", `padding:8px;border-bottom:1px solid rgba(255,255,255,0.08);color:${MAIN_SYSTEM_THEME.tokens.mutedText};width:40%`);
     tdKey.textContent = key;
     const tdVal = document.createElement("td");
     tdVal.setAttribute("style", "padding:8px;border-bottom:1px solid rgba(255,255,255,0.08)");

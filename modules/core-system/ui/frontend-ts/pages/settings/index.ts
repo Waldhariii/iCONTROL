@@ -1,4 +1,5 @@
 import { safeRender } from "../_shared/mainSystem.shared";
+import { MAIN_SYSTEM_THEME } from "../_shared/mainSystem.data";
 import { mountSections, type SectionSpec } from "../_shared/sections";
 
 export function renderSettingsPage(root: HTMLElement): void {
@@ -30,7 +31,10 @@ export function renderSettingsPage(root: HTMLElement): void {
         grid.setAttribute("style", "margin-top:16px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px");
 
         const cardAccount = document.createElement("div");
-        cardAccount.setAttribute("style", "padding:14px;border-radius:18px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06)");
+        cardAccount.setAttribute(
+          "style",
+          `padding:14px;border-radius:18px;background:${MAIN_SYSTEM_THEME.tokens.card};border:1px solid ${MAIN_SYSTEM_THEME.tokens.border}`
+        );
         const accountTitle = document.createElement("div");
         accountTitle.setAttribute("style", "font-weight:900");
         accountTitle.textContent = "Compte";
@@ -41,7 +45,10 @@ export function renderSettingsPage(root: HTMLElement): void {
         cardAccount.appendChild(accountText);
 
         const cardSystem = document.createElement("div");
-        cardSystem.setAttribute("style", "padding:14px;border-radius:18px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06)");
+        cardSystem.setAttribute(
+          "style",
+          `padding:14px;border-radius:18px;background:${MAIN_SYSTEM_THEME.tokens.card};border:1px solid ${MAIN_SYSTEM_THEME.tokens.border}`
+        );
         const systemTitle = document.createElement("div");
         systemTitle.setAttribute("style", "font-weight:900");
         systemTitle.textContent = "Systeme";
