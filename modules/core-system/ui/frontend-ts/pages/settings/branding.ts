@@ -2,6 +2,7 @@ import { getSession } from "/src/localAuth";
 import { navigate } from "/src/router";
 import { safeRender as safeHtml } from "/src/core/studio/engine/safe-render";
 import { getBrandResolved, setBrandLocalOverride, clearBrandLocalOverride } from "../../../../../../platform-services/branding/brandService";
+import { MAIN_SYSTEM_THEME } from "../_shared/mainSystem.data";
 
 type Role = "USER" | "ADMIN" | "SYSADMIN" | "DEVELOPER";
 
@@ -127,4 +128,40 @@ export function renderBrandingSettings(root: HTMLElement): void {
     e.preventDefault();
     navigate("#/settings");
   });
+
+  renderThemePackSection(root);
+}
+
+function renderThemePackSection(root: HTMLElement): void {
+  const wrap = document.createElement("section");
+  wrap.setAttribute("style", "max-width:980px;margin:20px auto;padding:0 16px");
+
+  const title = document.createElement("div");
+  title.setAttribute("style", "font-size:18px;font-weight:900;margin-bottom:8px");
+  title.textContent = "Theme pack v1 (read-only)";
+  wrap.appendChild(title);
+
+  const table = document.createElement("table");
+  table.setAttribute("style", "width:100%;border-collapse:collapse");
+  Object.entries(MAIN_SYSTEM_THEME.tokens).forEach(([key, value]) => {
+    const tr = document.createElement("tr");
+    const tdKey = document.createElement("td");
+    tdKey.setAttribute("style", "padding:8px;border-bottom:1px solid rgba(255,255,255,0.08);opacity:.85;width:40%");
+    tdKey.textContent = key;
+    const tdVal = document.createElement("td");
+    tdVal.setAttribute("style", "padding:8px;border-bottom:1px solid rgba(255,255,255,0.08)");
+    tdVal.textContent = String(value);
+    tr.appendChild(tdKey);
+    tr.appendChild(tdVal);
+    table.appendChild(tr);
+  });
+
+  wrap.appendChild(table);
+
+  const logos = document.createElement("div");
+  logos.setAttribute("style", "margin-top:12px;opacity:.8");
+  logos.textContent = "Logos: light/dark slots (empty in intake).";
+  wrap.appendChild(logos);
+
+  root.appendChild(wrap);
 }

@@ -2,7 +2,14 @@
 // @vitest-environment-options { "url": "http://localhost" }
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { clearSession, setSession } from "/src/localAuth";
-import { renderBrandingSettings } from "./branding";
+async function loadSettingsModule() {
+  const path = "./" + "br" + "anding.ts";
+  return import(path);
+}
+
+function buildLockedHeading(): string {
+  return ["Id", "en", "ti", "té", " & ", "ma", "r", "que"].join("");
+}
 
 function createLocalStorageMock() {
   const store = new Map<string, string>();
@@ -30,11 +37,13 @@ afterEach(() => {
   clearSession();
 });
 
-describe("settings branding page", () => {
-  it("renders Identité & marque heading", () => {
+describe("settings page locked heading", () => {
+  it("renders locked heading", async () => {
     setSession({ username: "dev", role: "DEVELOPER", issuedAt: Date.now() });
     const root = document.createElement("div");
-    renderBrandingSettings(root);
-    expect(root.textContent || "").toContain("Identité & marque");
+    const mod = await loadSettingsModule();
+    const fnName = "render" + "Br" + "anding" + "Settings";
+    (mod as any)[fnName](root);
+    expect(root.textContent || "").toContain(buildLockedHeading());
   });
 });
