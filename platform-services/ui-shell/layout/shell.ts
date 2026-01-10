@@ -1,6 +1,7 @@
 import "./shell.css";
 import { getSession, isLoggedIn, logout } from "../../../app/src/localAuth";
 import { canSeeSettings } from "../../../app/src/runtime/rbac";
+import { buildMainSystemShell } from "../../../modules/core-system/ui/frontend-ts/pages/_shared/mainSystem.ui";
 
 export type NavItem = {
   id: string;
@@ -23,49 +24,8 @@ function setActiveLinks(drawer: HTMLElement){
 }
 
 export function createShell(navItems: NavItem[]){
-  const root = document.createElement("div");
-
-  const header = document.createElement("div");
-  header.className = "cxHeader";
-  header.innerHTML = `
-    <div class="cxBrand">
-      <div class="cxBrandDot"></div>
-      <div id="cxBrandTitle">iCONTROL</div>
-    </div>
-    <button class="cxBurger" id="cxBurger" aria-label="Menu">
-      ☰
-    </button>
-  `;
-
-  const overlay = document.createElement("div");
-  overlay.className = "cxDrawerOverlay";
-  overlay.id = "cxDrawerOverlay";
-
-  const drawer = document.createElement("div");
-  drawer.className = "cxDrawer";
-  drawer.id = "cxDrawer";
-  drawer.innerHTML = `
-    <div class="cxDrawerTop">
-      <div class="cxDrawerTitle">MENU</div>
-      <button class="cxClose" id="cxClose" aria-label="Fermer">X</button>
-    </div>
-    <div class="cxNav" id="cxNav"></div>
-    <div style="margin-top:14px; border-top:1px solid var(--line); padding-top:12px;">
-      <a href="#/login" id="cxLogoutLink" style="display:none;">Déconnexion</a>
-      <small id="cxSessionHint"></small>
-    </div>
-  `;
-
-  const main = document.createElement("div");
-  main.className = "cxMain";
-  main.id = "cxMain";
-
-  root.appendChild(header);
-  root.appendChild(overlay);
-  root.appendChild(drawer);
-  root.appendChild(main);
-
-  const nav = drawer.querySelector("#cxNav") as HTMLElement;
+  const shell = buildMainSystemShell();
+  const { root, header, drawer, overlay, main, nav, burger, close, logoutLink, sessionHint } = shell;
 
   function renderNav(){
     nav.innerHTML = "";
@@ -78,9 +38,6 @@ export function createShell(navItems: NavItem[]){
       nav.appendChild(a);
     });
 
-    const logoutLink = drawer.querySelector("#cxLogoutLink") as HTMLAnchorElement;
-    const hint = drawer.querySelector("#cxSessionHint") as HTMLElement;
-
     if(isLoggedIn()){
       logoutLink.style.display = "inline-block";
       logoutLink.onclick = (e)=>{
@@ -90,10 +47,10 @@ export function createShell(navItems: NavItem[]){
         closeDrawer();
       };
       const s = getSession() as any;
-      hint.textContent = `Connecté: ${String(s?.username||"user")} • Rôle: ${String(s?.role||"USER")}`;
+      sessionHint.textContent = `Connecté: ${String(s?.username||"user")} • Rôle: ${String(s?.role||"USER")}`;
     } else {
       logoutLink.style.display = "none";
-      hint.textContent = "Non connecté";
+      sessionHint.textContent = "Non connecté";
     }
 
     setActiveLinks(drawer);
@@ -109,8 +66,8 @@ export function createShell(navItems: NavItem[]){
     drawer.classList.remove("open");
   }
 
-  (header.querySelector("#cxBurger") as HTMLButtonElement).onclick = openDrawer;
-  (drawer.querySelector("#cxClose") as HTMLButtonElement).onclick = closeDrawer;
+  burger.onclick = openDrawer;
+  close.onclick = closeDrawer;
   overlay.onclick = closeDrawer;
 
   window.addEventListener("hashchange", ()=>{
