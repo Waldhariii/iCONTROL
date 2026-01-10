@@ -3,7 +3,7 @@
 import { describe, expect, it } from "vitest";
 import { clearAuditLog, getAuditLog } from "./audit";
 import { OBS } from "./obsCodes";
-import { appendActionRow, appendTable, bindActions, buildCsv, blockKeyValueTable, blockToggle } from "./uiBlocks";
+import { appendActionRow, appendTable, bindActions, buildCsv, blockActionBar, blockKeyValueTable, blockToggle } from "./uiBlocks";
 
 function makeHost(): HTMLElement {
   const host = document.createElement("div");
@@ -98,5 +98,37 @@ describe("uiBlocks accessibility", () => {
     host.appendChild(table);
     expect(host.textContent || "").toContain("A");
     expect(host.textContent || "").toContain("2");
+  });
+
+  it("blocks export in SAFE_MODE strict via actionbar", () => {
+    clearAuditLog();
+    const host = makeHost();
+    const bar = blockActionBar({
+      title: "Actions",
+      actions: [{ id: "exp", label: "Export", type: "exportCsv", payload: "" }],
+      allowRoutes: ["#/dashboard"],
+      exportRows: [{ A: "1" }],
+      safeMode: "STRICT"
+    });
+    host.appendChild(bar);
+    const btn = host.querySelector("button[data-action-id='exp']") as HTMLButtonElement | null;
+    btn?.click();
+    const log = getAuditLog();
+    expect(log.some((entry) => entry.code === OBS.WARN_SAFE_MODE_WRITE_BLOCKED)).toBe(true);
+  });
+
+  it("hides write actions in SAFE_MODE strict", () => {
+    const host = makeHost();
+    const bar = blockActionBar({
+      title: "Actions",
+      actions: [{ id: "write", label: "Write", type: "noop", write: true }],
+      allowRoutes: ["#/dashboard"],
+      role: "ADMIN",
+      allowedRoles: ["SYSADMIN", "DEVELOPER", "ADMIN"],
+      safeMode: "STRICT"
+    });
+    host.appendChild(bar);
+    const btn = host.querySelector("button[data-action-id='write']") as HTMLButtonElement | null;
+    expect(btn?.style.display).toBe("none");
   });
 });

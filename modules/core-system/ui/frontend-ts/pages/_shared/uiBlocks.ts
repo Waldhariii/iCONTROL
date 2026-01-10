@@ -283,3 +283,137 @@ export function blockKeyValueTable(args: {
   );
   return card;
 }
+
+/* ===== ICONTROL_ACTIONBAR_V1 ===== */
+export type ActionBarItem = UiAction & {
+  write?: boolean;
+};
+
+export function blockActionBar(args: {
+  title?: string;
+  actions: ActionBarItem[];
+  allowRoutes: string[];
+  exportRows?: Array<Record<string, string>>;
+  role?: string;
+  allowedRoles?: string[];
+  safeMode?: "STRICT" | "COMPAT";
+  onAction?: (action: ActionBarItem) => void;
+}): HTMLElement {
+  const card = sectionCard(args.title || "Actions");
+  const row = appendActionRow(card, args.actions);
+  const actionMap = new Map(args.actions.map((a) => [a.id, a]));
+  const safeMode = args.safeMode || "COMPAT";
+
+  row.querySelectorAll<HTMLButtonElement>("button[data-action-id]").forEach((btn) => {
+    const id = btn.getAttribute("data-action-id") || "";
+    const action = actionMap.get(id);
+    if (!action) return;
+
+    const requiresWrite = Boolean(action.write);
+    const roleBlocked = Boolean(
+      requiresWrite &&
+      args.allowedRoles &&
+      args.role &&
+      !args.allowedRoles.includes(args.role)
+    );
+    const strictBlocked = safeMode === "STRICT" && (requiresWrite || action.type === "exportCsv");
+
+    if (strictBlocked && requiresWrite) {
+      btn.style.display = "none";
+      btn.setAttribute("data-blocked", "safeModeStrict");
+      return;
+    }
+
+    if (strictBlocked) {
+      btn.setAttribute("data-blocked", "safeModeStrict");
+      btn.style.opacity = "0.6";
+      btn.title = "Bloque en SAFE_MODE strict";
+    }
+
+    if (roleBlocked) {
+      btn.setAttribute("data-blocked", "rbac");
+      btn.style.opacity = "0.6";
+      btn.title = "Bloque par RBAC";
+    }
+
+    btn.addEventListener("click", () => {
+      if (strictBlocked) {
+        recordObs({ code: OBS.WARN_SAFE_MODE_WRITE_BLOCKED, actionId: action.id, detail: "safeModeStrict" });
+        return;
+      }
+      if (roleBlocked) {
+        recordObs({ code: OBS.WARN_ACTION_BLOCKED, actionId: action.id, detail: "rbac" });
+        return;
+      }
+      if (action.type === "navigate") {
+        const target = action.payload || "#/dashboard";
+        if (!args.allowRoutes.includes(target)) {
+          recordObs({ code: OBS.WARN_ACTION_BLOCKED, actionId: action.id, detail: "route_not_allowed" });
+          return;
+        }
+        window.location.hash = target;
+        recordObs({ code: OBS.WARN_ACTION_EXECUTED, actionId: action.id, detail: `navigate:${target}` });
+        return;
+      }
+      if (action.type === "exportCsv") {
+        const rows = args.exportRows || [];
+        if (!rows.length) {
+          recordObs({ code: OBS.WARN_EXPORT_EMPTY, actionId: action.id, detail: "export_empty" });
+          return;
+        }
+        const built = buildCsv(rows, 200);
+        const blob = new Blob([built.csv], { type: "text/csv" });
+        const url = URL.createObjectURL(blob);
+        const a = el("a", { href: url, download: `export_${action.id}.csv` });
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+        recordObs({ code: OBS.WARN_ACTION_EXECUTED, actionId: action.id, detail: `exportCsv:rows=${built.rowCount}` });
+        return;
+      }
+      if (action.write) {
+        if (args.onAction) args.onAction(action);
+        else recordObs({ code: OBS.WARN_ACTION_EXECUTED, actionId: action.id, detail: "write_no_handler" });
+        return;
+      }
+      recordObs({ code: OBS.WARN_ACTION_EXECUTED, actionId: action.id, detail: "noop" });
+      if (args.onAction) args.onAction(action);
+    });
+  });
+
+  return card;
+}
+
+/* ===== ICONTROL_TOAST_V1 ===== */
+export function blockToast(message: string, kind: "ok" | "warn" | "error" = "ok"): HTMLElement {
+  const toast = el("div");
+  toast.style.cssText = [
+    "margin:8px 0",
+    "padding:8px 10px",
+    "border-radius:10px",
+    "border:1px solid var(--line)",
+    "background:rgba(255,255,255,0.03)",
+    "font-size:12px",
+    "opacity:.9"
+  ].join(";");
+  if (kind === "warn") toast.style.borderColor = "#b58a00";
+  if (kind === "error") toast.style.borderColor = "#c33";
+  toast.textContent = message;
+  return toast;
+}
+
+/* ===== ICONTROL_FILTER_V1 ===== */
+export function blockFilterInput(args: {
+  placeholder: string;
+  value: string;
+  onChange: (next: string) => void;
+}): HTMLInputElement {
+  const input = document.createElement("input");
+  input.type = "text";
+  input.placeholder = args.placeholder;
+  input.value = args.value;
+  input.style.cssText = "padding:8px 10px;border-radius:10px;border:1px solid var(--line);background:transparent;color:inherit;";
+  input.addEventListener("input", () => args.onChange(input.value));
+  return input;
+}

@@ -81,8 +81,12 @@ export function getFlag(id: FlagId, storage: Storage = window.localStorage): boo
 }
 
 export function setFlag(id: FlagId, value: boolean, storage: Storage = window.localStorage): void {
+  if (getSafeMode() === "STRICT") {
+    recordObs({ code: OBS.WARN_SAFE_MODE_WRITE_BLOCKED, actionId: `flag:${id}`, detail: "safeModeStrict" });
+    return;
+  }
   storage.setItem(keyOf(id), value ? "true" : "false");
-  recordObs({ code: OBS.WARN_ACTION_EXECUTED, actionId: `flag:${id}`, detail: `set:${value}` });
+  recordObs({ code: OBS.INFO_WRITE_OK, actionId: `flag:${id}`, detail: `set:${value}` });
 }
 
 export function listFlags(storage: Storage = window.localStorage): Array<{
