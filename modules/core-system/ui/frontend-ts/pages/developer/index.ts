@@ -3,14 +3,9 @@ import { getSafeMode } from "/src/core/studio/internal/policy";
 import { renderAccessDenied, safeRender } from "../_shared/mainSystem.shared";
 import { mountSections, type SectionSpec } from "../_shared/sections";
 import { canAccess } from "./contract";
-import { createDeveloperModel } from "./model";
-import {
-  renderDeveloperDatasources,
-  renderDeveloperFormContract,
-  renderDeveloperOverview,
-  renderDeveloperTableContract,
-  renderDeveloperToolbox
-} from "./view";
+import { render_registry_viewer } from "./sections/registry-viewer";
+import { render_contracts_table } from "./sections/contracts-table";
+import { render_contracts_form } from "./sections/contracts-form";
 
 export function renderDeveloper(root: HTMLElement): void {
   const role = getRole();
@@ -21,33 +16,26 @@ export function renderDeveloper(root: HTMLElement): void {
     return;
   }
 
-  const model = createDeveloperModel();
   const sections: SectionSpec[] = [
     {
-      id: "developer-overview",
-      title: model.title,
-      render: (host) => renderDeveloperOverview(host, model)
+      id: "toolbox-registry-viewer",
+      title: "Registry viewer",
+      render: (host) => render_registry_viewer(host),
+      requiresRoles: ["SYSADMIN", "DEVELOPER"]
     },
     {
-      id: "developer-toolbox",
-      title: "Toolbox",
-      render: (host) => renderDeveloperToolbox(host)
+      id: "toolbox-contracts-table",
+      title: "Contracts: TableDef",
+      render: (host) => render_contracts_table(host),
+      requiresRoles: ["SYSADMIN", "DEVELOPER"]
     },
     {
-      id: "developer-table-contract",
-      title: "Table contract",
-      render: (host) => renderDeveloperTableContract(host, model)
+      id: "toolbox-contracts-form",
+      title: "Contracts: FormDef",
+      render: (host) => render_contracts_form(host),
+      requiresRoles: ["SYSADMIN", "DEVELOPER"]
     },
-    {
-      id: "developer-form-contract",
-      title: "Form contract",
-      render: (host) => renderDeveloperFormContract(host, model)
-    },
-    {
-      id: "developer-datasources",
-      title: "Datasource types",
-      render: (host) => renderDeveloperDatasources(host, model)
-    }
+    // Datasources + rules sections added in Wave 3 (part 2).
   ];
 
   safeRender(root, () => {
@@ -57,9 +45,7 @@ export function renderDeveloper(root: HTMLElement): void {
 }
 
 export const developerSections = [
-  "developer-overview",
-  "developer-toolbox",
-  "developer-table-contract",
-  "developer-form-contract",
-  "developer-datasources"
+  "toolbox-registry-viewer",
+  "toolbox-contracts-table",
+  "toolbox-contracts-form"
 ];

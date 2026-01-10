@@ -3,6 +3,7 @@ export type SectionSpec = {
   title: string;
   render: (root: HTMLElement) => void;
   requiresRole?: string;
+  requiresRoles?: string[];
   safeModeOk?: boolean;
 };
 
@@ -54,6 +55,15 @@ export function mountSections(
   const failed: string[] = [];
 
   sections.forEach((section) => {
+    if (section.requiresRoles && ctx.role && !section.requiresRoles.includes(ctx.role)) {
+      renderErrorCard(root, "WARN_SECTION_BLOCKED", {
+        page: ctx.page,
+        section: section.id,
+        message: `requiresRoles=${section.requiresRoles.join(",")}`
+      });
+      failed.push(section.id);
+      return;
+    }
     if (section.requiresRole && ctx.role && ctx.role !== section.requiresRole) {
       renderErrorCard(root, "WARN_SECTION_BLOCKED", {
         page: ctx.page,

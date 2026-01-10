@@ -89,6 +89,69 @@ export function appendTable(
   host.appendChild(table);
 }
 
+export type UiAction = {
+  id: string;
+  label: string;
+  type: "navigate" | "exportCsv" | "noop";
+  payload?: string;
+};
+
+export function appendActionRow(host: HTMLElement, actions: UiAction[]): HTMLDivElement {
+  const row = el("div");
+  row.style.cssText = "display:flex;gap:10px;flex-wrap:wrap;margin-top:10px";
+  actions.forEach((action) => {
+    const btn = el("button", { type: "button", "data-action-id": action.id }, action.label);
+    btn.style.cssText = [
+      "padding:8px 12px",
+      "border-radius:10px",
+      "border:1px solid var(--line)",
+      "background:rgba(255,255,255,0.04)",
+      "color:inherit",
+      "cursor:pointer"
+    ].join(";");
+    row.appendChild(btn);
+  });
+  host.appendChild(row);
+  return row;
+}
+
+export function bindActions(
+  row: HTMLElement,
+  actions: UiAction[],
+  opts: { allowRoutes: string[]; exportRows?: Array<Record<string, string>> }
+): void {
+  const actionMap = new Map(actions.map((a) => [a.id, a]));
+  row.querySelectorAll<HTMLButtonElement>("button[data-action-id]").forEach((btn) => {
+    const id = btn.getAttribute("data-action-id") || "";
+    const action = actionMap.get(id);
+    if (!action) return;
+    btn.addEventListener("click", () => {
+      if (action.type === "navigate") {
+        const target = action.payload || "#/dashboard";
+        if (!opts.allowRoutes.includes(target)) return;
+        window.location.hash = target;
+        return;
+      }
+      if (action.type === "exportCsv") {
+        const rows = opts.exportRows || [];
+        if (!rows.length) return;
+        const cols = Object.keys(rows[0]);
+        const header = cols.join(",");
+        const body = rows.map((r) => cols.map((c) => String(r[c] ?? "")).join(",")).join("\\n");
+        const blob = new Blob([header + "\\n" + body], { type: "text/csv" });
+        const url = URL.createObjectURL(blob);
+        const a = el("a", { href: url, download: `export_${action.id}.csv` });
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+        return;
+      }
+      // noop: explicit no-op
+    });
+  });
+}
+
 export function appendPillRow(host: HTMLElement, items: string[]): void {
   const wrap = el("div");
   wrap.style.cssText = "display:flex;flex-wrap:wrap;gap:8px";
