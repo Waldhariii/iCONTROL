@@ -158,6 +158,12 @@ export function bindActions(
         return;
       }
       if (action.type === "exportCsv") {
+        // ICONTROL_SAFE_EXPORT_V1: block exports in SAFE_MODE strict.
+        const safeMode = (globalThis as any).ICONTROL_SAFE_MODE;
+        if (safeMode === "STRICT") {
+          recordObs({ code: OBS.WARN_ACTION_BLOCKED, actionId: action.id, detail: "safeMode_export_blocked" });
+          return;
+        }
         const rows = opts.exportRows || [];
         if (!rows.length) {
           recordObs({ code: OBS.WARN_EXPORT_EMPTY, actionId: action.id, detail: "export_empty" });

@@ -58,4 +58,20 @@ describe("uiBlocks accessibility", () => {
     const log = getAuditLog();
     expect(log.some((entry) => entry.code === OBS.WARN_ACTION_BLOCKED)).toBe(true);
   });
+
+  it("blocks export in SAFE_MODE strict", () => {
+    clearAuditLog();
+    (globalThis as any).ICONTROL_SAFE_MODE = "STRICT";
+    const host = makeHost();
+    const row = appendActionRow(host, [{ id: "exp", label: "Export", type: "exportCsv" }]);
+    bindActions(row, [{ id: "exp", label: "Export", type: "exportCsv" }], {
+      allowRoutes: ["#/dashboard"],
+      exportRows: [{ A: "1" }]
+    });
+    const btn = row.querySelector("button[data-action-id='exp']") as HTMLButtonElement | null;
+    btn?.click();
+    const log = getAuditLog();
+    expect(log.some((entry) => entry.code === OBS.WARN_ACTION_BLOCKED)).toBe(true);
+    (globalThis as any).ICONTROL_SAFE_MODE = "COMPAT";
+  });
 });

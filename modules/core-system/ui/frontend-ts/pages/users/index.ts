@@ -1,5 +1,5 @@
 import { getRole } from "/src/runtime/rbac";
-import { getSafeMode } from "/src/core/studio/internal/policy";
+import { getSafeMode } from "../_shared/safeMode";
 import { renderAccessDenied, safeRender } from "../_shared/mainSystem.shared";
 import { mountSections, type SectionSpec } from "../_shared/sections";
 import { canAccess } from "./contract";

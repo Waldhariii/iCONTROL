@@ -1,5 +1,5 @@
 import type { Role } from "/src/runtime/rbac";
-import type { SafeMode } from "/src/core/studio/internal/policy";
+import type { SafeMode } from "../_shared/safeMode";
 
 export const PAGE_ID = "users";
 export const SAFE_MODE_ALLOWED = true;
