@@ -54,8 +54,13 @@ export function doLogout(): void {
 
 export function bootRouter(onRoute: (rid: RouteId) => void): void {
   const tick = () => {
-    if (!ensureAuth()) return;
-    onRoute(getRouteId());
+    const rid = getRouteId();
+    const h = String(location.hash || "");
+    const authed = ensureAuth();
+    /* ICONTROL_ROUTER_TRACE_V1 */
+    console.info("ROUTER_TICK", { hash: h, rid, authed });
+    if (!authed) return;
+    onRoute(rid);
   };
   window.addEventListener("hashchange", tick);
   tick();

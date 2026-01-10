@@ -69,3 +69,28 @@ export function authenticate(username: string, password: string): { ok: true; se
 export function logout(): void {
   clearSession();
 }
+
+/* ICONTROL_DEV_LOGIN_V1
+   Dev helper: optional, explicit, no auto-login.
+   Usage in console (dev only):
+     window.__icontrolDevLogin?.("admin", "SYSADMIN")
+*/
+export function registerDevLoginHelper(): void {
+  if (typeof window === "undefined") return;
+  (window as any).__icontrolDevLogin = (username: string, role: string) => {
+    const normalized = String(role || "USER").toUpperCase();
+    const safeRole = (normalized === "ADMIN" || normalized === "SYSADMIN" || normalized === "DEVELOPER")
+      ? (normalized as Role)
+      : "USER";
+    const session: Session = { username: String(username || "dev"), role: safeRole, issuedAt: Date.now() };
+    if (!setSession(session)) {
+      console.warn("WARN_DEV_LOGIN_FAILED", "setSession_failed");
+      return;
+    }
+    location.hash = "#/dashboard";
+  };
+}
+
+const __isDev =
+  typeof import.meta !== "undefined" && Boolean((import.meta as any).env?.DEV);
+if (__isDev) registerDevLoginHelper();

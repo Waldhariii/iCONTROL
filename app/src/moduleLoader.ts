@@ -11,7 +11,12 @@ export function renderRoute(rid: RouteId, root: HTMLElement): void {
   // RUNTIME_SMOKE_ROUTE_V2
   try {
     if ((rid as any) === "runtime_smoke") {
-      import("./pages/runtime-smoke").then((m) => m.renderRuntimeSmoke(root));
+      import("./pages/runtime-smoke")
+        .then((m) => m.renderRuntimeSmoke(root))
+        .catch((e) => {
+          /* ICONTROL_LOADER_IMPORT_GUARD_V1 */
+          console.warn("WARN_ROUTE_IMPORT_FAILED", { spec: "./pages/runtime-smoke", err: String(e) });
+        });
       return;
     }
   } catch (e) {
@@ -20,19 +25,51 @@ export function renderRoute(rid: RouteId, root: HTMLElement): void {
 
   try {
     if ((rid as any) === "users") {
-      import("../../modules/core-system/ui/frontend-ts/pages/users").then((m) => m.renderUsers(root));
+      import("../../modules/core-system/ui/frontend-ts/pages/users")
+        .then((m) => m.renderUsers(root))
+        .catch((e) => {
+          /* ICONTROL_LOADER_IMPORT_GUARD_V1 */
+          console.warn("WARN_ROUTE_IMPORT_FAILED", {
+            spec: "../../modules/core-system/ui/frontend-ts/pages/users",
+            err: String(e)
+          });
+        });
       return;
     }
     if ((rid as any) === "account") {
-      import("../../modules/core-system/ui/frontend-ts/pages/account").then((m) => m.renderAccount(root));
+      import("../../modules/core-system/ui/frontend-ts/pages/account")
+        .then((m) => m.renderAccount(root))
+        .catch((e) => {
+          /* ICONTROL_LOADER_IMPORT_GUARD_V1 */
+          console.warn("WARN_ROUTE_IMPORT_FAILED", {
+            spec: "../../modules/core-system/ui/frontend-ts/pages/account",
+            err: String(e)
+          });
+        });
       return;
     }
     if ((rid as any) === "developer") {
-      import("../../modules/core-system/ui/frontend-ts/pages/developer").then((m) => m.renderDeveloper(root));
+      import("../../modules/core-system/ui/frontend-ts/pages/developer")
+        .then((m) => m.renderDeveloper(root))
+        .catch((e) => {
+          /* ICONTROL_LOADER_IMPORT_GUARD_V1 */
+          console.warn("WARN_ROUTE_IMPORT_FAILED", {
+            spec: "../../modules/core-system/ui/frontend-ts/pages/developer",
+            err: String(e)
+          });
+        });
       return;
     }
     if ((rid as any) === "verification") {
-      import("../../modules/core-system/ui/frontend-ts/pages/verification").then((m) => m.renderVerification(root));
+      import("../../modules/core-system/ui/frontend-ts/pages/verification")
+        .then((m) => m.renderVerification(root))
+        .catch((e) => {
+          /* ICONTROL_LOADER_IMPORT_GUARD_V1 */
+          console.warn("WARN_ROUTE_IMPORT_FAILED", {
+            spec: "../../modules/core-system/ui/frontend-ts/pages/verification",
+            err: String(e)
+          });
+        });
       return;
     }
   } catch (e) {
