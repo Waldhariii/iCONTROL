@@ -1,5 +1,7 @@
 import { coreBaseStyles } from "../shared/coreStyles";
 import { logout, requireSession } from "../../../../../platform-services/security/auth/localAuth";
+import { MAIN_SYSTEM_ENABLED, MAIN_SYSTEM_LAYOUT, MAIN_SYSTEM_MODULES } from "./_shared/mainSystem.data";
+import { appendList, appendTable, sectionCard } from "./_shared/uiBlocks";
 import { mountSections, type SectionSpec } from "./_shared/sections";
 import { safeRender } from "./_shared/mainSystem.shared";
 
@@ -74,6 +76,41 @@ export function renderDashboard(root: HTMLElement): void {
         }
       },
       {
+        id: "dashboard-modules",
+        title: "Modules",
+        render: (host) => {
+          const card = sectionCard("Modules registry");
+          appendTable(
+            card,
+            ["ID", "Label", "Type", "Routes", "Active"],
+            MAIN_SYSTEM_MODULES.map((mod) => ({
+              ID: mod.id,
+              Label: mod.label,
+              Type: mod.type,
+              Routes: mod.routes.join(", "),
+              Active: mod.activeDefault ? "yes" : "no"
+            }))
+          );
+          appendList(card, [`Enabled: ${MAIN_SYSTEM_ENABLED.join(", ")}`]);
+          host.appendChild(card);
+        }
+      },
+      {
+        id: "dashboard-layout",
+        title: "Layout pack",
+        render: (host) => {
+          const card = sectionCard("Layout pack v1");
+          appendTable(card, ["Key", "Value"], [
+            { Key: "topbarHeight", Value: String(MAIN_SYSTEM_LAYOUT.topbarHeight) },
+            { Key: "drawerWidth", Value: String(MAIN_SYSTEM_LAYOUT.drawerWidth) },
+            { Key: "maxWidth", Value: String(MAIN_SYSTEM_LAYOUT.maxWidth) },
+            { Key: "pagePadding", Value: String(MAIN_SYSTEM_LAYOUT.pagePadding) }
+          ]);
+          appendList(card, [`Menu order: ${MAIN_SYSTEM_LAYOUT.menuOrder.join(" → ")}`]);
+          host.appendChild(card);
+        }
+      },
+      {
         id: "dashboard-actions",
         title: "Actions",
         render: (host) => {
@@ -97,4 +134,10 @@ export function renderDashboard(root: HTMLElement): void {
   });
 }
 
-export const dashboardSections = ["dashboard-header", "dashboard-user", "dashboard-actions"];
+export const dashboardSections = [
+  "dashboard-header",
+  "dashboard-user",
+  "dashboard-modules",
+  "dashboard-layout",
+  "dashboard-actions"
+];

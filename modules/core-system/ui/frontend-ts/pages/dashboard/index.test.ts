@@ -35,8 +35,9 @@ describe("dashboard page", () => {
     setSession({ username: "admin", role: "ADMIN", issuedAt: Date.now() });
     const root = document.createElement("div");
     renderDashboard(root);
-    expect(dashboardSections.length).toBe(3);
+    expect(dashboardSections.length).toBe(5);
     expect(root.textContent || "").toContain("Dashboard");
+    expect(root.textContent || "").toContain("Modules registry");
     expect(root.innerHTML).not.toMatch(/\\bon\\w+\\s*=/i);
   });
 });
