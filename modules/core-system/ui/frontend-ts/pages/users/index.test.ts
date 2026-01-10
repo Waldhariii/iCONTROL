@@ -2,7 +2,7 @@
 // @vitest-environment-options { "url": "http://localhost" }
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { clearSession, setSession } from "/src/localAuth";
-import { renderUsers } from "./index";
+import { renderUsers, usersSections } from "./index";
 
 function createLocalStorageMock() {
   const store = new Map<string, string>();
@@ -39,5 +39,7 @@ describe("users page", () => {
     const root = document.createElement("div");
     renderUsers(root);
     expect(root.textContent || "").toContain("Utilisateurs");
+    expect(usersSections.length).toBe(1);
+    expect(root.innerHTML).not.toMatch(/\\bon\\w+\\s*=/i);
   });
 });
