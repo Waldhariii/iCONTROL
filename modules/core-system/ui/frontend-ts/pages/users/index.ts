@@ -4,6 +4,12 @@ import { renderAccessDenied, safeRender } from "../_shared/mainSystem.shared";
 import { mountSections, type SectionSpec } from "../_shared/sections";
 import { canAccess } from "./contract";
 import { createUsersModel } from "./model";
+import {
+  renderUsersMenuAccess,
+  renderUsersOverview,
+  renderUsersPermissions,
+  renderUsersRoles
+} from "./view";
 
 export function renderUsers(root: HTMLElement): void {
   const role = getRole();
@@ -17,23 +23,24 @@ export function renderUsers(root: HTMLElement): void {
   const model = createUsersModel();
   const sections: SectionSpec[] = [
     {
-      id: "users-list",
+      id: "users-overview",
       title: model.title,
-      render: (host) => {
-        const wrap = document.createElement("section");
-        const h2 = document.createElement("h2");
-        h2.textContent = model.title;
-        wrap.appendChild(h2);
-
-        const list = document.createElement("ul");
-        model.items.forEach((item) => {
-          const li = document.createElement("li");
-          li.textContent = item;
-          list.appendChild(li);
-        });
-        wrap.appendChild(list);
-        host.appendChild(wrap);
-      }
+      render: (host) => renderUsersOverview(host, model)
+    },
+    {
+      id: "users-roles",
+      title: "Roles catalog",
+      render: (host) => renderUsersRoles(host, model)
+    },
+    {
+      id: "users-permissions",
+      title: "Role permissions",
+      render: (host) => renderUsersPermissions(host, model)
+    },
+    {
+      id: "users-menu-access",
+      title: "Menu access",
+      render: (host) => renderUsersMenuAccess(host, model)
     }
   ];
 
@@ -43,4 +50,9 @@ export function renderUsers(root: HTMLElement): void {
   });
 }
 
-export const usersSections = ["users-list"];
+export const usersSections = [
+  "users-overview",
+  "users-roles",
+  "users-permissions",
+  "users-menu-access"
+];

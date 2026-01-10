@@ -39,7 +39,8 @@ describe("users page", () => {
     const root = document.createElement("div");
     renderUsers(root);
     expect(root.textContent || "").toContain("Utilisateurs");
-    expect(usersSections.length).toBe(1);
+    expect(usersSections.length).toBe(4);
+    expect(root.textContent || "").toContain("Roles catalog");
     expect(root.innerHTML).not.toMatch(/\\bon\\w+\\s*=/i);
   });
 });
