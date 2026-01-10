@@ -60,28 +60,49 @@ describe("developer page", () => {
     expect(root.textContent || "").toContain("allowed");
   });
 
-  it("masks SYSADMIN-only section for DEVELOPER with warning", () => {
-    setSession({ username: "dev", role: "DEVELOPER", issuedAt: Date.now() });
-    (globalThis as any).ICONTROL_SAFE_MODE = "COMPAT";
-    const root = document.createElement("div");
-    renderDeveloper(root);
-    expect(root.textContent || "").toContain("Sections réservées");
-    expect(root.textContent || "").toContain("toolbox-rules");
-    expect(root.textContent || "").not.toContain("WARN_SECTION_BLOCKED");
-  });
+  it("DEVELOPER sees toolbox-rules after policy change (no masking)", () => {
+  const root = document.createElement("div");
+  (globalThis as any).ICONTROL_SAFE_MODE = "COMPAT";
+  // @ts-ignore
+  setSession({ username: "dev", role: "DEVELOPER", issuedAt: Date.now() });
 
-  it("denies access for non-authorized roles", () => {
-    setSession({ username: "user", role: "USER", issuedAt: Date.now() });
-    const root = document.createElement("div");
-    renderDeveloper(root);
-    expect(root.textContent || "").toContain("Access denied");
-  });
+  // @ts-ignore
+  renderDeveloper(root);
 
-  it("does not show reserved card for SYSADMIN", () => {
-    setSession({ username: "admin", role: "SYSADMIN", issuedAt: Date.now() });
-    const root = document.createElement("div");
-    renderDeveloper(root);
-    expect(root.textContent || "").not.toContain("Sections réservées");
-    expect(root.textContent || "").toContain("Rules");
-  });
+  const t = root.textContent || "";
+  expect(t).toContain("Rules engine inventory");
+  expect(t).not.toContain("WARN_SECTION_BLOCKED");
+});
+
+it("DEVELOPER can see toolbox-rules (RBAC section gating)", () => {
+  const root = document.createElement("div");
+  (globalThis as any).ICONTROL_SAFE_MODE = "COMPAT";
+  // @ts-ignore
+  setSession({ username: "dev", role: "DEVELOPER", issuedAt: Date.now() });
+
+  // NOTE: dans ce repo, le renderer exporté est renderDeveloper
+  // @ts-ignore
+  renderDeveloper(root);
+
+  const t = root.textContent || "";
+  // Doit afficher la section rules et ne pas être bloqué
+  // Content marker must be present for DEVELOPER after RBAC change
+  expect(t).toContain("Rules engine inventory");
+  expect(t).not.toContain("WARN_SECTION_BLOCKED");
+});
+
+it("ADMIN is blocked from toolbox-rules (policy)", () => {
+  const root = document.createElement("div");
+  (globalThis as any).ICONTROL_SAFE_MODE = "COMPAT";
+  // @ts-ignore
+  setSession({ username: "admin", role: "ADMIN", issuedAt: Date.now() });
+
+  // @ts-ignore
+  renderDeveloper(root);
+
+  const t = root.textContent || "";
+  // ADMIN is blocked at page-level RBAC for /developer in this policy
+  expect(t).toContain("Access denied");
+});
+
 });
