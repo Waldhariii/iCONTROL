@@ -2,7 +2,7 @@
 // @vitest-environment-options { "url": "http://localhost" }
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { clearSession, setSession } from "/src/localAuth";
-import { renderAccount } from "./index";
+import { accountSections, renderAccount } from "./index";
 
 function createLocalStorageMock() {
   const store = new Map<string, string>();
@@ -39,5 +39,7 @@ describe("account page", () => {
     const root = document.createElement("div");
     renderAccount(root);
     expect(root.textContent || "").toContain("Compte");
+    expect(accountSections.length).toBe(1);
+    expect(root.innerHTML).not.toMatch(/\\bon\\w+\\s*=/i);
   });
 });
