@@ -137,6 +137,7 @@ export function bindActions(
   actions: UiAction[],
   opts: { allowRoutes: string[]; exportRows?: Array<Record<string, string>> }
 ): void {
+  const maxExportRows = 200;
   const actionMap = new Map(actions.map((a) => [a.id, a]));
   row.querySelectorAll<HTMLButtonElement>("button[data-action-id]").forEach((btn) => {
     const id = btn.getAttribute("data-action-id") || "";
@@ -152,10 +153,8 @@ export function bindActions(
       if (action.type === "exportCsv") {
         const rows = opts.exportRows || [];
         if (!rows.length) return;
-        const cols = Object.keys(rows[0]);
-        const header = cols.join(",");
-        const body = rows.map((r) => cols.map((c) => String(r[c] ?? "")).join(",")).join("\\n");
-        const blob = new Blob([header + "\\n" + body], { type: "text/csv" });
+        const built = buildCsv(rows, maxExportRows);
+        const blob = new Blob([built.csv], { type: "text/csv" });
         const url = URL.createObjectURL(blob);
         const a = el("a", { href: url, download: `export_${action.id}.csv` });
         document.body.appendChild(a);
@@ -167,6 +166,18 @@ export function bindActions(
       // noop: explicit no-op
     });
   });
+}
+
+export function buildCsv(
+  rows: Array<Record<string, string>>,
+  maxRows = 200
+): { csv: string; rowCount: number } {
+  const slice = rows.slice(0, maxRows);
+  const cols = slice.length ? Object.keys(slice[0]) : [];
+  const header = cols.join(",");
+  const body = slice.map((r) => cols.map((c) => String(r[c] ?? "")).join(",")).join("\n");
+  const csv = body ? `${header}\n${body}` : header;
+  return { csv, rowCount: slice.length };
 }
 
 export function appendPillRow(host: HTMLElement, items: string[]): void {

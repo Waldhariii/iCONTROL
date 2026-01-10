@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 // @vitest-environment-options { "url": "http://localhost" }
 import { describe, expect, it } from "vitest";
-import { appendActionRow, appendTable } from "./uiBlocks";
+import { appendActionRow, appendTable, buildCsv } from "./uiBlocks";
 
 function makeHost(): HTMLElement {
   const host = document.createElement("div");
@@ -32,5 +32,15 @@ describe("uiBlocks accessibility", () => {
     const rows = Array.from({ length: 205 }).map((_, idx) => ({ A: String(idx) }));
     appendTable(bigHost, ["A"], rows);
     expect(bigHost.textContent || "").toContain("Affichage limité");
+  });
+
+  it("caps CSV export rows to 200", () => {
+    const host = makeHost();
+    appendActionRow(host, [{ id: "exp", label: "Export", type: "exportCsv" }]);
+    const rows = Array.from({ length: 250 }).map((_, idx) => ({ A: String(idx), B: "x" }));
+    const result = buildCsv(rows, 200);
+    expect(result.rowCount).toBe(200);
+    const lines = result.csv.trim().split("\n");
+    expect(lines.length).toBe(201);
   });
 });
