@@ -67,7 +67,3 @@ export function renderSettingsPage(root: HTMLElement): void {
     mountSections(root, sections, { page: "settings" });
   });
 }
-
-// EXPECTED RESULT:
-// - Login as sysadmin -> #/settings -> "Identite & Marque" card visible -> Branding opens #/settings/branding.
-// - Login as admin -> #/settings -> card not visible. Direct #/settings/branding -> redirect to #/dashboard.
