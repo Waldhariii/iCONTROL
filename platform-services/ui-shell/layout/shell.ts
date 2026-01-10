@@ -96,6 +96,9 @@ export function createShell(navItems: NavItem[]){
 export function getDefaultNavItems(): NavItem[] {
   return [
     { id:"dashboard", label:"Dashboard", hash:"#/dashboard", show: ()=> true },
+    /* ICONTROL_NAV_SYSTEM_LOGS_V1 */
+    { id:"system", label:"Systeme", hash:"#/system", show: ()=> isLoggedIn() },
+    { id:"logs", label:"Logs", hash:"#/logs", show: ()=> isLoggedIn() },
     /* ICONTROL_NAV_MAIN_SYSTEM_V1 */
     { id:"users", label:"Utilisateurs", hash:"#/users", show: ()=> isLoggedIn() },
     { id:"account", label:"Compte", hash:"#/account", show: ()=> isLoggedIn() },

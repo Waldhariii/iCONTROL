@@ -73,6 +73,30 @@ export function renderRoute(rid: RouteId, root: HTMLElement): void {
         });
       return;
     }
+    if ((rid as any) === "system") {
+      import("../../modules/core-system/ui/frontend-ts/pages/system")
+        .then((m) => m.renderSystemPage(root))
+        .catch((e) => {
+          /* ICONTROL_LOADER_IMPORT_GUARD_V1 */
+          console.warn("WARN_ROUTE_IMPORT_FAILED", {
+            spec: "../../modules/core-system/ui/frontend-ts/pages/system",
+            err: String(e)
+          });
+        });
+      return;
+    }
+    if ((rid as any) === "logs") {
+      import("../../modules/core-system/ui/frontend-ts/pages/logs")
+        .then((m) => m.renderLogsPage(root))
+        .catch((e) => {
+          /* ICONTROL_LOADER_IMPORT_GUARD_V1 */
+          console.warn("WARN_ROUTE_IMPORT_FAILED", {
+            spec: "../../modules/core-system/ui/frontend-ts/pages/logs",
+            err: String(e)
+          });
+        });
+      return;
+    }
     if ((rid as any) === "toolbox") {
       if (!canAccessToolbox()) {
         root.innerHTML = "<div style=\"padding:12px;opacity:0.9;\"><h2 style=\"margin:0 0 8px 0;\">Access denied</h2><div>Toolbox requires elevated role.</div></div>";
