@@ -49,7 +49,7 @@ export function renderDeveloper(root: HTMLElement): void {
       id: "toolbox-rules",
       title: "Rules",
       render: (host) => render_rules_viewer(host),
-      requiresRole: "SYSADMIN"
+      requiresRoles: ["SYSADMIN","DEVELOPER"]
     },
     {
       id: "toolbox-audit-log",
