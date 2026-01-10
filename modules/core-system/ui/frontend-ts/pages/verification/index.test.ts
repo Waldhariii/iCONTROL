@@ -40,7 +40,7 @@ describe("verification page", () => {
     renderVerification(root);
     expect(root.textContent || "").toContain("Verification");
     expect(verificationSections.length).toBe(3);
-    expect(root.textContent || "").toContain("Selfcheck");
+    expect(root.textContent || "").toContain("SAFE_MODE");
     expect(root.innerHTML).not.toMatch(/\\bon\\w+\\s*=/i);
   });
 });

@@ -5,8 +5,8 @@ import { mountSections, type SectionSpec } from "../_shared/sections";
 import { canAccess } from "./contract";
 import { createVerificationModel } from "./model";
 import {
-  renderVerificationRules,
-  renderVerificationSelfcheck,
+  renderVerificationRulesTable,
+  renderVerificationSafeMode,
   renderVerificationSummary
 } from "./view";
 
@@ -27,14 +27,14 @@ export function renderVerification(root: HTMLElement): void {
       render: (host) => renderVerificationSummary(host, model)
     },
     {
-      id: "verification-selfcheck",
-      title: "Selfcheck",
-      render: (host) => renderVerificationSelfcheck(host, model)
+      id: "verification-safe-mode",
+      title: "SAFE_MODE",
+      render: (host) => renderVerificationSafeMode(host, model, safeMode)
     },
     {
       id: "verification-rules",
-      title: "Rules",
-      render: (host) => renderVerificationRules(host, model)
+      title: "Rules inventory",
+      render: (host) => renderVerificationRulesTable(host, model)
     }
   ];
 
@@ -46,6 +46,6 @@ export function renderVerification(root: HTMLElement): void {
 
 export const verificationSections = [
   "verification-summary",
-  "verification-selfcheck",
+  "verification-safe-mode",
   "verification-rules"
 ];
