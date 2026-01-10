@@ -3,7 +3,8 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { clearSession, setSession } from "/src/localAuth";
 import { renderLogsPage, logsSections } from "./index";
-import { recordObs } from "../_shared/audit";
+import { recordObs, getAuditLog, clearAuditLog } from "../_shared/audit";
+import { OBS } from "../_shared/obsCodes";
 
 function createLocalStorageMock() {
   const store = new Map<string, string>();
@@ -37,7 +38,7 @@ describe("logs page", () => {
     recordObs({ code: "INFO", detail: "test" });
     const root = document.createElement("div");
     renderLogsPage(root);
-    expect(logsSections.length).toBe(1);
+    expect(logsSections.length).toBe(4);
     expect(root.textContent || "").toContain("Audit");
   });
 
@@ -46,5 +47,18 @@ describe("logs page", () => {
     const root = document.createElement("div");
     renderLogsPage(root);
     expect(root.textContent || "").toContain("Access denied");
+  });
+
+  it("blocks export in SAFE_MODE strict", () => {
+    clearAuditLog();
+    setSession({ username: "admin", role: "ADMIN", issuedAt: Date.now() });
+    (globalThis as any).ICONTROL_SAFE_MODE = "STRICT";
+    const root = document.createElement("div");
+    renderLogsPage(root);
+    const btn = root.querySelector("button[data-action-id='export_logs']") as HTMLButtonElement | null;
+    btn?.click();
+    const log = getAuditLog();
+    expect(log.some((e) => e.code === OBS.WARN_SAFE_MODE_WRITE_BLOCKED)).toBe(true);
+    (globalThis as any).ICONTROL_SAFE_MODE = "COMPAT";
   });
 });

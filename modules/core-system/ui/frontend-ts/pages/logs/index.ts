@@ -6,6 +6,9 @@ import { OBS } from "../_shared/obsCodes";
 import { getSafeMode } from "../_shared/safeMode";
 import { canAccess } from "./contract";
 import { renderLogsAudit } from "./sections/audit-log";
+import { renderLogsFilters } from "./sections/filters";
+import { renderLogsExport } from "./sections/export";
+import { renderLogsRetention } from "./sections/retention";
 
 export function renderLogsPage(root: HTMLElement): void {
   const role = getRole();
@@ -18,7 +21,10 @@ export function renderLogsPage(root: HTMLElement): void {
   }
 
   const sections: SectionSpec[] = [
-    { id: "logs-audit", title: "Audit log", render: (host) => renderLogsAudit(host) }
+    { id: "logs-filters", title: "Filtres", render: (host) => renderLogsFilters(host, () => renderLogsPage(root)) },
+    { id: "logs-audit", title: "Audit log", render: (host) => renderLogsAudit(host) },
+    { id: "logs-export", title: "Export", render: (host) => renderLogsExport(host, role) },
+    { id: "logs-retention", title: "Retention", render: (host) => renderLogsRetention(host, role, () => renderLogsPage(root)) }
   ];
 
   safeRender(root, () => {
@@ -27,4 +33,4 @@ export function renderLogsPage(root: HTMLElement): void {
   });
 }
 
-export const logsSections = ["logs-audit"];
+export const logsSections = ["logs-filters", "logs-audit", "logs-export", "logs-retention"];
