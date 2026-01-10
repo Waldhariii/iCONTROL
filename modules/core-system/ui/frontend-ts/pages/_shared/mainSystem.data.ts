@@ -16,10 +16,10 @@ export const MAIN_SYSTEM_MODULES: MainSystemModule[] = [
     type: "core",
     routes: ["dashboard", "account", "parametres", "developer", "selfcheck"],
     menu: [
-      { id: "dashboard", label: "DASHBOARD", roles: ["SYSADMIN", "DEVELOPER", "ADMIN", "USER_READONLY"] },
+      { id: "dashboard", label: "DASHBOARD", roles: ["SYSADMIN", "DEVELOPER", "ADMIN"] },
       { id: "developer", label: "DEVELOPPEUR", roles: ["SYSADMIN", "DEVELOPER"] }
     ],
-    roles: ["SYSADMIN", "DEVELOPER", "ADMIN", "USER_READONLY"],
+    roles: ["SYSADMIN", "DEVELOPER", "ADMIN"],
     namespaces: ["controlx_*"],
     activeDefault: true
   },
@@ -29,9 +29,9 @@ export const MAIN_SYSTEM_MODULES: MainSystemModule[] = [
     type: "module",
     routes: ["dossiers"],
     menu: [
-      { id: "dossiers", label: "DOSSIERS", roles: ["SYSADMIN", "DEVELOPER", "ADMIN", "USER_READONLY"] }
+      { id: "dossiers", label: "DOSSIERS", roles: ["SYSADMIN", "DEVELOPER", "ADMIN"] }
     ],
-    roles: ["SYSADMIN", "DEVELOPER", "ADMIN", "USER_READONLY"],
+    roles: ["SYSADMIN", "DEVELOPER", "ADMIN"],
     namespaces: ["dossiers_*"],
     activeDefault: true
   },
@@ -41,7 +41,7 @@ export const MAIN_SYSTEM_MODULES: MainSystemModule[] = [
     type: "module",
     routes: ["system", "logs"],
     menu: [
-      { id: "system", label: "SYSTEME", roles: ["SYSADMIN", "DEVELOPER", "ADMIN", "USER_READONLY"] },
+      { id: "system", label: "SYSTEME", roles: ["SYSADMIN", "DEVELOPER", "ADMIN"] },
       { id: "logs", label: "LOGS", roles: ["SYSADMIN", "DEVELOPER", "ADMIN"] }
     ],
     roles: ["SYSADMIN", "DEVELOPER", "ADMIN"],
@@ -68,14 +68,12 @@ export const MAIN_SYSTEM_PERMISSIONS: Record<string, Record<string, string[]>> =
   CORE_SYSTEM: {
     SYSADMIN: ["READ", "WRITE", "GOVERN"],
     DEVELOPER: ["READ", "WRITE"],
-    ADMIN: ["READ"],
-    USER_READONLY: ["READ"]
+    ADMIN: ["READ"]
   },
   M_DOSSIERS: {
     SYSADMIN: ["READ", "WRITE"],
     DEVELOPER: ["READ", "WRITE"],
-    ADMIN: ["READ", "WRITE"],
-    USER_READONLY: ["READ"]
+    ADMIN: ["READ", "WRITE"]
   }
 };
 
