@@ -38,12 +38,12 @@ body{margin:0;background:radial-gradient(1200px 800px at 20% 0%, #1a1f23 0%, var
   z-index:80; display:none;
 }
 .cxDrawer{
-  position:fixed; top:0; right:0; height:100%;
+  position:fixed; top:0; left:0; height:100%;
   width:340px; max-width:90vw;
   background:linear-gradient(180deg, rgba(32,36,39,.98), rgba(26,29,31,.98));
-  border-left:1px solid var(--line);
+  border-right:1px solid var(--line);
   box-shadow: var(--shadow);
-  z-index:90; transform: translateX(100%);
+  z-index:90; transform: translateX(-100%);
   transition: transform .18s ease;
   padding:14px;
 }

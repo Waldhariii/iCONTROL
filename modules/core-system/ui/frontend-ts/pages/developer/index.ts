@@ -1,5 +1,6 @@
 import { getRole } from "/src/runtime/rbac";
 import { getSafeMode } from "/src/core/studio/internal/policy";
+import { renderAccessDenied, safeRender } from "../_shared/mainSystem.shared";
 import { canAccess } from "./contract";
 import { createDeveloperModel } from "./model";
 import { renderDeveloperView } from "./view";
@@ -9,9 +10,11 @@ export function renderDeveloper(root: HTMLElement): void {
   const safeMode = getSafeMode();
 
   if (!canAccess(role, safeMode)) {
-    root.innerHTML = "<div style=\"opacity:.8;max-width:780px;margin:24px auto;\">Access denied.</div>";
+    renderAccessDenied(root);
     return;
   }
 
-  renderDeveloperView(root, createDeveloperModel());
+  safeRender(root, () => {
+    renderDeveloperView(root, createDeveloperModel());
+  });
 }
