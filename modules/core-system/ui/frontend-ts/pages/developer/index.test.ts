@@ -2,7 +2,7 @@
 // @vitest-environment-options { "url": "http://localhost" }
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { clearSession, setSession } from "/src/localAuth";
-import { renderDeveloper } from "./index";
+import { developerSections, renderDeveloper } from "./index";
 
 function createLocalStorageMock() {
   const store = new Map<string, string>();
@@ -39,5 +39,7 @@ describe("developer page", () => {
     const root = document.createElement("div");
     renderDeveloper(root);
     expect(root.textContent || "").toContain("Developpeur");
+    expect(developerSections.length).toBe(1);
+    expect(root.innerHTML).not.toMatch(/\\bon\\w+\\s*=/i);
   });
 });
