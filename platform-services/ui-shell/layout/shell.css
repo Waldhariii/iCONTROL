@@ -77,3 +77,21 @@ body{margin:0;background:radial-gradient(1200px 800px at 20% 0%, #1a1f23 0%, var
   background: rgba(123,44,255,.10);
 }
 .cxNav small{color:var(--muted)}
+
+/* ICONTROL_SIDEBAR_LEFT_LAYOUT_V1
+   Desktop: persistent left sidebar, content to the right.
+*/
+@media (min-width: 960px){
+  .cxBurger{display:none}
+  .cxDrawerOverlay{display:none !important}
+  .cxDrawer{
+    left:0; right:auto;
+    transform: translateX(0);
+    border-left:0;
+    border-right:1px solid var(--line);
+  }
+  .cxMain{
+    margin: 0 0 0 340px;
+    max-width: 1280px;
+  }
+}

@@ -139,6 +139,11 @@ export function createShell(navItems: NavItem[]){
 export function getDefaultNavItems(): NavItem[] {
   return [
     { id:"dashboard", label:"Dashboard", hash:"#/dashboard", show: ()=> true },
+    /* ICONTROL_NAV_MAIN_SYSTEM_V1 */
+    { id:"users", label:"Utilisateurs", hash:"#/users", show: ()=> isLoggedIn() },
+    { id:"account", label:"Compte", hash:"#/account", show: ()=> isLoggedIn() },
+    { id:"developer", label:"Développeur", hash:"#/developer", show: ()=> isLoggedIn() },
+    { id:"verification", label:"Vérification", hash:"#/verification", show: ()=> isLoggedIn() },
     { id:"settings", label:"Paramètres", hash:"#/settings", show: ()=> canSeeSettings() },
   ];
 }
