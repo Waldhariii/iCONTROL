@@ -6,6 +6,8 @@ import { canAccess } from "./contract";
 import { render_registry_viewer } from "./sections/registry-viewer";
 import { render_contracts_table } from "./sections/contracts-table";
 import { render_contracts_form } from "./sections/contracts-form";
+import { render_datasources_viewer } from "./sections/datasources-viewer";
+import { render_rules_viewer } from "./sections/rules-viewer";
 
 export function renderDeveloper(root: HTMLElement): void {
   const role = getRole();
@@ -35,7 +37,18 @@ export function renderDeveloper(root: HTMLElement): void {
       render: (host) => render_contracts_form(host),
       requiresRoles: ["SYSADMIN", "DEVELOPER"]
     },
-    // Datasources + rules sections added in Wave 3 (part 2).
+    {
+      id: "toolbox-datasources",
+      title: "Datasources",
+      render: (host) => render_datasources_viewer(host, safeMode),
+      requiresRoles: ["SYSADMIN", "DEVELOPER"]
+    },
+    {
+      id: "toolbox-rules",
+      title: "Rules",
+      render: (host) => render_rules_viewer(host),
+      requiresRole: "SYSADMIN"
+    }
   ];
 
   safeRender(root, () => {
@@ -47,5 +60,7 @@ export function renderDeveloper(root: HTMLElement): void {
 export const developerSections = [
   "toolbox-registry-viewer",
   "toolbox-contracts-table",
-  "toolbox-contracts-form"
+  "toolbox-contracts-form",
+  "toolbox-datasources",
+  "toolbox-rules"
 ];

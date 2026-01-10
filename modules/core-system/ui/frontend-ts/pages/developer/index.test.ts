@@ -38,8 +38,32 @@ describe("developer page", () => {
 
     const root = document.createElement("div");
     renderDeveloper(root);
-    expect(developerSections.length).toBe(3);
+    expect(developerSections.length).toBe(5);
     expect(root.textContent || "").toContain("Registry viewer");
     expect(root.innerHTML).not.toMatch(/\bon\w+\s*=/i);
+  });
+
+  it("blocks external datasources in SAFE_MODE strict", () => {
+    setSession({ username: "dev", role: "DEVELOPER", issuedAt: Date.now() });
+    (globalThis as any).ICONTROL_SAFE_MODE = "STRICT";
+    const root = document.createElement("div");
+    renderDeveloper(root);
+    expect(root.textContent || "").toContain("blocked");
+  });
+
+  it("allows external datasources in SAFE_MODE compat", () => {
+    setSession({ username: "dev", role: "DEVELOPER", issuedAt: Date.now() });
+    (globalThis as any).ICONTROL_SAFE_MODE = "COMPAT";
+    const root = document.createElement("div");
+    renderDeveloper(root);
+    expect(root.textContent || "").toContain("allowed");
+  });
+
+  it("masks SYSADMIN-only section for DEVELOPER with warning", () => {
+    setSession({ username: "dev", role: "DEVELOPER", issuedAt: Date.now() });
+    (globalThis as any).ICONTROL_SAFE_MODE = "COMPAT";
+    const root = document.createElement("div");
+    renderDeveloper(root);
+    expect(root.textContent || "").toContain("WARN_SECTION_BLOCKED");
   });
 });
