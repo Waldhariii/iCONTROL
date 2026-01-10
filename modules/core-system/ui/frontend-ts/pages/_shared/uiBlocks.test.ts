@@ -3,7 +3,7 @@
 import { describe, expect, it } from "vitest";
 import { clearAuditLog, getAuditLog } from "./audit";
 import { OBS } from "./obsCodes";
-import { appendActionRow, appendTable, bindActions, buildCsv } from "./uiBlocks";
+import { appendActionRow, appendTable, bindActions, buildCsv, blockKeyValueTable, blockToggle } from "./uiBlocks";
 
 function makeHost(): HTMLElement {
   const host = document.createElement("div");
@@ -73,5 +73,30 @@ describe("uiBlocks accessibility", () => {
     const log = getAuditLog();
     expect(log.some((entry) => entry.code === OBS.WARN_ACTION_BLOCKED)).toBe(true);
     (globalThis as any).ICONTROL_SAFE_MODE = "COMPAT";
+  });
+
+  it("renders blockToggle with deterministic state", () => {
+    const host = makeHost();
+    const toggle = blockToggle({
+      id: "t1",
+      label: "Flag A",
+      description: "Toggle test",
+      checked: true,
+      onChange: () => {}
+    });
+    host.appendChild(toggle);
+    const input = host.querySelector("input#t1") as HTMLInputElement | null;
+    expect(input?.checked).toBe(true);
+  });
+
+  it("renders blockKeyValueTable rows", () => {
+    const host = makeHost();
+    const table = blockKeyValueTable({
+      title: "KV",
+      rows: [{ key: "A", value: "1" }, { key: "B", value: "2" }]
+    });
+    host.appendChild(table);
+    expect(host.textContent || "").toContain("A");
+    expect(host.textContent || "").toContain("2");
   });
 });

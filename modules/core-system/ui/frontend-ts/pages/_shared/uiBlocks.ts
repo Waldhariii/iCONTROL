@@ -217,3 +217,69 @@ export function appendPillRow(host: HTMLElement, items: string[]): void {
   });
   host.appendChild(wrap);
 }
+
+/* ===== ICONTROL_BLOCK_TOGGLE_V1 ===== */
+export function blockToggle(args: {
+  id: string;
+  label: string;
+  description?: string;
+  checked: boolean;
+  disabled?: boolean;
+  onChange: (next: boolean) => void;
+}): HTMLElement {
+  const wrap = document.createElement("div");
+  wrap.className = "cxCard";
+
+  const title = document.createElement("div");
+  title.className = "cxTitle";
+  title.textContent = args.label;
+  wrap.appendChild(title);
+
+  if (args.description) {
+    const desc = document.createElement("div");
+    desc.className = "smallMuted";
+    desc.textContent = args.description;
+    wrap.appendChild(desc);
+  }
+
+  const row = document.createElement("div");
+  row.className = "cxRow";
+
+  const input = document.createElement("input");
+  input.type = "checkbox";
+  input.id = args.id;
+  input.checked = !!args.checked;
+  input.disabled = !!args.disabled;
+  input.setAttribute("aria-label", args.label);
+
+  const label = document.createElement("label");
+  label.className = "smallMuted";
+  label.htmlFor = args.id;
+  label.textContent = input.disabled ? "Desactive" : input.checked ? "Active" : "Desactive";
+
+  input.addEventListener("change", () => {
+    const next = input.checked;
+    label.textContent = input.disabled ? "Desactive" : next ? "Active" : "Desactive";
+    recordObs({ code: OBS.WARN_ACTION_EXECUTED, actionId: `toggle:${args.id}`, detail: String(next) });
+    args.onChange(next);
+  });
+
+  row.appendChild(input);
+  row.appendChild(label);
+  wrap.appendChild(row);
+  return wrap;
+}
+
+/* ===== ICONTROL_BLOCK_KEYVALUE_TABLE_V1 ===== */
+export function blockKeyValueTable(args: {
+  title: string;
+  rows: Array<{ key: string; value: string }>;
+}): HTMLElement {
+  const card = sectionCard(args.title);
+  appendTable(
+    card,
+    ["Cle", "Valeur"],
+    args.rows.map((r) => ({ Cle: r.key, Valeur: r.value }))
+  );
+  return card;
+}
