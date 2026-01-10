@@ -1,5 +1,6 @@
 import { getSession } from "/src/localAuth";
 import { navigate } from "/src/router";
+import { safeRender as safeHtml } from "/src/core/studio/engine/safe-render";
 import { getBrandResolved, setBrandLocalOverride, clearBrandLocalOverride } from "../../../../../../platform-services/branding/brandService";
 
 type Role = "USER" | "ADMIN" | "SYSADMIN" | "DEVELOPER";
@@ -43,22 +44,24 @@ export function renderBrandingSettings(root: HTMLElement): void {
 
   if (!canEdit()) {
     navigate("#/dashboard");
-    root.innerHTML = `
+    const html = `
       <div style="max-width:980px;margin:26px auto;padding:0 16px">
-        <div style="font-size:22px;font-weight:900">Parametres — Branding</div>
+        <div style="font-size:22px;font-weight:900">Parametres — Identité & marque</div>
         <div style="opacity:.8;margin-top:8px">Acces refuse (SYSADMIN/DEVELOPER requis).</div>
       </div>
     `;
+    const verdict = safeHtml(html);
+    root.innerHTML = verdict.ok ? verdict.html : "<div>render_blocked</div>";
     return;
   }
 
   const res = getBrandResolved();
   const currentName = res.brand.APP_DISPLAY_NAME || "iCONTROL";
 
-  root.innerHTML = `
+  const html = `
     <div style="max-width:980px;margin:26px auto;padding:0 16px">
       <div style="display:flex;align-items:center;gap:12px">
-        <div style="font-size:22px;font-weight:900">Parametres — Branding</div>
+        <div style="font-size:22px;font-weight:900">Parametres — Identité & marque</div>
         <a id="back_settings" href="#/settings" style="opacity:.8;text-decoration:underline">Retour parametres</a>
       </div>
       <div style="opacity:.8;margin-top:8px">Changer le nom affiche sans toucher au code (localStorage).</div>
@@ -77,6 +80,8 @@ export function renderBrandingSettings(root: HTMLElement): void {
       </div>
     </div>
   `;
+  const verdict = safeHtml(html);
+  root.innerHTML = verdict.ok ? verdict.html : "<div>render_blocked</div>";
 
   const input = root.querySelector<HTMLInputElement>("#brand_app_name");
   const status = root.querySelector<HTMLDivElement>("#brand_status");
@@ -88,7 +93,7 @@ export function renderBrandingSettings(root: HTMLElement): void {
   };
 
   if (save) {
-    save.onclick = () => {
+    save.addEventListener("click", () => {
       const v = (input?.value || "").trim();
       if (!v) {
         setStatus("Nom invalide.");
@@ -104,22 +109,22 @@ export function renderBrandingSettings(root: HTMLElement): void {
       } else {
         setStatus("Erreur: " + (resSave.warnings || []).join(", "));
       }
-    };
+    });
   }
 
   if (reset) {
-    reset.onclick = () => {
+    reset.addEventListener("click", () => {
       clearBrandLocalOverride();
       const next = getBrandResolved();
       if (input) input.value = next.brand.APP_DISPLAY_NAME || "iCONTROL";
       setTitleFromBrand();
       setStatus("Reset applique.");
-    };
+    });
   }
 
   const back = root.querySelector<HTMLAnchorElement>("#back_settings");
-  if (back) back.onclick = (e) => {
+  if (back) back.addEventListener("click", (e) => {
     e.preventDefault();
     navigate("#/settings");
-  };
+  });
 }
