@@ -39,8 +39,9 @@ describe("account page", () => {
     const root = document.createElement("div");
     renderAccount(root);
     expect(root.textContent || "").toContain("Compte");
-    expect(accountSections.length).toBe(3);
+    expect(accountSections.length).toBe(4);
     expect(root.textContent || "").toContain("Storage allow list");
+    expect(root.textContent || "").toContain("Storage usage");
     expect(root.innerHTML).not.toMatch(/\\bon\\w+\\s*=/i);
   });
 });

@@ -7,6 +7,7 @@ import { createAccountModel } from "./model";
 import {
   renderAccountSettingsKeys,
   renderAccountStorageAllow,
+  renderAccountStorageUsage,
   renderAccountSummary
 } from "./view";
 
@@ -35,6 +36,11 @@ export function renderAccount(root: HTMLElement): void {
       id: "account-storage-allow",
       title: "Storage allow list",
       render: (host) => renderAccountStorageAllow(host, model)
+    },
+    {
+      id: "account-storage-usage",
+      title: "Storage usage",
+      render: (host) => renderAccountStorageUsage(host, model)
     }
   ];
 
@@ -47,5 +53,6 @@ export function renderAccount(root: HTMLElement): void {
 export const accountSections = [
   "account-summary",
   "account-settings-keys",
-  "account-storage-allow"
+  "account-storage-allow",
+  "account-storage-usage"
 ];

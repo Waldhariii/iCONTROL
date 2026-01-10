@@ -1,5 +1,5 @@
 import type { AccountModel } from "./model";
-import { appendList, appendParagraph, appendTable, sectionCard } from "../_shared/uiBlocks";
+import { appendParagraph, appendTable, sectionCard } from "../_shared/uiBlocks";
 
 export function renderAccountSummary(root: HTMLElement, model: AccountModel): void {
   const card = sectionCard(model.title);
@@ -9,7 +9,14 @@ export function renderAccountSummary(root: HTMLElement, model: AccountModel): vo
 
 export function renderAccountSettingsKeys(root: HTMLElement, model: AccountModel): void {
   const card = sectionCard("Settings keys (rules.ts)");
-  appendList(card, model.settingsKeys.map((key) => `controlx_settings_v1.${key}`));
+  appendTable(
+    card,
+    ["Storage key", "Field"],
+    model.settingsKeys.map((key) => ({
+      "Storage key": "controlx_settings_v1",
+      Field: key
+    }))
+  );
   root.appendChild(card);
 }
 
@@ -27,5 +34,15 @@ export function renderAccountStorageAllow(root: HTMLElement, model: AccountModel
           : "Theme preference"
     }))
   );
+  root.appendChild(card);
+}
+
+export function renderAccountStorageUsage(root: HTMLElement, model: AccountModel): void {
+  const card = sectionCard("Storage usage (read-only)");
+  const rows = model.storageUsageKeys.map((key) => {
+    const hasValue = typeof localStorage !== "undefined" && localStorage.getItem(key) !== null;
+    return { Key: key, Status: hasValue ? "present" : "empty" };
+  });
+  appendTable(card, ["Key", "Status"], rows);
   root.appendChild(card);
 }
