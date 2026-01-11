@@ -4,15 +4,13 @@ import { navigate } from "/src/router";
 import { safeRender } from "../_shared/mainSystem.shared";
 import { getBrandResolved, setBrandLocalOverride, clearBrandLocalOverride } from "../../../../../../platform-services/branding/brandService";
 import { MAIN_SYSTEM_THEME } from "../_shared/mainSystem.data";
-
-const TOK = MAIN_SYSTEM_THEME.tokens;
 const UI = {
   WRAP: "max-width:980px;margin:20px auto;padding:0 16px",
   TITLE: "font-size:18px;font-weight:900;margin-bottom:8px",
   TABLE: "width:100%;border-collapse:collapse",
-  KEY_CELL: `padding:8px;border-bottom:1px solid ${TOK.border};color:${TOK.mutedText};width:40%`,
-  VAL_CELL: `padding:8px;border-bottom:1px solid ${TOK.border}`,
-  LOGOS: `margin-top:12px;color:${TOK.mutedText}`
+  KEY_CELL: "padding:8px;border-bottom:1px solid var(--ic-border);color:var(--ic-mutedText);width:40%",
+  VAL_CELL: "padding:8px;border-bottom:1px solid var(--ic-border)",
+  LOGOS: "margin-top:12px;color:var(--ic-mutedText)"
 } as const;
 
 function getRole(): Role {
@@ -57,7 +55,7 @@ export function renderBrandingSettings(root: HTMLElement): void {
     const html = `
       <div style="max-width:980px;margin:26px auto;padding:0 16px">
         <div style="font-size:22px;font-weight:900">Parametres — Identité & marque</div>
-        <div style="color:${TOK.mutedText};margin-top:8px">Acces refuse (SYSADMIN/DEVELOPER requis).</div>
+        <div style="color:var(--ic-mutedText);margin-top:8px">Acces refuse (SYSADMIN/DEVELOPER requis).</div>
       </div>
     `;
     safeRender(root, () => {
@@ -73,21 +71,21 @@ export function renderBrandingSettings(root: HTMLElement): void {
     <div style="max-width:980px;margin:26px auto;padding:0 16px">
       <div style="display:flex;align-items:center;gap:12px">
         <div style="font-size:22px;font-weight:900">Parametres — Identité & marque</div>
-        <a id="back_settings" href="#/settings" style="color:${TOK.mutedText};text-decoration:underline">Retour parametres</a>
+        <a id="back_settings" href="#/settings" style="color:var(--ic-mutedText);text-decoration:underline">Retour parametres</a>
       </div>
-      <div style="color:${TOK.mutedText};margin-top:8px">Changer le nom affiche sans toucher au code (localStorage).</div>
+      <div style="color:var(--ic-mutedText);margin-top:8px">Changer le nom affiche sans toucher au code (localStorage).</div>
 
       <div style="margin-top:16px;max-width:520px;display:flex;flex-direction:column;gap:10px">
-        <label style="color:${TOK.mutedText}">Nom de l'application</label>
+        <label style="color:var(--ic-mutedText)">Nom de l'application</label>
         <input id="brand_app_name" value="${escapeHtml(currentName)}" placeholder="Ex: Innovex Control"
-          style="padding:10px 12px;border-radius:12px;border:1px solid ${TOK.border};background:${TOK.panel};color:${TOK.text}" />
+          style="padding:10px 12px;border-radius:12px;border:1px solid var(--ic-border);background:var(--ic-panel);color:var(--ic-text)" />
 
         <div style="display:flex;gap:10px;margin-top:8px;flex-wrap:wrap">
-          <button id="brand_save" style="padding:10px 12px;border-radius:12px;border:1px solid ${TOK.border};background:${TOK.accent2};color:${TOK.text};font-weight:800;cursor:pointer">Sauvegarder</button>
-          <button id="brand_reset" style="padding:10px 12px;border-radius:12px;border:1px solid ${TOK.border};background:${TOK.panel};color:${TOK.text};cursor:pointer">Reset</button>
+          <button id="brand_save" style="padding:10px 12px;border-radius:12px;border:1px solid var(--ic-border);background:var(--ic-accent2);color:var(--ic-text);font-weight:800;cursor:pointer">Sauvegarder</button>
+          <button id="brand_reset" style="padding:10px 12px;border-radius:12px;border:1px solid var(--ic-border);background:var(--ic-panel);color:var(--ic-text);cursor:pointer">Reset</button>
         </div>
 
-        <div id="brand_status" style="color:${TOK.mutedText};margin-top:8px"></div>
+        <div id="brand_status" style="color:var(--ic-mutedText);margin-top:8px"></div>
       </div>
     </div>
   `;

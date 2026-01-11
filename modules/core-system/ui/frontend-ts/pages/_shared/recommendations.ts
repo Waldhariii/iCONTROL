@@ -1,6 +1,5 @@
 import { recordObs } from "./audit";
 import { OBS } from "./obsCodes";
-import { MAIN_SYSTEM_THEME } from "./mainSystem.data";
 
 export type SafeMode = "STRICT" | "COMPAT";
 export type Role = "ADMIN" | "DEVELOPER" | "SYSADMIN" | "USER" | string;
@@ -96,14 +95,13 @@ export function renderRecommendations(host: HTMLElement, ctx: RecoContext): void
   const recos = buildRecommendations(ctx);
   if (!recos.length) return;
 
-  const TOK = MAIN_SYSTEM_THEME.tokens;
   const UI = {
-    CARD: `padding:12px 14px;border-radius:16px;background:${TOK.card};border:1px solid ${TOK.border};color:${TOK.text};margin:10px 0;`,
+    CARD: "padding:12px 14px;border-radius:16px;background:var(--ic-card);border:1px solid var(--ic-border);color:var(--ic-text);margin:10px 0;",
     TITLE: "font-weight:900;letter-spacing:.2px;margin-bottom:8px;",
     LIST: "margin:0;padding-left:18px;display:flex;flex-direction:column;gap:8px;",
     ITEM_TITLE: (level: Recommendation["level"]) =>
-      `font-weight:800;color:${level === "WARN" ? TOK.accent : TOK.text};`,
-    ITEM_BODY: `margin-top:2px;color:${TOK.mutedText};line-height:1.25;`
+      `font-weight:800;color:${level === "WARN" ? "var(--ic-accent, var(--ic-text))" : "var(--ic-text)"};`,
+    ITEM_BODY: "margin-top:2px;color:var(--ic-mutedText);line-height:1.25;"
   } as const;
 
   const card = document.createElement("div");

@@ -1,20 +1,18 @@
 import { safeRender } from "../_shared/mainSystem.shared";
-import { MAIN_SYSTEM_THEME } from "../_shared/mainSystem.data";
 import { renderRecommendations } from "../_shared/recommendations";
 import { getRole, getSafeMode } from "../_shared/recommendations.ctx";
 import { renderAccessDenied } from "../_shared/renderAccessDenied";
 import { canAccessPage, type Role } from "../_shared/rolePolicy";
 import { mountSections, type SectionSpec } from "../_shared/sections";
 
-const TOK = MAIN_SYSTEM_THEME.tokens;
 const UI = {
   WRAP: "max-width:980px;margin:26px auto;padding:0 16px",
   TITLE: "font-size:22px;font-weight:900",
-  DESC: `color:${TOK.mutedText};margin-top:8px`,
+  DESC: "color:var(--ic-mutedText);margin-top:8px",
   GRID: "margin-top:16px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px",
-  CARD: `padding:14px;border-radius:18px;background:${TOK.card};border:1px solid ${TOK.border};color:${TOK.text}`,
+  CARD: "padding:14px;border-radius:18px;background:var(--ic-card);border:1px solid var(--ic-border);color:var(--ic-text)",
   CARD_TITLE: "font-weight:900",
-  CARD_TEXT: `color:${TOK.mutedText};margin-top:6px`,
+  CARD_TEXT: "color:var(--ic-mutedText);margin-top:6px",
   WRAP_GRID: "max-width:980px;margin:0 auto;padding:0 16px"
 } as const;
 
