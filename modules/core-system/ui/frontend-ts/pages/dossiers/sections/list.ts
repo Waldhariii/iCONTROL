@@ -10,6 +10,13 @@ import { getDossiersFilters } from "./filters";
 import { canWrite } from "../contract";
 import { listDossiers, transitionDossier, type Dossier } from "../model";
 
+
+// P15: CSS vars pilot (var(--ic-*), fallback tokens)
+const TOK = MAIN_SYSTEM_THEME.tokens;
+const CSS_TEXT = "var(--ic-text, " + TOK.text + ")";
+const CSS_MUTED = "var(--ic-muted, " + TOK.mutedText + ")";
+const CSS_BORDER = "var(--ic-border, " + TOK.border + ")";
+
 const HEADER_STYLE =
   `text-align:left;padding:8px;border-bottom:1px solid var(--line);` +
   `font-size:12px;color:${MAIN_SYSTEM_THEME.tokens.mutedText};`;
