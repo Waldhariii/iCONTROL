@@ -1,8 +1,12 @@
 import type { Role } from "/src/runtime/rbac";
 import { sectionCard } from "../../_shared/uiBlocks";
 import { getSafeMode } from "../../_shared/safeMode";
+import { MAIN_SYSTEM_THEME } from "../../_shared/mainSystem.data";
 import { createDossier } from "../model";
 import { canWrite } from "../contract";
+
+const NOTE_STYLE = `color:${MAIN_SYSTEM_THEME.tokens.mutedText};margin-bottom:8px`;
+const BUTTON_DISABLED_COLOR = MAIN_SYSTEM_THEME.tokens.mutedText;
 
 export function renderDossiersCreate(root: HTMLElement, role: Role, onRefresh: () => void): void {
   const card = sectionCard("Creer");
@@ -10,7 +14,7 @@ export function renderDossiersCreate(root: HTMLElement, role: Role, onRefresh: (
   const writable = canWrite(role) && safeMode !== "STRICT";
 
   const note = document.createElement("div");
-  note.style.cssText = "opacity:.8;margin-bottom:8px";
+  note.style.cssText = NOTE_STYLE;
   note.textContent = writable
     ? "Creation autorisee."
     : "Creation desactivee (RBAC ou SAFE_MODE).";
@@ -41,7 +45,7 @@ export function renderDossiersCreate(root: HTMLElement, role: Role, onRefresh: (
   btn.textContent = "Nouveau dossier";
   btn.disabled = !writable;
   btn.style.cssText = "padding:8px 12px;border-radius:10px;border:1px solid var(--line);background:transparent;color:inherit;cursor:pointer;";
-  if (!writable) btn.style.opacity = "0.6";
+  if (!writable) btn.style.color = BUTTON_DISABLED_COLOR;
 
   btn.addEventListener("click", () => {
     if (!writable) return;

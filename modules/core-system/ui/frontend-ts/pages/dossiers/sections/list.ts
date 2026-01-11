@@ -3,9 +3,16 @@ import { recordObs } from "../../_shared/audit";
 import { OBS } from "../../_shared/obsCodes";
 import { sectionCard } from "../../_shared/uiBlocks";
 import { getSafeMode } from "../../_shared/safeMode";
+import { MAIN_SYSTEM_THEME } from "../../_shared/mainSystem.data";
 import { getDossiersFilters } from "./filters";
 import { canWrite } from "../contract";
 import { listDossiers, transitionDossier, type Dossier } from "../model";
+
+const HEADER_STYLE =
+  `text-align:left;padding:8px;border-bottom:1px solid var(--line);` +
+  `font-size:12px;color:${MAIN_SYSTEM_THEME.tokens.mutedText};`;
+const EMPTY_STYLE = `color:${MAIN_SYSTEM_THEME.tokens.mutedText};`;
+const BLOCKED_BTN_COLOR = MAIN_SYSTEM_THEME.tokens.mutedText;
 
 const selected = new Set<string>();
 
@@ -36,7 +43,7 @@ function buildTable(
   ["Sel", "ID", "Titre", "Etat", "Owner", "Actions"].forEach((h) => {
     const th = document.createElement("th");
     th.textContent = h;
-    th.style.cssText = "text-align:left;padding:8px;border-bottom:1px solid var(--line);font-size:12px;opacity:.85";
+    th.style.cssText = HEADER_STYLE;
     trh.appendChild(th);
   });
   thead.appendChild(trh);
@@ -73,7 +80,7 @@ function buildTable(
       btn.textContent = label;
       btn.style.cssText = "padding:4px 8px;border-radius:8px;border:1px solid var(--line);background:transparent;color:inherit;cursor:pointer;";
       if (blockedReason) {
-        btn.style.opacity = "0.5";
+        btn.style.color = BLOCKED_BTN_COLOR;
         btn.addEventListener("click", () => {
           if (blockedReason === "safeMode") {
             recordObs({ code: OBS.WARN_SAFE_MODE_WRITE_BLOCKED, actionId: "dossier.state", detail: "safeModeStrict" });
@@ -142,7 +149,7 @@ export function renderDossiersList(root: HTMLElement, role: Role): void {
   if (rows.length === 0) {
     const empty = document.createElement("div");
     empty.textContent = "Aucun dossier pour le moment.";
-    empty.style.cssText = "opacity:.8";
+    empty.style.cssText = EMPTY_STYLE;
     card.appendChild(empty);
   } else {
     card.appendChild(buildTable(rows, role, canEdit, safeMode === "STRICT", refresh));
