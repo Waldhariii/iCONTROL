@@ -1,7 +1,8 @@
 // @vitest-environment jsdom
 // @vitest-environment-options { "url": "http://localhost" }
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { clearSession, setSession } from "/src/localAuth";
+// ICONTROL_LOCALAUTH_SHIM_V1
+import { clearSession, setSession } from "./localAuth";
 import { renderAccount } from "../account";
 import { renderUsers } from "../users";
 import { renderVerification } from "../verification";

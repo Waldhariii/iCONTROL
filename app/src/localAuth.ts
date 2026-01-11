@@ -13,9 +13,28 @@ export type Session = {
 
 const LS_SESSION = "icontrol_session_v1";
 
+// ICONTROL_LOCALAUTH_STORAGE_V1: test-safe storage fallback without core deps
+const mem = (() => {
+  const m = new Map<string, string>();
+  return {
+    getItem: (k: string) => (m.has(k) ? m.get(k)! : null),
+    setItem: (k: string, v: string) => void m.set(k, String(v)),
+    removeItem: (k: string) => void m.delete(k),
+    clear: () => void m.clear()
+  } satisfies Pick<Storage, "getItem" | "setItem" | "removeItem" | "clear">;
+})();
+
+function getStorage(): Pick<Storage, "getItem" | "setItem" | "removeItem" | "clear"> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const ls = (globalThis as any)?.localStorage;
+  if (ls && typeof ls.getItem === "function") return ls;
+  if (typeof window !== "undefined" && window.localStorage) return window.localStorage;
+  return mem;
+}
+
 export function getSession(): Session | null {
   try {
-    const raw = localStorage.getItem(LS_SESSION);
+    const raw = getStorage().getItem(LS_SESSION);
     if (!raw) return null;
     const s = JSON.parse(raw) as Session;
     if (!s || typeof s.username !== "string" || typeof s.role !== "string") return null;
@@ -27,7 +46,7 @@ export function getSession(): Session | null {
 
 export function setSession(next: Session): boolean {
   try {
-    localStorage.setItem(LS_SESSION, JSON.stringify(next));
+    getStorage().setItem(LS_SESSION, JSON.stringify(next));
     return true;
   } catch {
     return false;
@@ -35,7 +54,7 @@ export function setSession(next: Session): boolean {
 }
 
 export function clearSession(): void {
-  try { localStorage.removeItem(LS_SESSION); } catch {}
+  try { getStorage().removeItem(LS_SESSION); } catch {}
 }
 
 export function isLoggedIn(): boolean {

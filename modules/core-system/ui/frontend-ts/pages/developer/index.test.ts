@@ -1,7 +1,8 @@
 // @vitest-environment jsdom
 // @vitest-environment-options { "url": "http://localhost" }
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { clearSession, setSession } from "/src/localAuth";
+// ICONTROL_LOCALAUTH_SHIM_V1
+import { setSession, clearSession } from "../_shared/localAuth";
 import { developerSections, renderDeveloper } from "./index";
 
 function createLocalStorageMock() {

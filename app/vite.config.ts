@@ -7,6 +7,8 @@ export default defineConfig({
     include: [
       "src/**/*.{test,spec}.ts",
       "../modules/core-system/ui/frontend-ts/pages/**/*.test.ts"
-    ]
+    ],
+    // ICONTROL_VITEST_SETUPFILES_V1: stable storage stubs for tests
+    setupFiles: ["./vitest.setup.ts"]
   }
 });
