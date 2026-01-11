@@ -1,7 +1,7 @@
 {
   "name": "icontrol-app",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.2.0+dev.1",
   "description": "iCONTROL — Core UI Shell and Module Host",
   "type": "module",
   "scripts": {
