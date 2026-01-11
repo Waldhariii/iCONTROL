@@ -22,6 +22,7 @@ import { renderRoute } from "./moduleLoader";
 (function(){
   try{
     const appRoot = document.getElementById("app") || document.body;
+    // ICONTROL_THEME_CSSVARS_BOOTSTRAP_V1
     // ICONTROL_THEME_CSSVARS_V1: apply tokens before any page render
     applyThemeTokensToCSSVars(document);
     // UI_SHELL_NAV_V1_GUARD: prevent double-mount and expose verifiable marker
