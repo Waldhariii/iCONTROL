@@ -97,28 +97,34 @@ export function renderRecommendations(host: HTMLElement, ctx: RecoContext): void
   if (!recos.length) return;
 
   const TOK = MAIN_SYSTEM_THEME.tokens;
+  const UI = {
+    CARD: `padding:12px 14px;border-radius:16px;background:${TOK.card};border:1px solid ${TOK.border};color:${TOK.text};margin:10px 0;`,
+    TITLE: "font-weight:900;letter-spacing:.2px;margin-bottom:8px;",
+    LIST: "margin:0;padding-left:18px;display:flex;flex-direction:column;gap:8px;",
+    ITEM_TITLE: (level: Recommendation["level"]) =>
+      `font-weight:800;color:${level === "WARN" ? TOK.accent : TOK.text};`,
+    ITEM_BODY: `margin-top:2px;color:${TOK.mutedText};line-height:1.25;`
+  } as const;
+
   const card = document.createElement("div");
-  card.setAttribute(
-    "style",
-    `padding:12px 14px;border-radius:16px;background:${TOK.card};border:1px solid ${TOK.border};color:${TOK.text};margin:10px 0;`
-  );
+  card.setAttribute("style", UI.CARD);
 
   const h = document.createElement("div");
   h.textContent = "Recommandations";
-  h.setAttribute("style", "font-weight:900;letter-spacing:.2px;margin-bottom:8px;");
+  h.setAttribute("style", UI.TITLE);
   card.appendChild(h);
 
   const ul = document.createElement("ul");
-  ul.setAttribute("style", "margin:0;padding-left:18px;display:flex;flex-direction:column;gap:8px;");
+  ul.setAttribute("style", UI.LIST);
 
   recos.forEach((r) => {
     const li = document.createElement("li");
     const title = document.createElement("div");
     title.textContent = r.title;
-    title.setAttribute("style", `font-weight:800;color:${r.level === "WARN" ? TOK.accent : TOK.text};`);
+    title.setAttribute("style", UI.ITEM_TITLE(r.level));
     const body = document.createElement("div");
     body.textContent = r.body;
-    body.setAttribute("style", `margin-top:2px;color:${TOK.mutedText};line-height:1.25;`);
+    body.setAttribute("style", UI.ITEM_BODY);
     li.appendChild(title);
     li.appendChild(body);
     ul.appendChild(li);

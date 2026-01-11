@@ -1,9 +1,18 @@
 import { coreBaseStyles } from "../shared/coreStyles";
 import { logout, requireSession } from "../../../../../platform-services/security/auth/localAuth";
-import { MAIN_SYSTEM_ENABLED, MAIN_SYSTEM_LAYOUT, MAIN_SYSTEM_MODULES } from "./_shared/mainSystem.data";
+import { MAIN_SYSTEM_ENABLED, MAIN_SYSTEM_LAYOUT, MAIN_SYSTEM_MODULES, MAIN_SYSTEM_THEME } from "./_shared/mainSystem.data";
 import { appendList, appendTable, sectionCard } from "./_shared/uiBlocks";
 import { mountSections, type SectionSpec } from "./_shared/sections";
 import { safeRender } from "./_shared/mainSystem.shared";
+
+const TOK = MAIN_SYSTEM_THEME.tokens;
+const UI = {
+  WRAP: "align-items:flex-start; padding-top:38px;",
+  CARD: "width:min(920px,92vw);",
+  BTN: "width:auto; margin-top:0;",
+  USER_BOX: `margin-top:16px; border:1px solid ${TOK.border}; border-radius:14px; padding:14px;`,
+  ACTION_ROW: "margin-top:14px; display:flex; gap:10px; flex-wrap:wrap;"
+} as const;
 
 export function renderDashboard(root: HTMLElement): void {
   safeRender(root, () => {
@@ -11,10 +20,10 @@ export function renderDashboard(root: HTMLElement): void {
 
     const wrap = document.createElement("div");
     wrap.className = "cxWrap";
-    wrap.setAttribute("style", "align-items:flex-start; padding-top:38px;");
+    wrap.setAttribute("style", UI.WRAP);
     const card = document.createElement("div");
     card.className = "cxCard";
-    card.setAttribute("style", "width:min(920px,92vw);");
+    card.setAttribute("style", UI.CARD);
     wrap.appendChild(card);
     root.appendChild(wrap);
 
@@ -38,7 +47,7 @@ export function renderDashboard(root: HTMLElement): void {
 
           const btn = document.createElement("button");
           btn.className = "cxBtn";
-          btn.setAttribute("style", "width:auto; margin-top:0;");
+          btn.setAttribute("style", UI.BTN);
           btn.id = "cxLogout";
           btn.textContent = "Déconnexion";
           btn.addEventListener("click", () => {
@@ -57,7 +66,7 @@ export function renderDashboard(root: HTMLElement): void {
         render: (host) => {
           const s = requireSession();
           const box = document.createElement("div");
-          box.setAttribute("style", "margin-top:16px; border:1px solid var(--line); border-radius:14px; padding:14px;");
+          box.setAttribute("style", UI.USER_BOX);
           const lineUser = document.createElement("div");
           const bUser = document.createElement("b");
           bUser.textContent = "Utilisateur";
@@ -115,10 +124,10 @@ export function renderDashboard(root: HTMLElement): void {
         title: "Actions",
         render: (host) => {
           const row = document.createElement("div");
-          row.setAttribute("style", "margin-top:14px; display:flex; gap:10px; flex-wrap:wrap;");
+          row.setAttribute("style", UI.ACTION_ROW);
           const back = document.createElement("button");
           back.className = "cxBtn";
-          back.setAttribute("style", "width:auto; margin-top:0;");
+          back.setAttribute("style", UI.BTN);
           back.id = "cxGoLogin";
           back.textContent = "Retour Login";
           back.addEventListener("click", () => {

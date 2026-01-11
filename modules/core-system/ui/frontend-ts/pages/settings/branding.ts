@@ -6,6 +6,14 @@ import { getBrandResolved, setBrandLocalOverride, clearBrandLocalOverride } from
 import { MAIN_SYSTEM_THEME } from "../_shared/mainSystem.data";
 
 const TOK = MAIN_SYSTEM_THEME.tokens;
+const UI = {
+  WRAP: "max-width:980px;margin:20px auto;padding:0 16px",
+  TITLE: "font-size:18px;font-weight:900;margin-bottom:8px",
+  TABLE: "width:100%;border-collapse:collapse",
+  KEY_CELL: `padding:8px;border-bottom:1px solid ${TOK.border};color:${TOK.mutedText};width:40%`,
+  VAL_CELL: `padding:8px;border-bottom:1px solid ${TOK.border}`,
+  LOGOS: `margin-top:12px;color:${TOK.mutedText}`
+} as const;
 
 function getRole(): Role {
   const s = getSession();
@@ -137,22 +145,22 @@ export function renderBrandingSettings(root: HTMLElement): void {
 
 function renderThemePackSection(root: HTMLElement): void {
   const wrap = document.createElement("section");
-  wrap.setAttribute("style", "max-width:980px;margin:20px auto;padding:0 16px");
+  wrap.setAttribute("style", UI.WRAP);
 
   const title = document.createElement("div");
-  title.setAttribute("style", "font-size:18px;font-weight:900;margin-bottom:8px");
+  title.setAttribute("style", UI.TITLE);
   title.textContent = "Theme pack v1 (read-only)";
   wrap.appendChild(title);
 
   const table = document.createElement("table");
-  table.setAttribute("style", "width:100%;border-collapse:collapse");
+  table.setAttribute("style", UI.TABLE);
   Object.entries(MAIN_SYSTEM_THEME.tokens).forEach(([key, value]) => {
     const tr = document.createElement("tr");
     const tdKey = document.createElement("td");
-    tdKey.setAttribute("style", `padding:8px;border-bottom:1px solid ${TOK.border};color:${TOK.mutedText};width:40%`);
+    tdKey.setAttribute("style", UI.KEY_CELL);
     tdKey.textContent = key;
     const tdVal = document.createElement("td");
-    tdVal.setAttribute("style", `padding:8px;border-bottom:1px solid ${TOK.border}`);
+    tdVal.setAttribute("style", UI.VAL_CELL);
     tdVal.textContent = String(value);
     tr.appendChild(tdKey);
     tr.appendChild(tdVal);
@@ -162,7 +170,7 @@ function renderThemePackSection(root: HTMLElement): void {
   wrap.appendChild(table);
 
   const logos = document.createElement("div");
-  logos.setAttribute("style", `margin-top:12px;color:${TOK.mutedText}`);
+  logos.setAttribute("style", UI.LOGOS);
   logos.textContent = "Logos: light/dark slots (empty in intake).";
   wrap.appendChild(logos);
 
