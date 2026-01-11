@@ -31,7 +31,12 @@ echo "4) Build smoke (Vite)"
 echo "OK: build pass"
 echo ""
 
-echo "5) Baseline pointers"
+echo "5) Test gate (Vitest)"
+( cd "$ROOT/app" && npm run test >/dev/null )
+echo "OK: test pass"
+echo ""
+
+echo "6) Baseline pointers"
 echo "golden-baseline -> $(git -C "$ROOT" rev-parse golden-baseline^{})"
 echo "snapshot r2    -> $(git -C "$ROOT" rev-parse golden-baseline-2026-01-09-r2^{})"
 echo "HEAD           -> $(git -C "$ROOT" rev-parse HEAD)"

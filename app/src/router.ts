@@ -6,15 +6,25 @@ import { canAccessSettings } from "./runtime/rbac";
  * Public:  #/login
  * Private: #/dashboard (and everything else by default)
  */
-export type RouteId = "login" | "dashboard" | "settings" | "settings_branding" | "notfound";
-
+export type RouteId = "login" | "dashboard" | "settings" | "settings_branding" | "notfound"
+  | "runtime_smoke" | "users" | "account" | "developer" | "verification" | "toolbox"
+  | "system" | "logs" | "dossiers";
 export function getRouteId(): RouteId {
   const h = (location.hash || "").replace(/^#\/?/, "");
   const seg = (h.split("?")[0] || "").trim();
   if (!seg || seg === "login") return "login";
   if (seg === "dashboard") return "dashboard";
+  if (seg === "users") return "users";
+  if (seg === "account") return "account";
+  if (seg === "developer" || seg === "dev") return "developer";
+  if (seg === "toolbox" || seg === "dev-tools" || seg === "devtools") return "toolbox";
+  if (seg === "system") return "system";
+  if (seg === "logs") return "logs";
+  if (seg === "dossiers") return "dossiers";
+  if (seg === "verification" || seg === "verify") return "verification";
   if (seg === "settings") return canAccessSettings() ? "settings" : "dashboard";
   if (seg === "settings/branding") return canAccessSettings() ? "settings_branding" : "dashboard";
+  if (seg === "runtime-smoke" || seg === "runtime_smoke") return "runtime_smoke";
   return "notfound";
 }
 
@@ -49,8 +59,13 @@ export function doLogout(): void {
 
 export function bootRouter(onRoute: (rid: RouteId) => void): void {
   const tick = () => {
-    if (!ensureAuth()) return;
-    onRoute(getRouteId());
+    const rid = getRouteId();
+    const h = String(location.hash || "");
+    const authed = ensureAuth();
+    /* ICONTROL_ROUTER_TRACE_V1 */
+    console.info("ROUTER_TICK", { hash: h, rid, authed });
+    if (!authed) return;
+    onRoute(rid);
   };
   window.addEventListener("hashchange", tick);
   tick();

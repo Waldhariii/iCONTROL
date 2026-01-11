@@ -19,3 +19,42 @@ _REPORTS/ICONTROL_AUDIT_*.md
 _REPORTS/CORE_KERNEL_FREEZE_REPORT_*.md
 _REPORTS/_BK_*/
 _REPORTS/_BACKUPS_*/
+_INTAKE/
+iCONTROL/
+app/dist/
+
+# local reports (generated)
+_REPORTS/
+ICONTROL_SYSTEM_*.md
+
+# iCONTROL local artifacts
+**/.DS_Store
+**/_REPORTS/
+app/node_modules/
+**/node_modules/
+**/dist/
+_REPORTS/**
+
+# =========================
+# ICONTROL_GIT_HYGIENE_V1
+# =========================
+.DS_Store
+**/.DS_Store
+
+# Local build artifacts
+dist/
+app/dist/
+
+# Tool caches
+node_modules/
+.vite/
+.cache/
+
+# Local reports (keep reports out of git by default)
+_REPORTS/
+**/_REPORTS/
+*.md.report
+ICONTROL_*_REPORT_*.md
+ICONTROL_*_ANALYSIS_*.md
+ICONTROL_*_PROGRESS_*.md
+_RELEASES/

@@ -1,5 +1,6 @@
 import { getBrandResolved } from "../../platform-services/branding/brandService";
 import { createShell, getDefaultNavItems } from "../../platform-services/ui-shell/layout/shell";
+import { applyThemeTokensToCSSVars } from "../../modules/core-system/ui/frontend-ts/pages/_shared/themeCssVars";
 /* UI_SHELL_NAV_V1 */
 // ICONTROL_BRAND_TITLE_V1
 const __br = getBrandResolved();
@@ -21,6 +22,9 @@ import { renderRoute } from "./moduleLoader";
 (function(){
   try{
     const appRoot = document.getElementById("app") || document.body;
+    // ICONTROL_THEME_CSSVARS_BOOTSTRAP_V1
+    // ICONTROL_THEME_CSSVARS_V1: apply tokens before any page render
+    applyThemeTokensToCSSVars(document);
     // UI_SHELL_NAV_V1_GUARD: prevent double-mount and expose verifiable marker
     try{
       if((appRoot as any).dataset && (appRoot as any).dataset.uiShell === "UI_SHELL_NAV_V1"){
@@ -53,5 +57,17 @@ function renderShell(rid: RouteId): void {
 
 // UI_SHELL_NAV_V1_BOOT: ensure shell mount is completed before first route render
 queueMicrotask(() => {
+  /* RUNTIME_SMOKE_TOGGLE_V1 */
+  try {
+    const __q = new URLSearchParams(window.location.search);
+    if (__q.get("runtime") === "1") {
+      const mount = getMountEl();
+      import("./pages/runtime-smoke").then((m) => m.renderRuntimeSmoke(mount));
+      return;
+    }
+  } catch (e) {
+    console.warn("WARN_RUNTIME_SMOKE_TOGGLE", String(e));
+  }
+
   bootRouter((rid) => renderShell(rid));
 });

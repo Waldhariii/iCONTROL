@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "datasources": {
+    "logs": { "id": "logs", "type": "logs", "config": {} }
+  },
+  "tables": {},
+  "rules": {},
+  "forms": {}
+}

@@ -1,27 +1,151 @@
-import { getUserLabel } from "/src/router";
+import { coreBaseStyles } from "../shared/coreStyles";
+import { logout, requireSession } from "../../../../../platform-services/security/auth/localAuth";
+import { MAIN_SYSTEM_ENABLED, MAIN_SYSTEM_LAYOUT, MAIN_SYSTEM_MODULES } from "./_shared/mainSystem.data";
+import { appendList, appendTable, sectionCard } from "./_shared/uiBlocks";
+import { mountSections, type SectionSpec } from "./_shared/sections";
+import { safeRender } from "./_shared/mainSystem.shared";
+
+const UI = {
+  WRAP: "align-items:flex-start; padding-top:38px;",
+  CARD: "width:min(920px,92vw);",
+  BTN: "width:auto; margin-top:0;",
+  USER_BOX: "margin-top:16px; border:1px solid var(--ic-border); border-radius:14px; padding:14px;",
+  ACTION_ROW: "margin-top:14px; display:flex; gap:10px; flex-wrap:wrap;"
+} as const;
 
 export function renderDashboard(root: HTMLElement): void {
-  root.innerHTML = `
-    <div style="max-width:980px;margin:26px auto;padding:0 16px">
-      <div style="display:flex;justify-content:space-between;align-items:center;gap:12px">
-        <div style="font-size:22px;font-weight:900">Dashboard</div>
-        <div style="opacity:.8">${getUserLabel()}</div>
-      </div>
+  safeRender(root, () => {
+    root.innerHTML = coreBaseStyles();
 
-      <div style="margin-top:14px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px">
-        <div style="padding:14px;border-radius:18px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06)">
-          <div style="font-weight:900">Santé PME</div>
-          <div style="opacity:.8;margin-top:6px">Widget (placeholder)</div>
-        </div>
-        <div style="padding:14px;border-radius:18px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06)">
-          <div style="font-weight:900">Raccourcis</div>
-          <div style="opacity:.8;margin-top:6px">Widget (placeholder)</div>
-        </div>
-        <div style="padding:14px;border-radius:18px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06)">
-          <div style="font-weight:900">Alertes</div>
-          <div style="opacity:.8;margin-top:6px">Widget (placeholder)</div>
-        </div>
-      </div>
-    </div>
-  `;
+    const wrap = document.createElement("div");
+    wrap.className = "cxWrap";
+    wrap.setAttribute("style", UI.WRAP);
+    const card = document.createElement("div");
+    card.className = "cxCard";
+    card.setAttribute("style", UI.CARD);
+    wrap.appendChild(card);
+    root.appendChild(wrap);
+
+    const sections: SectionSpec[] = [
+      {
+        id: "dashboard-header",
+        title: "Dashboard",
+        render: (host) => {
+          const row = document.createElement("div");
+          row.className = "cxRow";
+
+          const left = document.createElement("div");
+          const title = document.createElement("div");
+          title.className = "cxTitle";
+          title.textContent = "Dashboard";
+          const muted = document.createElement("div");
+          muted.className = "cxMuted";
+          muted.textContent = "Core System — page socle. Widgets viendront ensuite via registry.";
+          left.appendChild(title);
+          left.appendChild(muted);
+
+          const btn = document.createElement("button");
+          btn.className = "cxBtn";
+          btn.setAttribute("style", UI.BTN);
+          btn.id = "cxLogout";
+          btn.textContent = "Déconnexion";
+          btn.addEventListener("click", () => {
+            logout();
+            location.hash = "#/login";
+          });
+
+          row.appendChild(left);
+          row.appendChild(btn);
+          host.appendChild(row);
+        }
+      },
+      {
+        id: "dashboard-user",
+        title: "Utilisateur",
+        render: (host) => {
+          const s = requireSession();
+          const box = document.createElement("div");
+          box.setAttribute("style", UI.USER_BOX);
+          const lineUser = document.createElement("div");
+          const bUser = document.createElement("b");
+          bUser.textContent = "Utilisateur";
+          lineUser.appendChild(bUser);
+          lineUser.appendChild(document.createTextNode(`: ${s.username}`));
+
+          const lineRole = document.createElement("div");
+          const bRole = document.createElement("b");
+          bRole.textContent = "Rôle";
+          lineRole.appendChild(bRole);
+          lineRole.appendChild(document.createTextNode(`: ${s.role}`));
+
+          box.appendChild(lineUser);
+          box.appendChild(lineRole);
+          host.appendChild(box);
+        }
+      },
+      {
+        id: "dashboard-modules",
+        title: "Modules",
+        render: (host) => {
+          const card = sectionCard("Modules registry");
+          appendTable(
+            card,
+            ["ID", "Label", "Type", "Routes", "Active"],
+            MAIN_SYSTEM_MODULES.map((mod) => ({
+              ID: mod.id,
+              Label: mod.label,
+              Type: mod.type,
+              Routes: mod.routes.join(", "),
+              Active: mod.activeDefault ? "yes" : "no"
+            }))
+          );
+          appendList(card, [`Enabled: ${MAIN_SYSTEM_ENABLED.join(", ")}`]);
+          host.appendChild(card);
+        }
+      },
+      {
+        id: "dashboard-layout",
+        title: "Layout pack",
+        render: (host) => {
+          const card = sectionCard("Layout pack v1");
+          appendTable(card, ["Key", "Value"], [
+            { Key: "topbarHeight", Value: String(MAIN_SYSTEM_LAYOUT.topbarHeight) },
+            { Key: "drawerWidth", Value: String(MAIN_SYSTEM_LAYOUT.drawerWidth) },
+            { Key: "maxWidth", Value: String(MAIN_SYSTEM_LAYOUT.maxWidth) },
+            { Key: "pagePadding", Value: String(MAIN_SYSTEM_LAYOUT.pagePadding) }
+          ]);
+          appendList(card, [`Menu order: ${MAIN_SYSTEM_LAYOUT.menuOrder.join(" → ")}`]);
+          host.appendChild(card);
+        }
+      },
+      {
+        id: "dashboard-actions",
+        title: "Actions",
+        render: (host) => {
+          const row = document.createElement("div");
+          row.setAttribute("style", UI.ACTION_ROW);
+          const back = document.createElement("button");
+          back.className = "cxBtn";
+          back.setAttribute("style", UI.BTN);
+          back.id = "cxGoLogin";
+          back.textContent = "Retour Login";
+          back.addEventListener("click", () => {
+            location.hash = "#/login";
+          });
+          row.appendChild(back);
+          host.appendChild(row);
+        }
+      }
+    ];
+
+    mountSections(card, sections, { page: "dashboard" });
+  });
 }
+
+export const dashboardSections = [
+  "dashboard-header",
+  "dashboard-user",
+  "dashboard-modules",
+  "dashboard-layout",
+  "dashboard-actions"
+];

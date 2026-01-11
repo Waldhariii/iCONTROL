@@ -48,11 +48,13 @@ git -C "$ROOT" checkout -b "$BR" "$BASE_TAG"
 echo "OK: branch created"
 echo ""
 
-echo "5) Sanity gates (audit + build)"
+echo "5) Sanity gates (audit + build + test)"
 "$ROOT/scripts/audit/audit-no-leaks.zsh" >/dev/null
 echo "OK: audit pass"
 ( cd "$ROOT/app" && npm run build >/dev/null )
 echo "OK: build pass"
+( cd "$ROOT/app" && npm run test >/dev/null )
+echo "OK: test pass"
 echo ""
 
 echo "DONE. Next: start dev via ./scripts/runbook/dev.zsh"

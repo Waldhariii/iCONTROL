@@ -29,3 +29,8 @@ export function canAccessSettings(): boolean {
   // For now identical, but kept separate for future policy granularity
   return canSeeSettings();
 }
+
+export function canAccessToolbox(): boolean {
+  const r = getRole();
+  return r === "SYSADMIN" || r === "DEVELOPER";
+}
