@@ -8,6 +8,39 @@ import { getDossiersFilters } from "./filters";
 import { canWrite } from "../contract";
 import { listDossiers, transitionDossier, type Dossier } from "../model";
 
+const TOK = MAIN_SYSTEM_THEME.tokens;
+const RECO_BADGE_ID = "dossiers.reco";
+
+type Reco = { code: string; text: string };
+
+function buildRecoForList(d: any, safeMode: string): Reco[] {
+  const out: Reco[] = [];
+  if (safeMode === "STRICT") {
+    out.push({ code: "RECO_SAFE_MODE", text: "SAFE_MODE STRICT: actions d’ecriture bloquees." });
+  }
+  if (d.state === "OPEN") out.push({ code: "RECO_NEXT", text: "Prochaine etape: passer en IN_PROGRESS (si action requise)." });
+  if (d.state === "WAITING") out.push({ code: "RECO_WAIT", text: "En attente: verifier blocage externe / planifier suivi." });
+  if (d.state === "BLOCKED") out.push({ code: "RECO_BLOCKED", text: "Bloque: ajouter/valider la raison avant reprise." });
+  return out;
+}
+
+function renderRecoInline(host: HTMLElement, recos: Reco[]): void {
+  if (!recos.length) return;
+  const box = document.createElement("div");
+  box.setAttribute(
+    "style",
+    [
+      "margin-top:6px",
+      "font-size:12px",
+      "line-height:1.25",
+      "color:" + (TOK.mutedText || "inherit"),
+    ].join(";")
+  );
+  box.textContent = "Reco: " + recos.map(r => r.text).join(" | ");
+  host.appendChild(box);
+  recordObs({ code: OBS.INFO_RECOMMENDATIONS_SHOWN, actionId: RECO_BADGE_ID, detail: String(recos.length) });
+}
+
 const HEADER_STYLE =
   `text-align:left;padding:8px;border-bottom:1px solid var(--line);` +
   `font-size:12px;color:${MAIN_SYSTEM_THEME.tokens.mutedText};`;
