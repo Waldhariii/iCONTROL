@@ -71,7 +71,8 @@ describe("developer page", () => {
     renderDeveloper(root);
 
     const t = root.textContent || "";
-    expect(t).toContain("Sections réservées");
+    expect(root.querySelector('[data-testid="access-denied"]')).toBeNull();
+    expect(root.querySelector('[data-testid="sections-reserved"]')).not.toBeNull();
     expect(t).toContain("toolbox-rules");
     expect(t).not.toContain("WARN_SECTION_BLOCKED");
     expect(t).not.toContain("Rules engine inventory");
@@ -87,8 +88,9 @@ describe("developer page", () => {
     renderDeveloper(root);
 
     const t = root.textContent || "";
+    expect(root.querySelector('[data-testid="access-denied"]')).toBeNull();
+    expect(root.querySelector('[data-testid="sections-reserved"]')).toBeNull();
     expect(t).toContain("Rules engine inventory");
-    expect(t).not.toContain("Sections réservées");
   });
 
   it("ADMIN is blocked from developer page (policy)", () => {
@@ -100,9 +102,19 @@ describe("developer page", () => {
     // @ts-ignore
     renderDeveloper(root);
 
-    const t = root.textContent || "";
     // ADMIN is blocked at page-level RBAC for /developer in this policy
-    expect(t).toContain("Access denied");
+    expect(root.textContent || "").toContain("RBAC_PAGE_ADMIN_BLOCKED");
+  });
+
+  it("USER is blocked from developer page (policy)", () => {
+    const root = document.createElement("div");
+    // @ts-ignore
+    setSession({ username: "user", role: "USER", issuedAt: Date.now() });
+
+    // @ts-ignore
+    renderDeveloper(root);
+
+    expect(root.textContent || "").toContain("RBAC_PAGE_USER_BLOCKED");
   });
 
 });

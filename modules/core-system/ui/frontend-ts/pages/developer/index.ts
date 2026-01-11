@@ -1,9 +1,10 @@
 import { renderAccessDenied, safeRender } from "../_shared/mainSystem.shared";
 import { mountSections, type SectionSpec } from "../_shared/sections";
 import { renderRecommendations } from "../_shared/recommendations";
-import { getRole, getSafeMode } from "../_shared/recommendations.ctx";
+import { getSafeMode } from "../_shared/recommendations.ctx";
 import { sectionCard } from "../_shared/uiBlocks";
-import { canAccess } from "./contract";
+import { getSession } from "../_shared/localAuth";
+import { canAccessPage, canAccessSection, type Role } from "../_shared/rolePolicy";
 import { render_registry_viewer } from "./sections/registry-viewer";
 import { render_contracts_table } from "./sections/contracts-table";
 import { render_contracts_form } from "./sections/contracts-form";
@@ -12,11 +13,13 @@ import { render_rules_viewer } from "./sections/rules-viewer";
 import { render_audit_log } from "./sections/audit-log";
 
 export function renderDeveloper(root: HTMLElement): void {
-  const role = getRole();
+  const sess = getSession();
+  const role = (sess?.role || "USER") as Role;
   const safeMode = getSafeMode();
 
-  if (!canAccess(role, safeMode)) {
-    renderAccessDenied(root);
+  const pageDecision = canAccessPage(role, "developer");
+  if (!pageDecision.allow) {
+    renderAccessDenied(root, pageDecision.reason);
     return;
   }
 
@@ -72,9 +75,8 @@ export function renderDeveloper(root: HTMLElement): void {
   ];
 
   const isAllowedForRole = (section: SectionSpec): boolean => {
-    if (section.requiresRoles) return section.requiresRoles.includes(role);
-    if (section.requiresRole) return section.requiresRole === role;
-    return true;
+    const decision = canAccessSection(role, section.id as never);
+    return decision.allow;
   };
 
   const allowedSections = sections.filter(isAllowedForRole);
@@ -84,6 +86,7 @@ export function renderDeveloper(root: HTMLElement): void {
     root.innerHTML = "";
     if (hiddenSections.length > 0) {
       const card = sectionCard("Sections réservées");
+      card.setAttribute("data-testid", "sections-reserved");
       const note = document.createElement("div");
       note.style.cssText = "opacity:.8;margin-bottom:8px";
       note.textContent = "Certaines sections sont visibles uniquement pour SYSADMIN.";
