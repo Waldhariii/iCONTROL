@@ -1,7 +1,7 @@
-import { getRole } from "/src/runtime/rbac";
-import { getSafeMode } from "../_shared/safeMode";
 import { renderAccessDenied, safeRender } from "../_shared/mainSystem.shared";
 import { mountSections, type SectionSpec } from "../_shared/sections";
+import { renderRecommendations } from "../_shared/recommendations";
+import { getRole, getSafeMode } from "../_shared/recommendations.ctx";
 import { sectionCard } from "../_shared/uiBlocks";
 import { canAccess } from "./contract";
 import { render_registry_viewer } from "./sections/registry-viewer";
@@ -21,6 +21,18 @@ export function renderDeveloper(root: HTMLElement): void {
   }
 
   const sections: SectionSpec[] = [
+    {
+      id: "developer-recommendations",
+      title: "Recommandations",
+      render: (host) => {
+        renderRecommendations(host, {
+          pageId: "developer",
+          scopeId: "developer",
+          role,
+          safeMode
+        });
+      }
+    },
     {
       id: "toolbox-registry-viewer",
       title: "Registry viewer",

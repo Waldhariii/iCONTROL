@@ -1,11 +1,25 @@
 import { safeRender } from "../_shared/mainSystem.shared";
 import { MAIN_SYSTEM_THEME } from "../_shared/mainSystem.data";
+import { renderRecommendations } from "../_shared/recommendations";
+import { getRole, getSafeMode } from "../_shared/recommendations.ctx";
 import { mountSections, type SectionSpec } from "../_shared/sections";
 
 export function renderSettingsPage(root: HTMLElement): void {
   if (!root) return;
 
   const sections: SectionSpec[] = [
+    {
+      id: "settings-recommendations",
+      title: "Recommandations",
+      render: (host) => {
+        renderRecommendations(host, {
+          pageId: "settings",
+          scopeId: "settings",
+          role: getRole(),
+          safeMode: getSafeMode()
+        });
+      }
+    },
     {
       id: "settings-header",
       title: "Parametres",

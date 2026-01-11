@@ -1,7 +1,6 @@
-import { getRole } from "/src/runtime/rbac";
 import { blockKeyValueTable } from "../../_shared/uiBlocks";
-import { getSafeMode } from "../../_shared/safeMode";
 import { renderRecommendations } from "../../_shared/recommendations";
+import { getRole, getSafeMode } from "../../_shared/recommendations.ctx";
 
 export function renderDossiersRules(root: HTMLElement): void {
   root.appendChild(
