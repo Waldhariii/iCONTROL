@@ -2,6 +2,7 @@ import type { Role } from "/src/runtime/rbac";
 import { getSafeMode } from "../_shared/safeMode";
 import { recordObs } from "../_shared/audit";
 import { OBS } from "../_shared/obsCodes";
+import { isWriteAllowed } from "../_shared/rolePolicy";
 import { canWrite } from "./contract";
 
 export type DossierState = "OPEN" | "IN_PROGRESS" | "WAITING" | "CLOSED";
@@ -58,9 +59,10 @@ export function createDossier(
     recordObs({ code: OBS.WARN_ACTION_BLOCKED, actionId: "dossier.create", detail: "rbac" });
     return { ok: false, reason: "rbac" };
   }
-  if (getSafeMode() === "STRICT") {
-    recordObs({ code: OBS.WARN_SAFE_MODE_WRITE_BLOCKED, actionId: "dossier.create", detail: "safe_mode" });
-    return { ok: false, reason: "safe_mode" };
+  const writeDecision = isWriteAllowed(getSafeMode(), "dossier.create");
+  if (!writeDecision.allow) {
+    recordObs({ code: OBS.WARN_SAFE_MODE_WRITE_BLOCKED, actionId: "dossier.create", detail: writeDecision.reason });
+    return { ok: false, reason: writeDecision.reason };
   }
   const now = new Date().toISOString();
   const dossier: Dossier = {
@@ -92,9 +94,10 @@ export function updateDossier(
     recordObs({ code: OBS.WARN_ACTION_BLOCKED, actionId: "dossier.update", detail: "rbac" });
     return { ok: false, reason: "rbac" };
   }
-  if (getSafeMode() === "STRICT") {
-    recordObs({ code: OBS.WARN_SAFE_MODE_WRITE_BLOCKED, actionId: "dossier.update", detail: "safe_mode" });
-    return { ok: false, reason: "safe_mode" };
+  const writeDecision = isWriteAllowed(getSafeMode(), "dossier.update");
+  if (!writeDecision.allow) {
+    recordObs({ code: OBS.WARN_SAFE_MODE_WRITE_BLOCKED, actionId: "dossier.update", detail: writeDecision.reason });
+    return { ok: false, reason: writeDecision.reason };
   }
   if (current.state === "CLOSED") {
     recordObs({ code: OBS.WARN_ACTION_BLOCKED, actionId: "dossier.update", detail: "state_blocked" });
@@ -131,9 +134,10 @@ export function transitionDossier(
     recordObs({ code: OBS.WARN_ACTION_BLOCKED, actionId: "dossier.state", detail: "rbac" });
     return { ok: false, reason: "rbac" };
   }
-  if (getSafeMode() === "STRICT") {
-    recordObs({ code: OBS.WARN_SAFE_MODE_WRITE_BLOCKED, actionId: "dossier.state", detail: "safe_mode" });
-    return { ok: false, reason: "safe_mode" };
+  const writeDecision = isWriteAllowed(getSafeMode(), "dossier.state");
+  if (!writeDecision.allow) {
+    recordObs({ code: OBS.WARN_SAFE_MODE_WRITE_BLOCKED, actionId: "dossier.state", detail: writeDecision.reason });
+    return { ok: false, reason: writeDecision.reason };
   }
   if (current.state === "CLOSED") {
     recordObs({ code: OBS.WARN_ACTION_BLOCKED, actionId: "dossier.state", detail: "closed" });
@@ -183,9 +187,10 @@ export function resetDossiers(
     recordObs({ code: OBS.WARN_ACTION_BLOCKED, actionId: "dossier.reset", detail: "rbac" });
     return { ok: false, reason: "rbac" };
   }
-  if (getSafeMode() === "STRICT") {
-    recordObs({ code: OBS.WARN_SAFE_MODE_WRITE_BLOCKED, actionId: "dossier.reset", detail: "safe_mode" });
-    return { ok: false, reason: "safe_mode" };
+  const writeDecision = isWriteAllowed(getSafeMode(), "dossier.reset");
+  if (!writeDecision.allow) {
+    recordObs({ code: OBS.WARN_SAFE_MODE_WRITE_BLOCKED, actionId: "dossier.reset", detail: writeDecision.reason });
+    return { ok: false, reason: writeDecision.reason };
   }
   storage.removeItem(STORAGE_KEY);
   recordObs({ code: OBS.INFO_WRITE_OK, actionId: "dossier.reset", detail: "cleared" });

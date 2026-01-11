@@ -1,6 +1,9 @@
 import type { Role } from "/src/runtime/rbac";
 import { blockActionBar, blockToast } from "../../_shared/uiBlocks";
 import { getSafeMode } from "../../_shared/safeMode";
+import { isWriteAllowed } from "../../_shared/rolePolicy";
+import { recordObs } from "../../_shared/audit";
+import { OBS } from "../../_shared/obsCodes";
 import { canWrite } from "../contract";
 import { transitionDossier } from "../model";
 import { getSelectedIds } from "./list";
@@ -16,6 +19,12 @@ export function renderDossiersBulk(host: HTMLElement, role: Role, onRefresh: () 
     safeMode,
     onAction: (action) => {
       if (action.id !== "bulk_close") return;
+      const decision = isWriteAllowed(safeMode, "dossier.state");
+      if (!decision.allow) {
+        recordObs({ code: OBS.WARN_SAFE_MODE_WRITE_BLOCKED, actionId: "dossier.state", detail: decision.reason });
+        host.appendChild(blockToast("SAFE_MODE strict: ecriture bloquee.", "warn"));
+        return;
+      }
       if (!canWrite(role)) return;
       const ids = getSelectedIds();
       if (!ids.length) {

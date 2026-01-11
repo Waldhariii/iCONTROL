@@ -1,6 +1,9 @@
 import type { Role } from "/src/runtime/rbac";
 import { blockActionBar, blockToast } from "../../_shared/uiBlocks";
 import { getSafeMode } from "../../_shared/safeMode";
+import { isWriteAllowed } from "../../_shared/rolePolicy";
+import { recordObs } from "../../_shared/audit";
+import { OBS } from "../../_shared/obsCodes";
 import { canWrite } from "../contract";
 import { createDossier, listDossiers, transitionDossier, resetDossiers } from "../model";
 import { getSelectedIds } from "./list";
@@ -33,6 +36,20 @@ export function renderDossiersActions(host: HTMLElement, role: Role, onRefresh: 
     allowedRoles,
     safeMode,
     onAction: (action) => {
+      if (action.write) {
+        const actionId =
+          action.id === "create_demo"
+            ? "dossier.create"
+            : action.id === "reset_demo"
+              ? "dossier.reset"
+              : "dossier.state";
+        const decision = isWriteAllowed(safeMode, actionId);
+        if (!decision.allow) {
+          recordObs({ code: OBS.WARN_SAFE_MODE_WRITE_BLOCKED, actionId, detail: decision.reason });
+          host.appendChild(blockToast("SAFE_MODE strict: ecriture bloquee.", "warn"));
+          return;
+        }
+      }
       if (!canWrite(role)) return;
       if (action.id === "create_demo") {
         const res = createDossier(role, {

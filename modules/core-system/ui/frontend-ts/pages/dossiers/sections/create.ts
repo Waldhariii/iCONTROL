@@ -2,6 +2,7 @@ import type { Role } from "/src/runtime/rbac";
 import { sectionCard } from "../../_shared/uiBlocks";
 import { getSafeMode } from "../../_shared/safeMode";
 import { MAIN_SYSTEM_THEME } from "../../_shared/mainSystem.data";
+import { isWriteAllowed } from "../../_shared/rolePolicy";
 import { createDossier } from "../model";
 import { canWrite } from "../contract";
 
@@ -11,13 +12,14 @@ const BUTTON_DISABLED_COLOR = MAIN_SYSTEM_THEME.tokens.mutedText;
 export function renderDossiersCreate(root: HTMLElement, role: Role, onRefresh: () => void): void {
   const card = sectionCard("Creer");
   const safeMode = getSafeMode();
-  const writable = canWrite(role) && safeMode !== "STRICT";
+  const writeDecision = isWriteAllowed(safeMode, "dossier.create");
+  const writable = canWrite(role) && writeDecision.allow;
 
   const note = document.createElement("div");
   note.style.cssText = NOTE_STYLE;
   note.textContent = writable
     ? "Creation autorisee."
-    : "Creation desactivee (RBAC ou SAFE_MODE).";
+    : `Creation desactivee (${writeDecision.allow ? "RBAC" : writeDecision.reason}).`;
   card.appendChild(note);
 
   const form = document.createElement("div");

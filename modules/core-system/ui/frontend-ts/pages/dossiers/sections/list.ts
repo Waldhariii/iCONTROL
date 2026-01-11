@@ -5,6 +5,7 @@ import { sectionCard } from "../../_shared/uiBlocks";
 import { MAIN_SYSTEM_THEME } from "../../_shared/mainSystem.data";
 import { renderRecommendations } from "../../_shared/recommendations";
 import { getSafeMode } from "../../_shared/recommendations.ctx";
+import { isWriteAllowed } from "../../_shared/rolePolicy";
 import { getDossiersFilters } from "./filters";
 import { canWrite } from "../contract";
 import { listDossiers, transitionDossier, type Dossier } from "../model";
@@ -34,7 +35,7 @@ function buildTable(
   rows: Dossier[],
   role: Role,
   canEdit: boolean,
-  safeModeStrict: boolean,
+  safeModeBlockedReason: string | null,
   onAction: () => void
 ): HTMLElement {
   const table = document.createElement("table");
@@ -83,8 +84,8 @@ function buildTable(
       if (blockedReason) {
         btn.style.color = BLOCKED_BTN_COLOR;
         btn.addEventListener("click", () => {
-          if (blockedReason === "safeMode") {
-            recordObs({ code: OBS.WARN_SAFE_MODE_WRITE_BLOCKED, actionId: "dossier.state", detail: "safeModeStrict" });
+          if (blockedReason.startsWith("safeMode")) {
+            recordObs({ code: OBS.WARN_SAFE_MODE_WRITE_BLOCKED, actionId: "dossier.state", detail: blockedReason });
             return;
           }
           recordObs({ code: OBS.WARN_ACTION_BLOCKED, actionId: "dossier.state", detail: blockedReason });
@@ -102,7 +103,7 @@ function buildTable(
     );
 
     let blockedReason: string | undefined;
-    if (safeModeStrict) blockedReason = "safeMode";
+    if (safeModeBlockedReason) blockedReason = `safeMode:${safeModeBlockedReason}`;
     else if (!canEdit) blockedReason = "rbac";
     else if (d.state === "CLOSED") blockedReason = "closed";
     if (d.state !== "CLOSED") {
@@ -145,6 +146,7 @@ export function renderDossiersList(root: HTMLElement, role: Role): void {
     entityType: "dossier"
   });
   const canEdit = canWrite(role);
+  const writeDecision = isWriteAllowed(safeMode, "dossier.state");
   const filters = getDossiersFilters();
   const rows = listDossiers().filter((d) => {
     if (filters.status !== "ALL" && d.state !== filters.status) return false;
@@ -160,7 +162,7 @@ export function renderDossiersList(root: HTMLElement, role: Role): void {
     empty.style.cssText = EMPTY_STYLE;
     card.appendChild(empty);
   } else {
-    card.appendChild(buildTable(rows, role, canEdit, safeMode === "STRICT", refresh));
+    card.appendChild(buildTable(rows, role, canEdit, writeDecision.allow ? null : writeDecision.reason, refresh));
   }
   root.appendChild(card);
 }
