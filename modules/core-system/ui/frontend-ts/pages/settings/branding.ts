@@ -5,6 +5,8 @@ import { safeRender } from "../_shared/mainSystem.shared";
 import { getBrandResolved, setBrandLocalOverride, clearBrandLocalOverride } from "../../../../../../platform-services/branding/brandService";
 import { MAIN_SYSTEM_THEME } from "../_shared/mainSystem.data";
 
+const TOK = MAIN_SYSTEM_THEME.tokens;
+
 function getRole(): Role {
   const s = getSession();
   return (s?.role || "USER") as Role;
@@ -47,7 +49,7 @@ export function renderBrandingSettings(root: HTMLElement): void {
     const html = `
       <div style="max-width:980px;margin:26px auto;padding:0 16px">
         <div style="font-size:22px;font-weight:900">Parametres — Identité & marque</div>
-        <div style="opacity:.8;margin-top:8px">Acces refuse (SYSADMIN/DEVELOPER requis).</div>
+        <div style="color:${TOK.mutedText};margin-top:8px">Acces refuse (SYSADMIN/DEVELOPER requis).</div>
       </div>
     `;
     safeRender(root, () => {
@@ -63,21 +65,21 @@ export function renderBrandingSettings(root: HTMLElement): void {
     <div style="max-width:980px;margin:26px auto;padding:0 16px">
       <div style="display:flex;align-items:center;gap:12px">
         <div style="font-size:22px;font-weight:900">Parametres — Identité & marque</div>
-        <a id="back_settings" href="#/settings" style="opacity:.8;text-decoration:underline">Retour parametres</a>
+        <a id="back_settings" href="#/settings" style="color:${TOK.mutedText};text-decoration:underline">Retour parametres</a>
       </div>
-      <div style="opacity:.8;margin-top:8px">Changer le nom affiche sans toucher au code (localStorage).</div>
+      <div style="color:${TOK.mutedText};margin-top:8px">Changer le nom affiche sans toucher au code (localStorage).</div>
 
       <div style="margin-top:16px;max-width:520px;display:flex;flex-direction:column;gap:10px">
-        <label style="opacity:.8">Nom de l'application</label>
+        <label style="color:${TOK.mutedText}">Nom de l'application</label>
         <input id="brand_app_name" value="${escapeHtml(currentName)}" placeholder="Ex: Innovex Control"
-          style="padding:10px 12px;border-radius:12px;border:1px solid ${MAIN_SYSTEM_THEME.tokens.border};background:${MAIN_SYSTEM_THEME.tokens.panel};color:inherit" />
+          style="padding:10px 12px;border-radius:12px;border:1px solid ${TOK.border};background:${TOK.panel};color:${TOK.text}" />
 
         <div style="display:flex;gap:10px;margin-top:8px;flex-wrap:wrap">
-          <button id="brand_save" style="padding:10px 12px;border-radius:12px;border:1px solid rgba(255,255,255,0.15);background:rgba(183,217,75,0.15);color:inherit;font-weight:800;cursor:pointer">Sauvegarder</button>
-          <button id="brand_reset" style="padding:10px 12px;border-radius:12px;border:1px solid rgba(255,255,255,0.15);background:transparent;color:inherit;cursor:pointer">Reset</button>
+          <button id="brand_save" style="padding:10px 12px;border-radius:12px;border:1px solid ${TOK.border};background:${TOK.accent2};color:${TOK.text};font-weight:800;cursor:pointer">Sauvegarder</button>
+          <button id="brand_reset" style="padding:10px 12px;border-radius:12px;border:1px solid ${TOK.border};background:${TOK.panel};color:${TOK.text};cursor:pointer">Reset</button>
         </div>
 
-        <div id="brand_status" style="opacity:.8;margin-top:8px"></div>
+        <div id="brand_status" style="color:${TOK.mutedText};margin-top:8px"></div>
       </div>
     </div>
   `;
@@ -147,10 +149,10 @@ function renderThemePackSection(root: HTMLElement): void {
   Object.entries(MAIN_SYSTEM_THEME.tokens).forEach(([key, value]) => {
     const tr = document.createElement("tr");
     const tdKey = document.createElement("td");
-    tdKey.setAttribute("style", `padding:8px;border-bottom:1px solid rgba(255,255,255,0.08);color:${MAIN_SYSTEM_THEME.tokens.mutedText};width:40%`);
+    tdKey.setAttribute("style", `padding:8px;border-bottom:1px solid ${TOK.border};color:${TOK.mutedText};width:40%`);
     tdKey.textContent = key;
     const tdVal = document.createElement("td");
-    tdVal.setAttribute("style", "padding:8px;border-bottom:1px solid rgba(255,255,255,0.08)");
+    tdVal.setAttribute("style", `padding:8px;border-bottom:1px solid ${TOK.border}`);
     tdVal.textContent = String(value);
     tr.appendChild(tdKey);
     tr.appendChild(tdVal);
@@ -160,7 +162,7 @@ function renderThemePackSection(root: HTMLElement): void {
   wrap.appendChild(table);
 
   const logos = document.createElement("div");
-  logos.setAttribute("style", "margin-top:12px;opacity:.8");
+  logos.setAttribute("style", `margin-top:12px;color:${TOK.mutedText}`);
   logos.textContent = "Logos: light/dark slots (empty in intake).";
   wrap.appendChild(logos);
 
