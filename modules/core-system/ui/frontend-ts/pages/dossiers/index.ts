@@ -1,7 +1,8 @@
 import { getRole } from "/src/runtime/rbac";
-import { renderAccessDenied, safeRender } from "../_shared/mainSystem.shared";
+import { safeRender } from "../_shared/mainSystem.shared";
 import { mountSections, type SectionSpec } from "../_shared/sections";
 import { getSafeMode } from "../_shared/safeMode";
+import { renderAccessDenied } from "../_shared/renderAccessDenied";
 import { canAccess } from "./contract";
 import { renderDossiersList } from "./sections/list";
 import { renderDossiersCreate } from "./sections/create";
@@ -25,7 +26,7 @@ export function renderDossiersPage(root: HTMLElement): void {
   const role = getRole();
   const safeMode = getSafeMode();
   if (!canAccess(role, safeMode)) {
-    renderAccessDenied(root);
+    renderAccessDenied(root, "RBAC_PAGE_BLOCKED");
     return;
   }
   const dossierId = getDossierIdFromHash();

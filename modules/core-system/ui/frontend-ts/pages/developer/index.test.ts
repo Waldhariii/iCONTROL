@@ -103,7 +103,7 @@ describe("developer page", () => {
     renderDeveloper(root);
 
     // ADMIN is blocked at page-level RBAC for /developer in this policy
-    expect(root.textContent || "").toContain("RBAC_PAGE_ADMIN_BLOCKED");
+    expect(root.querySelector('[data-testid="access-denied"]')).not.toBeNull();
   });
 
   it("USER is blocked from developer page (policy)", () => {
@@ -114,7 +114,7 @@ describe("developer page", () => {
     // @ts-ignore
     renderDeveloper(root);
 
-    expect(root.textContent || "").toContain("RBAC_PAGE_USER_BLOCKED");
+    expect(root.querySelector('[data-testid="access-denied"]')).not.toBeNull();
   });
 
 });

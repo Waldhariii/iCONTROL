@@ -2,10 +2,18 @@ import { safeRender } from "../_shared/mainSystem.shared";
 import { MAIN_SYSTEM_THEME } from "../_shared/mainSystem.data";
 import { renderRecommendations } from "../_shared/recommendations";
 import { getRole, getSafeMode } from "../_shared/recommendations.ctx";
+import { renderAccessDenied } from "../_shared/renderAccessDenied";
+import { canAccessPage, type Role } from "../_shared/rolePolicy";
 import { mountSections, type SectionSpec } from "../_shared/sections";
 
 export function renderSettingsPage(root: HTMLElement): void {
   if (!root) return;
+  const role = getRole() as Role;
+  const pageDecision = canAccessPage(role, "parametres");
+  if (!pageDecision.allow) {
+    renderAccessDenied(root, pageDecision.reason);
+    return;
+  }
 
   const sections: SectionSpec[] = [
     {
@@ -15,7 +23,7 @@ export function renderSettingsPage(root: HTMLElement): void {
         renderRecommendations(host, {
           pageId: "settings",
           scopeId: "settings",
-          role: getRole(),
+          role,
           safeMode: getSafeMode()
         });
       }

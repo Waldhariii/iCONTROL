@@ -1,9 +1,10 @@
 import { getRole } from "/src/runtime/rbac";
-import { renderAccessDenied, safeRender } from "../_shared/mainSystem.shared";
+import { safeRender } from "../_shared/mainSystem.shared";
 import { mountSections, type SectionSpec } from "../_shared/sections";
 import { recordObs } from "../_shared/audit";
 import { OBS } from "../_shared/obsCodes";
 import { getSafeMode } from "../_shared/safeMode";
+import { renderAccessDenied } from "../_shared/renderAccessDenied";
 import { canAccess } from "./contract";
 import { renderLogsAudit } from "./sections/audit-log";
 import { renderLogsFilters } from "./sections/filters";
@@ -16,7 +17,7 @@ export function renderLogsPage(root: HTMLElement): void {
 
   if (!canAccess(role, safeMode)) {
     recordObs({ code: OBS.WARN_SECTION_BLOCKED, page: "logs", section: "page", detail: "rbac" });
-    renderAccessDenied(root);
+    renderAccessDenied(root, "RBAC_PAGE_BLOCKED");
     return;
   }
 

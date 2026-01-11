@@ -1,9 +1,10 @@
-import { renderAccessDenied, safeRender } from "../_shared/mainSystem.shared";
+import { safeRender } from "../_shared/mainSystem.shared";
 import { mountSections, type SectionSpec } from "../_shared/sections";
 import { renderRecommendations } from "../_shared/recommendations";
 import { getSafeMode } from "../_shared/recommendations.ctx";
 import { sectionCard } from "../_shared/uiBlocks";
 import { getSession } from "../_shared/localAuth";
+import { renderAccessDenied } from "../_shared/renderAccessDenied";
 import { canAccessPage, canAccessSection, type Role } from "../_shared/rolePolicy";
 import { render_registry_viewer } from "./sections/registry-viewer";
 import { render_contracts_table } from "./sections/contracts-table";
