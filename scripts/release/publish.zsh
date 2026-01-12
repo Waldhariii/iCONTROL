@@ -1,6 +1,8 @@
 #!/usr/bin/env zsh
 set -euo pipefail
 
+# Release publication uses a canonical notes render (tmp) to guarantee Commit pointer == tag commit.
+
 # ---- args/env ----
 if [[ "${1:-}" == "TAG="* ]]; then
   export TAG="${1#TAG=}"
@@ -67,6 +69,15 @@ need_clean_tree() {
 need_gh() {
   command -v gh >/dev/null 2>&1 || { echo "ERROR: gh not installed"; exit 1; }
   gh auth status >/dev/null 2>&1 || { echo "ERROR: gh not authenticated (run: gh auth login)"; exit 1; }
+}
+
+repo_slug() {
+  # Use OWNER/REPO if provided; otherwise infer from git remote.
+  if [[ -n "${OWNER:-}" && -n "${REPO:-}" ]]; then
+    echo "${OWNER}/${REPO}"
+    return 0
+  fi
+  git remote get-url origin 2>/dev/null | sed -E 's#^git@github.com:##; s#^https://github.com/##; s#\.git$##'
 }
 
 tag_exists() {
@@ -227,6 +238,90 @@ commit_notes_if_changed() {
   fi
 }
 
+render_notes_for_release() {
+  # Always produce a canonical notes file for GitHub Release publishing where:
+  #   ## Commit
+  #   - <TAG_SHA7>
+  #
+  # This avoids extra repo commits solely for "Commit pointer hygiene".
+  local tag_sha7 tmp
+
+  if tag_exists; then
+    tag_sha7="$(tag_commit | cut -c1-7)"
+  else
+    # Fallback: if tag doesn't exist yet, use HEAD (retag flow will create it)
+    tag_sha7="$(head_commit | cut -c1-7)"
+  fi
+
+  tmp="$(mktemp -t "icontrol_release_notes_${TAG}.XXXXXX.md")"
+  cp -f "$NOTES" "$tmp"
+
+  perl -0777 -i -pe "s/##\\s*Commit\\s*\\R.*?(?=\\R##\\s|\\z)/## Commit\\n- ${tag_sha7}\\n/s" "$tmp"
+
+  echo "$tmp"
+}
+
+verify_release_consistency() {
+  # Post-publish control: tag == release.tag_name == release.name, and release body includes "## Commit" with expected SHA7.
+  # Governance: if mismatch, fail fast (exit 1).
+  if (( DRY_RUN == 1 )); then
+    echo "[DRY_RUN] verify_release_consistency skipped"
+    return 0
+  fi
+
+  need_gh
+
+  if ! tag_exists; then
+    echo "BLOCKED: verify_release_consistency requires an existing tag: $TAG"
+    exit 1
+  fi
+
+  local slug tag_sha7 api_tag api_name api_body commit_line release_url
+  slug="$(repo_slug)"
+  tag_sha7="$(git rev-parse "${TAG}^{}" | cut -c1-7)"
+
+  if ! gh api "/repos/${slug}/releases/tags/${TAG}" >/dev/null 2>&1; then
+    echo "BLOCKED: GitHub release not found for tag $TAG"
+    echo "Policy: publish_release must run before verify_release_consistency"
+    exit 1
+  fi
+
+  api_tag="$(gh api -q '.tag_name' "/repos/${slug}/releases/tags/${TAG}")"
+  api_name="$(gh api -q '.name' "/repos/${slug}/releases/tags/${TAG}")"
+  api_body="$(gh api -q '.body' "/repos/${slug}/releases/tags/${TAG}")"
+  release_url="$(gh api -q '.html_url' "/repos/${slug}/releases/tags/${TAG}")"
+
+  if [[ "$api_tag" != "$TAG" || "$api_name" != "$TAG" ]]; then
+    echo "BLOCKED: release metadata mismatch"
+    echo "  expected TAG : $TAG"
+    echo "  api.tag_name : $api_tag"
+    echo "  api.name     : $api_name"
+    echo "  release URL  : $release_url"
+    exit 1
+  fi
+
+  # Extract the first bullet after "## Commit" (supports '-' or '•')
+  commit_line="$(printf "%s\n" "$api_body" | perl -0777 -ne 'if (/##\s*Commit\s*\R\s*(?:[-•]\s*([0-9a-f]{7,40}))/s) { print $1 }')"
+  if [[ -z "$commit_line" ]]; then
+    echo "BLOCKED: release body missing '## Commit' SHA bullet"
+    echo "  expected: $tag_sha7"
+    echo "  release URL: $release_url"
+    exit 1
+  fi
+
+  if [[ "$commit_line" != "$tag_sha7" ]]; then
+    echo "BLOCKED: release body Commit SHA mismatch"
+    echo "  expected (tag): $tag_sha7"
+    echo "  found  (body): $commit_line"
+    echo "  release URL   : $release_url"
+    exit 1
+  fi
+
+  echo "OK: verify_release_consistency PASS"
+  echo "  tag commit : $tag_sha7"
+  echo "  release    : name/tag_name/body Commit aligned"
+}
+
 run_gates() {
   echo "=== GATES: close-the-loop (pre-publish) ==="
   if [[ ! -x "scripts/release/close-the-loop.zsh" ]]; then
@@ -250,14 +345,21 @@ publish_release() {
     return 0
   fi
 
+  # Canonical notes render for publishing: ensures Commit pointer == final tag commit
+  local notes_for_release
+  notes_for_release="$(render_notes_for_release)"
+
   if gh release view "$TAG" >/dev/null 2>&1; then
-    gh release edit "$TAG" --title "$TAG" --notes-file "$NOTES" || exit 1
+    gh release edit "$TAG" --title "$TAG" --notes-file "$notes_for_release" || exit 1
   else
-    gh release create "$TAG" --title "$TAG" --notes-file "$NOTES" $args || exit 1
+    gh release create "$TAG" --title "$TAG" --notes-file "$notes_for_release" $args || exit 1
   fi
+
+  rm -f "$notes_for_release" 2>/dev/null || true
 
   gh release view "$TAG" --json name,tagName,isDraft,isPrerelease,url >/dev/null || true
   echo "OK: release published/updated -> $TAG"
+  verify_release_consistency
 }
 
 verify_final() {
