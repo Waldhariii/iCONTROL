@@ -1,6 +1,16 @@
 #!/usr/bin/env zsh
 set -euo pipefail
 
+
+# --- helpers ---
+is_offline_gh() {
+  # Offline governance: in CI or DRY_RUN, we do NOT call GitHub (gh).
+  [[ "${CI:-}" == "1" ]] && return 0
+  [[ "${DRY_RUN:-0}" == "1" ]] && return 0
+  return 1
+}
+
+
 # Release publication uses a canonical notes render (tmp) to guarantee Commit pointer == tag commit.
 
 # ---- args/env ----
@@ -96,7 +106,11 @@ run() {
 # [gates] need_clean_tree() moved to scripts/_gates (sourced)
 need_gh() {
   command -v gh >/dev/null 2>&1 || { echo "ERROR: gh not installed"; exit 1; }
-  gh auth status >/dev/null 2>&1 || { echo "ERROR: gh not authenticated (run: gh auth login)"; exit 1; }
+  if is_offline_gh; then
+    echo "OK: offline governance — skip gh: auth"
+  else
+    gh auth status >/dev/null 2>&1 || { echo "ERROR: gh not authenticated (run: gh auth login)"; exit 1; }
+  fi
 }
 
 repo_slug() {
@@ -321,14 +335,26 @@ publish_release() {
   notes_for_release="$(render_notes_for_release)"
 
   if gh release view "$TAG" >/dev/null 2>&1; then
-    gh release edit "$TAG" --title "$TAG" --notes-file "$notes_for_release" || exit 1
+    if is_offline_gh; then
+      echo "OK: offline governance — skip gh: release"
+    else
+      gh release edit "$TAG" --title "$TAG" --notes-file "$notes_for_release" || exit 1
+    fi
   else
-    gh release create "$TAG" --title "$TAG" --notes-file "$notes_for_release" $args || exit 1
+    if is_offline_gh; then
+      echo "OK: offline governance — skip gh: release"
+    else
+      gh release create "$TAG" --title "$TAG" --notes-file "$notes_for_release" $args || exit 1
+    fi
   fi
 
   rm -f "$notes_for_release" 2>/dev/null || true
 
-  gh release view "$TAG" --json name,tagName,isDraft,isPrerelease,url >/dev/null || true
+  if is_offline_gh; then
+    echo "OK: offline governance — skip gh: release"
+  else
+    gh release view "$TAG" --json name,tagName,isDraft,isPrerelease,url >/dev/null || true
+  fi
   echo "OK: release published/updated -> $TAG"
   verify_release_consistency
 }
