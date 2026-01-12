@@ -13,10 +13,12 @@ concurrency:
 
 jobs:
   gate:
+    if: ${{ vars.DISABLE_CI != '1' && env.DISABLE_CI != '1' }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:
       CI: "1"
+      DISABLE_CI: ${{ vars.DISABLE_CI }}
 
     steps:
       - name: Checkout

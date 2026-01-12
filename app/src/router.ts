@@ -7,7 +7,7 @@ import { canAccessSettings } from "./runtime/rbac";
  * Private: #/dashboard (and everything else by default)
  */
 export type RouteId = "login" | "dashboard" | "settings" | "settings_branding" | "notfound"
-  | "runtime_smoke" | "users" | "account" | "developer" | "verification" | "toolbox"
+  | "runtime_smoke" | "users" | "account" | "developer" | "developer_entitlements" | "verification" | "toolbox"
   | "system" | "logs" | "dossiers";
 export function getRouteId(): RouteId {
   const h = (location.hash || "").replace(/^#\/?/, "");
@@ -16,6 +16,7 @@ export function getRouteId(): RouteId {
   if (seg === "dashboard") return "dashboard";
   if (seg === "users") return "users";
   if (seg === "account") return "account";
+  if (seg === "developer/entitlements" || seg === "dev/entitlements") return "developer_entitlements";
   if (seg === "developer" || seg === "dev") return "developer";
   if (seg === "toolbox" || seg === "dev-tools" || seg === "devtools") return "toolbox";
   if (seg === "system") return "system";

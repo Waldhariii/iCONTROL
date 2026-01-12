@@ -73,6 +73,18 @@ export function renderRoute(rid: RouteId, root: HTMLElement): void {
         });
       return;
     }
+    if ((rid as any) === "developer_entitlements") {
+      import("../../modules/core-system/ui/frontend-ts/pages/developer/entitlements")
+        .then((m) => m.renderDeveloperEntitlements(root))
+        .catch((e) => {
+          /* ICONTROL_LOADER_IMPORT_GUARD_V1 */
+          console.warn("WARN_ROUTE_IMPORT_FAILED", {
+            spec: "../../modules/core-system/ui/frontend-ts/pages/developer/entitlements",
+            err: String(e)
+          });
+        });
+      return;
+    }
     if ((rid as any) === "verification") {
       import("../../modules/core-system/ui/frontend-ts/pages/verification")
         .then((m) => m.renderVerification(root))

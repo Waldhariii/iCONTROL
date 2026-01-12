@@ -68,6 +68,24 @@ export function renderDeveloper(root: HTMLElement): void {
       requiresRole: "SYSADMIN"
     },
     {
+      id: "developer-entitlements",
+      title: "Entitlements (manual)",
+      render: (host) => {
+        const card = sectionCard("Manual Subscription Provisioning");
+        const note = document.createElement("div");
+        note.style.cssText = "opacity:.85;margin-bottom:8px";
+        note.textContent = "Activer/désactiver plan et modules sans billing (local only).";
+        const link = document.createElement("a");
+        link.href = "#/developer/entitlements";
+        link.textContent = "Ouvrir la page Entitlements";
+        link.style.cssText = "display:inline-block;margin-top:4px";
+        card.appendChild(note);
+        card.appendChild(link);
+        host.appendChild(card);
+      },
+      requiresRoles: ["SYSADMIN", "DEVELOPER"]
+    },
+    {
       id: "toolbox-audit-log",
       title: "Audit log",
       render: (host) => render_audit_log(host),
@@ -112,5 +130,6 @@ export const developerSections = [
   "toolbox-contracts-form",
   "toolbox-datasources",
   "toolbox-rules",
+  "developer-entitlements",
   "toolbox-audit-log"
 ];

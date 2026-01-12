@@ -39,8 +39,9 @@ describe("developer page", () => {
 
     const root = document.createElement("div");
     renderDeveloper(root);
-    expect(developerSections.length).toBe(6);
+    expect(developerSections.length).toBe(7);
     expect(root.textContent || "").toContain("Registry viewer");
+    expect(root.textContent || "").toContain("Entitlements");
     expect(root.textContent || "").toContain("Audit log");
     expect(root.innerHTML).not.toMatch(/\bon\w+\s*=/i);
   });
