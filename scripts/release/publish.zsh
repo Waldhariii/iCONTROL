@@ -154,12 +154,33 @@ normalize_notes_commit_to_tag() {
 }
 
 commit_notes_if_changed() {
+  local head_before=""
+  local head_after=""
+  head_before="$(git rev-parse HEAD)"
+
   run "git add \"$NOTES\""
   if git diff --cached --quiet; then
     echo "OK: notes unchanged (NO-OP)"
   else
     run "git commit -m \"docs(release): add/refresh release notes for ${TAG} (non-core)\""
     run "git push \"$REMOTE\" \"$(git rev-parse --abbrev-ref HEAD)\""
+  fi
+
+  head_after="$(git rev-parse HEAD)"
+  if [[ "$head_after" != "$head_before" ]]; then
+    echo "INFO: notes commit moved HEAD"
+    echo "  before: $head_before"
+    echo "  after : $head_after"
+
+    # Industrialisation: auto-retag after notes commit to keep tag == HEAD for gates
+    if (( RETAG == 1 )); then
+      echo "=== AUTO-RETAG (post-notes commit): ${TAG} -> HEAD (${head_after}) ==="
+      retag_to_head
+    else
+      echo "BLOCKED: HEAD moved due to notes commit, tag alignment would drift."
+      echo "Policy: rerun with --retag (to auto-align tag to HEAD) OR create a new tag for this HEAD."
+      exit 1
+    fi
   fi
 }
 
