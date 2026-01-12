@@ -1,14 +1,22 @@
 import { SubscriptionService } from "../../../../modules/core-system/subscription/SubscriptionService";
-import { InMemoryAuditTrail } from "../../../../modules/core-system/subscription/AuditTrail";
 import { FileSubscriptionStore } from "../../../../modules/core-system/subscription/FileSubscriptionStore";
+import { InMemoryAuditTrail } from "../../../../modules/core-system/subscription/AuditTrail";
 
 /**
- * Enterprise seam: créer un service SubscriptionService avec persistence.
- * - Store: FileSubscriptionStore (JSON) => gratuit / local / sans provider
- * - Audit: InMemoryAuditTrail (peut être remplacé plus tard par un audit persistant)
+ * SSOT Factory — enterprise baseline.
+ * Important: Everyone reads/writes through the same backing store instance.
+ * - Prevents "registry writes, entitlements reads" mismatches.
+ * - Keeps fallback enterprise_free deterministic when store is empty.
  */
+let _store: FileSubscriptionStore | null = null;
+
+export function getSubscriptionStore(): FileSubscriptionStore {
+  if (!_store) _store = new FileSubscriptionStore();
+  return _store;
+}
+
 export function createSubscriptionService(): SubscriptionService {
-  const store = new FileSubscriptionStore();
+  const store = getSubscriptionStore();
   const audit = new InMemoryAuditTrail();
   return new SubscriptionService({ store, audit });
 }
