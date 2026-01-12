@@ -1,22 +1,22 @@
-name: ReleaseOps Gate (dry-run)
+name: ReleaseOps Gate
 
 on:
+  workflow_dispatch: {}
   pull_request:
+    branches: [ "main" ]
   push:
-    branches: [ main ]
-  workflow_dispatch:
-
-permissions:
-  contents: read
+    branches: [ "main" ]
 
 concurrency:
   group: releaseops-gate-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  releaseops_gate:
+  gate:
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    env:
+      CI: "1"
 
     steps:
       - name: Checkout
@@ -24,48 +24,68 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Setup Node (LTS)
+      - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 'lts/*'
-          cache: 'npm'
+          node-version: "20"
+          cache: "pnpm"
+          cache-dependency-path: |
+            pnpm-lock.yaml
+            app/pnpm-lock.yaml
 
-      - name: Enable Corepack (pnpm/yarn if present)
+      - name: Install pnpm (if needed)
         run: |
-          corepack enable || true
+          set -euo pipefail
+          if command -v pnpm >/dev/null 2>&1; then
+            pnpm -v
+          else
+            corepack enable
+            corepack prepare pnpm@latest --activate
+            pnpm -v
+          fi
 
-      - name: Install dependencies (auto: pnpm if lockfile, else npm)
-        shell: bash
+      - name: Install deps (root)
         run: |
           set -euo pipefail
           if [[ -f pnpm-lock.yaml ]]; then
-            echo "Using pnpm"
-            pnpm -v
             pnpm install --frozen-lockfile
           elif [[ -f package-lock.json ]]; then
-            echo "Using npm ci"
             npm ci
           else
-            echo "No lockfile found; fallback npm install"
             npm install
           fi
 
-      - name: ReleaseOps Gate (publish.zsh dry-run)
-        shell: bash
-        env:
-          CI: "1"
+      - name: Install deps (app) if isolated
+        run: |
+          set -euo pipefail
+          if [[ -d app ]]; then
+            cd app
+            if [[ -f pnpm-lock.yaml ]]; then
+              pnpm install --frozen-lockfile
+            elif [[ -f package-lock.json ]]; then
+              npm ci
+            elif [[ -f package.json ]]; then
+              npm install
+            fi
+          fi
+
+      - name: Zsh syntax check (publish)
+        run: |
+          set -euo pipefail
+          zsh -n scripts/release/publish.zsh
+
+      - name: ReleaseOps Gate (publish.zsh dry-run; offline governance)
         run: |
           set -euo pipefail
           chmod +x ./scripts/release/publish.zsh || true
           ./scripts/release/publish.zsh TAG=v0.2.0-tools999 --prerelease --retag --dry-run --scope "CI ReleaseOps Gate"
 
-      - name: Upload logs (if any)
+      - name: Upload artifacts (always)
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: releaseops-gate-logs
+          name: releaseops-gate-artifacts
           path: |
             **/_RELEASE_NOTES_*.md
-            **/icontrol_notes_*.md
             /tmp/*.log
           if-no-files-found: ignore
