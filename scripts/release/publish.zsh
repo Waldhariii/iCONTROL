@@ -50,6 +50,14 @@ while (( $# > 0 )); do
 done
 
 # ---- helpers ----
+
+# ---- gates (sourced) ----
+# Centralised gates are sourced to avoid drift and keep scripts readable.
+if [[ -f "scripts/_gates/gate_fs.zsh" ]]; then source "scripts/_gates/gate_fs.zsh"; fi
+if [[ -f "scripts/_gates/gate_git.zsh" ]]; then source "scripts/_gates/gate_git.zsh"; fi
+if [[ -f "scripts/_gates/gate_release.zsh" ]]; then source "scripts/_gates/gate_release.zsh"; fi
+
+
 run() {
   if (( DRY_RUN == 1 )); then
     echo "OK: DRY_RUN $*"
@@ -59,72 +67,8 @@ run() {
 }
 
 
-preflight_git_writable() {
-  # macOS incident class: ACL/flags or permission drift preventing writes under .git
-  # Goal: fail fast with actionable remediation (without trying sudo inside the script)
-  local git_dir
-  git_dir="$(git rev-parse --git-dir 2>/dev/null || echo ".git")"
-
-  # Quick sanity
-  if [[ ! -d "$git_dir" ]]; then
-    echo "BLOCKED: git dir not found"
-    echo "  git_dir: $git_dir"
-    exit 1
-  fi
-
-  # Residual locks
-  if [[ -e "$git_dir/index.lock" ]]; then
-    echo "BLOCKED: git index lock present"
-    echo "  lock: $git_dir/index.lock"
-    echo "Hint: a previous git process may have crashed; remove lock if safe."
-    exit 1
-  fi
-
-  # Write probe (covers: ACL denies, flags, perms, full disk access issues)
-  local tmp
-  tmp="${git_dir}/_write_probe.$$"
-  if ! (echo "probe $(date -u +%FT%TZ)" > "$tmp" 2>/dev/null); then
-    echo "BLOCKED: cannot write inside git dir ($git_dir)"
-    echo "  path: $tmp"
-    echo ""
-    echo "Forensics (copy/paste):"
-    echo "  ls -leOd \"$git_dir\" || true"
-    echo "  ls -lOde \"$git_dir\" || true"
-    echo "  (find \"$git_dir\" -maxdepth 2 -print0 | xargs -0 ls -lOde 2>/dev/null | head -n 60) || true"
-    echo ""
-    echo "Remediation (manual, requires sudo):"
-    echo "  sudo chflags -R nouchg,noschg \"$git_dir\" || true"
-    echo "  sudo chmod -RN \"$git_dir\" || true"
-    echo "  sudo chown -R \"$(whoami):staff\" \"$git_dir\""
-    echo "  sudo chmod -R u+rwX \"$git_dir\""
-    echo "  rm -f \"$git_dir/index.lock\" \"$git_dir/TAG_EDITMSG\" || true"
-    exit 1
-  fi
-  rm -f "$tmp" 2>/dev/null || true
-
-  # Annotated tag probe (read-only safe: creates then deletes a temp tag)
-  local t="__perm_probe_tag__"
-  git tag -d "$t" >/dev/null 2>&1 || true
-  if ! git tag -a "$t" -m "perm probe $(date -u +%FT%TZ)" >/dev/null 2>&1; then
-    echo "BLOCKED: cannot create annotated tag (git object write denied)"
-    echo "Hint: same remediation as 'cannot write inside git dir'."
-    rm -f "$git_dir/TAG_EDITMSG" 2>/dev/null || true
-    exit 1
-  fi
-  git tag -d "$t" >/dev/null 2>&1 || true
-  rm -f "$git_dir/TAG_EDITMSG" 2>/dev/null || true
-
-  echo "OK: preflight_git_writable PASS"
-}
-
-need_clean_tree() {
-  if [[ -n "$(git status --porcelain=v1)" ]]; then
-    echo "BLOCKED: dirty working tree"
-    git status --porcelain=v1
-    exit 1
-  fi
-}
-
+# [gates] preflight_git_writable() moved to scripts/_gates (sourced)
+# [gates] need_clean_tree() moved to scripts/_gates (sourced)
 need_gh() {
   command -v gh >/dev/null 2>&1 || { echo "ERROR: gh not installed"; exit 1; }
   gh auth status >/dev/null 2>&1 || { echo "ERROR: gh not authenticated (run: gh auth login)"; exit 1; }
@@ -323,100 +267,7 @@ render_notes_for_release() {
   echo "$tmp"
 }
 
-verify_release_consistency() {
-  # Read-only consistency check (Git ↔ GitHub):
-  # - tag exists (or skip in DRY_RUN)
-  # - GitHub release tag_name/name match TAG
-  # - Release body "## Commit" contains expected SHA7
-
-  if (( DRY_RUN == 1 )); then
-    echo "OK: DRY_RUN verify_release_consistency skipped"
-    return 0
-  fi
-
-  need_gh
-
-  if ! tag_exists; then
-    echo "BLOCKED: verify_release_consistency requires existing git tag"
-    echo "  expected tag: $TAG"
-    exit 1
-  fi
-
-  local slug tag_sha7 api_tag api_name api_body release_url commit_line
-  slug="$(repo_slug)"
-  tag_sha7="$(git rev-parse "${TAG}^{}" | cut -c1-7)"
-
-  if ! gh api "/repos/${slug}/releases/tags/${TAG}" >/dev/null 2>&1; then
-    echo "BLOCKED: GitHub release not found for tag"
-    echo "  expected tag: $TAG"
-    exit 1
-  fi
-
-  api_tag="$(gh api -q '.tag_name' "/repos/${slug}/releases/tags/${TAG}")"
-  api_name="$(gh api -q '.name' "/repos/${slug}/releases/tags/${TAG}")"
-  api_body="$(gh api -q '.body' "/repos/${slug}/releases/tags/${TAG}")"
-  release_url="$(gh api -q '.html_url' "/repos/${slug}/releases/tags/${TAG}")"
-
-  if [[ "$api_tag" != "$TAG" ]]; then
-    echo "BLOCKED: release.tag_name mismatch"
-    echo "  expected: $TAG"
-    echo "  found   : $api_tag"
-    echo "  url     : $release_url"
-    exit 1
-  fi
-  if [[ "$api_name" != "$TAG" ]]; then
-    echo "BLOCKED: release.name mismatch"
-    echo "  expected: $TAG"
-    echo "  found   : $api_name"
-    echo "  url     : $release_url"
-    exit 1
-  fi
-  commit_line="$(
-    printf "%s
-" "$api_body" | python3 -c '
-import re,sys
-body=sys.stdin.read()
-
-m=re.search(r"(?is)##\s*Commit\s*(?:\r?\n)+(.*?)(?:\r?\n##\s|\Z)", body)
-if not m:
-    print("SECTION_MISSING"); raise SystemExit(0)
-
-chunk=m.group(1)
-
-m2=re.search(r"(?i)(?:[-•]\s*)?\s*`?([0-9a-f]{7,40})`?", chunk)
-if not m2:
-    print("SHA_MISSING"); raise SystemExit(0)
-
-print(m2.group(1)[:7])
-'
-  )"
-  if [[ "$commit_line" == "SECTION_MISSING" ]]; then
-    echo "BLOCKED: release body missing '## Commit' section"
-    echo "  expected: $tag_sha7"
-    echo "  url     : $release_url"
-    exit 1
-  fi
-
-  if [[ "$commit_line" == "SHA_MISSING" || -z "$commit_line" ]]; then
-    echo "BLOCKED: release body missing Commit SHA"
-    echo "  expected: $tag_sha7"
-    echo "  url     : $release_url"
-    exit 1
-  fi
-
-  if [[ "$commit_line" != "$tag_sha7" ]]; then
-    echo "BLOCKED: release body Commit SHA mismatch"
-    echo "  expected: $tag_sha7"
-    echo "  found   : $commit_line"
-    echo "  url     : $release_url"
-    exit 1
-  fi
-
-  echo "OK: verify_release_consistency PASS"
-  echo "OK: tag commit  : $tag_sha7"
-  echo "OK: release     : name/tag_name/body Commit aligned"
-}
-
+# [gates] verify_release_consistency() moved to scripts/_gates (sourced)
 run_gates() {
   echo "OK: GATES close-the-loop (pre-publish)"
   if [[ ! -x "scripts/release/close-the-loop.zsh" ]]; then
