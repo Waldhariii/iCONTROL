@@ -49,3 +49,8 @@ Any change in core requires at least one associated test.
 
 ## Reporting / artifacts
 Do not commit local OS artifacts (e.g., `.DS_Store`) or local build output. Reports should follow the repo policy (tracked only when explicitly required by governance).
+
+## ReleaseOps
+- Point d’entrée canonique: docs/release/README.md
+- Gouvernance: docs/governance/releaseops/DoD.md
+- Runbook: docs/runbooks/releaseops.md
