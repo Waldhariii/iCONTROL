@@ -262,63 +262,85 @@ render_notes_for_release() {
 }
 
 verify_release_consistency() {
-  # Post-publish control: tag == release.tag_name == release.name, and release body includes "## Commit" with expected SHA7.
-  # Governance: if mismatch, fail fast (exit 1).
+  # Read-only consistency check (Git ↔ GitHub):
+  # - tag exists (or skip in DRY_RUN)
+  # - GitHub release tag_name/name match TAG
+  # - Release body "## Commit" contains expected SHA7 (robust parse)
+
   if (( DRY_RUN == 1 )); then
-    echo "[DRY_RUN] verify_release_consistency skipped"
+    echo "OK: verify_release_consistency SKIP (dry-run)"
     return 0
   fi
 
   need_gh
 
   if ! tag_exists; then
-    echo "BLOCKED: verify_release_consistency requires an existing tag: $TAG"
+    echo "BLOCKED: verify_release_consistency requires existing git tag: $TAG"
     exit 1
   fi
 
-  local slug tag_sha7 api_tag api_name api_body commit_line release_url
+  local slug rid tag_sha sha7 rel_tag rel_name body parsed url
   slug="$(repo_slug)"
-  tag_sha7="$(git rev-parse "${TAG}^{}" | cut -c1-7)"
+  tag_sha="$(tag_commit)"
+  sha7="$(echo "$tag_sha" | cut -c1-7)"
 
+  # Fetch release for tag
   if ! gh api "/repos/${slug}/releases/tags/${TAG}" >/dev/null 2>&1; then
-    echo "BLOCKED: GitHub release not found for tag $TAG"
-    echo "Policy: publish_release must run before verify_release_consistency"
+    echo "BLOCKED: GitHub release not found for tag: $TAG"
+    echo "Hint: publish_release should create it; or check permissions."
     exit 1
   fi
 
-  api_tag="$(gh api -q '.tag_name' "/repos/${slug}/releases/tags/${TAG}")"
-  api_name="$(gh api -q '.name' "/repos/${slug}/releases/tags/${TAG}")"
-  api_body="$(gh api -q '.body' "/repos/${slug}/releases/tags/${TAG}")"
-  release_url="$(gh api -q '.html_url' "/repos/${slug}/releases/tags/${TAG}")"
+  rid="$(gh api -q '.id' "/repos/${slug}/releases/tags/${TAG}")"
+  rel_tag="$(gh api -q '.tag_name' "/repos/${slug}/releases/${rid}")"
+  rel_name="$(gh api -q '.name' "/repos/${slug}/releases/${rid}")"
+  url="$(gh api -q '.html_url' "/repos/${slug}/releases/${rid}")"
+  body="$(gh api -q '.body' "/repos/${slug}/releases/${rid}")"
 
-  if [[ "$api_tag" != "$TAG" || "$api_name" != "$TAG" ]]; then
-    echo "BLOCKED: release metadata mismatch"
-    echo "  expected TAG : $TAG"
-    echo "  api.tag_name : $api_tag"
-    echo "  api.name     : $api_name"
-    echo "  release URL  : $release_url"
+  # Hard checks: tag_name + name must equal TAG
+  if [[ "$rel_tag" != "$TAG" ]]; then
+    echo "ERROR: release.tag_name mismatch"
+    echo "  expected: $TAG"
+    echo "  actual  : $rel_tag"
+    echo "  url     : $url"
+    exit 1
+  fi
+  if [[ "$rel_name" != "$TAG" ]]; then
+    echo "ERROR: release.name mismatch"
+    echo "  expected: $TAG"
+    echo "  actual  : $rel_name"
+    echo "  url     : $url"
     exit 1
   fi
 
-  # Extract the first bullet after "## Commit" (supports '-' or '•')
-  commit_line="$(printf "%s\n" "$api_body" | perl -0777 -ne 'if (/##\s*Commit\s*\R\s*(?:[-•]\s*([0-9a-f]{7,40}))/s) { print $1 }')"
-  if [[ -z "$commit_line" ]]; then
-    echo "BLOCKED: release body missing '## Commit' SHA bullet"
-    echo "  expected: $tag_sha7"
-    echo "  release URL: $release_url"
-    exit 1
-  fi
+  # Robust parse: locate "## Commit" section and extract first 7..40 hex.
+  parsed="$(
+    BODY="$body" python3 - <<'PYPARSE'
+import os, re
+body = os.environ.get("BODY","")
 
-  if [[ "$commit_line" != "$tag_sha7" ]]; then
-    echo "BLOCKED: release body Commit SHA mismatch"
-    echo "  expected (tag): $tag_sha7"
-    echo "  found  (body): $commit_line"
-    echo "  release URL   : $release_url"
+m = re.search(r'(?is)##\s*Commit\s*(?:\r?\n)+(.+?)(?:\r?\n##\s|\Z)', body)
+if not m:
+    raise SystemExit("ERROR: '## Commit' section not found in release body")
+chunk = m.group(1)
+
+m2 = re.search(r'(?i)(?:[-•]\s*)?`?([0-9a-f]{7,40})`?', chunk)
+if not m2:
+    raise SystemExit("ERROR: could not parse Commit SHA from Commit section content")
+print(m2.group(1))
+PYPARSE
+  )"
+
+  if [[ "$parsed" != "$sha7" ]]; then
+    echo "ERROR: release body commit pointer mismatch"
+    echo "  expected: $sha7"
+    echo "  parsed  : $parsed"
+    echo "  url     : $url"
     exit 1
   fi
 
   echo "OK: verify_release_consistency PASS"
-  echo "  tag commit : $tag_sha7"
+  echo "  tag commit : $sha7"
   echo "  release    : name/tag_name/body Commit aligned"
 }
 
