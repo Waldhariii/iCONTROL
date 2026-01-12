@@ -15,7 +15,10 @@ export class FileSubscriptionStore implements SubscriptionStore {
   private readonly baseDir: string;
 
   constructor(opts?: { baseDir?: string }) {
-    this.baseDir = opts?.baseDir ?? path.resolve(process.cwd(), "_DATA/subscriptions");
+    const cwd = process.cwd();
+    const repoRoot = cwd.endsWith(path.sep + "app") ? path.resolve(cwd, "..") : cwd;
+    // ICONTROL_SUB_STORE_ROOT_V1
+    this.baseDir = opts?.baseDir ?? path.resolve(repoRoot, "_DATA/subscriptions");
     fs.mkdirSync(this.baseDir, { recursive: true });
   }
 

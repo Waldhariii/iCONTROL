@@ -12,6 +12,7 @@ DENY_PATTERNS=(
   "modules/core-system/subscription/SubscriptionStore"
   "modules/core-system/subscription/Provider"
   "modules/core-system/subscription/ProviderSync"
+  "registryApi"
 )
 
 FOUND=0

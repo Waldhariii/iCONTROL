@@ -59,3 +59,6 @@ ICONTROL_*_ANALYSIS_*.md
 ICONTROL_*_PROGRESS_*.md
 _RELEASES/
 **/.vite/
+# Runtime data (never commit)
+_DATA/
+app/_DATA/
