@@ -52,7 +52,7 @@ done
 # ---- helpers ----
 run() {
   if (( DRY_RUN == 1 )); then
-    echo "[DRY_RUN] $*"
+    echo "OK: DRY_RUN $*"
   else
     eval "$@"
   fi
@@ -95,7 +95,7 @@ head_commit() {
 ensure_tag_points_to_head_or_retagauthorized() {
   if ! tag_exists; then
     echo "BLOCKED: tag ${TAG} missing."
-    echo "Policy: create the tag explicitly, or rerun with --retag to create on HEAD."
+    echo "BLOCKED: policy: create the tag explicitly, or rerun with --retag to create on HEAD."
     if (( RETAG == 0 )); then exit 1; fi
   fi
 
@@ -104,13 +104,16 @@ ensure_tag_points_to_head_or_retagauthorized() {
     tc="$(tag_commit)"
     hc="$(head_commit)"
     if [[ "$tc" != "$hc" ]]; then
-      echo "WARN: tag ${TAG} does not point to HEAD"
-      echo "  tag commit = $tc"
-      echo "  HEAD       = $hc"
       if (( RETAG == 0 )); then
+        echo "BLOCKED: tag ${TAG} does not point to HEAD"
+        echo "  expected: $hc"
+        echo "  found   : $tc"
         echo "BLOCKED: refusing to move tag without --retag"
         exit 1
       fi
+      echo "OK: tag ${TAG} does not point to HEAD (retag authorized)"
+      echo "  expected: $hc"
+      echo "  found   : $tc"
     fi
   fi
 }
@@ -118,7 +121,7 @@ ensure_tag_points_to_head_or_retagauthorized() {
 retag_to_head() {
   local sha
   sha="$(head_commit)"
-  echo "=== RETAG ${TAG} -> HEAD ($sha) ==="
+  echo "OK: RETAG ${TAG} -> HEAD ($sha)"
   run "git tag -d \"$TAG\" 2>/dev/null || true"
   run "git push \"$REMOTE\" \":refs/tags/${TAG}\" 2>/dev/null || true"
   run "git tag -a \"$TAG\" -m \"Release ${TAG} @ ${sha}\""
@@ -164,7 +167,7 @@ EOF
   local sha7
   sha7="$( (tag_exists && echo "$(tag_commit)" || echo "$(head_commit)") | cut -c1-7 )"
 
-  echo "=== GENERATE notes -> $NOTES ==="
+  echo "OK: GENERATE notes -> $NOTES"
   cat > "$NOTES" <<EOF
 # ${TAG} — ${SCOPE}
 
@@ -222,17 +225,17 @@ commit_notes_if_changed() {
 
   head_after="$(git rev-parse HEAD)"
   if [[ "$head_after" != "$head_before" ]]; then
-    echo "INFO: notes commit moved HEAD"
+    echo "OK: notes commit moved HEAD"
     echo "  before: $head_before"
     echo "  after : $head_after"
 
     # Industrialisation: auto-retag after notes commit to keep tag == HEAD for gates
     if (( RETAG == 1 )); then
-      echo "=== AUTO-RETAG (post-notes commit): ${TAG} -> HEAD (${head_after}) ==="
+      echo "OK: AUTO-RETAG (post-notes commit): ${TAG} -> HEAD (${head_after})"
       retag_to_head
     else
       echo "BLOCKED: HEAD moved due to notes commit, tag alignment would drift."
-      echo "Policy: rerun with --retag (to auto-align tag to HEAD) OR create a new tag for this HEAD."
+      echo "BLOCKED: policy: rerun with --retag (to auto-align tag to HEAD) OR create a new tag for this HEAD."
       exit 1
     fi
   fi
@@ -265,87 +268,98 @@ verify_release_consistency() {
   # Read-only consistency check (Git ↔ GitHub):
   # - tag exists (or skip in DRY_RUN)
   # - GitHub release tag_name/name match TAG
-  # - Release body "## Commit" contains expected SHA7 (robust parse)
+  # - Release body "## Commit" contains expected SHA7
 
   if (( DRY_RUN == 1 )); then
-    echo "OK: verify_release_consistency SKIP (dry-run)"
+    echo "OK: DRY_RUN verify_release_consistency skipped"
     return 0
   fi
 
   need_gh
 
   if ! tag_exists; then
-    echo "BLOCKED: verify_release_consistency requires existing git tag: $TAG"
+    echo "BLOCKED: verify_release_consistency requires existing git tag"
+    echo "  expected tag: $TAG"
     exit 1
   fi
 
-  local slug rid tag_sha sha7 rel_tag rel_name body parsed url
+  local slug tag_sha7 api_tag api_name api_body release_url commit_line
   slug="$(repo_slug)"
-  tag_sha="$(tag_commit)"
-  sha7="$(echo "$tag_sha" | cut -c1-7)"
+  tag_sha7="$(git rev-parse "${TAG}^{}" | cut -c1-7)"
 
-  # Fetch release for tag
   if ! gh api "/repos/${slug}/releases/tags/${TAG}" >/dev/null 2>&1; then
-    echo "BLOCKED: GitHub release not found for tag: $TAG"
-    echo "Hint: publish_release should create it; or check permissions."
+    echo "BLOCKED: GitHub release not found for tag"
+    echo "  expected tag: $TAG"
     exit 1
   fi
 
-  rid="$(gh api -q '.id' "/repos/${slug}/releases/tags/${TAG}")"
-  rel_tag="$(gh api -q '.tag_name' "/repos/${slug}/releases/${rid}")"
-  rel_name="$(gh api -q '.name' "/repos/${slug}/releases/${rid}")"
-  url="$(gh api -q '.html_url' "/repos/${slug}/releases/${rid}")"
-  body="$(gh api -q '.body' "/repos/${slug}/releases/${rid}")"
+  api_tag="$(gh api -q '.tag_name' "/repos/${slug}/releases/tags/${TAG}")"
+  api_name="$(gh api -q '.name' "/repos/${slug}/releases/tags/${TAG}")"
+  api_body="$(gh api -q '.body' "/repos/${slug}/releases/tags/${TAG}")"
+  release_url="$(gh api -q '.html_url' "/repos/${slug}/releases/tags/${TAG}")"
 
-  # Hard checks: tag_name + name must equal TAG
-  if [[ "$rel_tag" != "$TAG" ]]; then
-    echo "ERROR: release.tag_name mismatch"
+  if [[ "$api_tag" != "$TAG" ]]; then
+    echo "BLOCKED: release.tag_name mismatch"
     echo "  expected: $TAG"
-    echo "  actual  : $rel_tag"
-    echo "  url     : $url"
+    echo "  found   : $api_tag"
+    echo "  url     : $release_url"
     exit 1
   fi
-  if [[ "$rel_name" != "$TAG" ]]; then
-    echo "ERROR: release.name mismatch"
+  if [[ "$api_name" != "$TAG" ]]; then
+    echo "BLOCKED: release.name mismatch"
     echo "  expected: $TAG"
-    echo "  actual  : $rel_name"
-    echo "  url     : $url"
+    echo "  found   : $api_name"
+    echo "  url     : $release_url"
     exit 1
   fi
 
-  # Robust parse: locate "## Commit" section and extract first 7..40 hex.
-  parsed="$(
-    BODY="$body" python3 - <<'PYPARSE'
-import os, re
-body = os.environ.get("BODY","")
+  commit_line="$(
+    printf "%s\n" "$api_body" | python3 - <<'PY'
+import re, sys
 
-m = re.search(r'(?is)##\s*Commit\s*(?:\r?\n)+(.+?)(?:\r?\n##\s|\Z)', body)
+body = sys.stdin.read()
+m = re.search(r'(?is)##\s*Commit\s*(?:\r?\n)+(.*?)(?:\r?\n##\s|\Z)', body)
 if not m:
-    raise SystemExit("ERROR: '## Commit' section not found in release body")
+    print("SECTION_MISSING")
+    raise SystemExit(0)
 chunk = m.group(1)
-
-m2 = re.search(r'(?i)(?:[-•]\s*)?`?([0-9a-f]{7,40})`?', chunk)
+m2 = re.search(r'(?i)(?:[-•]\s*)?\s*`?([0-9a-f]{7,40})`?', chunk)
 if not m2:
-    raise SystemExit("ERROR: could not parse Commit SHA from Commit section content")
+    print("SHA_MISSING")
+    raise SystemExit(0)
 print(m2.group(1))
-PYPARSE
+PY
   )"
 
-  if [[ "$parsed" != "$sha7" ]]; then
-    echo "ERROR: release body commit pointer mismatch"
-    echo "  expected: $sha7"
-    echo "  parsed  : $parsed"
-    echo "  url     : $url"
+  if [[ "$commit_line" == "SECTION_MISSING" ]]; then
+    echo "BLOCKED: release body missing '## Commit' section"
+    echo "  expected: $tag_sha7"
+    echo "  url     : $release_url"
+    exit 1
+  fi
+
+  if [[ "$commit_line" == "SHA_MISSING" || -z "$commit_line" ]]; then
+    echo "BLOCKED: release body missing Commit SHA"
+    echo "  expected: $tag_sha7"
+    echo "  url     : $release_url"
+    exit 1
+  fi
+
+  if [[ "$commit_line" != "$tag_sha7" ]]; then
+    echo "BLOCKED: release body Commit SHA mismatch"
+    echo "  expected: $tag_sha7"
+    echo "  found   : $commit_line"
+    echo "  url     : $release_url"
     exit 1
   fi
 
   echo "OK: verify_release_consistency PASS"
-  echo "  tag commit : $sha7"
-  echo "  release    : name/tag_name/body Commit aligned"
+  echo "OK: tag commit  : $tag_sha7"
+  echo "OK: release     : name/tag_name/body Commit aligned"
 }
 
 run_gates() {
-  echo "=== GATES: close-the-loop (pre-publish) ==="
+  echo "OK: GATES close-the-loop (pre-publish)"
   if [[ ! -x "scripts/release/close-the-loop.zsh" ]]; then
     echo "ERROR: missing scripts/release/close-the-loop.zsh"
     exit 1
@@ -356,14 +370,14 @@ run_gates() {
 publish_release() {
   need_gh
 
-  echo "=== RELEASE: publish/update on GitHub ==="
+  echo "OK: RELEASE publish/update on GitHub"
   local args=""
   if [[ "$MODE" == "prerelease" ]]; then
     args="--prerelease"
   fi
 
   if (( DRY_RUN == 1 )); then
-    echo "[DRY_RUN] gh release create/edit $TAG (mode=$MODE) notes=$NOTES"
+    echo "OK: DRY_RUN gh release create/edit $TAG (mode=$MODE) notes=$NOTES"
     return 0
   fi
 
@@ -384,51 +398,82 @@ publish_release() {
   verify_release_consistency
 }
 
+assert_dod() {
+  if (( DRY_RUN == 1 )); then
+    echo "OK: DoD assertions skipped (DRY_RUN=1)"
+    return 0
+  fi
+
+  if ! tag_exists; then
+    echo "BLOCKED: DoD tag missing"
+    echo "  expected tag: $TAG"
+    exit 1
+  fi
+
+  local tc hc
+  tc="$(tag_commit)"
+  hc="$(head_commit)"
+  if [[ "$tc" != "$hc" ]]; then
+    echo "BLOCKED: DoD tag != HEAD"
+    echo "  expected: $hc"
+    echo "  found   : $tc"
+    exit 1
+  fi
+
+  echo "OK: DoD tag == HEAD"
+  verify_release_consistency
+}
+
 verify_final() {
-  echo "=== VERIFY: canonical pointers ==="
+  echo "OK: VERIFY canonical pointers"
   local tc hc
   hc="$(head_commit)"
   if tag_exists; then
     tc="$(tag_commit)"
-    echo "tag commit : $tc"
+    echo "OK: tag commit  : $tc"
   else
-    echo "tag commit : (missing)"
+    echo "ERROR: tag commit missing"
   fi
-  echo "HEAD commit: $hc"
-  echo "notes      : $NOTES"
+  echo "OK: HEAD commit: $hc"
+  echo "OK: notes      : $NOTES"
+  assert_dod
 }
 
 # ---- main ----
-echo "=== CONTEXT ==="
-echo "TAG=$TAG"
-echo "REMOTE=$REMOTE"
-echo "MODE=$MODE"
-echo "DRY_RUN=$DRY_RUN"
-echo "RETAG=$RETAG"
-echo "SCOPE=$SCOPE"
-echo "PWD=$(pwd)"
-echo ""
+echo "OK: CONTEXT"
+echo "OK: TAG=$TAG"
+echo "OK: REMOTE=$REMOTE"
+echo "OK: MODE=$MODE"
+echo "OK: DRY_RUN=$DRY_RUN"
+echo "OK: RETAG=$RETAG"
+echo "OK: SCOPE=$SCOPE"
+echo "OK: PWD=$(pwd)"
+echo "OK: CONTEXT_END"
 
+# 1. Vérification du working tree
 need_clean_tree
 
-# Tag governance: either must exist & point to HEAD, or explicit --retag
+# 2. Vérification / création du tag
 ensure_tag_points_to_head_or_retagauthorized
 if (( RETAG == 1 )); then
   retag_to_head
 fi
 
-# Notes governance
+# 3. Génération ou normalisation des release notes
 generate_notes_if_missing
 normalize_notes_commit_to_tag
+
+# 4. Commit des notes (si changement)
 commit_notes_if_changed
 
-# Gates before publishing release
+# 5. Auto-retag si HEAD a bougé (après commit_notes_if_changed)
+# 6. Gates techniques
 run_gates
 
-# Publish release
+# 7. Publication GitHub
 publish_release
 
+# 8. Vérification finale de cohérence
 verify_final
 
-echo ""
 echo "OK: ReleaseOps publish completed for $TAG"
