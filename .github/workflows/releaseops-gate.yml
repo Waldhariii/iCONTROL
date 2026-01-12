@@ -1,0 +1,71 @@
+name: ReleaseOps Gate (dry-run)
+
+on:
+  pull_request:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: releaseops-gate-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  releaseops_gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node (LTS)
+        uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*'
+          cache: 'npm'
+
+      - name: Enable Corepack (pnpm/yarn if present)
+        run: |
+          corepack enable || true
+
+      - name: Install dependencies (auto: pnpm if lockfile, else npm)
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ -f pnpm-lock.yaml ]]; then
+            echo "Using pnpm"
+            pnpm -v
+            pnpm install --frozen-lockfile
+          elif [[ -f package-lock.json ]]; then
+            echo "Using npm ci"
+            npm ci
+          else
+            echo "No lockfile found; fallback npm install"
+            npm install
+          fi
+
+      - name: ReleaseOps Gate (publish.zsh dry-run)
+        shell: bash
+        env:
+          CI: "1"
+        run: |
+          set -euo pipefail
+          chmod +x ./scripts/release/publish.zsh || true
+          ./scripts/release/publish.zsh TAG=v0.2.0-tools999 --prerelease --retag --dry-run --scope "CI ReleaseOps Gate"
+
+      - name: Upload logs (if any)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: releaseops-gate-logs
+          path: |
+            **/_RELEASE_NOTES_*.md
+            **/icontrol_notes_*.md
+            /tmp/*.log
+          if-no-files-found: ignore
