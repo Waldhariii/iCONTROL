@@ -14,6 +14,19 @@ fi
 
 REMOTE="${REMOTE:-origin}"
 NOTES="_RELEASE_NOTES_${TAG}.md"
+# --- DRY-RUN NOTES TEMP (industrialisation) ---
+# En dry-run, on ne doit PAS salir le working tree: notes générées/normalisées dans un fichier temporaire,
+# et on pointe NOTES vers ce tmp pour publish_release (sans commit).
+NOTES_REAL="$NOTES"
+NOTES_TMP=""
+cleanup_notes_tmp() {
+  if [[ -n "${NOTES_TMP:-}" && -f "$NOTES_TMP" ]]; then
+    rm -f "$NOTES_TMP" || true
+  fi
+}
+# Toujours nettoyer en sortie
+trap cleanup_notes_tmp EXIT
+
 SCOPE="${SCOPE:-Product Release}"
 MODE="prerelease"   # default
 DRY_RUN=0
@@ -102,6 +115,36 @@ retag_to_head() {
 }
 
 generate_notes_if_missing() {
+
+  # DRY-RUN POLICY: do not create/modify tracked files
+  if (( DRY_RUN == 1 )); then
+    NOTES_TMP="$(mktemp -t "icontrol_notes_${TAG}.XXXXXX.md")"
+    NOTES="$NOTES_TMP"
+    if [[ -f "$NOTES_REAL" ]]; then
+      cp -f "$NOTES_REAL" "$NOTES_TMP"
+    else
+      # Minimal synthèse (best-effort) pour rendre le pipeline observable
+      cat > "$NOTES_TMP" <<EOF
+# ${TAG} — ${SCOPE}
+
+## Scope
+- (DRY-RUN) Notes auto-générées: à finaliser avant publication réelle
+
+## Gates (expected GREEN)
+- npm test (app)
+- audit-subscription-no-ui-coupling
+- audit-no-node-builtins-in-app
+- audit-no-node-builtins-in-client-surface
+- npm run build (app)
+- dist/assets: no FileSubscriptionStore* chunks
+
+## Commit
+- $(git rev-parse HEAD | cut -c1-7)
+EOF
+    fi
+    echo "OK: DRY-RUN notes -> $NOTES (no working tree changes)"
+    return 0
+  fi
   if [[ -f "$NOTES" && $FORCE_NOTES -eq 0 ]]; then
     echo "OK: notes already exist -> $NOTES"
     return 0
