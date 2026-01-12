@@ -432,7 +432,11 @@ verify_final() {
     tc="$(tag_commit)"
     echo "OK: tag commit  : $tc"
   else
-    echo "ERROR: tag commit missing"
+    if (( DRY_RUN == 1 )); then
+      echo "OK: tag commit skipped (DRY_RUN=1)"
+    else
+      echo "ERROR: tag commit missing"
+    fi
   fi
   echo "OK: HEAD commit: $hc"
   echo "OK: notes      : $NOTES"
