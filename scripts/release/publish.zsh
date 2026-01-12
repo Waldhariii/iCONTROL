@@ -312,25 +312,25 @@ verify_release_consistency() {
     echo "  url     : $release_url"
     exit 1
   fi
-
   commit_line="$(
-    printf "%s\n" "$api_body" | python3 - <<'PY'
-import re, sys
+    printf "%s
+" "$api_body" | python3 -c '
+import re,sys
+body=sys.stdin.read()
 
-body = sys.stdin.read()
-m = re.search(r'(?is)##\s*Commit\s*(?:\r?\n)+(.*?)(?:\r?\n##\s|\Z)', body)
+m=re.search(r"(?is)##\s*Commit\s*(?:\r?\n)+(.*?)(?:\r?\n##\s|\Z)", body)
 if not m:
-    print("SECTION_MISSING")
-    raise SystemExit(0)
-chunk = m.group(1)
-m2 = re.search(r'(?i)(?:[-•]\s*)?\s*`?([0-9a-f]{7,40})`?', chunk)
-if not m2:
-    print("SHA_MISSING")
-    raise SystemExit(0)
-print(m2.group(1))
-PY
-  )"
+    print("SECTION_MISSING"); raise SystemExit(0)
 
+chunk=m.group(1)
+
+m2=re.search(r"(?i)(?:[-•]\s*)?\s*`?([0-9a-f]{7,40})`?", chunk)
+if not m2:
+    print("SHA_MISSING"); raise SystemExit(0)
+
+print(m2.group(1)[:7])
+'
+  )"
   if [[ "$commit_line" == "SECTION_MISSING" ]]; then
     echo "BLOCKED: release body missing '## Commit' section"
     echo "  expected: $tag_sha7"
