@@ -5,11 +5,12 @@ import { mountSections, type SectionSpec } from "../_shared/sections";
 import { canAccess } from "./contract";
 import { createAccountModel } from "./model";
 import {
-  renderAccountSettingsKeys,
+renderAccountSettingsKeys,
   renderAccountStorageAllow,
   renderAccountStorageUsage,
   renderAccountSummary
 } from "./view";
+import * as EntitlementsFacade from "../_shared/entitlements";
 
 export function renderAccount(root: HTMLElement): void {
   const role = getRole();
@@ -56,3 +57,10 @@ export const accountSections = [
   "account-storage-allow",
   "account-storage-usage"
 ];
+
+// ICONTROL_ENTITLEMENTS_WIRING_V1
+// Enterprise-grade baseline: UI/pages must depend ONLY on entitlements facade (never on subscription write-model).
+// This is intentionally minimal: we create a stable seam for future UI panels without coupling.
+export async function __icResolveEntitlementsForAccountPage(tenantId: string, nowIso: string) {
+  return await (EntitlementsFacade as any).getEntitlementsForTenant(tenantId, nowIso);
+}
