@@ -52,6 +52,31 @@ done
 # ---- helpers ----
 
 # ---- gates (sourced) ----
+
+validate_tag_format() {
+  if [[ "${TAG:-}" == "vX.Y.Z" ]]; then
+    echo "BLOCKED: TAG is a placeholder (vX.Y.Z)."
+    echo "  action: choose a real semver tag, ex: v0.2.0 or v0.2.0-hotfix1"
+    exit 1
+  fi
+
+  if [[ -z "${TAG:-}" ]]; then
+    echo "BLOCKED: TAG is required"
+    exit 1
+  fi
+
+  if [[ ! "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+([-.][A-Za-z0-9]+([-.][A-Za-z0-9]+)*)?$ ]]; then
+    echo "BLOCKED: TAG format invalid"
+    echo "  got     : $TAG"
+    echo "  expected: vMAJOR.MINOR.PATCH[-suffix]"
+    echo "  ex      : v0.2.0 | v0.2.0-tools9 | v0.2.0-hotfix1"
+    exit 1
+  fi
+
+  echo "OK: validate_tag_format PASS"
+}
+
+
 # Centralised gates are sourced to avoid drift and keep scripts readable.
 if [[ -f "scripts/_gates/gate_fs.zsh" ]]; then source "scripts/_gates/gate_fs.zsh"; fi
 if [[ -f "scripts/_gates/gate_git.zsh" ]]; then source "scripts/_gates/gate_git.zsh"; fi
@@ -364,6 +389,9 @@ echo "OK: SCOPE=$SCOPE"
 echo "OK: PWD=$(pwd)"
 echo "OK: CONTEXT_END"
 
+
+
+validate_tag_format
 
 # 0. Preflight: .git must be writable (macOS ACL/flags safety)
 preflight_git_writable
