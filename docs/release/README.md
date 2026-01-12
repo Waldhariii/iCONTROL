@@ -37,3 +37,11 @@ Point d’entrée unique pour exécuter une release de façon outillée et audit
 ## Notes
 - Toujours exécuter un dry-run avant un run réel.
 - Le script impose: clean tree, tag==HEAD, et cohérence GitHub release (body "## Commit").
+
+## Développement local — tests app (déterministe)
+- Lancer les tests sans dépendre d’un pnpm global:
+  - `./test_app.zsh`
+
+## Provisioning manuel (Dev)
+- Aller sur: `Developer -> Entitlements` (route: `/developer/entitlements`)
+- Objectif: activer/désactiver des entitlements localement pour valider les guards UI et les parcours PRO.
