@@ -1,22 +1,58 @@
-import { SubscriptionService } from "../../../../modules/core-system/subscription/SubscriptionService";
-import { FileSubscriptionStore } from "../../../../modules/core-system/subscription/FileSubscriptionStore";
+/**
+ * SubscriptionService Factory (SSOT).
+ * Enterprise-grade: dual runtime separation (Node vs Browser).
+ * - Browser: InMemory store (no node builtin fs/path in bundle)
+ * - Node: File-backed store (local dev / tooling)
+ *
+ * Marker: ICONTROL_SSOT_FACTORY_DUAL_RUNTIME_V1
+ */
+
+import type { SubscriptionService } from "../../../../modules/core-system/subscription/SubscriptionService";
+import { SubscriptionService as SubscriptionServiceImpl } from "../../../../modules/core-system/subscription/SubscriptionService";
+import { InMemorySubscriptionStore } from "../../../../modules/core-system/subscription/SubscriptionStore";
 import { InMemoryAuditTrail } from "../../../../modules/core-system/subscription/AuditTrail";
 
-/**
- * SSOT Factory — enterprise baseline.
- * Important: Everyone reads/writes through the same backing store instance.
- * - Prevents "registry writes, entitlements reads" mismatches.
- * - Keeps fallback enterprise_free deterministic when store is empty.
- */
-let _store: FileSubscriptionStore | null = null;
+// NOTE: FileSubscriptionStore is Node-only. We import it dynamically in Node to avoid Vite bundling.
+type FileStoreCtor = new (...args: any[]) => any;
 
-export function getSubscriptionStore(): FileSubscriptionStore {
-  if (!_store) _store = new FileSubscriptionStore();
-  return _store;
+function isBrowserRuntime(): boolean {
+  // Vite injects import.meta.env; window is safest signal.
+  return typeof window !== "undefined";
 }
 
-export function createSubscriptionService(): SubscriptionService {
-  const store = getSubscriptionStore();
+let nodeFileStoreCtor: FileStoreCtor | null = null;
+
+async function getNodeFileStoreCtor(): Promise<FileStoreCtor> {
+  if (nodeFileStoreCtor) return nodeFileStoreCtor;
+  // Dynamic import: prevents browser bundle from pulling node builtin fs/path.
+  const mod = await import("../../../../modules/core-system/subscription/FileSubscriptionStore");
+  nodeFileStoreCtor = mod.FileSubscriptionStore as unknown as FileStoreCtor;
+  return nodeFileStoreCtor!;
+}
+
+let singletonInMemory: InMemorySubscriptionStore | null = null;
+
+function getBrowserStore(): InMemorySubscriptionStore {
+  if (!singletonInMemory) singletonInMemory = new InMemorySubscriptionStore();
+  return singletonInMemory;
+}
+
+let nodeStoreInstance: any | null = null;
+
+async function getNodeStore(): Promise<any> {
+  if (nodeStoreInstance) return nodeStoreInstance;
+  const Ctor = await getNodeFileStoreCtor();
+  nodeStoreInstance = new Ctor();
+  return nodeStoreInstance;
+}
+
+export async function getSubscriptionService(): Promise<SubscriptionService> {
+  // ICONTROL_SSOT_FACTORY_DUAL_RUNTIME_V1
   const audit = new InMemoryAuditTrail();
-  return new SubscriptionService({ store, audit });
+  if (isBrowserRuntime()) {
+    const store = getBrowserStore();
+    return new SubscriptionServiceImpl({ store, audit });
+  }
+  const store = await getNodeStore();
+  return new SubscriptionServiceImpl({ store, audit });
 }
