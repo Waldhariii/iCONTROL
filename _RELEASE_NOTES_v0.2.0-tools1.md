@@ -15,4 +15,4 @@
 - dist/assets: no FileSubscriptionStore* chunks
 
 ## Commit
-- e774d33
+- 04e3743
