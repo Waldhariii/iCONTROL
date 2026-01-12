@@ -16,4 +16,4 @@
 - (TODO) Observability: structured logs + metrics around entitlements/registry
 
 ## Commit
-- 1d46fc4
+- 2c7484b
