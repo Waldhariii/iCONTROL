@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { FileSubscriptionStore } from "../../../modules/core-system/subscription/FileSubscriptionStore";
+import { FileSubscriptionStore } from "../../../modules/core-system/subscription/FileSubscriptionStore.node";
 import type { SubscriptionRecord } from "../../../modules/core-system/subscription/SubscriptionRecord";
 import { resolveEntitlements } from "../../../modules/core-system/subscription/SubscriptionResolver";
 

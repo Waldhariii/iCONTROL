@@ -1,5 +1,4 @@
-import { getSubscriptionService } from "./subscriptionServiceFactory";
-import { FileSubscriptionStore } from "../../../../modules/core-system/subscription/FileSubscriptionStore";
+import { getSubscriptionService, getSubscriptionStore } from "./subscriptionServiceFactory";
 import { SubscriptionRegistry } from "../../../../modules/core-system/subscription/SubscriptionRegistry";
 
 /**
@@ -12,8 +11,7 @@ export async function adminSetActivePlan(args: {
   startedAtIso: string;
   expiresAtIso?: string;
 }): Promise<void> {
-  // store used by registry (same backing)
-  const store = new FileSubscriptionStore();
+    const store = await getSubscriptionStore();
   const reg = new SubscriptionRegistry(store);
   await reg.setActivePlan({
     tenantId: args.tenantId,
@@ -31,7 +29,7 @@ export async function adminCancel(args: {
   tenantId: string;
   canceledAtIso: string;
 }): Promise<void> {
-  const store = new FileSubscriptionStore();
+    const store = await getSubscriptionStore();
   const reg = new SubscriptionRegistry(store);
   await reg.cancel({ tenantId: args.tenantId, canceledAt: args.canceledAtIso });
 

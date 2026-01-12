@@ -1,7 +1,7 @@
 import { InMemoryAuditTrail } from "../../../../modules/core-system/subscription/AuditTrail";
 import { getSubscriptionService } from "./subscriptionServiceFactory";
 import { SubscriptionService } from "../../../../modules/core-system/subscription/SubscriptionService";
-import { createSubscriptionService } from "./subscriptionServiceFactory";
+import { getSubscriptionService } from "./subscriptionServiceFactory";
 
 const store = /*removed*/ null;
 const audit = new InMemoryAuditTrail();

@@ -11,6 +11,7 @@ import type { SubscriptionService } from "../../../../modules/core-system/subscr
 import { SubscriptionService as SubscriptionServiceImpl } from "../../../../modules/core-system/subscription/SubscriptionService";
 import { InMemorySubscriptionStore } from "../../../../modules/core-system/subscription/SubscriptionStore";
 import { InMemoryAuditTrail } from "../../../../modules/core-system/subscription/AuditTrail";
+import { FileSubscriptionStore as BrowserFileSubscriptionStore } from "../../../../modules/core-system/subscription/FileSubscriptionStore.browser";
 
 // NOTE: FileSubscriptionStore is Node-only. We import it dynamically in Node to avoid Vite bundling.
 type FileStoreCtor = new (...args: any[]) => any;
@@ -25,7 +26,8 @@ let nodeFileStoreCtor: FileStoreCtor | null = null;
 async function getNodeFileStoreCtor(): Promise<FileStoreCtor> {
   if (nodeFileStoreCtor) return nodeFileStoreCtor;
   // Dynamic import: prevents browser bundle from pulling node builtin fs/path.
-  const mod = await import("../../../../modules/core-system/subscription/FileSubscriptionStore");
+  const nodeUrl = new URL("../../../../modules/core-system/subscription/FileSubscriptionStore.node", import.meta.url);
+const mod = await import(/* @vite-ignore */ nodeUrl.href);
   nodeFileStoreCtor = mod.FileSubscriptionStore as unknown as FileStoreCtor;
   return nodeFileStoreCtor!;
 }
@@ -56,3 +58,12 @@ export async function getSubscriptionService(): Promise<SubscriptionService> {
   const store = await getNodeStore();
   return new SubscriptionServiceImpl({ store, audit });
 }
+
+// Expose the backing store for write-model operations (registry) without importing node builtins in client.
+export async function getSubscriptionStore() {
+  // Local runtime detection: avoids coupling to private helpers and keeps bundling predictable.
+  // Node: process.versions.node is defined. Browser: undefined.
+  const isNode = typeof process !== "undefined" && !!(process.versions && process.versions.node);
+  return isNode ? await getNodeStore() : getBrowserStore();
+}
+
