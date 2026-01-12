@@ -18,4 +18,4 @@
 - Observability: structured logs + metrics around entitlements/registry
 
 ## Commit
-- 
+- 1de35cd
