@@ -62,3 +62,6 @@ _RELEASES/
 # Runtime data (never commit)
 _DATA/
 app/_DATA/
+
+# ReleaseOps local backups (do not version)
+scripts/release/publish.zsh.bak.*
