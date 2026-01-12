@@ -198,6 +198,7 @@ generate_notes_if_missing() {
 - $(git rev-parse HEAD | cut -c1-7)
 EOF
     fi
+
     echo "OK: DRY-RUN notes -> $NOTES (no working tree changes)"
     return 0
   fi
@@ -417,6 +418,19 @@ echo "OK: CONTEXT_END"
 
 
 
+
+# CI_STRICT: en CI, on veut un pipeline non-intrusif (read-only).
+# - Par défaut: CI=1 => CI_STRICT=1
+# - En CI_STRICT + DRY_RUN: on SKIP toute opération de tags/push (zéro mutation git côté CI)
+CI_STRICT="${CI_STRICT:-}"
+if [[ "${CI:-0}" == "1" && -z "${CI_STRICT}" ]]; then
+  CI_STRICT="1"
+fi
+is_ci_strict_dryrun() {
+  [[ "${CI_STRICT:-0}" == "1" && "${DRY_RUN:-0}" == "1" ]]
+}
+echo "OK: CI_STRICT=${CI_STRICT:-0}"
+
 validate_tag_format
 
 # 0. Preflight: .git must be writable (macOS ACL/flags safety)
@@ -426,9 +440,13 @@ preflight_git_writable
 need_clean_tree
 
 # 2. Vérification / création du tag
-ensure_tag_points_to_head_or_retagauthorized
-if (( RETAG == 1 )); then
-  retag_to_head
+if is_ci_strict_dryrun; then
+  echo "OK: CI_STRICT dry-run — read-only (skip tag ops)"
+else
+  ensure_tag_points_to_head_or_retagauthorized
+  if (( RETAG == 1 )); then
+    retag_to_head
+  fi
 fi
 
 # 3. Génération ou normalisation des release notes
@@ -443,7 +461,11 @@ commit_notes_if_changed
 run_gates
 
 # 7. Publication GitHub
-publish_release
+if is_ci_strict_dryrun; then
+  echo "OK: CI_STRICT dry-run — read-only (skip gh publish)"
+else
+  publish_release
+fi
 
 # 8. Vérification finale de cohérence
 verify_final

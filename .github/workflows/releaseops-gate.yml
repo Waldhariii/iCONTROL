@@ -78,7 +78,7 @@ jobs:
         run: |
           set -euo pipefail
           chmod +x ./scripts/release/publish.zsh || true
-          ./scripts/release/publish.zsh TAG=v0.2.0-tools999 --prerelease --retag --dry-run --scope "CI ReleaseOps Gate"
+          ./scripts/release/publish.zsh TAG=v0.2.0-tools999 --prerelease --dry-run --scope "CI ReleaseOps Gate"
 
       - name: Upload artifacts (always)
         if: always()
