@@ -4,6 +4,7 @@ import { MAIN_SYSTEM_ENABLED, MAIN_SYSTEM_LAYOUT, MAIN_SYSTEM_MODULES } from "./
 import { appendList, appendTable, sectionCard } from "./_shared/uiBlocks";
 import { mountSections, type SectionSpec } from "./_shared/sections";
 import { safeRender } from "./_shared/mainSystem.shared";
+import * as EntitlementsFacade from "./_shared/entitlements";
 
 const UI = {
   WRAP: "align-items:flex-start; padding-top:38px;",
@@ -14,6 +15,11 @@ const UI = {
 } as const;
 
 export function renderDashboard(root: HTMLElement): void {
+  // ICONTROL_ENTITLEMENTS_WIRING_DASHBOARD_V1
+  // Enterprise baseline: read-only entitlements (no subscription write-model in UI).
+  const __icEntitlementsDashboard = EntitlementsFacade.getEntitlementsForTenant("t1");
+  void __icEntitlementsDashboard;
+
   safeRender(root, () => {
     root.innerHTML = coreBaseStyles();
 

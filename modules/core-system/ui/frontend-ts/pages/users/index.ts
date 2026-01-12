@@ -10,8 +10,14 @@ import {
   renderUsersPermissions,
   renderUsersRoles
 } from "./view";
+import * as EntitlementsFacade from "../_shared/entitlements";
 
 export function renderUsers(root: HTMLElement): void {
+  // ICONTROL_ENTITLEMENTS_WIRING_USERS_V1
+  // Enterprise baseline: read-only entitlements (no subscription write-model in UI).
+  const __icEntitlementsUsers = EntitlementsFacade.getEntitlementsForTenant("t1");
+  void __icEntitlementsUsers;
+
   const role = getRole();
   const safeMode = getSafeMode();
 
