@@ -15,3 +15,23 @@ export async function getEntitlementsForTenant(tenantId: string, nowIso?: string
 export function getEntitlementsAuditSnapshot() {
   return audit.snapshot();
 }
+
+
+/**
+ * Read-model diagnostics for UI (enterprise-grade support).
+ * Returns: effectivePlanId, source, reason, and entitlements.
+ */
+export async function getEntitlementsDiagnosticsForTenant(tenantId: string, nowIso?: string) {
+  const svc = createSubscriptionService();
+  const now = nowIso ?? new Date().toISOString();
+  const resolved = await svc.resolve(tenantId, now);
+  return {
+    tenantId,
+    nowIso: now,
+    effectivePlanId: resolved.effectivePlanId,
+    reason: resolved.reason,
+    entitlements: resolved.entitlements,
+    // optional: include raw subscription record for admin UI if needed
+    subscription: resolved.subscription ?? null,
+  };
+}
