@@ -368,8 +368,6 @@ run_gates() {
 }
 
 publish_release() {
-  need_gh
-
   echo "OK: RELEASE publish/update on GitHub"
   local args=""
   if [[ "$MODE" == "prerelease" ]]; then
@@ -380,6 +378,8 @@ publish_release() {
     echo "OK: DRY_RUN gh release create/edit $TAG (mode=$MODE) notes=$NOTES"
     return 0
   fi
+
+  need_gh
 
   # Canonical notes render for publishing: ensures Commit pointer == final tag commit
   local notes_for_release
