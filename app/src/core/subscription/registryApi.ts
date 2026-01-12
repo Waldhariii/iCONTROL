@@ -1,4 +1,4 @@
-import { createSubscriptionService } from "./subscriptionServiceFactory";
+import { getSubscriptionService } from "./subscriptionServiceFactory";
 import { FileSubscriptionStore } from "../../../../modules/core-system/subscription/FileSubscriptionStore";
 import { SubscriptionRegistry } from "../../../../modules/core-system/subscription/SubscriptionRegistry";
 
@@ -23,7 +23,7 @@ export async function adminSetActivePlan(args: {
   });
 
   // touch service resolve path to keep behaviour deterministic
-  const svc = createSubscriptionService();
+  const svc = await getSubscriptionService();
   await svc.resolve(args.tenantId, args.startedAtIso);
 }
 
@@ -35,6 +35,6 @@ export async function adminCancel(args: {
   const reg = new SubscriptionRegistry(store);
   await reg.cancel({ tenantId: args.tenantId, canceledAt: args.canceledAtIso });
 
-  const svc = createSubscriptionService();
+  const svc = await getSubscriptionService();
   await svc.resolve(args.tenantId, args.canceledAtIso);
 }

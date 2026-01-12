@@ -1,4 +1,5 @@
 import { InMemoryAuditTrail } from "../../../../modules/core-system/subscription/AuditTrail";
+import { getSubscriptionService } from "./subscriptionServiceFactory";
 import { SubscriptionService } from "../../../../modules/core-system/subscription/SubscriptionService";
 import { createSubscriptionService } from "./subscriptionServiceFactory";
 
@@ -9,7 +10,7 @@ const svc = new SubscriptionService({ store, audit });
 export type EntitlementsReadModel = Awaited<ReturnType<typeof svc.resolve>>;
 
 export async function getEntitlementsForTenant(tenantId: string, nowIso: string) {
-  const svc = createSubscriptionService();
+  const svc = await getSubscriptionService();
   const out = await svc.resolve(tenantId, nowIso);
   return out;
 }
@@ -24,7 +25,7 @@ export function getEntitlementsAuditSnapshot() {
  * Returns: effectivePlanId, source, reason, and entitlements.
  */
 export async function getEntitlementsDiagnosticsForTenant(tenantId: string, nowIso?: string) {
-  const svc = createSubscriptionService();
+  const svc = await getSubscriptionService();
   const now = nowIso ?? new Date().toISOString();
   const resolved = await svc.resolve(tenantId, now);
   return {
