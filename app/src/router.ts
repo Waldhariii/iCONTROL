@@ -1,5 +1,6 @@
 import { getSession, isLoggedIn, logout } from "./localAuth";
 import { canAccessSettings } from "./runtime/rbac";
+import { navigate } from "./runtime/navigate";
 
 /**
  * router.ts — minimal hash router with RBAC guard
@@ -31,8 +32,8 @@ export function getRouteId(): RouteId {
 }
 
 export function navigate(hash: string): void {
-  if (!hash.startsWith("#/")) location.hash = "#/" + hash.replace(/^#\/?/, "");
-  else location.hash = hash;
+  if (!hash.startsWith("#/")) navigate("#/" + hash.replace(/^#\/?/, ""));
+  else navigate(hash);
 }
 
 function ensureAuth(): boolean {
