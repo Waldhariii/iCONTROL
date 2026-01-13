@@ -1,3 +1,4 @@
+import { redactAuditPayload } from "./audit.redact";
 // Single-source audit emitter helper (enterprise governance)
 // - Normalizes payload envelope (ts/module/scope/source)
 // - Never throws outward; can set failure flags on runtime
@@ -37,7 +38,7 @@ export function emitAudit(
       ...(opts.data || {}),
     };
 
-    emit.call(rt, level, code, message, payload);
+    emit.call(rt, level, code, message, redactAuditPayload(payload));
     return true;
   } catch {
     try {
