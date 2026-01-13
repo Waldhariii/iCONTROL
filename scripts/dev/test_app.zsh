@@ -1,43 +1,35 @@
 #!/usr/bin/env zsh
 set -euo pipefail
 
-APP_DIR="${APP_DIR:-app}"
-cd "$APP_DIR"
+ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+APP="$ROOT/app"
 
-RUNNER=""
-if command -v pnpm >/dev/null 2>&1; then
-  RUNNER="pnpm"
-elif command -v corepack >/dev/null 2>&1; then
-  corepack enable >/dev/null 2>&1 || true
-  if command -v pnpm >/dev/null 2>&1; then
-    RUNNER="pnpm"
-  fi
+echo "OK: test runner (terminal-only, non-destructive)"
+echo "OK: ROOT=$ROOT"
+echo "OK: APP=$APP"
+
+cd "$APP"
+
+# Prefer deterministic paths when available
+if [[ -f pnpm-lock.yaml ]] && command -v pnpm >/dev/null 2>&1; then
+  echo "OK: using pnpm"
+  pnpm -v
+  pnpm install --frozen-lockfile
+  pnpm -s test
+  exit 0
 fi
 
-if [[ -z "$RUNNER" ]]; then
-  RUNNER="npm"
-fi
-
-echo "OK: test runner=$RUNNER"
-
-if [[ ! -d node_modules ]]; then
-  if [[ "$RUNNER" == "pnpm" ]]; then
-    if [[ -f pnpm-lock.yaml ]]; then
-      pnpm install --frozen-lockfile
-    else
-      pnpm install
-    fi
-  else
-    if [[ -f package-lock.json ]]; then
-      npm ci
-    else
-      npm install --no-package-lock
-    fi
-  fi
-fi
-
-if [[ "$RUNNER" == "pnpm" ]]; then
-  pnpm test
-else
+# If workspace lock exists at repo root, use npm ci from root (deterministic)
+if [[ -f "$ROOT/package-lock.json" ]]; then
+  echo "OK: using npm ci (workspace lock at root)"
+  cd "$ROOT"
+  npm ci
+  cd "$APP"
   npm test
+  exit 0
 fi
+
+# No lockfile: allow install WITHOUT writing package-lock (keeps git clean)
+echo "OK: no lockfile => npm install --no-package-lock (non-destructive)"
+npm install --no-package-lock
+npm test
