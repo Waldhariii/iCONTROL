@@ -314,6 +314,12 @@ export async function cacheGetOrCompute(
         const agePastExpiry = now() - exp;
         if (agePastExpiry > 0 && agePastExpiry <= swr) {
           try { incCounter(rt, "cache.refresh_aside.count", 1, { action: "serve_stale" }); } catch {}
+
+    // SWR kill-switch: allow runtime to force recompute path (no stale serving)
+    if ((rt as any)?.__CACHE_SWR_DISABLED__ === true) {
+      try { incCounter(rt, "cache.refresh_aside.count", 1, { action: "disabled" }); } catch {}
+      throw new Error("SWR_DISABLED"); // handled by outer best-effort try/catch; falls through to compute
+    }
           try { lruTouch(rt, key); } catch {}
 
           // background refresh (best-effort single-flight)

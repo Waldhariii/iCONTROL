@@ -3,7 +3,24 @@ import { cacheGetOrComputeSingleFlight, cacheGetOrCompute } from "../policies/ca
 import { snapshotMetrics } from "../policies/metrics.registry";
 
 describe("cache — single-flight + refresh-aside + LRU (contract)", () => {
-  it("dedupes concurrent compute for same key (single-flight)", async () => {
+  
+  it("SWR kill-switch: when rt.__CACHE_SWR_DISABLED__ is true, does not serve stale", async () => {
+    const rt: any = { __CACHE_SWR_DISABLED__: true };
+    let n = 0;
+
+    // First compute => 1
+    const v1 = await cacheGetOrCompute(rt, "ks", async () => (++n), { ttlMs: 20, staleWhileRevalidateMs: 200, maxEntries: 10 });
+    expect(v1).toBe(1);
+
+    // Let it expire
+    await new Promise(r => setTimeout(r, 30));
+
+    // With SWR disabled, it must recompute (2), not serve stale (1)
+    const v2 = await cacheGetOrCompute(rt, "ks", async () => (++n), { ttlMs: 20, staleWhileRevalidateMs: 200, maxEntries: 10 });
+    expect(v2).toBe(2);
+  });
+
+it("dedupes concurrent compute for same key (single-flight)", async () => {
     const rt: any = {};
     let calls = 0;
 
