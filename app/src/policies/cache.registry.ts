@@ -385,12 +385,27 @@ async function computeAndSet(rt: any, key: string, compute: () => Promise<any> |
 // Returns cached value when present; otherwise computes and caches.
 // If staleWhileRevalidateMs is provided:
 // - if entry is expired but still within stale window, returns stale immediately and triggers background refresh.
+
+function __cacheAuditMark(rt: any) {
+  try {
+    const w: any = rt || ({} as any);
+    if (!w.__cacheAudit) w.__cacheAudit = Object.create(null);
+    w.__cacheAudit.swrDisabled = (w.__CACHE_SWR_DISABLED__ === true);
+    w.__cacheAudit.metricsDisabled = (w.__METRICS_DISABLED__ === true);
+    w.__cacheAudit.ts = Date.now();
+    // optional schema version for future evolution
+    if (typeof w.__cacheAudit.schemaVersion !== "number") w.__cacheAudit.schemaVersion = 1;
+  } catch {}
+}
+
 export async function cacheGetOrCompute(
   rt: any,
   key: string,
   compute: () => Promise<any> | any,
   opts: CacheComputeOptions
 ) {
+  __cacheAuditMark(rt);
+
   // Provider-first logic (SWR-safe): do NOT call cacheGet() first when SWR is enabled,
   // because cacheGet() deletes expired entries, making stale serving impossible.
   const swr = __clampSWRMs(opts.staleWhileRevalidateMs);
@@ -493,6 +508,8 @@ export async function cacheGetOrComputeSingleFlight(
   compute: () => Promise<any> | any,
   opts: CacheComputeOptions
 ) {
+  __cacheAuditMark(rt);
+
   const swr = __clampSWRMs(opts.staleWhileRevalidateMs);
   if (swr > 0) {
     const raw = await __cacheRawGetEntry(rt, key);
