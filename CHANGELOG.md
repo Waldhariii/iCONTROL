@@ -37,3 +37,8 @@ Tags:
 ## P1.6 — Cache Audit UI Consolidation (Redacted Copy + OBS)
 - System page: Cache Audit section action row (Refresh + Copy redacted JSON) + OBS event.
 - UI test: jsdom-based verification for clipboard copy.
+
+## P1.7 — Cache Audit Policy Hardening (redactedSnapshot + stable keys)
+- Policy: add `redactedSnapshot()` (JSON-safe) and stabilize audit snapshot keys for UI.
+- System page: prefer `redactedSnapshot()` when present; fallback to `snapshot()`.
+- OBS: add refresh event code for cache audit UI actions.
