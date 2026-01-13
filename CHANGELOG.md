@@ -29,3 +29,7 @@ Tags:
 Tags:
 - release/p1.4-cache-audit-snapshot-guarantee
 - baseline/main-p1.4-cache-audit-snapshot-guarantee
+
+## P1.5 — System Cache Audit Panel (Read-only)
+- System page: add Cache Audit section (read-only) with Copy JSON action.
+- Contract: add JSON-safe snapshot contract for system panel.
