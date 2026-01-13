@@ -205,6 +205,15 @@ const __CACHE_REFRESH_ASIDE_META_TTL_MS = 2000;
 
 type __CacheRawEntry = any;
 
+function __deferMicrotask(fn: () => void) {
+  try {
+    // queueMicrotask is preferred when available (deterministic, no macro-tick jitter)
+    (globalThis as any).queueMicrotask ? (globalThis as any).queueMicrotask(fn) : Promise.resolve().then(fn);
+  } catch {
+    try { Promise.resolve().then(fn); } catch {}
+  }
+}
+
 /** Metrics helpers (best-effort, respects rt.__METRICS_DISABLED__) */
 function __nowMs(): number {
   return Date.now();
@@ -422,7 +431,7 @@ export async function cacheGetOrCompute(
             try {
               const meta = getRefreshAsideMeta(rt);
               meta.set(key, now());
-              setTimeout(() => { try { meta.delete(key); } catch {} }, Math.min(swr, 1000));
+              setTimeout(() => { try { meta.delete(key); } catch {} }, Math.min(swr, __CACHE_REFRESH_ASIDE_META_TTL_MS));
             } catch {}
             __mInc(rt, "cache.refresh.triggered", 1, { reason: "refresh_aside" });
             const __tR = __nowMs();
@@ -436,8 +445,7 @@ export async function cacheGetOrCompute(
                 __mInc(rt, "cache.refresh.fail", 1, { reason: "refresh_aside" });
                 throw e;
               } finally {
-                try { setTimeout(() => { try { inflight.delete(key); } catch {} }, 0); } catch {}
-                __mHist(rt, "cache.refresh.latency_ms", __nowMs() - __tR, { reason: "refresh_aside" });
+                try { __deferMicrotask(() => { try { inflight.delete(key); } catch {} }); } catch {}__mHist(rt, "cache.refresh.latency_ms", __nowMs() - __tR, { reason: "refresh_aside" });
               }
             })();
 
@@ -512,7 +520,7 @@ export async function cacheGetOrComputeSingleFlight(
               try {
                 const meta = getRefreshAsideMeta(rt);
                 meta.set(key, now());
-                setTimeout(() => { try { meta.delete(key); } catch {} }, Math.min(swr, 1000));
+                setTimeout(() => { try { meta.delete(key); } catch {} }, Math.min(swr, __CACHE_REFRESH_ASIDE_META_TTL_MS));
               } catch {}
               __mInc(rt, "cache.refresh.triggered", 1, { reason: "refresh_aside" });
               const __tR = __nowMs();
@@ -526,8 +534,7 @@ export async function cacheGetOrComputeSingleFlight(
                   __mInc(rt, "cache.refresh.fail", 1, { reason: "refresh_aside" });
                   throw e;
                 } finally {
-                  try { setTimeout(() => { try { inflight.delete(key); } catch {} }, 0); } catch {}
-                  __mHist(rt, "cache.refresh.latency_ms", __nowMs() - __tR, { reason: "refresh_aside" });
+                  try { __deferMicrotask(() => { try { inflight.delete(key); } catch {} }); } catch {}__mHist(rt, "cache.refresh.latency_ms", __nowMs() - __tR, { reason: "refresh_aside" });
                 }
               })();
 
