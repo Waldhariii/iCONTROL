@@ -68,6 +68,22 @@ export function bootRouter(onRoute: (rid: RouteId) => void): void {
       w.__VP_GUARDS_APPLIED__ = true;
       try { applyVersionPolicyBootGuards(w); } catch {}
     }
+
+    // Observability: audit version policy outcomes (idempotent)
+    try {
+      if (!w.__VP_AUDITED__) w.__VP_AUDITED__ = { soft: false, block: false };
+      const emit = (w as any)?.audit?.emit || (w as any)?.audit?.log || (w as any)?.auditLog?.append || (w as any)?.core?.audit?.emit;
+      if (typeof emit === "function") {
+        if ((w as any).__bootBanner && !(w as any).__VP_AUDITED__.soft) {
+          (w as any).__VP_AUDITED__.soft = true;
+          emit.call(w, "WARN", (w as any).__bootBanner.code || "WARN_VERSION_SOFT_BLOCK", (w as any).__bootBanner.message || "Soft block: update recommended", { source: "version_policy" });
+        }
+        if ((w as any).__bootBlock && !(w as any).__VP_AUDITED__.block) {
+          (w as any).__VP_AUDITED__.block = true;
+          emit.call(w, "ERR", (w as any).__bootBlock.code || "ERR_VERSION_BLOCKED", (w as any).__bootBlock.message || "Blocked by version policy", { source: "version_policy" });
+        }
+      }
+    } catch {}
     const rid = getRouteId();
     const h = String(location.hash || "");
     const authed = ensureAuth();
