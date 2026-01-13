@@ -3,6 +3,7 @@ import { redactAuditPayload } from "./audit.redact";
 // - Normalizes payload envelope (ts/module/scope/source)
 // - Never throws outward; can set failure flags on runtime
 // - Keeps call signature compatible with existing audit emitters
+import { getOrCreateTraceContext } from "./trace.context";
 
 export type AuditLevel = "INFO" | "WARN" | "ERROR" | string;
 
@@ -30,9 +31,10 @@ export function emitAudit(
     if (typeof emit !== "function") return false;
 
     const ts = new Date().toISOString();
-    const payload = {
+    const ctx = getOrCreateTraceContext(rt);
+  const payload = {
       ts,
-      module: "control_plane",
+      module: "control_plane", tenant: ctx.tenant, traceId: ctx.traceId, requestId: ctx.requestId,
       scope: opts.scope,
       source: opts.source,
       ...(opts.data || {}),
