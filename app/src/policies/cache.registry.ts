@@ -208,17 +208,17 @@ function __nowMs(): number {
   return Date.now();
 }
 
-function __mInc(rt: any, name: string, by = 1) {
+function __mInc(rt: any, name: string, by = 1, tags: any = {}) {
   try {
     if ((rt as any)?.__METRICS_DISABLED__) return;
-    incCounter(rt, name, by, {});
+    incCounter(rt, name, by, tags || {});
   } catch {}
 }
 
-function __mHist(rt: any, name: string, v: number) {
+function __mHist(rt: any, name: string, v: number, tags: any = {}) {
   try {
     if ((rt as any)?.__METRICS_DISABLED__) return;
-    observeHistogram(rt, name, v, {});
+    observeHistogram(rt, name, v, tags || {});
   } catch {}
 }
 
@@ -401,26 +401,26 @@ export async function cacheGetOrCompute(
           // background refresh (best-effort single-flight)
           const inflight = getInflight(rt);
           if (!inflight.has(key)) {
-            __mInc(rt, "cache.refresh.triggered", 1);
+            __mInc(rt, "cache.refresh.triggered", 1, { reason: "refresh_aside" });
             const __tR = __nowMs();
 
             const pp = (async () => {
               try {
                 const __v = await computeAndSet(rt, key, compute, opts);
-                __mInc(rt, "cache.refresh.success", 1);
+                __mInc(rt, "cache.refresh.success", 1, { reason: "refresh_aside" });
                 return __v;
               } catch (e) {
-                __mInc(rt, "cache.refresh.fail", 1);
+                __mInc(rt, "cache.refresh.fail", 1, { reason: "refresh_aside" });
                 throw e;
               } finally {
                 try { inflight.delete(key); } catch {}
-                __mHist(rt, "cache.refresh.latency_ms", __nowMs() - __tR);
+                __mHist(rt, "cache.refresh.latency_ms", __nowMs() - __tR, { reason: "refresh_aside" });
               }
             })();
 
             inflight.set(key, pp);
           } else {
-            __mInc(rt, "cache.refresh.dedup", 1);
+            __mInc(rt, "cache.refresh.dedup", 1, { reason: "refresh_aside" });
             try { incCounter(rt, "cache.compute.dedup.count", 1, { reason: "refresh_aside" }); } catch {}
           }
 
@@ -476,26 +476,26 @@ export async function cacheGetOrComputeSingleFlight(
 
             const inflight = getInflight(rt);
             if (!inflight.has(key)) {
-              __mInc(rt, "cache.refresh.triggered", 1);
+              __mInc(rt, "cache.refresh.triggered", 1, { reason: "refresh_aside" });
               const __tR = __nowMs();
 
               const pp = (async () => {
                 try {
                   const __v = await computeAndSet(rt, key, compute, opts);
-                  __mInc(rt, "cache.refresh.success", 1);
+                  __mInc(rt, "cache.refresh.success", 1, { reason: "refresh_aside" });
                   return __v;
                 } catch (e) {
-                  __mInc(rt, "cache.refresh.fail", 1);
+                  __mInc(rt, "cache.refresh.fail", 1, { reason: "refresh_aside" });
                   throw e;
                 } finally {
                   try { inflight.delete(key); } catch {}
-                  __mHist(rt, "cache.refresh.latency_ms", __nowMs() - __tR);
+                  __mHist(rt, "cache.refresh.latency_ms", __nowMs() - __tR, { reason: "refresh_aside" });
                 }
               })();
 
               inflight.set(key, pp);
             } else {
-              __mInc(rt, "cache.refresh.dedup", 1);
+              __mInc(rt, "cache.refresh.dedup", 1, { reason: "refresh_aside" });
               try { incCounter(rt, "cache.compute.dedup.count", 1, { reason: "refresh_aside" }); } catch {}
             }
 
@@ -514,6 +514,7 @@ export async function cacheGetOrComputeSingleFlight(
 
   const inflight = getInflight(rt);
   if (inflight.has(key)) {
+    __mInc(rt, "cache.refresh.dedup", 1);
     try { incCounter(rt, "cache.compute.dedup.count", 1, { reason: "singleflight" }); } catch {}
     return inflight.get(key)!;
   }
