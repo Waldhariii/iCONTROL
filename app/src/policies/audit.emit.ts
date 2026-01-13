@@ -4,6 +4,7 @@ import { redactAuditPayload } from "./audit.redact";
 // - Never throws outward; can set failure flags on runtime
 // - Keeps call signature compatible with existing audit emitters
 import { getOrCreateTraceContext } from "./trace.context";
+import { incCounter, observeHistogram } from "./metrics.registry";
 
 export type AuditLevel = "INFO" | "WARN" | "ERROR" | string;
 
@@ -27,7 +28,8 @@ export function emitAudit(
   failureFlag?: string
 ): boolean {
   try {
-    const emit = resolveAuditEmitter(rt);
+    const t0 = Date.now();
+  const emit = resolveAuditEmitter(rt);
     if (typeof emit !== "function") return false;
 
     const ts = new Date().toISOString();
@@ -41,7 +43,10 @@ export function emitAudit(
     };
 
     emit.call(rt, level, code, message, redactAuditPayload(payload));
-    return true;
+    
+  try { incCounter(rt, "audit.emit.count", 1, { module: "control_plane", scope: String(payload.scope || "unknown") }); } catch {}
+  try { observeHistogram(rt, "audit.emit.latency_ms", Date.now() - t0, { module: "control_plane", scope: String(payload.scope || "unknown") }); } catch {}
+return true;
   } catch {
     try {
       if (failureFlag && rt) (rt as any)[failureFlag] = true;
