@@ -1,7 +1,7 @@
 import { getSession, isLoggedIn, logout } from "./localAuth";
 import { canAccessSettings } from "./runtime/rbac";
-import { navigate } from "./runtime/navigate";
-
+import { navigate as coreNavigate } from "./runtime/navigate";
+import { applyVersionPolicyBootGuards } from "./policies/version_policy.runtime";
 /**
  * router.ts — minimal hash router with RBAC guard
  * Public:  #/login
@@ -32,8 +32,8 @@ export function getRouteId(): RouteId {
 }
 
 export function navigate(hash: string): void {
-  if (!hash.startsWith("#/")) navigate("#/" + hash.replace(/^#\/?/, ""));
-  else navigate(hash);
+  if (!hash.startsWith("#/")) coreNavigate("#/" + hash.replace(/^#\/?/, ""));
+  else coreNavigate(hash);
 }
 
 function ensureAuth(): boolean {
@@ -62,6 +62,11 @@ export function doLogout(): void {
 
 export function bootRouter(onRoute: (rid: RouteId) => void): void {
   const tick = () => {
+    const w = window as any;
+    if (!w.__VP_GUARDS_APPLIED__) {
+      w.__VP_GUARDS_APPLIED__ = true;
+      try { applyVersionPolicyBootGuards(w); } catch {}
+    }
     const rid = getRouteId();
     const h = String(location.hash || "");
     const authed = ensureAuth();
