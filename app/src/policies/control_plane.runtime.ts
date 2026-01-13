@@ -23,10 +23,17 @@ export function applyControlPlaneBootGuards(w: AnyWin): void {
       const ffSet =
         rt.__featureFlags || rt.__FEATURE_FLAGS__ || rt.__ff || rt.featureFlags || rt.flags || {};
 
-      const govAudit = auditGovernedFeatureFlags(ffSet) || [];
-      rt.__ffGovernanceAudit = govAudit;
-
-      const emit =
+      const ts = new Date().toISOString();
+    const govAudit = auditGovernedFeatureFlags(ffSet) || [];
+    const govAudit2 = govAudit.map((e: any) => ({
+      ...e,
+      ts,
+      module: "control_plane",
+      scope: "feature_flags_governance",
+      source: "feature_flags_governance",
+    }));
+    rt.__ffGovernanceAudit = govAudit2;
+const emit =
         rt?.audit?.emit ||
         rt?.audit?.log ||
         rt?.auditLog?.append ||

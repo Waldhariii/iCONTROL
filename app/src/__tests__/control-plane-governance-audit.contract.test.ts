@@ -17,6 +17,13 @@ describe("control plane — governance audit emission (contract)", () => {
     expect(Array.isArray(runtime.__ffGovernanceAudit)).toBe(true);
     expect(runtime.__ffGovernanceAudit.length).toBeGreaterThanOrEqual(1);
 
+    const sample: any = runtime.__ffGovernanceAudit[0];
+    expect(sample.ts).toBeDefined();
+    expect(typeof sample.ts).toBe("string");
+    expect(sample.module).toBe("control_plane");
+    expect(sample.scope).toBe("feature_flags_governance");
+    expect(sample.source).toBe("feature_flags_governance");
+
     const hasOwnerMissing = runtime.__ffGovernanceAudit.some(
       (e: any) => e.code === ERROR_CODES.WARN_FLAG_OWNER_MISSING
     );
