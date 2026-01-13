@@ -1,6 +1,8 @@
+import { nsKey } from "../runtime/storageNs";
+import { isSafeMode } from "../runtime/safeMode";
 import { DEFAULT_ENTITLEMENTS, type Entitlements } from "./types";
 
-const NS = "icontrol.entitlements";
+const BASE_KEY = "entitlements.v1";
 
 function safeParse(json: string): unknown {
   try { return JSON.parse(json); } catch { return null; }
@@ -30,7 +32,7 @@ function coerceEntitlements(v: unknown): Entitlements {
 export function entitlementsKey(tenantId: string): string {
   // tenantId must be stable identifier; if unknown, use "local".
   const t = (tenantId || "local").trim();
-  return `${NS}.${t}`;
+  return nsKey(`${t}.${BASE_KEY}`);
 }
 
 export function loadEntitlements(tenantId: string): Entitlements {
@@ -41,11 +43,13 @@ export function loadEntitlements(tenantId: string): Entitlements {
 }
 
 export function saveEntitlements(tenantId: string, e: Entitlements): void {
+  if (isSafeMode()) return;
   if (typeof window === "undefined" || !window.localStorage) return;
   window.localStorage.setItem(entitlementsKey(tenantId), JSON.stringify(e));
 }
 
 export function clearEntitlements(tenantId: string): void {
+  if (isSafeMode()) return;
   if (typeof window === "undefined" || !window.localStorage) return;
   window.localStorage.removeItem(entitlementsKey(tenantId));
 }
