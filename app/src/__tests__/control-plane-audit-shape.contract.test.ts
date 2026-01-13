@@ -19,5 +19,9 @@ describe("control plane — audit event shape (contract)", () => {
     expect(typeof payload.ts).toBe("string");
     expect(payload.module).toBe("control_plane");
     expect(payload.scope).toBeDefined();
+    expect(typeof payload.scope).toBe("string");
+    expect(payload.scope.length).toBeGreaterThan(0);
+    expect(typeof payload.source).toBe("string");
+    expect(payload.source.length).toBeGreaterThan(0);
   });
 });

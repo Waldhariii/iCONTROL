@@ -43,10 +43,10 @@ const emit =
         for (const e of govAudit) {
           emit.call(rt, e.level, e.code, e.message, {
             ...(e.data || {}),
-            ts: new Date().toISOString(),
-            module: "control_plane",
-            scope: "feature_flags_governance",
-            source: "feature_flags_governance",
+            ts: (e as any).ts || new Date().toISOString(),
+            module: (e as any).module || "control_plane",
+            scope: (e as any).scope || "feature_flags_governance",
+            source: (e as any).source || "feature_flags_governance",
           });
         }
       }
