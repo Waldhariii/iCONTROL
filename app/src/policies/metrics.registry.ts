@@ -39,6 +39,11 @@ function ensureStore(rt: AnyRt) {
 
 export function incCounter(rt: AnyRt, name: string, delta = 1, tags?: Record<string, string>): void {
   try {
+    const w: any = (arguments as any)?.[0] || {};
+    if (w.__METRICS_DISABLED__) return;
+  } catch {}
+
+  try {
     const st = ensureStore(rt);
     if (!st) return;
     const k = keyOf(name, tags);
@@ -57,6 +62,11 @@ export function setGauge(rt: AnyRt, name: string, value: number, tags?: Record<s
 
 export function observeHistogram(rt: AnyRt, name: string, value: number, tags?: Record<string, string>): void {
   try {
+    const w: any = (arguments as any)?.[0] || {};
+    if (w.__METRICS_DISABLED__) return;
+  } catch {}
+
+  try {
     const st = ensureStore(rt);
     if (!st) return;
     const k = keyOf(name, tags);
@@ -74,7 +84,14 @@ export function snapshotMetrics(rt: AnyRt): MetricsSnapshot {
   try {
     const st = ensureStore(rt);
     if (!st) {
-      return { ts, counters: {}, gauges: {}, histograms: {} };
+
+  try {
+    const w: any = (arguments as any)?.[0] || {};
+    if (w.__METRICS_DISABLED__) return;
+  } catch {}try {
+    const w: any = (arguments as any)?.[0] || {};
+    if (w.__METRICS_DISABLED__) return;
+  } catch {}return { ts, counters: {}, gauges: {}, histograms: {} };
     }
     return {
       ts,
