@@ -1,3 +1,30 @@
+import { OBS } from "../../_shared/obsCodes";
+import { recordObs } from "../../_shared/audit";
+
+function __redactAudit(input: any): any {
+  // Policy: allowlist only schema/version/toggles/timestamp (future-proof, JSON-safe)
+  const a = input && typeof input === "object" ? input : {};
+  return {
+    schemaVersion: typeof a.schemaVersion === "number" ? a.schemaVersion : 1,
+    ts: typeof a.ts === "number" ? a.ts : Date.now(),
+    swrDisabled: !!a.swrDisabled,
+    metricsDisabled: !!a.metricsDisabled,
+  };
+}
+
+async function __copyRedactedJson(snap: any): Promise<boolean> {
+  try {
+    const redacted = __redactAudit(snap);
+    const json = JSON.stringify(redacted, null, 2);
+    const nav: any = (globalThis as any).navigator;
+    if (!nav?.clipboard?.writeText) return false;
+    await nav.clipboard.writeText(json);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 /**
  * P1.5 | System Cache Audit section (read-only)
  * - DOM-based renderer (no JSX)
@@ -70,7 +97,44 @@ function __el<K extends keyof HTMLElementTagNameMap>(tag: K, attrs?: Record<stri
 export function renderSystemCacheAudit(host: HTMLElement): void {
   const a: any = __readCacheAuditSystem();
 
-  host.innerHTML = "";
+  
+  const w: any = globalThis as any;
+  const snap = (() => {
+    try {
+      const a = w.__cacheAudit;
+      if (a?.snapshot) return a.snapshot();
+      return a || null;
+    } catch { return null; }
+  })();
+
+host.innerHTML = "";
+
+  // P1.6_ACTION_ROW: actions (best-effort)
+  try {
+    const actions = document.createElement("div");
+    actions.setAttribute("data-kind", "audit-actions");
+    actions.style.display = "flex";
+    actions.style.gap = "8px";
+    actions.style.marginTop = "10px";
+
+    const btnRefresh = document.createElement("button");
+    btnRefresh.type = "button";
+    btnRefresh.textContent = "Refresh";
+    btnRefresh.onclick = () => renderSystemCacheAudit(host);
+
+    const btnCopy = document.createElement("button");
+    btnCopy.type = "button";
+    btnCopy.textContent = "Copy redacted JSON";
+    btnCopy.onclick = async () => {
+      const ok = await __copyRedactedJson(snap);
+      try { recordObs({ code: OBS.AUDIT_CACHE_COPY, page: "system", section: "cache-audit", detail: ok ? "ok" : "fail" }); } catch {}
+    };
+
+    host.appendChild(actions);
+    actions.appendChild(btnRefresh);
+    actions.appendChild(btnCopy);
+  } catch {}
+
 
   const card = __el("div", { style: {
     border: "1px solid rgba(255,255,255,0.12)",
