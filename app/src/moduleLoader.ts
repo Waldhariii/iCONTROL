@@ -101,7 +101,13 @@ export function renderRoute(rid: RouteId, root: HTMLElement): void {
         .then((m) => m.renderAccessDeniedPage(root, { entitlement: getEntitlementFromHash() }))
         .catch((e) => {
           /* ICONTROL_LOADER_IMPORT_GUARD_V1 */
-          console.warn("WARN_ROUTE_IMPORT_FAILED", {
+          console.warn("WARN_ROUTE_IMPORT_FAILED"
+  // Activation / licence
+  if (hash.startsWith("#/activation")) {
+    const m = await import("/modules/core-system/ui/frontend-ts/pages/activation/index");
+    return m.renderActivationPage(mount);
+  }
+, {
             spec: "../../modules/core-system/ui/frontend-ts/pages/access-denied",
             err: String(e)
           });
