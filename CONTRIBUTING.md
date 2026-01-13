@@ -54,3 +54,9 @@ Do not commit local OS artifacts (e.g., `.DS_Store`) or local build output. Repo
 - Point d’entrée canonique: docs/release/README.md
 - Gouvernance: docs/governance/releaseops/DoD.md
 - Runbook: docs/runbooks/releaseops.md
+
+## Tests locaux (canonique)
+- Runner unique: `./test_app.zsh`
+- Exemples:
+  - `./test_app.zsh`
+  - `./test_app.zsh --help`

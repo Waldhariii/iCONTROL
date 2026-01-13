@@ -40,7 +40,7 @@ Point d’entrée unique pour exécuter une release de façon outillée et audit
 
 ## Développement local — tests app (déterministe)
 - Lancer les tests sans dépendre d’un pnpm global:
-  - `./test_app.zsh`
+  - `././test_app.zsh`
 
 ## Provisioning manuel (Dev)
 - Aller sur: `Developer -> Entitlements` (route: `/developer/entitlements`)
