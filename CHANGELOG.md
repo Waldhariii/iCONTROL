@@ -33,3 +33,7 @@ Tags:
 ## P1.5 — System Cache Audit Panel (Read-only)
 - System page: add Cache Audit section (read-only) with Copy JSON action.
 - Contract: add JSON-safe snapshot contract for system panel.
+
+## P1.6 — Cache Audit UI Consolidation (Redacted Copy + OBS)
+- System page: Cache Audit section action row (Refresh + Copy redacted JSON) + OBS event.
+- UI test: jsdom-based verification for clipboard copy.
