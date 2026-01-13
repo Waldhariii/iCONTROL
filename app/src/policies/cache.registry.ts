@@ -393,6 +393,26 @@ function __cacheAuditMark(rt: any) {
     w.__cacheAudit.swrDisabled = (w.__CACHE_SWR_DISABLED__ === true);
     w.__cacheAudit.metricsDisabled = (w.__METRICS_DISABLED__ === true);
     w.__cacheAudit.ts = Date.now();
+    // P1.4 guarantee: snapshot() always present + runtime exposure (best-effort)
+    try {
+      const a = w.__cacheAudit;
+      // Ensure stable schema defaults before snapshot
+      if (typeof a.schemaVersion !== "number") a.schemaVersion = 1;
+
+      // Always provide JSON-safe snapshot() helper
+      if (typeof a.snapshot !== "function") {
+        a.snapshot = () => ({
+          schemaVersion: a.schemaVersion,
+          ts: a.ts,
+          swrDisabled: a.swrDisabled,
+          metricsDisabled: a.metricsDisabled,
+        });
+      }
+
+      // Expose audit surface on runtime object (no global dependency in tests/diagnostics)
+      if (rt && typeof rt === "object") rt.__cacheAudit = a;
+    } catch {}
+
     // optional schema version for future evolution
     if (typeof w.__cacheAudit.schemaVersion !== "number") w.__cacheAudit.schemaVersion = 1;
   } catch {}
