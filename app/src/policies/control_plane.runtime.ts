@@ -4,6 +4,7 @@ import { forcedOffFlagsFromCapabilities } from "./feature_flags.capabilities";
 import { forceOffMany } from "./feature_flags.merge";
 import { buildFeatureFlagsBootOutcome } from "./feature_flags.boot";
 import { ERROR_CODES } from "../core/errors/error_codes";
+import { AUDIT_SCOPES } from "./audit.scopes";
 
 type AnyWin = any;
 
@@ -33,7 +34,7 @@ export function applyControlPlaneBootGuards(w: AnyWin): void {
       ...e,
       ts,
       module: "control_plane",
-      scope: "feature_flags_governance",
+      scope: AUDIT_SCOPES.FEATURE_FLAGS_GOVERNANCE,
       source: "feature_flags_governance",
     }));
     rt.__ffGovernanceAudit = govAudit2;
