@@ -1,5 +1,41 @@
 import { incCounter, observeHistogram } from "./metrics.registry";
 
+
+// ================= HARD_CLAMP_CACHE_BOUNDS =================
+// Défense contre configurations toxiques (runtime / caller)
+
+function clampPositiveInt(v: any, def: number, max?: number): number {
+  if (typeof v !== "number" || !Number.isFinite(v) || v <= 0) return def;
+  if (max !== undefined && v > max) return max;
+  return Math.floor(v);
+}
+
+function clampCacheOpts(opts: any) {
+  if (!opts || typeof opts !== "object") return opts || {};
+
+  // TTL: minimum 1ms, maximum 24h
+  opts.ttlMs = clampPositiveInt(opts.ttlMs, 0, 86_400_000);
+
+  // SWR: jamais négatif, jamais > TTL*10 (borne défensive)
+  if (typeof opts.staleWhileRevalidateMs === "number") {
+    const maxSWR = opts.ttlMs > 0 ? opts.ttlMs * 10 : 0;
+    opts.staleWhileRevalidateMs = clampPositiveInt(
+      opts.staleWhileRevalidateMs,
+      0,
+      maxSWR
+    );
+  }
+
+  // maxEntries: minimum 1, maximum 100k (évite OOM)
+  if (typeof opts.maxEntries === "number") {
+    opts.maxEntries = clampPositiveInt(opts.maxEntries, 1, 100_000);
+  }
+
+  return opts;
+}
+// ===========================================================
+
+
 type AnyRt = any;
 
 export type CacheKey = string;
@@ -209,6 +245,20 @@ export type CacheComputeOptions = {
   maxEntries?: number;
 };
 
+
+function __clampMaxEntries(n?: number): number {
+  const raw = typeof n === "number" ? n : 0;
+  const v = Math.max(0, raw);
+  // hard safety cap (keeps runtime stable even if caller misconfigures)
+  return Math.min(v, 10000);
+}
+
+function __clampSWRMs(n?: number): number {
+  const raw = typeof n === "number" ? n : 0;
+  const v = Math.max(0, raw);
+  // hard safety cap (7 days) to avoid stale serving forever via misconfig
+  return Math.min(v, 7 * 24 * 60 * 60 * 1000);
+}
 function getInflight(rt: any): Map<string, Promise<any>> {
   const w: any = rt || ({} as any);
   if (!w.__CACHE_INFLIGHT__) w.__CACHE_INFLIGHT__ = new Map<string, Promise<any>>();
@@ -243,8 +293,14 @@ function inMemoryStore(rt: any): Map<string, any> | null {
 }
 
 function lruEvictIfNeeded(rt: any, maxEntries?: number) {
+
   try {
-    const max = Math.max(0, maxEntries || 0);
+    const w: any = rt || {};
+    if (w.__CACHE_LRU_DISABLED__) return;
+  } catch {}
+
+  try {
+    const max = __clampMaxEntries(maxEntries);
     if (!max) return;
 
     const lru = getLRU(rt);
@@ -269,7 +325,7 @@ async function computeAndSet(rt: any, key: string, compute: () => Promise<any> |
     const v = await compute();
     await cacheSet(rt, key, v, { ttlMs: opts.ttlMs, tags: opts.tags || [] });
     lruTouch(rt, key);
-    lruEvictIfNeeded(rt, opts.maxEntries);
+    lruEvictIfNeeded(rt, __clampMaxEntries(opts.maxEntries));
     try { incCounter(rt, "cache.compute.count", 1, { outcome: "ok" }); } catch {}
     return v;
   } catch (err) {
@@ -291,7 +347,7 @@ export async function cacheGetOrCompute(
 ) {
   // Provider-first logic (SWR-safe): do NOT call cacheGet() first when SWR is enabled,
   // because cacheGet() deletes expired entries, making stale serving impossible.
-  const swr = Math.max(0, opts?.staleWhileRevalidateMs || 0);
+  const swr = __clampSWRMs(opts.staleWhileRevalidateMs);
 
   // 1) provider read (raw entry)
   try {

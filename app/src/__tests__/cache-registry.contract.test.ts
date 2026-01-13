@@ -3,7 +3,19 @@ import { cacheGet, cacheSet, cacheInvalidateTag } from "../policies/cache.regist
 import { snapshotMetrics } from "../policies/metrics.registry";
 
 describe("cache — registry (contract)", () => {
-  it("stores and returns values, then expires by TTL", async () => {
+    it("metrics kill-switch: when rt.__METRICS_DISABLED__ is true, does not emit counters", async () => {
+    const rt: any = { __METRICS_DISABLED__: true };
+
+    await cacheSet(rt, "m2", 1, { ttlMs: 1000, tags: ["m"] });
+    await cacheGet(rt, "m2");
+    await cacheGet(rt, "missing-2");
+
+    const m = snapshotMetrics(rt);
+    expect(Object.keys(m.counters || {}).length).toBe(0);
+    expect(Object.keys(m.histograms || {}).length).toBe(0);
+  });
+
+it("stores and returns values, then expires by TTL", async () => {
     const rt: any = {};
     await cacheSet(rt, "k1", { a: 1 }, { ttlMs: 30, tags: ["t1"] });
 

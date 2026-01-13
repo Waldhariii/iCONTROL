@@ -4,7 +4,27 @@ import { snapshotMetrics } from "../policies/metrics.registry";
 
 describe("cache — single-flight + refresh-aside + LRU (contract)", () => {
   
-  it("SWR kill-switch: when rt.__CACHE_SWR_DISABLED__ is true, does not serve stale", async () => {
+    it("LRU kill-switch: when rt.__CACHE_LRU_DISABLED__ is true, does not evict", async () => {
+    const rt: any = { __CACHE_LRU_DISABLED__: true };
+    let nA = 0;
+    let nB = 0;
+    let nC = 0;
+
+    const a1 = await cacheGetOrCompute(rt, "A", async () => (++nA ? "A" : "A"), { ttlMs: 1000, staleWhileRevalidateMs: 0, maxEntries: 2 });
+    const b1 = await cacheGetOrCompute(rt, "B", async () => (++nB ? "B" : "B"), { ttlMs: 1000, staleWhileRevalidateMs: 0, maxEntries: 2 });
+    const c1 = await cacheGetOrCompute(rt, "C", async () => (++nC ? "C" : "C"), { ttlMs: 1000, staleWhileRevalidateMs: 0, maxEntries: 2 });
+
+    expect(a1).toBe("A");
+    expect(b1).toBe("B");
+    expect(c1).toBe("C");
+
+    // If LRU eviction were active, one of A/B would likely be evicted when inserting C with maxEntries=2.
+    // With kill-switch enabled, no eviction: B must remain cached and not recomputed.
+    const b2 = await cacheGetOrCompute(rt, "B", async () => "B2", { ttlMs: 1000, staleWhileRevalidateMs: 0, maxEntries: 2 });
+    expect(b2).toBe("B");
+  });
+
+it("SWR kill-switch: when rt.__CACHE_SWR_DISABLED__ is true, does not serve stale", async () => {
     const rt: any = { __CACHE_SWR_DISABLED__: true };
     let n = 0;
 
