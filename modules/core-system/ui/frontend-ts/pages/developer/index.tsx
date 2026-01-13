@@ -13,6 +13,53 @@ import { render_datasources_viewer } from "./sections/datasources-viewer";
 import { render_rules_viewer } from "./sections/rules-viewer";
 import { render_audit_log } from "./sections/audit-log";
 
+
+function __fmtTs(ts?: number) {
+  try {
+    if (typeof ts !== "number") return "n/a";
+
+      {/* Cache Audit (read-only) */}
+      {(() => {
+        const a: any = __readCacheAudit();
+        return (
+          <div style={{ border: "1px solid rgba(255,255,255,0.12)", borderRadius: 12, padding: 12, marginBottom: 12 }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
+              <div style={{ fontWeight: 700 }}>Cache Audit</div>
+              <div style={{ opacity: 0.8, fontSize: 12 }}>{a?.ts ? __fmtTs(a.ts) : "n/a"}</div>
+            </div>
+            <div style={{ marginTop: 8, display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 8, fontSize: 13 }}>
+              <div><span style={{ opacity: 0.7 }}>schemaVersion:</span> <span>{typeof a?.schemaVersion === "number" ? a.schemaVersion : "n/a"}</span></div>
+              <div><span style={{ opacity: 0.7 }}>swrDisabled:</span> <span>{typeof a?.swrDisabled === "boolean" ? String(a.swrDisabled) : "n/a"}</span></div>
+              <div><span style={{ opacity: 0.7 }}>metricsDisabled:</span> <span>{typeof a?.metricsDisabled === "boolean" ? String(a.metricsDisabled) : "n/a"}</span></div>
+              <div><span style={{ opacity: 0.7 }}>surface:</span> <span>{a ? "present" : "absent"}</span></div>
+            </div>
+            <div style={{ marginTop: 8, opacity: 0.7, fontSize: 12 }}>
+              Read-only governance surface. Best-effort display.
+            </div>
+          </div>
+        );
+      })()}
+    const d = new Date(ts);
+    return isNaN(d.getTime()) ? "n/a" : d.toISOString();
+  } catch { return "n/a"; }
+}
+
+function __readCacheAudit() {
+  try {
+    const w: any = globalThis as any;
+    const a = w?.__cacheAudit;
+    if (!a) return null;
+    if (typeof a.snapshot === "function") return a.snapshot();
+    return {
+      schemaVersion: a.schemaVersion,
+      ts: a.ts,
+      swrDisabled: a.swrDisabled,
+      metricsDisabled: a.metricsDisabled,
+    };
+  } catch { return null; }
+}
+
+
 export function renderDeveloper(root: HTMLElement): void {
   const sess = getSession();
   const role = (sess?.role || "USER") as Role;
