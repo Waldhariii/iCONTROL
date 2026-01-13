@@ -394,6 +394,69 @@ function __cacheAuditMark(rt: any) {
     w.__cacheAudit.metricsDisabled = (w.__METRICS_DISABLED__ === true);
     w.__cacheAudit.ts = Date.now();
     // P1.4 guarantee: snapshot() always present + runtime exposure (best-effort)
+
+      // P1.7 hardening: redactedSnapshot() + stable keys (JSON-safe) (best-effort)
+      try {
+        const a = w.__cacheAudit;
+
+        // Helper: recursively redact likely sensitive keys, enforce bounded shapes
+        const __redact = (input: any): any => {
+          try {
+            const SENSITIVE = /pass|pwd|token|secret|auth|cookie|session|key|bearer|apikey|api_key/i;
+            const MAX_STR = 256;
+            const MAX_ARR = 50;
+            const MAX_KEYS = 200;
+
+            const seen = new WeakSet();
+            const walk = (v: any, depth: number): any => {
+              if (depth > 6) return "[DEPTH_LIMIT]";
+              if (v == null) return v;
+              const t = typeof v;
+              if (t === "function") return undefined;
+              if (t === "string") return v.length > MAX_STR ? v.slice(0, MAX_STR) + "…" : v;
+              if (t === "number" || t === "boolean") return v;
+              if (t !== "object") return String(v);
+
+              if (seen.has(v)) return "[CYCLE]";
+              seen.add(v);
+
+              if (Array.isArray(v)) return v.slice(0, MAX_ARR).map(x => walk(x, depth + 1));
+
+              const out: any = {};
+              const keys = Object.keys(v).slice(0, MAX_KEYS);
+              for (const k of keys) {
+                if (SENSITIVE.test(k)) { out[k] = "[REDACTED]"; continue; }
+                const vv = (v as any)[k];
+                const wv = walk(vv, depth + 1);
+                if (typeof wv !== "undefined") out[k] = wv;
+              }
+              return out;
+            };
+
+            return walk(input, 0);
+          } catch {
+            return { err: "REDACTION_FAILED" };
+          }
+        };
+
+        // Stable-key snapshot: always include known keys with defaults
+        const __stable = (snap: any) => ({
+          schemaVersion: typeof snap?.schemaVersion === "number" ? snap.schemaVersion : 1,
+          ts: typeof snap?.ts === "number" ? snap.ts : Date.now(),
+          swrDisabled: typeof snap?.swrDisabled === "boolean" ? snap.swrDisabled : false,
+          metricsDisabled: typeof snap?.metricsDisabled === "boolean" ? snap.metricsDisabled : false,
+        });
+
+        if (typeof a.redactedSnapshot !== "function") {
+          a.redactedSnapshot = () => {
+            const base = typeof a.snapshot === "function" ? a.snapshot() : {};
+            const stable = __stable(base);
+            // keep "stable keys" top-level; attach redacted "extra" under a single bucket
+            const extra = __redact(base);
+            return { ...stable, extra };
+          };
+        }
+      } catch {}
     try {
       const a = w.__cacheAudit;
       // Ensure stable schema defaults before snapshot

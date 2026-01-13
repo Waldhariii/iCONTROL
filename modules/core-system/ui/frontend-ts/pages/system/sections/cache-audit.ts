@@ -99,7 +99,7 @@ export function renderSystemCacheAudit(host: HTMLElement): void {
   const __getSnapshot = (audit: any) => {
     try {
       if (audit && typeof audit.redactedSnapshot === "function") return audit.redactedSnapshot();
-      if (audit && typeof audit.snapshot === "function") return __getSnapshot(audit);
+      if (audit && typeof audit.snapshot === "function") return audit.snapshot();
     } catch {}
     return null;
   };
