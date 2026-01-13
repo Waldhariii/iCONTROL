@@ -1,3 +1,4 @@
+import { navigate } from "./runtime/navigate";
 /**
  * localAuth.ts — bootstrap auth for dev/local use
  * - No network
@@ -106,7 +107,7 @@ export function registerDevLoginHelper(): void {
       console.warn("WARN_DEV_LOGIN_FAILED", "setSession_failed");
       return;
     }
-    location.hash = "#/dashboard";
+  navigate("#/dashboard");
   };
 }
 

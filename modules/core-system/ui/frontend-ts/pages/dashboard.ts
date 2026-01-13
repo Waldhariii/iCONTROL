@@ -6,6 +6,7 @@ import { mountSections, type SectionSpec } from "./_shared/sections";
 import { safeRender } from "./_shared/mainSystem.shared";
 import { requireEntitlement } from "/src/core/access";
 import * as EntitlementsFacade from "./_shared/entitlements";
+import { navigate } from "/src/runtime/navigate";
 
 const UI = {
   WRAP: "align-items:flex-start; padding-top:38px;",
@@ -24,7 +25,7 @@ export function renderDashboard(root: HTMLElement): void {
   const __access = requireEntitlement("recommendations.pro", { page: "/dashboard", action: "view", scope: "ui" });
   if (!__access.ok) {
     const q = encodeURIComponent(__access.entitlement);
-    location.hash = `#/access-denied?entitlement=${q}`;
+  navigate(`#/access-denied?entitlement=${q}`);
     return;
   }
 
@@ -65,7 +66,7 @@ export function renderDashboard(root: HTMLElement): void {
           btn.textContent = "Déconnexion";
           btn.addEventListener("click", () => {
             logout();
-            location.hash = "#/login";
+  navigate("#/login");
           });
 
           row.appendChild(left);
@@ -144,7 +145,7 @@ export function renderDashboard(root: HTMLElement): void {
           back.id = "cxGoLogin";
           back.textContent = "Retour Login";
           back.addEventListener("click", () => {
-            location.hash = "#/login";
+  navigate("#/login");
           });
           row.appendChild(back);
           host.appendChild(row);

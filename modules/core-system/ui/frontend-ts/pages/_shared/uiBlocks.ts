@@ -1,5 +1,6 @@
 import { recordObs } from "./audit";
 import { OBS } from "./obsCodes";
+import { navigate } from "/src/runtime/navigate";
 
 export function el<K extends keyof HTMLElementTagNameMap>(
   tag: K,
@@ -153,7 +154,7 @@ export function bindActions(
           recordObs({ code: OBS.WARN_ACTION_BLOCKED, actionId: action.id, detail: "route_not_allowed" });
           return;
         }
-        window.location.hash = target;
+  navigate(target);
         recordObs({ code: OBS.WARN_ACTION_EXECUTED, actionId: action.id, detail: `navigate:${target}` });
         return;
       }
@@ -351,7 +352,7 @@ export function blockActionBar(args: {
           recordObs({ code: OBS.WARN_ACTION_BLOCKED, actionId: action.id, detail: "route_not_allowed" });
           return;
         }
-        window.location.hash = target;
+  navigate(target);
         recordObs({ code: OBS.WARN_ACTION_EXECUTED, actionId: action.id, detail: `navigate:${target}` });
         return;
       }
