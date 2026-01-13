@@ -19,3 +19,13 @@ Tags:
 Tags:
 - release/p1.3-cache-audit-snapshot
 - baseline/main-p1.3-cache-audit-snapshot
+
+## [P1.4] Cache audit snapshot guarantee — 2026-01-13
+- Governance: guarantee __cacheAudit.snapshot() always present after first cache touch
+- Diagnostics: expose rt.__cacheAudit for runtime-first tests and UI/diagnostics
+- Contracts: cache-audit-snapshot-guarantee.contract.test.ts
+- Gate: vitest-app.sh PASS
+
+Tags:
+- release/p1.4-cache-audit-snapshot-guarantee
+- baseline/main-p1.4-cache-audit-snapshot-guarantee
