@@ -14,34 +14,34 @@ export function applyControlPlaneBootGuards(w: AnyWin): void {
   
 
 
-// Governance: feature flags metadata audit (owner/expiry) — audit-only (idempotent)
-try {
-  const rt = w as any;
-  if (!rt.__FF_GOV_AUDITED__) {
-    rt.__FF_GOV_AUDITED__ = true;
+  // Governance: feature flags metadata audit (owner/expiry) — audit-only (idempotent)
+  try {
+    const rt = w as any;
+    if (!rt.__FF_GOV_AUDITED__) {
+      rt.__FF_GOV_AUDITED__ = true;
 
-    const ffSet =
-      rt.__featureFlags || rt.__ff || rt.featureFlags || rt.flags || {};
+      const ffSet =
+        rt.__featureFlags || rt.__FEATURE_FLAGS__ || rt.__ff || rt.featureFlags || rt.flags || {};
 
-    const govAudit = auditGovernedFeatureFlags(ffSet) || [];
-    rt.__ffGovernanceAudit = govAudit;
+      const govAudit = auditGovernedFeatureFlags(ffSet) || [];
+      rt.__ffGovernanceAudit = govAudit;
 
-    const emit =
-      rt?.audit?.emit ||
-      rt?.audit?.log ||
-      rt?.auditLog?.append ||
-      rt?.core?.audit?.emit;
+      const emit =
+        rt?.audit?.emit ||
+        rt?.audit?.log ||
+        rt?.auditLog?.append ||
+        rt?.core?.audit?.emit;
 
-    if (typeof emit === "function") {
-      for (const e of govAudit) {
-        emit.call(rt, e.level, e.code, e.message, {
-          ...(e.data || {}),
-          source: "feature_flags_governance",
-        });
+      if (typeof emit === "function") {
+        for (const e of govAudit) {
+          emit.call(rt, e.level, e.code, e.message, {
+            ...(e.data || {}),
+            source: "feature_flags_governance",
+          });
+        }
       }
     }
-  }
-} catch {}
+  } catch { try { (w as any).__FF_GOV_AUDIT_FAILED__ = true; } catch {} }
   w.__CONTROL_PLANE_APPLIED__ = true;
 
   // Version Policy (already safe)
@@ -62,12 +62,13 @@ try {
 
   // Observability: audit once (no spam)
   try {
-    const emit = w?.audit?.emit || w?.audit?.log || w?.auditLog?.append || w?.core?.audit?.emit;
+    const rt = w as any;
+    const emit = rt?.audit?.emit || rt?.audit?.log || rt?.auditLog?.append || rt?.core?.audit?.emit;
     if (typeof emit === "function") {
-      if (forced.length && !w.__CP_FORCED_AUDITED__) {
-        w.__CP_FORCED_AUDITED__ = true;
+      if (forced.length && !rt.__CP_FORCED_AUDITED__) {
+        rt.__CP_FORCED_AUDITED__ = true;
         emit.call(
-          w,
+          rt,
           "WARN",
           (ERROR_CODES.WARN_FLAGS_FORCED_OFF ?? "WARN_FLAGS_FORCED_OFF"),
           `Control Plane forced OFF ${forced.length} feature flag(s) via capabilities`,
@@ -75,5 +76,5 @@ try {
         );
       }
     }
-  } catch {}
+  } catch { try { (w as any).__CP_FORCED_AUDIT_FAILED__ = true; } catch {} }
 }
