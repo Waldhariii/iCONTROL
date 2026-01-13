@@ -69,3 +69,4 @@ scripts/release/publish.zsh.bak.*
 # Local safety backups (generated during patching)
 app/src/policies/cache.registry.ts.BAK_*
 app/src/policies/cache.registry.ts.BAK_P1_*
+app/src/policies/*.BAK_*
