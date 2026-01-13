@@ -203,6 +203,25 @@ export async function cacheClear(rt: AnyRt): Promise<void> {
 
 type __CacheRawEntry = any;
 
+/** Metrics helpers (best-effort, respects rt.__METRICS_DISABLED__) */
+function __nowMs(): number {
+  return Date.now();
+}
+
+function __mInc(rt: any, name: string, by = 1) {
+  try {
+    if ((rt as any)?.__METRICS_DISABLED__) return;
+    incCounter(rt, name, by, {});
+  } catch {}
+}
+
+function __mHist(rt: any, name: string, v: number) {
+  try {
+    if ((rt as any)?.__METRICS_DISABLED__) return;
+    observeHistogram(rt, name, v, {});
+  } catch {}
+}
+
 // Provider-raw read: bypasses cacheGet() purge; reads entry directly from provider store.
 // Works for inMemProvider() and premium __CACHE_PROVIDER__.
 async function __cacheRawGetEntry(rt: any, key: string): Promise<any | null> {
@@ -369,27 +388,39 @@ export async function cacheGetOrCompute(
       if (swr > 0) {
         const agePastExpiry = now() - exp;
         if (agePastExpiry > 0 && agePastExpiry <= swr) {
-          try { incCounter(rt, "cache.refresh_aside.count", 1, { action: "serve_stale" }); } catch {}
+          // SWR kill-switch: force recompute path (no stale serving)
+          if ((rt as any)?.__CACHE_SWR_DISABLED__ === true) {
+            try { incCounter(rt, "cache.refresh_aside.count", 1, { action: "disabled" }); } catch {}
+            throw new Error("SWR_DISABLED");
+          }
 
-    // SWR kill-switch: allow runtime to force recompute path (no stale serving)
-    if ((rt as any)?.__CACHE_SWR_DISABLED__ === true) {
-      try { incCounter(rt, "cache.refresh_aside.count", 1, { action: "disabled" }); } catch {}
-      throw new Error("SWR_DISABLED"); // handled by outer best-effort try/catch; falls through to compute
-    }
+          // serve stale immediately
+          try { incCounter(rt, "cache.refresh_aside.count", 1, { action: "serve_stale" }); } catch {}
           try { lruTouch(rt, key); } catch {}
 
           // background refresh (best-effort single-flight)
           const inflight = getInflight(rt);
           if (!inflight.has(key)) {
+            __mInc(rt, "cache.refresh.triggered", 1);
+            const __tR = __nowMs();
+
             const pp = (async () => {
               try {
-                return await computeAndSet(rt, key, compute, opts);
+                const __v = await computeAndSet(rt, key, compute, opts);
+                __mInc(rt, "cache.refresh.success", 1);
+                return __v;
+              } catch (e) {
+                __mInc(rt, "cache.refresh.fail", 1);
+                throw e;
               } finally {
-                inflight.delete(key);
+                try { inflight.delete(key); } catch {}
+                __mHist(rt, "cache.refresh.latency_ms", __nowMs() - __tR);
               }
             })();
+
             inflight.set(key, pp);
           } else {
+            __mInc(rt, "cache.refresh.dedup", 1);
             try { incCounter(rt, "cache.compute.dedup.count", 1, { reason: "refresh_aside" }); } catch {}
           }
 
@@ -420,6 +451,61 @@ export async function cacheGetOrComputeSingleFlight(
   compute: () => Promise<any> | any,
   opts: CacheComputeOptions
 ) {
+  const swr = __clampSWRMs(opts.staleWhileRevalidateMs);
+  if (swr > 0) {
+    const raw = await __cacheRawGetEntry(rt, key);
+    const entry = __cacheExtract(raw);
+    if (entry) {
+      const exp = typeof entry.expiresAt === "number" ? entry.expiresAt : 0;
+      const isExpired = exp > 0 && now() > exp;
+
+      if (!isExpired) {
+        try { incCounter(rt, "cache.get.count", 1, { outcome: "hit" }); } catch {}
+        lruTouch(rt, key);
+        return entry.value;
+      }
+
+      if (exp > 0) {
+        const agePastExpiry = now() - exp;
+        if (agePastExpiry > 0 && agePastExpiry <= swr) {
+          if ((rt as any)?.__CACHE_SWR_DISABLED__ === true) {
+            try { incCounter(rt, "cache.refresh_aside.count", 1, { action: "disabled" }); } catch {}
+          } else {
+            try { incCounter(rt, "cache.refresh_aside.count", 1, { action: "serve_stale" }); } catch {}
+            try { lruTouch(rt, key); } catch {}
+
+            const inflight = getInflight(rt);
+            if (!inflight.has(key)) {
+              __mInc(rt, "cache.refresh.triggered", 1);
+              const __tR = __nowMs();
+
+              const pp = (async () => {
+                try {
+                  const __v = await computeAndSet(rt, key, compute, opts);
+                  __mInc(rt, "cache.refresh.success", 1);
+                  return __v;
+                } catch (e) {
+                  __mInc(rt, "cache.refresh.fail", 1);
+                  throw e;
+                } finally {
+                  try { inflight.delete(key); } catch {}
+                  __mHist(rt, "cache.refresh.latency_ms", __nowMs() - __tR);
+                }
+              })();
+
+              inflight.set(key, pp);
+            } else {
+              __mInc(rt, "cache.refresh.dedup", 1);
+              try { incCounter(rt, "cache.compute.dedup.count", 1, { reason: "refresh_aside" }); } catch {}
+            }
+
+            return entry.value;
+          }
+        }
+      }
+    }
+  }
+
   const existing = await cacheGet(rt, key);
   if (existing !== null && existing !== undefined) {
     lruTouch(rt, key);
