@@ -59,6 +59,9 @@ export function applyControlPlaneBootGuards(w: AnyWin): void {
 
   w.__FEATURE_FLAGS__ = ff.flags;
   w.__FEATURE_DECISIONS__ = ff.decisions;
+  // Canonical alias (single source of truth for consumers)
+  w.__featureFlags = { flags: w.__FEATURE_FLAGS__, decisions: w.__FEATURE_DECISIONS__ };
+
 
   // Observability: audit once (no spam)
   try {
