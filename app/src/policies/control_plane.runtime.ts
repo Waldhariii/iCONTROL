@@ -11,6 +11,10 @@ export function applyControlPlaneBootGuards(w: AnyWin): void {
   if (!w) return;
   if (w.__CONTROL_PLANE_APPLIED__) return;
 
+  // Observability contract: audit payload schema version (migration-proof)
+  w.__CONTROL_PLANE_AUDIT_SCHEMA_VERSION__ = 1;
+
+
   
 
 
