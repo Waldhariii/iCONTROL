@@ -1,20 +1,40 @@
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect, vi, beforeEach } from "vitest";
+
+// Mock the module exactly as imported by control_plane.runtime.ts ("./feature_flags.capabilities")
+vi.mock("../policies/feature_flags.capabilities", async () => {
+  return {
+    forcedOffFlagsFromCapabilities: () => ["f.x", "f.y"],
+  };
+});
+
 import { applyControlPlaneBootGuards } from "../policies/control_plane.runtime";
+import { ERROR_CODES } from "../core/errors/error_codes";
 
 describe("control plane — forced flags audit emission (contract)", () => {
-  it("emits WARN once when capabilities force flags OFF (idempotent)", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("emits WARN_FLAGS_FORCED_OFF once when capabilities force flags OFF (idempotent)", () => {
     const emit = vi.fn();
 
     const runtime: any = {
       __tenant: "default",
       audit: { emit },
-      __versionPolicy: { capabilities: { flags_forced_off: ["f.x"] } },
     };
 
-    // applyControlPlaneBootGuards builds version policy itself; the contract here focuses on idempotence,
-    // so we only assert that repeated calls don't increase WARN emission when forced flags exist.
     applyControlPlaneBootGuards(runtime);
+
+    const calls = emit.mock.calls;
+    expect(calls.length).toBeGreaterThanOrEqual(1);
+
+    const hasForcedWarn = calls.some(
+      (c: any[]) => c?.[0] === "WARN" && c?.[1] === (ERROR_CODES.WARN_FLAGS_FORCED_OFF ?? "WARN_FLAGS_FORCED_OFF")
+    );
+    expect(hasForcedWarn).toBe(true);
+
     const callsAfterFirst = emit.mock.calls.length;
+
     applyControlPlaneBootGuards(runtime);
     expect(emit.mock.calls.length).toBe(callsAfterFirst);
   });
