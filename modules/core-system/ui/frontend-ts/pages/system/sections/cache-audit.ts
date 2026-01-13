@@ -1,5 +1,4 @@
 import { OBS } from "../../_shared/obsCodes";
-import { OBS } from "../../_shared/obsCodes";
 import { recordObs } from "../../_shared/audit";
 
 function __redactAudit(input: any): any {
