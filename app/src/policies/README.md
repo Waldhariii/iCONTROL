@@ -58,3 +58,25 @@ Ces flags sont lus sur le runtime (`rt`) et doivent **dégrader en sécurité** 
 ### Notes d’architecture (gouvernance)
 - Toute extension “provider externe” doit rester **derrière un contrat** (ex: CacheProvider) et conserver ces invariants.
 - Les flags ci-dessus sont considérés “incident controls” (opérations) et doivent rester stables (naming + comportement).
+
+## SWR (stale-while-revalidate) — invariants (contract)
+
+### Semantics
+- If `staleWhileRevalidateMs > 0` and an entry is **expired but within SWR window**, the cache **returns stale immediately** and triggers a **background refresh-aside**.
+- The SWR path must **bypass `cacheGet()`**, because `cacheGet()` purges expired entries, which would make stale serving impossible.
+
+### Kill-switch (operations)
+- `rt.__CACHE_SWR_DISABLED__ = true` : disables SWR serve-stale; forces recompute path.
+- `rt.__METRICS_DISABLED__ = true` : disables emission of cache.refresh.* metrics (best-effort no-op).
+
+### Refresh-aside metrics (best-effort)
+- Counters:
+  - `cache.refresh.triggered`
+  - `cache.refresh.dedup`
+  - `cache.refresh.success`
+  - `cache.refresh.fail`
+- Histogram:
+  - `cache.refresh.latency_ms`
+
+These metrics must never throw; they are best-effort and must respect `__METRICS_DISABLED__`.
+
