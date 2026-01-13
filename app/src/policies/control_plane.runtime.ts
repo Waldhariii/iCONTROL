@@ -10,6 +10,38 @@ type AnyWin = any;
 export function applyControlPlaneBootGuards(w: AnyWin): void {
   if (!w) return;
   if (w.__CONTROL_PLANE_APPLIED__) return;
+
+  
+
+
+// Governance: feature flags metadata audit (owner/expiry) — audit-only (idempotent)
+try {
+  const rt = w as any;
+  if (!rt.__FF_GOV_AUDITED__) {
+    rt.__FF_GOV_AUDITED__ = true;
+
+    const ffSet =
+      rt.__featureFlags || rt.__ff || rt.featureFlags || rt.flags || {};
+
+    const govAudit = auditGovernedFeatureFlags(ffSet) || [];
+    rt.__ffGovernanceAudit = govAudit;
+
+    const emit =
+      rt?.audit?.emit ||
+      rt?.audit?.log ||
+      rt?.auditLog?.append ||
+      rt?.core?.audit?.emit;
+
+    if (typeof emit === "function") {
+      for (const e of govAudit) {
+        emit.call(rt, e.level, e.code, e.message, {
+          ...(e.data || {}),
+          source: "feature_flags_governance",
+        });
+      }
+    }
+  }
+} catch {}
   w.__CONTROL_PLANE_APPLIED__ = true;
 
   // Version Policy (already safe)
@@ -41,23 +73,6 @@ export function applyControlPlaneBootGuards(w: AnyWin): void {
           `Control Plane forced OFF ${forced.length} feature flag(s) via capabilities`,
           { source: "control_plane", forced }
         );
-      }
-    }
-  } catch {}
-
-  // Governance: feature flags metadata audit (owner/expiry) — audit-only, idempotent
-  try {
-    const w = runtime as any;
-    if (!w.__FF_GOV_AUDITED__) {
-      w.__FF_GOV_AUDITED__ = true;
-      const ffSet = w.__featureFlags || w.__ff || w.featureFlags || w.flags;
-      const govAudit = ffSet ? auditGovernedFeatureFlags(ffSet) : [];
-      w.__ffGovernanceAudit = govAudit;
-      const emit = w?.audit?.emit || w?.audit?.log || w?.auditLog?.append || w?.core?.audit?.emit;
-      if (typeof emit === "function") {
-        for (const e of govAudit) {
-          emit.call(w, e.level, e.code, e.message, { ...(e.data || {}), source: "feature_flags_governance" });
-        }
       }
     }
   } catch {}
