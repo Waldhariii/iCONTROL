@@ -36,6 +36,9 @@ export function applyControlPlaneBootGuards(w: AnyWin): void {
         for (const e of govAudit) {
           emit.call(rt, e.level, e.code, e.message, {
             ...(e.data || {}),
+            ts: new Date().toISOString(),
+            module: "control_plane",
+            scope: "feature_flags_governance",
             source: "feature_flags_governance",
           });
         }
