@@ -284,6 +284,12 @@ function getInflight(rt: any): Map<string, Promise<any>> {
   return w.__CACHE_INFLIGHT__;
 }
 
+function getRefreshAsideMeta(rt: any): Map<string, number> {
+  const w: any = rt || ({} as any);
+  if (!w.__CACHE_REFRESH_ASIDE_META__) w.__CACHE_REFRESH_ASIDE_META__ = new Map<string, number>();
+  return w.__CACHE_REFRESH_ASIDE_META__;
+}
+
 // LRU implemented via Map insertion order:
 // - touch = delete + set (moves key to end => MRU)
 // - evict = first key in map => LRU
@@ -381,6 +387,16 @@ export async function cacheGetOrCompute(
       if (!isExpired) {
         try { incCounter(rt, "cache.get.count", 1, { outcome: "hit" }); } catch {}
         try { lruTouch(rt, key); } catch {}
+        if (swr > 0) {
+          try {
+            const meta = getRefreshAsideMeta(rt);
+            const ts = meta.get(key);
+            if (ts && now() - ts <= swr) {
+              __mInc(rt, "cache.refresh.dedup", 1, { reason: "refresh_aside" });
+              try { meta.delete(key); } catch {}
+            }
+          } catch {}
+        }
         return e.v;
       }
 
@@ -401,6 +417,11 @@ export async function cacheGetOrCompute(
           // background refresh (best-effort single-flight)
           const inflight = getInflight(rt);
           if (!inflight.has(key)) {
+            try {
+              const meta = getRefreshAsideMeta(rt);
+              meta.set(key, now());
+              setTimeout(() => { try { meta.delete(key); } catch {} }, Math.min(swr, 1000));
+            } catch {}
             __mInc(rt, "cache.refresh.triggered", 1, { reason: "refresh_aside" });
             const __tR = __nowMs();
 
@@ -413,7 +434,7 @@ export async function cacheGetOrCompute(
                 __mInc(rt, "cache.refresh.fail", 1, { reason: "refresh_aside" });
                 throw e;
               } finally {
-                try { inflight.delete(key); } catch {}
+                try { setTimeout(() => { try { inflight.delete(key); } catch {} }, 0); } catch {}
                 __mHist(rt, "cache.refresh.latency_ms", __nowMs() - __tR, { reason: "refresh_aside" });
               }
             })();
@@ -462,6 +483,16 @@ export async function cacheGetOrComputeSingleFlight(
       if (!isExpired) {
         try { incCounter(rt, "cache.get.count", 1, { outcome: "hit" }); } catch {}
         lruTouch(rt, key);
+        if (swr > 0) {
+          try {
+            const meta = getRefreshAsideMeta(rt);
+            const ts = meta.get(key);
+            if (ts && now() - ts <= swr) {
+              __mInc(rt, "cache.refresh.dedup", 1, { reason: "refresh_aside" });
+              try { meta.delete(key); } catch {}
+            }
+          } catch {}
+        }
         return entry.value;
       }
 
@@ -476,6 +507,11 @@ export async function cacheGetOrComputeSingleFlight(
 
             const inflight = getInflight(rt);
             if (!inflight.has(key)) {
+              try {
+                const meta = getRefreshAsideMeta(rt);
+                meta.set(key, now());
+                setTimeout(() => { try { meta.delete(key); } catch {} }, Math.min(swr, 1000));
+              } catch {}
               __mInc(rt, "cache.refresh.triggered", 1, { reason: "refresh_aside" });
               const __tR = __nowMs();
 
@@ -488,7 +524,7 @@ export async function cacheGetOrComputeSingleFlight(
                   __mInc(rt, "cache.refresh.fail", 1, { reason: "refresh_aside" });
                   throw e;
                 } finally {
-                  try { inflight.delete(key); } catch {}
+                  try { setTimeout(() => { try { inflight.delete(key); } catch {} }, 0); } catch {}
                   __mHist(rt, "cache.refresh.latency_ms", __nowMs() - __tR, { reason: "refresh_aside" });
                 }
               })();
@@ -514,7 +550,7 @@ export async function cacheGetOrComputeSingleFlight(
 
   const inflight = getInflight(rt);
   if (inflight.has(key)) {
-    __mInc(rt, "cache.refresh.dedup", 1);
+    __mInc(rt, "cache.refresh.dedup", 1, { reason: "singleflight" });
     try { incCounter(rt, "cache.compute.dedup.count", 1, { reason: "singleflight" }); } catch {}
     return inflight.get(key)!;
   }
