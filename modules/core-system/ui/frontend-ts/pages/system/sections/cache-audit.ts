@@ -95,6 +95,15 @@ function __el<K extends keyof HTMLElementTagNameMap>(tag: K, attrs?: Record<stri
 }
 
 export function renderSystemCacheAudit(host: HTMLElement): void {
+  // P1.7_PREFER_REDACTED_SNAPSHOT: prefer policy-provided redactedSnapshot() when present
+  const __getSnapshot = (audit: any) => {
+    try {
+      if (audit && typeof audit.redactedSnapshot === "function") return audit.redactedSnapshot();
+      if (audit && typeof audit.snapshot === "function") return __getSnapshot(audit);
+    } catch {}
+    return null;
+  };
+
   const a: any = __readCacheAuditSystem();
 
   
