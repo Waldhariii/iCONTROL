@@ -198,6 +198,8 @@ export async function cacheClear(rt: AnyRt): Promise<void> {
 }
 
 
+// Meta-marker TTL (best-effort) to avoid unbounded growth
+const __CACHE_REFRESH_ASIDE_META_TTL_MS = 2000;
 // ------------------------------
 // Enterprise extensions: single-flight + refresh-aside + LRU bound
 
