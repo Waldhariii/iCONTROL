@@ -46,4 +46,29 @@ describe("Governance: critical modules have no import-time navigation side effec
     await import("../../../modules/core-system/ui/frontend-ts/pages/access-denied/index");
     expect(nav).not.toHaveBeenCalled();
   });
+
+
+  it("importing modules login page does not call navigate()", async () => {
+    const nav = await getNavigate();
+    await import("../../../modules/core-system/ui/frontend-ts/pages/login");
+    expect(nav).not.toHaveBeenCalled();
+  });
+
+  it("importing modules settings page does not call navigate()", async () => {
+    const nav = await getNavigate();
+    await import("../../../modules/core-system/ui/frontend-ts/pages/settings");
+    expect(nav).not.toHaveBeenCalled();
+  });
+
+  it("importing app router does not call navigate()", async () => {
+    const nav = await getNavigate();
+    await import("../router");
+    expect(nav).not.toHaveBeenCalled();
+  });
+
+  it("importing app runtime router does not call navigate()", async () => {
+    const nav = await getNavigate();
+    await import("../runtime/router");
+    expect(nav).not.toHaveBeenCalled();
+  });
 });
