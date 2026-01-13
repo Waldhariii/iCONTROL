@@ -1,13 +1,13 @@
 import { getSession, isLoggedIn, logout } from "./localAuth";
 import { canAccessSettings } from "./runtime/rbac";
-import { navigate } from "./runtime/navigate";
-
+import { navigate as coreNavigate } from "./runtime/navigate";
+import { applyVersionPolicyBootGuards } from "./policies/version_policy.runtime";
 /**
  * router.ts — minimal hash router with RBAC guard
  * Public:  #/login
  * Private: #/dashboard (and everything else by default)
  */
-export type RouteId = "login" | "dashboard" | "settings" | "settings_branding" | "notfound"
+export type RouteId = "login" | "dashboard" | "settings" | "settings_branding" | "blocked" | "notfound"
   | "runtime_smoke" | "users" | "account" | "developer" | "developer_entitlements" | "access_denied" | "verification" | "toolbox"
   | "system" | "logs" | "dossiers";
 export function getRouteId(): RouteId {
@@ -28,18 +28,19 @@ export function getRouteId(): RouteId {
   if (seg === "settings") return canAccessSettings() ? "settings" : "dashboard";
   if (seg === "settings/branding") return canAccessSettings() ? "settings_branding" : "dashboard";
   if (seg === "runtime-smoke" || seg === "runtime_smoke") return "runtime_smoke";
+  if (seg === "blocked") return "blocked";
   return "notfound";
 }
 
 export function navigate(hash: string): void {
-  if (!hash.startsWith("#/")) navigate("#/" + hash.replace(/^#\/?/, ""));
-  else navigate(hash);
+  if (!hash.startsWith("#/")) coreNavigate("#/" + hash.replace(/^#\/?/, ""));
+  else coreNavigate(hash);
 }
 
 function ensureAuth(): boolean {
   // Allow login always
   const rid = getRouteId();
-  if (rid === "login") return true;
+  if (rid === "login" || rid === "blocked") return true;
 
   // Everything else requires a session
   if (!isLoggedIn()) {
@@ -62,10 +63,37 @@ export function doLogout(): void {
 
 export function bootRouter(onRoute: (rid: RouteId) => void): void {
   const tick = () => {
+    const w = window as any;
+    if (!w.__VP_GUARDS_APPLIED__) {
+      w.__VP_GUARDS_APPLIED__ = true;
+      try { applyVersionPolicyBootGuards(w); } catch {}
+    }
+
+    // Observability: audit version policy outcomes (idempotent)
+    try {
+      if (!w.__VP_AUDITED__) w.__VP_AUDITED__ = { soft: false, block: false };
+      const emit = (w as any)?.audit?.emit || (w as any)?.audit?.log || (w as any)?.auditLog?.append || (w as any)?.core?.audit?.emit;
+      if (typeof emit === "function") {
+        if ((w as any).__bootBanner && !(w as any).__VP_AUDITED__.soft) {
+          (w as any).__VP_AUDITED__.soft = true;
+          emit.call(w, "WARN", (w as any).__bootBanner.code || "WARN_VERSION_SOFT_BLOCK", (w as any).__bootBanner.message || "Soft block: update recommended", { source: "version_policy" });
+        }
+        if ((w as any).__bootBlock && !(w as any).__VP_AUDITED__.block) {
+          (w as any).__VP_AUDITED__.block = true;
+          emit.call(w, "ERR", (w as any).__bootBlock.code || "ERR_VERSION_BLOCKED", (w as any).__bootBlock.message || "Blocked by version policy", { source: "version_policy" });
+        }
+      }
+    } catch {}
     const rid = getRouteId();
     const h = String(location.hash || "");
     const authed = ensureAuth();
-    /* ICONTROL_ROUTER_TRACE_V1 */
+    // If Version Policy blocks this build, force a controlled route once.
+    if (w.__bootBlock && !w.__BOOT_BLOCK_REDIRECTED__) {
+      w.__BOOT_BLOCK_REDIRECTED__ = true;
+      try { coreNavigate("#/blocked"); } catch {}
+      return;
+    }
+/* ICONTROL_ROUTER_TRACE_V1 */
     console.info("ROUTER_TICK", { hash: h, rid, authed });
     if (!authed) return;
     onRoute(rid);

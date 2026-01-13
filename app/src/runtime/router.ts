@@ -1,4 +1,4 @@
-import { navigate } from "./navigate";
+import { navigate as coreNavigate } from "./navigate";
 import { safeRender, escapeHtml } from "./safeRender";
 
 export type RouteHandler = (ctx: { route: string; params: Record<string, string> }) => string;
@@ -13,7 +13,7 @@ export function addRoute(route: string, entry: RouteEntry) {
 
 export function navigate(hashRoute: string) {
   if (!hashRoute.startsWith("#/")) hashRoute = "#/" + hashRoute.replace(/^#?\/?/, "");
-  navigate(hashRoute);
+  coreNavigate(hashRoute);
 }
 
 function parseRoute(): { route: string; params: Record<string, string> } {
