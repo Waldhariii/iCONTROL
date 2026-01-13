@@ -1,3 +1,4 @@
+import { applyVersionPolicyBootGuards } from "../../../policies/version_policy.runtime";
 import type { RenderOp, RenderPlan } from "./types";
 import { ok, err } from "./result";
 import { escapeHtml } from "./internal/escape";
