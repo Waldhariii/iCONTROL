@@ -38,7 +38,7 @@ describe("logs page", () => {
     recordObs({ code: "INFO", detail: "test" });
     const root = document.createElement("div");
     renderLogsPage(root);
-    expect(logsSections.length).toBe(4);
+    expect(logsSections.length).toBe(5);
     expect(root.textContent || "").toContain("Audit");
   });
 
