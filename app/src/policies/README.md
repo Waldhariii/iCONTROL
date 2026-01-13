@@ -35,3 +35,26 @@ Ce dossier définit des *policies* transversales (comportements runtime) qui doi
 
 ## Références (tests contract)
 - `app/src/__tests__/policies-killswitch.contract.test.ts`
+
+## Invariants & Runtime Flags
+
+### Sémantiques contract (cache)
+- **ttlMs <= 0** : sémantique **no-expiry** (l’entrée est persistante tant qu’elle n’est pas invalidée / évincée).
+- **staleWhileRevalidateMs** : borné (clamp) pour éviter des fenêtres de staleness toxiques.
+- **maxEntries** : borné (clamp) pour éviter OOM / churn extrême.
+
+### Kill-switchs (runtime)
+Ces flags sont lus sur le runtime (`rt`) et doivent **dégrader en sécurité** (pas de crash, pas d’exception).
+- `rt.__CACHE_SWR_DISABLED__ = true` : **désactive SWR**, recompute plutôt que servir stale.
+- `rt.__CACHE_LRU_DISABLED__ = true` : **désactive eviction LRU**, aucun drop automatique.
+- `rt.__METRICS_DISABLED__ = true` : **désactive l’émission** des counters/histograms (best-effort, no-op).
+
+### Tests contract de référence (preuve / non-régression)
+- Kill-switchs : `app/src/__tests__/policies-killswitch.contract.test.ts`
+- Bornes cache (TTL/SWR/maxEntries) : `app/src/__tests__/cache-bounds-hardening.contract.test.ts`
+- SWR / singleflight / LRU : `app/src/__tests__/cache-singleflight-refresh-lru.contract.test.ts`
+- Registry (tags/TTL/metrics best-effort) : `app/src/__tests__/cache-registry.contract.test.ts`
+
+### Notes d’architecture (gouvernance)
+- Toute extension “provider externe” doit rester **derrière un contrat** (ex: CacheProvider) et conserver ces invariants.
+- Les flags ci-dessus sont considérés “incident controls” (opérations) et doivent rester stables (naming + comportement).
