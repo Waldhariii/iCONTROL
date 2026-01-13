@@ -65,3 +65,7 @@ app/_DATA/
 
 # ReleaseOps local backups (do not version)
 scripts/release/publish.zsh.bak.*
+
+# Local safety backups (generated during patching)
+app/src/policies/cache.registry.ts.BAK_*
+app/src/policies/cache.registry.ts.BAK_P1_*
