@@ -43,4 +43,19 @@ describe("control plane — forced flags audit emission (contract)", () => {
     const runtime: any = { __tenant: "default" };
     expect(() => applyControlPlaneBootGuards(runtime)).not.toThrow();
   });
+
+
+  it("sets __CP_FORCED_AUDIT_FAILED__ when forced-flags emitter throws (no throw outward)", () => {
+    const emit = vi.fn(() => {
+      throw new Error("emit boom");
+    });
+
+    const runtime: any = {
+      __tenant: "default",
+      audit: { emit },
+    };
+
+    expect(() => applyControlPlaneBootGuards(runtime)).not.toThrow();
+    expect(runtime.__CP_FORCED_AUDIT_FAILED__).toBe(true);
+  });
 });

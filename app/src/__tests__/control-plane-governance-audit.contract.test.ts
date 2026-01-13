@@ -1,5 +1,13 @@
 import { describe, it, expect, vi } from "vitest";
 import { applyControlPlaneBootGuards } from "../policies/control_plane.runtime";
+
+vi.mock("../policies/feature_flags.governance", async () => {
+  return {
+    auditGovernedFeatureFlags: () => {
+      throw new Error("boom");
+    },
+  };
+});
 import { ERROR_CODES } from "../core/errors/error_codes";
 
 describe("control plane — governance audit emission (contract)", () => {
@@ -35,5 +43,14 @@ describe("control plane — governance audit emission (contract)", () => {
     };
     expect(() => applyControlPlaneBootGuards(runtime)).not.toThrow();
     expect(Array.isArray(runtime.__ffGovernanceAudit)).toBe(true);
+  });
+
+
+  it("sets __FF_GOV_AUDIT_FAILED__ when governance audit throws (no throw outward)", () => {
+    const runtime: any = {
+      __featureFlags: { flags: { "f.x": { state: "ON" } } },
+    };
+    expect(() => applyControlPlaneBootGuards(runtime)).not.toThrow();
+    expect(runtime.__FF_GOV_AUDIT_FAILED__).toBe(true);
   });
 });
