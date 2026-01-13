@@ -445,7 +445,8 @@ export async function cacheGetOrCompute(
                 __mInc(rt, "cache.refresh.fail", 1, { reason: "refresh_aside" });
                 throw e;
               } finally {
-                try { __deferMicrotask(() => { try { inflight.delete(key); } catch {} }); } catch {}__mHist(rt, "cache.refresh.latency_ms", __nowMs() - __tR, { reason: "refresh_aside" });
+                try { __deferMicrotask(() => { try { inflight.delete(key); } catch {} }); } catch {}
+                  __mHist(rt, "cache.refresh.latency_ms", __nowMs() - __tR, { reason: "refresh_aside" });
               }
             })();
 
@@ -534,7 +535,8 @@ export async function cacheGetOrComputeSingleFlight(
                   __mInc(rt, "cache.refresh.fail", 1, { reason: "refresh_aside" });
                   throw e;
                 } finally {
-                  try { __deferMicrotask(() => { try { inflight.delete(key); } catch {} }); } catch {}__mHist(rt, "cache.refresh.latency_ms", __nowMs() - __tR, { reason: "refresh_aside" });
+                  try { __deferMicrotask(() => { try { inflight.delete(key); } catch {} }); } catch {}
+                  __mHist(rt, "cache.refresh.latency_ms", __nowMs() - __tR, { reason: "refresh_aside" });
                 }
               })();
 
