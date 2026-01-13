@@ -296,8 +296,18 @@ function getInflight(rt: any): Map<string, Promise<any>> {
 }
 
 function getRefreshAsideMeta(rt: any): Map<string, number> {
-  const w: any = rt || ({} as any);
+const w: any = rt || ({} as any);
   if (!w.__CACHE_REFRESH_ASIDE_META__) w.__CACHE_REFRESH_ASIDE_META__ = new Map<string, number>();
+  // Opportunistic purge (best-effort): bound growth even if timers don't run
+  try {
+    const meta = w.__CACHE_REFRESH_ASIDE_META__ as Map<string, number>;
+    const t = now();
+    for (const [k, ts] of meta.entries()) {
+      if (!ts || t - ts > __CACHE_REFRESH_ASIDE_META_TTL_MS) {
+        try { meta.delete(k); } catch {}
+      }
+    }
+  } catch {}
   return w.__CACHE_REFRESH_ASIDE_META__;
 }
 
