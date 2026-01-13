@@ -42,3 +42,7 @@ Tags:
 - Policy: add `redactedSnapshot()` (JSON-safe) and stabilize audit snapshot keys for UI.
 - System page: prefer `redactedSnapshot()` when present; fallback to `snapshot()`.
 - OBS: add refresh event code for cache audit UI actions.
+
+## P1.8 — Cache Audit Refresh E2E (OBS + UI Contract)
+- System page: Refresh action emits `AUDIT_CACHE_REFRESH` (best-effort, no-throw).
+- UI test: asserts Refresh emits OBS event end-to-end.
