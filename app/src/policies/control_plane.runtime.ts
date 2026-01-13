@@ -5,6 +5,7 @@ import { forceOffMany } from "./feature_flags.merge";
 import { buildFeatureFlagsBootOutcome } from "./feature_flags.boot";
 import { ERROR_CODES } from "../core/errors/error_codes";
 import { AUDIT_SCOPES } from "./audit.scopes";
+import { emitAudit } from "./audit.emit";
 
 type AnyWin = any;
 
@@ -46,13 +47,18 @@ const emit =
 
       if (typeof emit === "function") {
         for (const e of govAudit) {
-          emit.call(rt, e.level, e.code, e.message, {
-            ...(e.data || {}),
-            ts: (e as any).ts || new Date().toISOString(),
-            module: (e as any).module || "control_plane",
-            scope: (e as any).scope || "feature_flags_governance",
-            source: (e as any).source || "feature_flags_governance",
-          });
+          emitAudit(
+          rt,
+          e.level,
+          e.code,
+          e.message,
+          {
+            scope: AUDIT_SCOPES.FEATURE_FLAGS_GOVERNANCE,
+            source: "feature_flags_governance",
+            data: { ...(e.data || {}) },
+          },
+          "__FF_GOV_AUDIT_FAILED__"
+        );
         }
       }
     }
@@ -85,14 +91,19 @@ const emit =
     if (typeof emit === "function") {
       if (forced.length && !rt.__CP_FORCED_AUDITED__) {
         rt.__CP_FORCED_AUDITED__ = true;
-        emit.call(
-          rt,
+        emitAudit(
+          w,
           "WARN",
           (ERROR_CODES.WARN_FLAGS_FORCED_OFF ?? "WARN_FLAGS_FORCED_OFF"),
           `Control Plane forced OFF ${forced.length} feature flag(s) via capabilities`,
-          { source: "control_plane", forced }
+          {
+            scope: AUDIT_SCOPES.FORCED_FLAGS,
+            source: "control_plane",
+            data: { forced },
+          },
+          "__CP_FORCED_AUDIT_FAILED__"
         );
-      }
+}
     }
   } catch { try { (w as any).__CP_FORCED_AUDIT_FAILED__ = true; } catch {} }
 }
