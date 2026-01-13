@@ -23,7 +23,10 @@ function createLocalStorageMock() {
 }
 
 beforeEach(() => {
-  (globalThis as any).localStorage = createLocalStorageMock();
+  const mock = createLocalStorageMock();
+  (globalThis as any).localStorage = mock;
+  (globalThis as any).window.localStorage = mock;
+  (globalThis as any).__ICONTROL_ENTITLEMENTS__ = ["recommendations.pro"];
 });
 
 afterEach(() => {

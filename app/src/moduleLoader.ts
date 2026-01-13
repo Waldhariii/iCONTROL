@@ -8,6 +8,17 @@ import { renderBrandingSettings } from "../../modules/core-system/ui/frontend-ts
 import { canAccessToolbox } from "./runtime/rbac";
 
 export function renderRoute(rid: RouteId, root: HTMLElement): void {
+  const getEntitlementFromHash = (): string => {
+    const h = String(location.hash || "");
+    const idx = h.indexOf("?");
+    if (idx === -1) return "";
+    const qs = h.slice(idx + 1);
+    try {
+      return new URLSearchParams(qs).get("entitlement") || "";
+    } catch {
+      return "";
+    }
+  };
 
   // RUNTIME_SMOKE_ROUTE_V2
   try {
@@ -80,6 +91,18 @@ export function renderRoute(rid: RouteId, root: HTMLElement): void {
           /* ICONTROL_LOADER_IMPORT_GUARD_V1 */
           console.warn("WARN_ROUTE_IMPORT_FAILED", {
             spec: "../../modules/core-system/ui/frontend-ts/pages/developer/entitlements",
+            err: String(e)
+          });
+        });
+      return;
+    }
+    if ((rid as any) === "access_denied") {
+      import("../../modules/core-system/ui/frontend-ts/pages/access-denied")
+        .then((m) => m.renderAccessDeniedPage(root, { entitlement: getEntitlementFromHash() }))
+        .catch((e) => {
+          /* ICONTROL_LOADER_IMPORT_GUARD_V1 */
+          console.warn("WARN_ROUTE_IMPORT_FAILED", {
+            spec: "../../modules/core-system/ui/frontend-ts/pages/access-denied",
             err: String(e)
           });
         });
