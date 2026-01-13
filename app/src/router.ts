@@ -7,7 +7,7 @@ import { applyVersionPolicyBootGuards } from "./policies/version_policy.runtime"
  * Public:  #/login
  * Private: #/dashboard (and everything else by default)
  */
-export type RouteId = "login" | "dashboard" | "settings" | "settings_branding" | "notfound"
+export type RouteId = "login" | "dashboard" | "settings" | "settings_branding" | "blocked" | "notfound"
   | "runtime_smoke" | "users" | "account" | "developer" | "developer_entitlements" | "access_denied" | "verification" | "toolbox"
   | "system" | "logs" | "dossiers";
 export function getRouteId(): RouteId {
@@ -28,6 +28,7 @@ export function getRouteId(): RouteId {
   if (seg === "settings") return canAccessSettings() ? "settings" : "dashboard";
   if (seg === "settings/branding") return canAccessSettings() ? "settings_branding" : "dashboard";
   if (seg === "runtime-smoke" || seg === "runtime_smoke") return "runtime_smoke";
+  if (seg === "blocked") return "blocked";
   return "notfound";
 }
 
@@ -39,7 +40,7 @@ export function navigate(hash: string): void {
 function ensureAuth(): boolean {
   // Allow login always
   const rid = getRouteId();
-  if (rid === "login") return true;
+  if (rid === "login" || rid === "blocked") return true;
 
   // Everything else requires a session
   if (!isLoggedIn()) {
@@ -70,7 +71,13 @@ export function bootRouter(onRoute: (rid: RouteId) => void): void {
     const rid = getRouteId();
     const h = String(location.hash || "");
     const authed = ensureAuth();
-    /* ICONTROL_ROUTER_TRACE_V1 */
+    // If Version Policy blocks this build, force a controlled route once.
+    if (w.__bootBlock && !w.__BOOT_BLOCK_REDIRECTED__) {
+      w.__BOOT_BLOCK_REDIRECTED__ = true;
+      try { coreNavigate("#/blocked"); } catch {}
+      return;
+    }
+/* ICONTROL_ROUTER_TRACE_V1 */
     console.info("ROUTER_TICK", { hash: h, rid, authed });
     if (!authed) return;
     onRoute(rid);
