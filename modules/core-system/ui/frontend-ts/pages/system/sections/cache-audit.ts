@@ -1,4 +1,5 @@
 import { OBS } from "../../_shared/obsCodes";
+import { OBS } from "../../_shared/obsCodes";
 import { recordObs } from "../../_shared/audit";
 
 function __redactAudit(input: any): any {
@@ -95,6 +96,15 @@ function __el<K extends keyof HTMLElementTagNameMap>(tag: K, attrs?: Record<stri
 }
 
 export function renderSystemCacheAudit(host: HTMLElement): void {
+  // P1.8_AUDIT_REFRESH_OBS: emit refresh OBS on user action (best-effort, no-throw)
+  const __emitRefresh = (detail: string) => {
+    try {
+      const w = globalThis as any;
+      const ro = (typeof (w?.recordObs) === "function") ? w.recordObs : null;
+      if (ro) ro({ code: OBS.AUDIT_CACHE_REFRESH, page: "system", section: "cache-audit", detail });
+    } catch {}
+  };
+
   // P1.7_PREFER_REDACTED_SNAPSHOT: prefer policy-provided redactedSnapshot() when present
   const __getSnapshot = (audit: any) => {
     try {
@@ -129,7 +139,7 @@ host.innerHTML = "";
     const btnRefresh = document.createElement("button");
     btnRefresh.type = "button";
     btnRefresh.textContent = "Refresh";
-    btnRefresh.onclick = () => renderSystemCacheAudit(host);
+    btnRefresh.onclick = () => { __emitRefresh("click"); renderSystemCacheAudit(host); };
 
     const btnCopy = document.createElement("button");
     btnCopy.type = "button";
