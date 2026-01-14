@@ -5,7 +5,7 @@ import type {
   DataSourceWriteResult,
   JsonValue,
 } from "./types";
-import type { StudioRuntime } from "../runtime/studioRuntime";
+import type { StudioRuntime } from "../runtime";
 import { enforceSafeModeWrite } from "../../../policies/safe_mode.enforce.runtime";
 
 export class DataSourceRouter {

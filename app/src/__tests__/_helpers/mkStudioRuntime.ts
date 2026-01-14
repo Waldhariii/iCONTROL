@@ -1,7 +1,8 @@
 import type {
-  StudioRuntime,
+  AuditLevel,
   SafeModeEnforcementLevel,
-} from "../../core/studio/runtime/studioRuntime";
+  StudioRuntime,
+} from "../../core/studio/runtime";
 
 export type AuditEmitFn = StudioRuntime["audit"]["emit"];
 
