@@ -5,9 +5,16 @@ import type {
   DataSourceWriteResult,
   JsonValue,
 } from "./types";
+import type { StudioRuntime } from "../runtime/studioRuntime";
 import { enforceSafeModeWrite } from "../../../policies/safe_mode.enforce.runtime";
 
 export class DataSourceRouter {
+  private readonly rt: StudioRuntime;
+
+  constructor(rt: StudioRuntime) {
+    this.rt = rt;
+  }
+
   private readonly map = new Map<DataSourceId, DataSource>();
 
   register(ds: DataSource): void {
@@ -30,17 +37,6 @@ export class DataSourceRouter {
     key: string,
     value: JsonValue,
   ): DataSourceWriteResult {
-    // P0.8: bind router runtime (avoid globalThis) — keep non-breaking by deriving from existing handles
-    const rt0: any =
-      (this as any).rt ??
-      (this as any).runtime ??
-      (this as any).ctx?.rt ??
-      (this as any).ctx?.runtime ??
-      (this as any).host?.rt ??
-      (this as any).host?.runtime;
-    const rt: any = rt0 ?? (globalThis as any);
-    if (!(this as any).rt) (this as any).rt = rt;
-
     const ds = this.map.get(id);
     if (!ds)
       return {
@@ -52,7 +48,7 @@ export class DataSourceRouter {
     // P0.7 SAFE_MODE enforcement wiring (policy-driven)
     // Router-level guard: blocks write in HARD, warns in SOFT (audit-first).
     // Map datasource write to a generic 'update' action for enforcement purposes.
-    const decision = enforceSafeModeWrite(rt, "update", {
+    const decision = enforceSafeModeWrite(this.rt, "update", {
       ds: id,
       key,
     });
