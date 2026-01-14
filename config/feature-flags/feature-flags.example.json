@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "flags": {
+    "cache.refresh.swr": {
+      "enabled": true,
+      "owner": "core-platform",
+      "justification": "Enable SWR refresh path for cache audit panel; reversible and audited.",
+      "expires_on": "2026-06-30",
+      "risk": "MEDIUM"
+    },
+    "ui.developer.entitlements_panel": {
+      "enabled": false,
+      "owner": "governance",
+      "justification": "Keep panel dormant by default; enable only in controlled environments.",
+      "expires_on": "2026-12-31",
+      "risk": "LOW"
+    }
+  }
+}
