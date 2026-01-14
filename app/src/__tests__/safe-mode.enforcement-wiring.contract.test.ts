@@ -22,9 +22,8 @@ function mkRt(level: "SOFT" | "HARD", emit: any) {
  * We target the studio DataSourceRouter.write(), which is the canonical routing point to ds.write().
  */
 
-function mkRouter() {
-  const emit = vi.fn();
-  const rt = mkRt("HARD", emit);
+function mkRouter(level: "SOFT" | "HARD", emit: any) {
+  const rt = mkRt(level, emit);
   const ds: any = {
     id: "mem",
     read: vi.fn(() => ({ ok: true, value: null })),
@@ -39,8 +38,7 @@ function mkRouter() {
 describe("SAFE_MODE enforcement wiring (P0.7)", () => {
   it("HARD blocks writes (throws ERR_SAFE_MODE_WRITE_BLOCKED)", () => {
     const emit = vi.fn();
-    const { router } = mkRouter();
-    (router as any).rt = mkRt("HARD", emit);
+    const { router } = mkRouter("HARD", emit);
 
     expect(() => router.write("mem", "k1", "v1")).toThrowError(
       /ERR_SAFE_MODE_WRITE_BLOCKED/,
@@ -49,8 +47,7 @@ describe("SAFE_MODE enforcement wiring (P0.7)", () => {
 
   it("SOFT allows writes but emits WARN_SAFE_MODE_WRITE_SOFT audit", () => {
     const emit = vi.fn();
-    const { router, ds } = mkRouter();
-    (router as any).rt = mkRt("SOFT", emit);
+    const { router, ds } = mkRouter("SOFT", emit);
     expect(() => router.write("mem", "k1", "v1")).not.toThrow();
     expect(ds.write).toHaveBeenCalledTimes(1);
 
