@@ -19,10 +19,12 @@ export interface AuditEmitterOptions {
  * This is an adapter, not a policy engine.
  */
 export function createAuditEmitter(
-  opts: AuditEmitterOptions = {},
+  opts: AuditEmitterOptions | AuditSink = {},
 ): StudioAudit {
+  const options: AuditEmitterOptions =
+    typeof opts === "function" ? { sink: opts } : opts;
   const sink: AuditSink =
-    opts.sink ??
+    options.sink ??
     ((level, code, meta) => {
       // default sink: no-op (do not console.log in core)
       void level;
@@ -31,7 +33,7 @@ export function createAuditEmitter(
     });
 
   const redact =
-    opts.redact ??
+    options.redact ??
     ((meta) => {
       // default redaction: identity
       return meta;
