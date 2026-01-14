@@ -25,9 +25,34 @@ export function mkRuntime(args: MkStudioRuntimeArgs = {}): StudioRuntime {
           ? createAuditEmitter(auditCandidate)
           : createAuditEmitter();
 
+  const enforcement = (args.safeMode as any)?.enforcement;
+  const enforcementLevel = enforcement?.level;
+  if (
+    enforcementLevel &&
+    enforcementLevel !== "SOFT" &&
+    enforcementLevel !== "HARD"
+  ) {
+    throw new Error("ERR_RUNTIME_ENFORCEMENT_LEVEL_INVALID");
+  }
+
+  const safeMode =
+    args.safeMode && enforcement
+      ? {
+          ...args.safeMode,
+          enforcement: {
+            ...enforcement,
+            allow_bypass_capabilities: Array.isArray(
+              enforcement.allow_bypass_capabilities,
+            )
+              ? enforcement.allow_bypass_capabilities
+              : [],
+          },
+        }
+      : args.safeMode;
+
   return {
     audit,
-    __SAFE_MODE__: args.safeMode,
+    __SAFE_MODE__: safeMode,
   };
 }
 
