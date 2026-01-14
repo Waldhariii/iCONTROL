@@ -1,21 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
 import { DataSourceRouter } from "../core/studio/datasources/router";
-
-function mkRt(level: "SOFT" | "HARD", emit: any) {
-  return {
-    audit: { emit },
-    __SAFE_MODE__: {
-      enabled: true,
-      enforcement: {
-        level,
-        scope: ["write"],
-        blocked_actions: ["update"],
-        allow_bypass_capabilities: [],
-        message: "SAFE_MODE write policy",
-      },
-    },
-  };
-}
+import { mkTestStudioRuntime } from "./_helpers/mkStudioRuntime";
 
 /**
  * P0.7 contract: real write gateway must consult SAFE_MODE enforcement.
@@ -23,7 +8,7 @@ function mkRt(level: "SOFT" | "HARD", emit: any) {
  */
 
 function mkRouter(level: "SOFT" | "HARD", emit: any) {
-  const rt = mkRt(level, emit);
+  const rt = mkTestStudioRuntime({ level, emit });
   const ds: any = {
     id: "mem",
     read: vi.fn(() => ({ ok: true, value: null })),
