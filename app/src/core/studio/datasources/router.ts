@@ -1,4 +1,11 @@
-import type { DataSource, DataSourceId, DataSourceReadResult, DataSourceWriteResult, JsonValue } from "./types";
+import type {
+  DataSource,
+  DataSourceId,
+  DataSourceReadResult,
+  DataSourceWriteResult,
+  JsonValue,
+} from "./types";
+import { enforceSafeModeWrite } from "../../../policies/safe_mode.enforce.runtime";
 
 export class DataSourceRouter {
   private readonly map = new Map<DataSourceId, DataSource>();
@@ -13,14 +20,35 @@ export class DataSourceRouter {
 
   read(id: DataSourceId, key: string): DataSourceReadResult {
     const ds = this.map.get(id);
-    if (!ds) return { ok: false, reason: "not_found", detail: `datasource:${id}` };
+    if (!ds)
+      return { ok: false, reason: "not_found", detail: `datasource:${id}` };
     return ds.read(key);
   }
 
-  write(id: DataSourceId, key: string, value: JsonValue): DataSourceWriteResult {
+  write(
+    id: DataSourceId,
+    key: string,
+    value: JsonValue,
+  ): DataSourceWriteResult {
     const ds = this.map.get(id);
-    if (!ds) return { ok: false, reason: "backend_error", detail: `datasource_missing:${id}` };
+    if (!ds)
+      return {
+        ok: false,
+        reason: "backend_error",
+        detail: `datasource_missing:${id}`,
+      };
     if (!ds.write) return { ok: false, reason: "read_only" };
+    // P0.7 SAFE_MODE enforcement wiring (policy-driven)
+    // Router-level guard: blocks write in HARD, warns in SOFT (audit-first).
+    // Map datasource write to a generic 'update' action for enforcement purposes.
+    const decision = enforceSafeModeWrite(globalThis as any, "update", {
+      ds: id,
+      key,
+    });
+    if (!decision.allowed) {
+      // HARD enforcement: fail fast (canonical code expected by contracts).
+      throw new Error("ERR_SAFE_MODE_WRITE_BLOCKED");
+    }
     return ds.write(key, value);
   }
 }
