@@ -1,0 +1,30 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "SAFE_MODE enforcement policy",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "level": { "type": "string", "enum": ["OFF", "SOFT", "HARD"] },
+    "scope": {
+      "type": "array",
+      "items": { "type": "string", "enum": ["write"] },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "blocked_actions": {
+      "type": "array",
+      "items": { "type": "string", "enum": ["create", "update", "delete"] },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "allow_bypass_capabilities": {
+      "type": "array",
+      "items": { "type": "string" },
+      "uniqueItems": true
+    },
+    "message": { "type": "string" },
+    "effective_from": { "type": "string" },
+    "expires_at": { "type": "string" }
+  },
+  "required": ["level", "scope", "blocked_actions"]
+}
