@@ -12,6 +12,12 @@
   "scripts": {
     "lint": "echo \"lint placeholder\"",
     "test": "npm run test:app",
-    "test:app": "bash ./scripts/vitest-app.sh"
+    "test:app": "bash ./scripts/vitest-app.sh",
+    "format": "prettier --write .",
+    "format:check": "bash ./scripts/prettier-diff-check.sh origin/main...HEAD",
+    "format:check:all": "prettier --check ."
+  },
+  "devDependencies": {
+    "prettier": "^3.7.4"
   }
 }
