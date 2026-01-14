@@ -1,80 +1,157 @@
-import { buildVersionPolicyBootOutcome, type VersionPolicyBootOutcome } from "./version_policy.boot";
+import {
+  isHardBlocked,
+  isMaintenance,
+  isSoftBlocked,
+  loadVersionPolicyFromSources,
+  shouldForceSafeMode,
+} from "../core/version/versionPolicy";
 
-type AnyRuntime = Record<string, any>;
+export type VersionPolicyDecision = {
+  status: "OK" | "SOFT_BLOCK" | "HARD_BLOCK" | "MAINTENANCE";
+  message: string;
+  force_safe_mode: boolean;
+};
+
+export function evaluateVersionPolicy(): VersionPolicyDecision {
+  const p = loadVersionPolicyFromSources();
+
+  const decision: VersionPolicyDecision = {
+    status: p.status,
+    message: p.message || "",
+    force_safe_mode: shouldForceSafeMode(p),
+  };
+
+  // Audit-friendly, side-effect limited to console only.
+  if (isHardBlocked(p)) {
+    console.warn("WARN_VERSION_POLICY_HARD_BLOCK", decision);
+  } else if (isMaintenance(p)) {
+    console.warn("WARN_VERSION_POLICY_MAINTENANCE", decision);
+  } else if (isSoftBlocked(p)) {
+    console.warn("WARN_VERSION_POLICY_SOFT_BLOCK", decision);
+  }
+
+  return decision;
+}
+
+export type VersionPolicyBootOverride = {
+  status?: "OK" | "SOFT_BLOCK" | "HARD_BLOCK" | "MAINTENANCE";
+  min_version?: string;
+  latest_version?: string;
+  message?: string;
+  safe_mode?: boolean;
+};
+
+export type VersionPolicyBootOutcome = {
+  status: "OK" | "SOFT_BLOCK" | "HARD_BLOCK" | "MAINTENANCE";
+  message: string;
+  force_safe_mode: boolean;
+};
 
 /**
- * Apply version policy at boot in a defensive way:
- * - No navigation
- * - No storage writes
- * - Publishes outcome on runtime for later UI/render decisions
- * - Tries to emit audit events if an audit sink exists
- * - Tries to force SAFE_MODE if a safe-mode setter exists
+ * Boot adapter (contract):
+ * - Publishes rt.__versionPolicy
+ * - Publishes rt.__bootBanner on SOFT_BLOCK
+ * - Publishes rt.__bootBlock on HARD_BLOCK
+ * - Never requires billing / network / backend
  */
-export function applyVersionPolicyBootGuards(runtime: AnyRuntime, override?: unknown): VersionPolicyBootOutcome {
-  const outcome = buildVersionPolicyBootOutcome(override);
+export type VersionPolicyBootOverride = {
+  status?: "OK" | "SOFT_BLOCK" | "HARD_BLOCK" | "MAINTENANCE";
+  min_version?: string;
+  latest_version?: string;
+  message?: string;
+  safe_mode?: boolean;
+  capabilities?: any[];
+};
 
-  // Publish outcome for UI plane / diagnostics
-  runtime.__versionPolicy = outcome;
+export type VersionPolicyBootOutcome = {
+  status: "OK" | "SOFT_BLOCK" | "HARD_BLOCK" | "MAINTENANCE";
+  message: string;
+  force_safe_mode: boolean;
+};
 
-  // 1) Emit loader audit events (if available)
-  // Try a few common shapes without coupling
-  const emitAudit =
-    runtime?.audit?.emit ??
-    runtime?.audit?.log ??
-    runtime?.auditLog?.append ??
-    runtime?.auditLog?.push ??
-    runtime?.core?.audit?.emit ??
-    null;
-
-  if (typeof emitAudit === "function") {
-    for (const ev of outcome.audit) {
-      // normalize signature: (level, code, message, meta?)
-      try {
-        emitAudit.call(runtime, ev.level, ev.code, ev.message, { source: "version_policy", policySource: outcome.source });
-      } catch {
-        // never crash boot because of audit
+/**
+ * Boot adapter (contract):
+ * - Publishes rt.__versionPolicy with a stable shape: { policy, outcome, decided_at, source }
+ * - Publishes rt.__bootBanner on SOFT_BLOCK
+ * - Publishes rt.__bootBlock on HARD_BLOCK
+ * - Never requires billing / network / backend
+ */
+export function applyVersionPolicyBootGuards(
+  rt: any,
+  override?: VersionPolicyBootOverride,
+): VersionPolicyBootOutcome {
+  // Build a raw policy object (contract expects rt.__versionPolicy.policy)
+  const rawPolicy = override
+    ? {
+        status: override.status || "OK",
+        min_version: String(override.min_version || ""),
+        latest_version: String(override.latest_version || ""),
+        message: String(override.message || ""),
+        safe_mode: Boolean(override.safe_mode),
+        capabilities: Array.isArray(override.capabilities) ? override.capabilities : [],
       }
-    }
-  }
+    : getVersionPolicyContract();
 
-  // 2) Force SAFE_MODE if decision exists and runtime supports it
-  const forceSafe = outcome.decisions.some((d) => d.kind === "FORCE_SAFE_MODE");
-  if (forceSafe) {
-    const setSafeMode =
-      runtime?.safeMode?.enable ??
-      runtime?.SAFE_MODE?.enable ??
-      runtime?.runtime?.safeMode?.enable ??
-      runtime?.setSafeMode ??
-      runtime?.core?.setSafeMode ??
-      null;
+  // Compute outcome in the runtime's canonical vocabulary
+  const outcome: VersionPolicyBootOutcome = {
+    status: (rawPolicy.status || "OK") as any,
+    message: String(rawPolicy.message || ""),
+    force_safe_mode: Boolean(rawPolicy.safe_mode),
+  };
 
-    if (typeof setSafeMode === "function") {
-      try {
-        setSafeMode.call(runtime, true);
-      } catch {
-        // never crash boot because of safe-mode setter mismatch
-      }
-    }
-  }
+  // Publish contract wrapper
+  rt.__versionPolicy = {
+    policy: rawPolicy,
+    outcome,
+    decided_at: Date.now(),
+    source: override ? "override" : "contract",
+  };
 
-  // 3) Publish a normalized banner hint for SOFT_BLOCK (no UI rendering here)
-  const soft = outcome.decisions.find((d) => d.kind === "SOFT_BLOCK");
-  if (soft) {
-    runtime.__bootBanner = {
+  // Boot UI signals (contract asserts .kind)
+  if (outcome.status === "SOFT_BLOCK") {
+    rt.__bootBanner = {
       kind: "SOFT_BLOCK",
-      code: (soft as any).warnCode,
-      message: (soft as any).message,
+      message: outcome.message || "Update recommended",
+      policy: rawPolicy,
     };
+  } else if (outcome.status === "MAINTENANCE") {
+    rt.__bootBanner = {
+      kind: "MAINTENANCE",
+      message: outcome.message || "Maintenance",
+      policy: rawPolicy,
+    };
+  } else {
+    // Ensure stale banner is not retained between boots in tests
+    if (rt.__bootBanner) delete rt.__bootBanner;
   }
 
-  // 4) Publish hard/maintenance block hints (no navigation here)
-  const hard = outcome.decisions.find((d) => d.kind === "HARD_BLOCK");
-  const maint = outcome.decisions.find((d) => d.kind === "MAINTENANCE");
-  if (hard || maint) {
-    runtime.__bootBlock = hard
-      ? { kind: "HARD_BLOCK", code: (hard as any).errCode, message: (hard as any).message }
-      : { kind: "MAINTENANCE", code: (maint as any).errCode, message: (maint as any).message };
+  if (outcome.status === "HARD_BLOCK") {
+    rt.__bootBlock = {
+      kind: "HARD_BLOCK",
+      message: outcome.message || "Update required",
+      policy: rawPolicy,
+    };
+  } else {
+    if (rt.__bootBlock) delete rt.__bootBlock;
   }
+
+  // Preserve legacy publishing for other runtime observers
+  rt.__versionPolicyOutcome = outcome;
 
   return outcome;
+}
+
+function getVersionPolicyContract(): any {
+  // Adapter over existing runtime primitive
+  const v: any = evaluateVersionPolicy();
+  // If delegate returns an outcome/decision, normalize to policy-ish object
+  if (v && typeof v === "object" && "status" in v) return v;
+  return {
+    status: "OK",
+    min_version: "",
+    latest_version: "",
+    message: "",
+    safe_mode: false,
+    capabilities: [],
+  };
 }
