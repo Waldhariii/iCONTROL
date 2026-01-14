@@ -30,6 +30,17 @@ export class DataSourceRouter {
     key: string,
     value: JsonValue,
   ): DataSourceWriteResult {
+    // P0.8: bind router runtime (avoid globalThis) — keep non-breaking by deriving from existing handles
+    const rt0: any =
+      (this as any).rt ??
+      (this as any).runtime ??
+      (this as any).ctx?.rt ??
+      (this as any).ctx?.runtime ??
+      (this as any).host?.rt ??
+      (this as any).host?.runtime;
+    const rt: any = rt0 ?? (globalThis as any);
+    if (!(this as any).rt) (this as any).rt = rt;
+
     const ds = this.map.get(id);
     if (!ds)
       return {
@@ -41,7 +52,7 @@ export class DataSourceRouter {
     // P0.7 SAFE_MODE enforcement wiring (policy-driven)
     // Router-level guard: blocks write in HARD, warns in SOFT (audit-first).
     // Map datasource write to a generic 'update' action for enforcement purposes.
-    const decision = enforceSafeModeWrite(globalThis as any, "update", {
+    const decision = enforceSafeModeWrite(rt, "update", {
       ds: id,
       key,
     });
