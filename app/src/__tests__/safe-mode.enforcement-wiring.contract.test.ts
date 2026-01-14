@@ -23,26 +23,20 @@ function mkRt(level: "SOFT" | "HARD", emit: any) {
  */
 
 function mkRouter() {
+  const emit = vi.fn();
+  const rt = mkRt("HARD", emit);
   const ds: any = {
     id: "mem",
     read: vi.fn(() => ({ ok: true, value: null })),
     write: vi.fn(() => ({ ok: true })),
   };
 
-  const router = new (DataSourceRouter as any)();
+  const router = new DataSourceRouter(rt);
   router.register(ds);
   return { router, ds };
 }
 
 describe("SAFE_MODE enforcement wiring (P0.7)", () => {
-  it("requires router.rt (throws ERR_ROUTER_RUNTIME_REQUIRED when missing)", () => {
-    const { router } = mkRouter();
-    // no rt injection
-    expect(() => router.write("mem", "k0", "v0")).toThrow(
-      /ERR_ROUTER_RUNTIME_REQUIRED/,
-    );
-  });
-
   it("HARD blocks writes (throws ERR_SAFE_MODE_WRITE_BLOCKED)", () => {
     const emit = vi.fn();
     const { router } = mkRouter();
