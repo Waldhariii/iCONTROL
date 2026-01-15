@@ -11,7 +11,7 @@ function createLocalStorageMock() {
   const store = new Map<string, string>();
   return {
     getItem(key: string) {
-      return store.has(key) ? store.get(key) ?? null : null;
+      return store.has(key) ? (store.get(key) ?? null) : null;
     },
     setItem(key: string, value: string) {
       store.set(key, String(value));
@@ -21,7 +21,7 @@ function createLocalStorageMock() {
     },
     clear() {
       store.clear();
-    }
+    },
   };
 }
 
@@ -44,20 +44,24 @@ describe("dossiers page", () => {
   });
 
   it("create button disabled in SAFE_MODE strict", () => {
-    setSession({ username: "dev", role: "DEVELOPER", issuedAt: Date.now() });
+    setSession({ username: "admin", role: "ADMIN", issuedAt: Date.now() });
     (globalThis as any).ICONTROL_SAFE_MODE = "STRICT";
     const root = document.createElement("div");
     renderDossiersPage(root);
-    const btn = root.querySelector("#dossier_create_btn") as HTMLButtonElement | null;
+    const btn = root.querySelector(
+      "#dossier_create_btn",
+    ) as HTMLButtonElement | null;
     expect(btn?.disabled).toBe(true);
   });
 
-  it("create allowed in COMPAT for DEVELOPER", () => {
-    setSession({ username: "dev", role: "DEVELOPER", issuedAt: Date.now() });
+  it("create allowed in COMPAT for ADMIN", () => {
+    setSession({ username: "admin", role: "ADMIN", issuedAt: Date.now() });
     (globalThis as any).ICONTROL_SAFE_MODE = "COMPAT";
     const root = document.createElement("div");
     renderDossiersPage(root);
-    const btn = root.querySelector("#dossier_create_btn") as HTMLButtonElement | null;
+    const btn = root.querySelector(
+      "#dossier_create_btn",
+    ) as HTMLButtonElement | null;
     expect(btn?.disabled).toBe(false);
   });
 
@@ -74,7 +78,7 @@ describe("dossiers page", () => {
       title: "Test",
       kind: "INTERVENTION",
       state: "OPEN",
-      owner: "ADMIN"
+      owner: "ADMIN",
     });
     if (!res.ok) throw new Error("create_failed");
     transitionDossier("ADMIN", res.dossier.id, "CLOSED");
@@ -90,7 +94,7 @@ describe("dossiers page", () => {
       title: "Seed",
       kind: "INTERVENTION",
       state: "OPEN",
-      owner: "ADMIN"
+      owner: "ADMIN",
     });
     if (!seed.ok) throw new Error("seed_failed");
     (globalThis as any).ICONTROL_SAFE_MODE = "STRICT";
@@ -98,13 +102,15 @@ describe("dossiers page", () => {
       title: "Strict",
       kind: "INTERVENTION",
       state: "OPEN",
-      owner: "ADMIN"
+      owner: "ADMIN",
     });
     expect(res.ok).toBe(false);
     const tr = transitionDossier("ADMIN", seed.dossier.id, "IN_PROGRESS");
     expect(tr.ok).toBe(false);
     const log = getAuditLog();
-    expect(log.some((e) => e.code === OBS.WARN_SAFE_MODE_WRITE_BLOCKED)).toBe(true);
+    expect(log.some((e) => e.code === OBS.WARN_SAFE_MODE_WRITE_BLOCKED)).toBe(
+      true,
+    );
   });
 
   it("COMPAT allows transition for ADMIN", () => {
@@ -114,7 +120,7 @@ describe("dossiers page", () => {
       title: "Compat",
       kind: "INTERVENTION",
       state: "OPEN",
-      owner: "ADMIN"
+      owner: "ADMIN",
     });
     if (!res.ok) throw new Error("create_failed");
     const r = transitionDossier("ADMIN", res.dossier.id, "IN_PROGRESS");
@@ -128,7 +134,7 @@ describe("dossiers page", () => {
       title: "Hist",
       kind: "INTERVENTION",
       state: "OPEN",
-      owner: "ADMIN"
+      owner: "ADMIN",
     });
     if (!res.ok) throw new Error("create_failed");
     transitionDossier("ADMIN", res.dossier.id, "WAITING");
@@ -143,9 +149,13 @@ describe("dossiers page", () => {
     (globalThis as any).ICONTROL_SAFE_MODE = "STRICT";
     const root = document.createElement("div");
     renderDossiersPage(root);
-    const btn = root.querySelector("button[data-action-id='export_csv']") as HTMLButtonElement | null;
+    const btn = root.querySelector(
+      "button[data-action-id='export_csv']",
+    ) as HTMLButtonElement | null;
     btn?.click();
     const log = getAuditLog();
-    expect(log.some((e) => e.code === OBS.WARN_SAFE_MODE_WRITE_BLOCKED)).toBe(true);
+    expect(log.some((e) => e.code === OBS.WARN_SAFE_MODE_WRITE_BLOCKED)).toBe(
+      true,
+    );
   });
 });
