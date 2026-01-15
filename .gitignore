@@ -70,3 +70,8 @@ scripts/release/publish.zsh.bak.*
 app/src/policies/cache.registry.ts.BAK_*
 app/src/policies/cache.registry.ts.BAK_P1_*
 app/src/policies/*.BAK_*
+
+# Tauri desktop build artifacts
+app-desktop-*/dist/
+app-desktop-*/src-tauri/target/
+app-desktop-*/src-tauri/gen/

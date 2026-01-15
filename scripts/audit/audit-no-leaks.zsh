@@ -16,6 +16,10 @@ EXCL=(
   --glob '!**/.git/**'
   --glob '!**/scripts/audit/**'
   --glob '!**/scripts/maintenance/**'
+  --glob '!**/_RELEASES/**'
+  --glob '!**/dist/**'
+  --glob '!**/target/**'
+  --glob '!**/gen/**'
 )
 
 # Build legacy token without writing it contiguously in this file
