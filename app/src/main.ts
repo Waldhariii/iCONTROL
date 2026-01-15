@@ -24,6 +24,60 @@ try {
 import { bootRouter, RouteId, getMountEl } from "./router";
 import { renderRoute } from "./moduleLoader";
 
+/* ICONTROL_APP_CP_GUARD_V1 */
+function __icontrol_resolveAppKind(): "APP" | "CP" {
+  // 1) .env build-time (si existant)
+  const k = (import.meta as any)?.env?.VITE_APP_KIND;
+  if (k === "CLIENT_APP" || k === "APP") return "APP";
+  if (k === "CONTROL_PLANE" || k === "CP") return "CP";
+
+  // 2) runtime heuristic (path first)
+  try {
+    const p = window.location.pathname || "/";
+    if (p.startsWith("/cp")) return "CP";
+    if (p.startsWith("/app")) return "APP";
+  } catch {}
+
+  // 3) fallback safe: APP (client) par défaut
+  return "APP";
+}
+
+function __icontrol_guardAppVsCp(): void {
+  try {
+    const kind = __icontrol_resolveAppKind();
+    const path = window.location.pathname || "/";
+    const hash = window.location.hash || "";
+
+    const wantsCp =
+      path.startsWith("/cp") ||
+      hash.startsWith("#/cp") ||
+      hash.startsWith("#/console") ||
+      hash.startsWith("#/management");
+
+    const wantsApp = path.startsWith("/app") || hash.startsWith("#/app");
+
+    // APP: interdit CP
+    if (kind === "APP" && wantsCp) {
+      // redirect vers /app/#/login si possible, sinon /#/login
+      const target = path.startsWith("/app") ? "/app/#/login" : "/#/login";
+      window.location.replace(target);
+      return;
+    }
+
+    // CP: interdit APP
+    if (kind === "CP" && wantsApp) {
+      const target = path.startsWith("/cp") ? "/cp/#/login" : "/#/login";
+      window.location.replace(target);
+      return;
+    }
+  } catch {
+    // fail closed? Non: fail-safe (ne pas casser le boot).
+    // Le contrôle dur est assuré côté AuthZ/RBAC serveur quand il existera.
+  }
+}
+
+__icontrol_guardAppVsCp();
+
 /* ===== UI_SHELL_NAV_V1 MOUNT =====
    Goal: Provide a stable header + drawer menu independent from modules.
    The router should render into #cxMain (shell main).
