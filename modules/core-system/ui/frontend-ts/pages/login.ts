@@ -1,4 +1,4 @@
-import { authenticate } from "/src/localAuth";
+import { authenticate, authenticateManagement } from "/src/localAuth";
 import { navigate } from "/src/router";
 const CARD_STYLE =
   `max-width:520px;margin:40px auto;padding:18px;border-radius:18px;` +
@@ -44,11 +44,22 @@ export function renderLogin(root: HTMLElement): void {
 
   const submit = () => {
     err.textContent = "";
-    const res = authenticate(u.value, p.value);
-    if (!res.ok) { err.textContent = res.error; return; }
+    const isCP =
+      (import.meta as any)?.env?.VITE_APP_KIND === "CONTROL_PLANE" ||
+      (typeof window !== "undefined" &&
+        window.location.pathname.startsWith("/cp"));
+    const res = isCP
+      ? authenticateManagement(u.value, p.value)
+      : authenticate(u.value, p.value);
+    if (!res.ok) {
+      err.textContent = res.error;
+      return;
+    }
     navigate("#/dashboard");
   };
 
   btn.onclick = submit;
-  p.addEventListener("keydown", (e) => { if (e.key === "Enter") submit(); });
+  p.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") submit();
+  });
 }
