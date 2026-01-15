@@ -1,0 +1,25 @@
+{
+  "build": {
+    "beforeBuildCommand": "VITE_APP_KIND=CONTROL_PLANE npm --prefix ../../app run build -- --base /cp/ --outDir ../app-desktop-control/dist/cp",
+    "beforeDevCommand": "VITE_APP_KIND=CONTROL_PLANE npm --prefix ../../app run dev -- --host 127.0.0.1 --port 5177 --strictPort --base /cp/",
+    "devPath": "http://127.0.0.1:5177/cp/#/login",
+    "distDir": "../dist"
+  },
+  "package": {
+    "productName": "iCONTROL Control Plane",
+    "version": "0.2.0"
+  },
+  "tauri": {
+    "windows": [
+      {
+        "title": "iCONTROL Control Plane",
+        "width": 1200,
+        "height": 780,
+        "url": "cp/index.html#/login"
+      }
+    ],
+    "security": {
+      "csp": null
+    }
+  }
+}
