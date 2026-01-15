@@ -13,6 +13,9 @@
     "lint": "echo \"lint placeholder\"",
     "test": "npm run test:app",
     "test:app": "bash ./scripts/vitest-app.sh",
+    "desktop:app": "bash -lc 'cd app-desktop-client/src-tauri && cargo tauri build'",
+    "desktop:cp": "bash -lc 'cd app-desktop-control/src-tauri && cargo tauri build'",
+    "desktop:build": "npm run desktop:app && npm run desktop:cp",
     "format:check": "bash -lc '\nset -euo pipefail\nBASE=\"origin/main...HEAD\"\n\n# 1) Fichiers committés dans la plage\nA=$(git diff --name-only \"$BASE\" --diff-filter=ACMRTUXB || true)\n\n# 2) Fichiers staged\nB=$(git diff --name-only --cached --diff-filter=ACMRTUXB || true)\n\n# 3) Fichiers unstaged\nC=$(git diff --name-only --diff-filter=ACMRTUXB || true)\n\nFILES=$(printf \"%s\n%s\n%s\n\" \"$A\" \"$B\" \"$C\" | sed \"/^$/d\" | sort -u)\n\nif [ -z \"$FILES\" ]; then\n  echo \"OK: no files to format\"\n  exit 0\nfi\n\necho \"Prettier check files:\"\necho \"$FILES\" | sed \"s/^/ - /\"\n\nnpx prettier --check --ignore-unknown $FILES\n'",
     "format:check:all": "prettier --check ."
   }
