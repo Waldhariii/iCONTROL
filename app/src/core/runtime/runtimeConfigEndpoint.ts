@@ -8,7 +8,6 @@
  */
 
 import { getTenantId } from "./tenant";
-import { getTenantDomain } from "../tenant/models/domainRegistry";
 
 type RuntimeConfig = {
   tenant_id: string;
@@ -74,16 +73,15 @@ export function registerRuntimeConfigEndpoint(): void {
       // strict path match (ignore search params entirely)
       if (url.pathname === "/cp/api/runtime-config") {
         const tenantId = getTenantId();
-        const domain = await getTenantDomain(tenantId);
         const origin = window.location.origin;
 
         const payload: RuntimeConfig = {
           tenant_id: tenantId,
-          app_base_path: domain?.app_base_path || "/app",
-          cp_base_path: domain?.cp_base_path || "/cp",
+          app_base_path: "/app",
+          cp_base_path: "/cp",
           api_base_url: new URL("/api", origin).toString(),
           assets_base_url: new URL("/assets", origin).toString(),
-          version: domain?.version || 1,
+          version: 1,
         };
 
         return new Response(JSON.stringify(payload), {
