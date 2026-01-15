@@ -27,7 +27,10 @@ export function renderRoute(rid: RouteId, root: HTMLElement): void {
         .then((m) => m.renderRuntimeSmoke(root))
         .catch((e) => {
           /* ICONTROL_LOADER_IMPORT_GUARD_V1 */
-          console.warn("WARN_ROUTE_IMPORT_FAILED", { spec: "./pages/runtime-smoke", err: String(e) });
+          console.warn("WARN_ROUTE_IMPORT_FAILED", {
+            spec: "./pages/runtime-smoke",
+            err: String(e),
+          });
         });
       return;
     }
@@ -43,7 +46,7 @@ export function renderRoute(rid: RouteId, root: HTMLElement): void {
           /* ICONTROL_LOADER_IMPORT_GUARD_V1 */
           console.warn("WARN_ROUTE_IMPORT_FAILED", {
             spec: "../../modules/core-system/ui/frontend-ts/pages/users",
-            err: String(e)
+            err: String(e),
           });
         });
       return;
@@ -55,7 +58,7 @@ export function renderRoute(rid: RouteId, root: HTMLElement): void {
           /* ICONTROL_LOADER_IMPORT_GUARD_V1 */
           console.warn("WARN_ROUTE_IMPORT_FAILED", {
             spec: "../../modules/core-system/ui/frontend-ts/pages/account",
-            err: String(e)
+            err: String(e),
           });
         });
       return;
@@ -67,7 +70,7 @@ export function renderRoute(rid: RouteId, root: HTMLElement): void {
           /* ICONTROL_LOADER_IMPORT_GUARD_V1 */
           console.warn("WARN_ROUTE_IMPORT_FAILED", {
             spec: "../../modules/core-system/ui/frontend-ts/pages/dossiers",
-            err: String(e)
+            err: String(e),
           });
         });
       return;
@@ -79,7 +82,7 @@ export function renderRoute(rid: RouteId, root: HTMLElement): void {
           /* ICONTROL_LOADER_IMPORT_GUARD_V1 */
           console.warn("WARN_ROUTE_IMPORT_FAILED", {
             spec: "../../modules/core-system/ui/frontend-ts/pages/developer",
-            err: String(e)
+            err: String(e),
           });
         });
       return;
@@ -91,27 +94,32 @@ export function renderRoute(rid: RouteId, root: HTMLElement): void {
           /* ICONTROL_LOADER_IMPORT_GUARD_V1 */
           console.warn("WARN_ROUTE_IMPORT_FAILED", {
             spec: "../../modules/core-system/ui/frontend-ts/pages/developer/entitlements",
-            err: String(e)
+            err: String(e),
           });
         });
       return;
     }
     if ((rid as any) === "access_denied") {
       import("../../modules/core-system/ui/frontend-ts/pages/access-denied")
-        .then((m) => m.renderAccessDeniedPage(root, { entitlement: getEntitlementFromHash() }))
+        .then((m) =>
+          m.renderAccessDeniedPage(root, {
+            entitlement: getEntitlementFromHash(),
+          }),
+        )
         .catch((e) => {
           /* ICONTROL_LOADER_IMPORT_GUARD_V1 */
-          console.warn("WARN_ROUTE_IMPORT_FAILED"
-  // Activation / licence
-  if (hash.startsWith("#/activation")) {
-    const m = await import("/modules/core-system/ui/frontend-ts/pages/activation/index");
-    return m.renderActivationPage(mount);
-  }
-, {
+          console.warn("WARN_ROUTE_IMPORT_FAILED", {
             spec: "../../modules/core-system/ui/frontend-ts/pages/access-denied",
-            err: String(e)
+            err: String(e),
           });
         });
+      return;
+    }
+    // Activation / licence
+    if (hash.startsWith("#/activation")) {
+      import("../../modules/core-system/ui/frontend-ts/pages/activation").then(
+        (m) => m.renderActivationPage(mount),
+      );
       return;
     }
     if ((rid as any) === "verification") {
@@ -121,7 +129,7 @@ export function renderRoute(rid: RouteId, root: HTMLElement): void {
           /* ICONTROL_LOADER_IMPORT_GUARD_V1 */
           console.warn("WARN_ROUTE_IMPORT_FAILED", {
             spec: "../../modules/core-system/ui/frontend-ts/pages/verification",
-            err: String(e)
+            err: String(e),
           });
         });
       return;
@@ -133,7 +141,7 @@ export function renderRoute(rid: RouteId, root: HTMLElement): void {
           /* ICONTROL_LOADER_IMPORT_GUARD_V1 */
           console.warn("WARN_ROUTE_IMPORT_FAILED", {
             spec: "../../modules/core-system/ui/frontend-ts/pages/system",
-            err: String(e)
+            err: String(e),
           });
         });
       return;
@@ -145,14 +153,15 @@ export function renderRoute(rid: RouteId, root: HTMLElement): void {
           /* ICONTROL_LOADER_IMPORT_GUARD_V1 */
           console.warn("WARN_ROUTE_IMPORT_FAILED", {
             spec: "../../modules/core-system/ui/frontend-ts/pages/logs",
-            err: String(e)
+            err: String(e),
           });
         });
       return;
     }
     if ((rid as any) === "toolbox") {
       if (!canAccessToolbox()) {
-        root.innerHTML = "<div style=\"padding:12px;opacity:0.9;\"><h2 style=\"margin:0 0 8px 0;\">Access denied</h2><div>Toolbox requires elevated role.</div></div>";
+        root.innerHTML =
+          '<div style="padding:12px;opacity:0.9;"><h2 style="margin:0 0 8px 0;">Access denied</h2><div>Toolbox requires elevated role.</div></div>';
         return;
       }
       import("../../modules/core-system/ui/frontend-ts/pages/toolbox")
@@ -161,7 +170,7 @@ export function renderRoute(rid: RouteId, root: HTMLElement): void {
           /* ICONTROL_LOADER_IMPORT_GUARD_V1 */
           console.warn("WARN_ROUTE_IMPORT_FAILED", {
             spec: "../../modules/core-system/ui/frontend-ts/pages/toolbox",
-            err: String(e)
+            err: String(e),
           });
         });
       return;
