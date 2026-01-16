@@ -1,33 +1,37 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# ICONTROL_LOCAL_WEB_GUARD_V1
-"20 20 12 61 79 80 81 701 33 98 100 204 250 395 398 399 400 702dirname "-e")/port-guard.sh"
-
-ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 cd "$ROOT"
 
 HOST="${ICONTROL_LOCAL_HOST:-127.0.0.1}"
 PORT="${ICONTROL_LOCAL_PORT:-4176}"
-DIST="./dist"
-
-npm run local:web:build
+PORT_FILE="${ICONTROL_LOCAL_PORT_FILE:-/tmp/icontrol-local-web.port}"
 
 export ICONTROL_LOCAL_HOST="$HOST"
 export ICONTROL_LOCAL_PORT="$PORT"
+export ICONTROL_LOCAL_PORT_FILE="${ICONTROL_LOCAL_PORT_FILE:-/tmp/icontrol-local-web.port}"
+echo "$ICONTROL_LOCAL_PORT" > "$ICONTROL_LOCAL_PORT_FILE"
 
-if [ "-e" != "2" ]; then
-npm run local:web:serve &
-SERVER_PID=$!
-else
-  SERVER_PID=""
+"$SCRIPT_DIR/port-guard.sh" || true
+if [ -f "$PORT_FILE" ]; then
+  PORT="$(cat "$PORT_FILE")"
+  export ICONTROL_LOCAL_PORT="$PORT"
 fi
 
-# ICONTROL_LOCAL_WEB_SMOKE_V1
-"20 20 12 61 79 80 81 701 33 98 100 204 250 395 398 399 400 702dirname "-e")/smoke-local-web.sh" || true
+echo "ICONTROL_LOCAL_WEB: HOST=${HOST} PORT=${PORT}"
 
-sleep 2
+npm run -s local:web:build
 
+SERVER_PID=""
+npm run -s local:web:serve &
+SERVER_PID=$!
+
+# smoke must use the SSOT port file
+"$SCRIPT_DIR/smoke-local-web.sh"
+
+# open both surfaces (best-effort)
 if command -v open >/dev/null 2>&1; then
   open "http://${HOST}:${PORT}/app/#/login" >/dev/null 2>&1 || true
   open "http://${HOST}:${PORT}/cp/#/login" >/dev/null 2>&1 || true
