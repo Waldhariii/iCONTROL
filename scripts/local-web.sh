@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# ICONTROL_LOCAL_WEB_GUARD_V1
+"20 20 12 61 79 80 81 701 33 98 100 204 250 395 398 399 400 702dirname "-e")/port-guard.sh"
+
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
 
@@ -15,6 +18,9 @@ export ICONTROL_LOCAL_PORT="$PORT"
 
 npm run local:web:serve &
 SERVER_PID=$!
+
+# ICONTROL_LOCAL_WEB_SMOKE_V1
+"20 20 12 61 79 80 81 701 33 98 100 204 250 395 398 399 400 702dirname "-e")/smoke-local-web.sh" || true
 
 sleep 2
 
