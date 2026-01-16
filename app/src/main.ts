@@ -94,7 +94,9 @@ __icontrol_guardAppVsCp();
       const w = window as any;
       if (!w.__ICONTROL_RUNTIME_CONFIG_SHIM_BOOT__) {
         w.__ICONTROL_RUNTIME_CONFIG_SHIM_BOOT__ = true;
-        registerRuntimeConfigEndpoint();
+        if ((import.meta as any)?.env?.VITE_RUNTIME_CONFIG_SHIM === "1") {
+          registerRuntimeConfigEndpoint();
+        }
       }
     } catch {
       // ignore
