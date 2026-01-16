@@ -1,7 +1,7 @@
 // @vitest-environment node
 import { describe, it, expect } from "vitest";
 import type { IncomingMessage, ServerResponse } from "node:http";
-import { handleRuntimeConfigRequest } from "../../../server/runtime-config-server";
+import { handleRuntimeConfigRequest } from "../../../server/runtime-config-server.ts";
 
 describe("runtime-config SSOT endpoint", () => {
   async function call(path: string, method = "GET") {
