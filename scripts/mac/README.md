@@ -18,7 +18,11 @@ Lancer **APP** et **Control Plane** en mode navigateur, **sans Terminal**, via u
 
 ## Logs
 
-- `/tmp/icontrol-local-web.log`
+- Dans la fenêtre Terminal ouverte par le `.command`
+
+## Script npm
+
+- `npm run local:web`
 
 ## Port
 
