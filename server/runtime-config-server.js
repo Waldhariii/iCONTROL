@@ -1,64 +1,93 @@
-#!/usr/bin/env node
-/* ICONTROL_LOCAL_WEB_SSOT_SERVER_JS_V1 */
-
+/* eslint-disable no-console */
 const http = require("node:http");
-const fs = require("node:fs");
 const path = require("node:path");
+const fs = require("node:fs");
 
-function arg(name, def) {
-  const idx = process.argv.indexOf(name);
-  if (idx >= 0 && process.argv[idx + 1]) return process.argv[idx + 1];
-  return def;
+const HOST = process.env.ICONTROL_LOCAL_HOST || "127.0.0.1";
+const PORT = Number(process.env.ICONTROL_LOCAL_PORT || "4176");
+
+const ROOT = path.resolve(__dirname, "..");
+const distRoot = path.resolve(ROOT, "dist");
+const appDist = path.resolve(distRoot, "app");
+const cpDist = path.resolve(distRoot, "cp");
+
+function send(res, code, headers, body) {
+  res.statusCode = code;
+  for (const [k, v] of Object.entries(headers || {})) res.setHeader(k, v);
+  res.end(body || "");
 }
 
-const HOST = arg("--host", process.env.HOST || "127.0.0.1");
-const PORT = Number(arg("--port", process.env.PORT || "4176"));
-const DIST = arg("--dist", process.env.DIST || "./dist");
-
-const appDist = path.resolve(DIST, "app");
-const cpDist = path.resolve(DIST, "cp");
-
-function send(res, status, headers, body) {
-  res.statusCode = status;
-  if (headers) {
-    for (const [k, v] of Object.entries(headers)) res.setHeader(k, v);
-  }
-  res.end(body);
-}
-
-function sendJson(res, status, obj) {
+function sendJson(res, code, obj) {
   send(
     res,
-    status,
-    { "Content-Type": "application/json", "Cache-Control": "no-store" },
+    code,
+    {
+      "content-type": "application/json; charset=utf-8",
+      "cache-control": "no-store",
+    },
     JSON.stringify(obj),
   );
 }
 
-function safeJoin(baseDir, reqPath) {
-  const clean = reqPath.replace(/^\/+/, "");
-  const p = path.normalize(clean).replace(/^(\.\.(\/|\\|$))+/, "");
-  return path.join(baseDir, p);
+function normalizePathname(p) {
+  if (!p) return "/";
+  p = p.replace(/\/+/g, "/");
+  if (p.length > 1 && p.endsWith("/")) p = p.slice(0, -1);
+  return p;
 }
 
-function serveStatic(res, baseDir, urlPath, mountBase) {
-  const rel = urlPath.slice(mountBase.length).replace(/^\/+/, "");
-  const candidate = rel || "index.html";
-  const filePath = safeJoin(baseDir, candidate);
-  const fallbackIndex = path.join(baseDir, "index.html");
+function serveRuntimeConfig(req, res, requestedBase) {
+  if ((req.method || "GET") !== "GET") {
+    res.statusCode = 405;
+    res.setHeader("cache-control", "no-store");
+    res.end("Method Not Allowed");
+    return;
+  }
+  sendJson(res, 200, {
+    app_base_path: "/app",
+    cp_base_path: "/cp",
+    requested_base: requestedBase,
+    env: "local",
+  });
+}
 
-  const chosen =
-    fs.existsSync(filePath) && fs.statSync(filePath).isFile()
-      ? filePath
-      : fallbackIndex;
+function serveStatic(req, res, distDir, basePrefix) {
+  const url = new URL(
+    req.url || "/",
+    `http://${req.headers.host || "127.0.0.1"}`,
+  );
+  const raw = normalizePathname(url.pathname);
 
-  if (!fs.existsSync(chosen)) {
-    send(res, 404, { "Content-Type": "text/plain" }, "Not found");
+  if (raw === basePrefix) {
+    res.statusCode = 302;
+    res.setHeader("location", `${basePrefix}/`);
+    res.end();
     return;
   }
 
-  const ext = path.extname(chosen).toLowerCase();
-  const ct =
+  let rel = raw.startsWith(basePrefix + "/")
+    ? raw.slice(basePrefix.length + 1)
+    : "";
+  if (!rel) rel = "index.html";
+
+  rel = rel.replace(/^\/+/, "");
+  const filePath = path.resolve(distDir, rel);
+  if (!filePath.startsWith(distDir)) return send(res, 400, {}, "Bad request");
+
+  if (!fs.existsSync(filePath) || fs.statSync(filePath).isDirectory()) {
+    // SPA fallback
+    const idx = path.resolve(distDir, "index.html");
+    if (fs.existsSync(idx)) {
+      res.setHeader("content-type", "text/html; charset=utf-8");
+      res.setHeader("cache-control", "no-store");
+      res.end(fs.readFileSync(idx));
+      return;
+    }
+    return send(res, 404, {}, "Not found");
+  }
+
+  const ext = path.extname(filePath).toLowerCase();
+  const ctype =
     ext === ".html"
       ? "text/html; charset=utf-8"
       : ext === ".js"
@@ -67,81 +96,61 @@ function serveStatic(res, baseDir, urlPath, mountBase) {
           ? "text/css; charset=utf-8"
           : ext === ".json"
             ? "application/json; charset=utf-8"
-            : ext === ".svg"
-              ? "image/svg+xml"
-              : ext === ".png"
-                ? "image/png"
-                : ext === ".ico"
-                  ? "image/x-icon"
-                  : "application/octet-stream";
+            : "application/octet-stream";
 
-  send(
-    res,
-    200,
-    { "Content-Type": ct, "Cache-Control": "no-store" },
-    fs.readFileSync(chosen),
-  );
-}
-
-function runtimeConfigPayload() {
-  return {
-    tenant_id: "local",
-    app_base_path: "/app",
-    cp_base_path: "/cp",
-    api_base_url: `http://${HOST}:${PORT}/api`,
-    assets_base_url: `http://${HOST}:${PORT}/assets`,
-    version: 1,
-  };
+  res.setHeader("content-type", ctype);
+  res.setHeader("cache-control", "no-store");
+  res.end(fs.readFileSync(filePath));
 }
 
 function handleRuntimeConfigRequest(req, res) {
   try {
-    const method = (req.method || "GET").toUpperCase();
-    const origin = `http://${req.headers.host || HOST}`;
-    const u = new URL(req.url || "/", origin);
-    const pathname = u.pathname;
+    const u = new URL(
+      req.url || "/",
+      `http://${req.headers.host || "127.0.0.1"}`,
+    );
+    const pathname = normalizePathname(u.pathname);
 
-    if (
-      pathname === "/app/api/runtime-config" ||
-      pathname === "/cp/api/runtime-config"
-    ) {
-      if (method !== "GET") {
-        res.setHeader("Allow", "GET");
-        return sendJson(res, 405, { code: "ERR_METHOD_NOT_ALLOWED" });
-      }
-      res.setHeader("X-ICONTROL-SSOT", "1");
-      return sendJson(res, 200, runtimeConfigPayload());
-    }
+    // 1) SSOT endpoints first
+    if (pathname === "/app/api/runtime-config")
+      return serveRuntimeConfig(req, res, "/app");
+    if (pathname === "/cp/api/runtime-config")
+      return serveRuntimeConfig(req, res, "/cp");
 
+    // 2) root redirect
     if (pathname === "/") {
       res.statusCode = 302;
-      res.setHeader("Location", "/app/");
+      res.setHeader("location", "/app/");
       res.end();
       return;
     }
 
-    if (pathname.startsWith("/app"))
-      return serveStatic(res, appDist, pathname, "/app");
-    if (pathname.startsWith("/cp"))
-      return serveStatic(res, cpDist, pathname, "/cp");
+    // 3) static surfaces
+    if (pathname === "/app" || pathname.startsWith("/app/"))
+      return serveStatic(req, res, appDist, "/app");
+    if (pathname === "/cp" || pathname.startsWith("/cp/"))
+      return serveStatic(req, res, cpDist, "/cp");
 
-    send(res, 404, { "Content-Type": "text/plain" }, "Not found");
+    return send(res, 404, {}, "Not found");
   } catch (err) {
-    sendJson(res, 500, { code: "ERR_LOCAL_WEB_SERVER", error: String(err) });
+    return sendJson(res, 500, {
+      code: "ERR_RUNTIME_CONFIG_SERVER",
+      error: String(err),
+    });
   }
 }
 
-const server = http.createServer((req, res) => {
-  handleRuntimeConfigRequest(req, res);
-});
+function createServer() {
+  return http.createServer((req, res) => handleRuntimeConfigRequest(req, res));
+}
 
 if (require.main === module) {
+  const server = createServer();
   server.listen(PORT, HOST, () => {
-    // eslint-disable-next-line no-console
     console.log(
       `ICONTROL_LOCAL_WEB_READY http://${HOST}:${PORT}/app/#/login | http://${HOST}:${PORT}/cp/#/login`,
     );
   });
 }
 
-module.exports = { handleRuntimeConfigRequest };
+module.exports = { handleRuntimeConfigRequest, createServer };
