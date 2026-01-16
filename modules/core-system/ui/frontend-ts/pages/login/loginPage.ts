@@ -1,9 +1,15 @@
+/* ICONTROL_LEGACY_LOGINPAGE_V1: not routed by moduleLoader/router; keep for reference only */
 import { coreBaseStyles } from "../../shared/coreStyles";
-import { authenticate, getSession } from "../../../../../../platform-services/security/auth/localAuth";
+import {
+  authenticate,
+  getSession,
+} from "../../../../../../platform-services/security/auth/localAuth";
 
 export function renderLoginPage(): string {
   const s = getSession();
-  const already = s ? `<div class="cxOk">Session active: <b>${s.username}</b> (${s.role})</div>` : "";
+  const already = s
+    ? `<div class="cxOk">Session active: <b>${s.username}</b> (${s.role})</div>`
+    : "";
   return `
     ${coreBaseStyles()}
     <div class="cxTopRight">
@@ -46,14 +52,18 @@ export function bindLoginEvents(host: { navigate: (r: string) => void }) {
 
   if (!u || !p || !b || !msg) return;
 
-  const setMsg = (html: string) => { msg.innerHTML = html; };
+  const setMsg = (html: string) => {
+    msg.innerHTML = html;
+  };
 
   const doLogin = () => {
     const user = (u.value || "").trim();
     const pass = (p.value || "").trim();
 
     if (!user || !pass) {
-      setMsg(`<div class="cxErr">Veuillez entrer un identifiant et un mot de passe.</div>`);
+      setMsg(
+        `<div class="cxErr">Veuillez entrer un identifiant et un mot de passe.</div>`,
+      );
       return;
     }
 
@@ -63,11 +73,17 @@ export function bindLoginEvents(host: { navigate: (r: string) => void }) {
       return;
     }
 
-    setMsg(`<div class="cxOk">Connecté: <b>${s.username}</b> (${s.role}). Redirection…</div>`);
+    setMsg(
+      `<div class="cxOk">Connecté: <b>${s.username}</b> (${s.role}). Redirection…</div>`,
+    );
     host.navigate("#/dashboard");
   };
 
   b.onclick = doLogin;
-  p.onkeydown = (e) => { if (e.key === "Enter") doLogin(); };
-  u.onkeydown = (e) => { if (e.key === "Enter") doLogin(); };
+  p.onkeydown = (e) => {
+    if (e.key === "Enter") doLogin();
+  };
+  u.onkeydown = (e) => {
+    if (e.key === "Enter") doLogin();
+  };
 }
