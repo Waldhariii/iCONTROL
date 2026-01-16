@@ -1,10 +1,13 @@
 import { defineConfig } from "vite";
 
+const enableRuntimeConfigDevMw = process.env.VITE_DEV_RUNTIME_CONFIG_MW === "1";
+
 /* ICONTROL_VITE_RUNTIME_CONFIG_DEV_V1 */
 function icontrolRuntimeConfigDevPlugin() {
   return {
     name: "icontrol-runtime-config-dev",
     configureServer(server) {
+      if (!enableRuntimeConfigDevMw) return;
       server.middlewares.use((req, res, next) => {
         try {
           const method = (req.method || "GET").toUpperCase();
@@ -70,7 +73,7 @@ function icontrolRuntimeConfigDevPlugin() {
 }
 
 export default defineConfig({
-  plugins: [icontrolRuntimeConfigDevPlugin()],
+  plugins: enableRuntimeConfigDevMw ? [icontrolRuntimeConfigDevPlugin()] : [],
   server: { port: 5176, strictPort: false },
   preview: { port: 5177, strictPort: false },
   test: {

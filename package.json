@@ -25,6 +25,15 @@
     "desktop:dev:app": "bash -lc 'cd app-desktop-client/src-tauri && cargo tauri dev'",
     "desktop:dev:cp": "bash -lc 'cd app-desktop-control/src-tauri && cargo tauri dev'",
     "desktop:dev:both": "bash -lc '(npm run desktop:dev:app & npm run desktop:dev:cp & wait)'",
-    "where:login": "node -e \"console.log('APP  : http://127.0.0.1:5176/app/#/login'); console.log('CP   : http://127.0.0.1:5177/cp/#/login');\""
+    "where:login": "node -e \"console.log('APP  : http://127.0.0.1:5176/app/#/login'); console.log('CP   : http://127.0.0.1:5177/cp/#/login');\"",
+    "build:app": "npm --prefix app run build -- --base /app/ --outDir dist/app",
+    "build:cp": "VITE_APP_KIND=CONTROL_PLANE npm --prefix app run build -- --base /cp/ --outDir dist/cp",
+    "build:ssot": "npm run build:app && npm run build:cp",
+    "server:build": "node server/build.mjs",
+    "server:dev": "node server/build.mjs --watch --run",
+    "server:prod": "node server/dist/runtime-config-server.mjs"
+  },
+  "devDependencies": {
+    "esbuild": "^0.21.5"
   }
 }
