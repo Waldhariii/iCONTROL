@@ -46,7 +46,7 @@ function setSessionCookie(scope: AuthScope): void {
     if (typeof document === "undefined") return;
     const key = getSessionKey(scope);
     const path = getCookiePath(scope);
-    document.cookie = `${key}=1; Path=${path}; SameSite=Lax`;
+    document.cookie = `${key}=1; Path=${path}; SameSite=Strict${window.location.protocol === "https:" ? "; Secure" : ""}`;
   } catch {}
 }
 
@@ -55,7 +55,7 @@ function clearSessionCookie(scope: AuthScope): void {
     if (typeof document === "undefined") return;
     const key = getSessionKey(scope);
     const path = getCookiePath(scope);
-    document.cookie = `${key}=; Path=${path}; Max-Age=0; SameSite=Lax`;
+    document.cookie = `${key}=; Path=${path}; Max-Age=0; SameSite=Strict${window.location.protocol === "https:" ? "; Secure" : ""}`;
   } catch {}
 }
 
