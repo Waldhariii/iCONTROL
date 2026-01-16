@@ -75,7 +75,12 @@ function serveStatic(res, baseDir, urlPath, mountBase) {
                   ? "image/x-icon"
                   : "application/octet-stream";
 
-  send(res, 200, { "Content-Type": ct, "Cache-Control": "no-store" }, fs.readFileSync(chosen));
+  send(
+    res,
+    200,
+    { "Content-Type": ct, "Cache-Control": "no-store" },
+    fs.readFileSync(chosen),
+  );
 }
 
 function runtimeConfigPayload() {
@@ -96,7 +101,10 @@ function handleRuntimeConfigRequest(req, res) {
     const u = new URL(req.url || "/", origin);
     const pathname = u.pathname;
 
-    if (pathname === "/app/api/runtime-config" || pathname === "/cp/api/runtime-config") {
+    if (
+      pathname === "/app/api/runtime-config" ||
+      pathname === "/cp/api/runtime-config"
+    ) {
       if (method !== "GET") {
         res.setHeader("Allow", "GET");
         return sendJson(res, 405, { code: "ERR_METHOD_NOT_ALLOWED" });
@@ -112,8 +120,10 @@ function handleRuntimeConfigRequest(req, res) {
       return;
     }
 
-    if (pathname.startsWith("/app")) return serveStatic(res, appDist, pathname, "/app");
-    if (pathname.startsWith("/cp")) return serveStatic(res, cpDist, pathname, "/cp");
+    if (pathname.startsWith("/app"))
+      return serveStatic(res, appDist, pathname, "/app");
+    if (pathname.startsWith("/cp"))
+      return serveStatic(res, cpDist, pathname, "/cp");
 
     send(res, 404, { "Content-Type": "text/plain" }, "Not found");
   } catch (err) {
