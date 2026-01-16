@@ -16,8 +16,12 @@ npm run local:web:build
 export ICONTROL_LOCAL_HOST="$HOST"
 export ICONTROL_LOCAL_PORT="$PORT"
 
+if [ "-e" != "2" ]; then
 npm run local:web:serve &
 SERVER_PID=$!
+else
+  SERVER_PID=""
+fi
 
 # ICONTROL_LOCAL_WEB_SMOKE_V1
 "20 20 12 61 79 80 81 701 33 98 100 204 250 395 398 399 400 702dirname "-e")/smoke-local-web.sh" || true
