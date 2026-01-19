@@ -1,9 +1,11 @@
 import { getRole } from "/src/runtime/rbac";
+import { safeRender } from "../_shared/mainSystem.shared";
 import { recordObs } from "../_shared/audit";
 import { OBS } from "../_shared/obsCodes";
 import { getSafeMode } from "../_shared/safeMode";
 import { renderAccessDenied } from "../_shared/renderAccessDenied";
 import { canAccess } from "./contract";
+
 import { coreBaseStyles } from "../../shared/coreStyles";
 import { createPageShell } from "/src/core/ui/pageShell";
 import { createSectionCard } from "/src/core/ui/sectionCard";
@@ -37,7 +39,11 @@ type LogsMode = "live" | "demo" | "error";
 
 let currentRoot: HTMLElement | null = null;
 
-export async function renderLogsPage(root: HTMLElement): Promise<void> {
+export function renderLogsPage(root: HTMLElement): void {
+  void renderLogsPageAsync(root);
+}
+
+async function renderLogsPageAsync(root: HTMLElement): Promise<void> {
   const role = getRole();
   const safeMode = getSafeMode();
 
@@ -50,239 +56,239 @@ export async function renderLogsPage(root: HTMLElement): Promise<void> {
   currentRoot = root;
 
   const renderLoading = () => {
-    root.innerHTML = coreBaseStyles();
-    const safeModeValue = mapSafeMode(safeMode);
-    const { shell, content } = createPageShell({
-      title: "Logs",
-      subtitle: "Observabilité CP — recherche, filtres, corrélation",
-      safeMode: safeModeValue,
-      statusBadge: { label: "CHARGEMENT", tone: "info" }
-    });
+    safeRender(root, () => {
+      root.innerHTML = coreBaseStyles();
+      const safeModeValue = mapSafeMode(safeMode);
+      const { shell, content } = createPageShell({
+        title: "Logs",
+        subtitle: "Observabilité CP — recherche, filtres, corrélation",
+        safeMode: safeModeValue,
+        statusBadge: { label: "CHARGEMENT", tone: "info" }
+      });
 
-    const { card: pilotCard, body: pilotBody } = createSectionCard({
-      title: "Pilotage",
-      description: "Synthèse rapide des erreurs"
-    });
-    pilotBody.appendChild(createSkeletonRow());
-    pilotBody.appendChild(createSkeletonRow());
-    pilotBody.appendChild(createSkeletonRow());
-    content.appendChild(pilotCard);
+      const { card: pilotCard, body: pilotBody } = createSectionCard({
+        title: "Pilotage",
+        description: "Synthèse rapide des erreurs"
+      });
+      pilotBody.appendChild(createSkeletonRow());
+      pilotBody.appendChild(createSkeletonRow());
+      pilotBody.appendChild(createSkeletonRow());
+      content.appendChild(pilotCard);
 
-    const { card: flowCard, body: flowBody } = createSectionCard({
-      title: "Flux",
-      description: "Logs système et corrélation"
-    });
-    flowBody.appendChild(createSkeletonBlock());
-    content.appendChild(flowCard);
+      const { card: flowCard, body: flowBody } = createSectionCard({
+        title: "Flux",
+        description: "Logs système et corrélation"
+      });
+      flowBody.appendChild(createSkeletonBlock());
+      content.appendChild(flowCard);
 
-    root.appendChild(shell);
+      root.appendChild(shell);
+    });
   };
 
   renderLoading();
 
   const { data, errors, mode } = await getLogsData();
-  renderData(root, data, errors, mode);
+  renderData(root, data, errors, mode, safeMode);
 }
 
 function renderData(
   root: HTMLElement,
   data: LogsData,
   errors: { data?: string },
-  mode: LogsMode
+  mode: LogsMode,
+  safeModeRaw: string
 ): void {
-  root.innerHTML = coreBaseStyles();
-  const safeModeValue = mapSafeMode(getSafeMode());
-  const statusBadge = mode === "live"
-    ? { label: "LIVE", tone: "ok" as const }
-    : mode === "demo"
-      ? { label: "DEMO", tone: "warn" as const }
-      : { label: "ERREUR", tone: "err" as const };
+  safeRender(root, () => {
+    root.innerHTML = coreBaseStyles();
+    const safeModeValue = mapSafeMode(safeModeRaw);
+    const statusBadge = mode === "live"
+      ? { label: "LIVE", tone: "ok" as const }
+      : mode === "demo"
+        ? { label: "DEMO", tone: "warn" as const }
+        : { label: "ERREUR", tone: "err" as const };
 
-  const { shell, content } = createPageShell({
-    title: "Logs",
-    subtitle: "Observabilité CP — recherche, filtres, corrélation",
-    safeMode: safeModeValue,
-    statusBadge
-  });
+    const { shell, content } = createPageShell({
+      title: "Logs",
+      subtitle: "Observabilité CP — recherche, filtres, corrélation",
+      safeMode: safeModeValue,
+      statusBadge
+    });
 
-  const { card: pilotCard, body: pilotBody } = createSectionCard({
-    title: "Pilotage",
-    description: "Synthèse rapide des erreurs"
-  });
-  if (errors.data) {
-    pilotBody.appendChild(createErrorState({ code: "ERR_LOGS_FETCH", message: errors.data }));
-  }
-  const errCount = data.rows.filter((row) => row.level === "ERR").length;
-  const warnCount = data.rows.filter((row) => row.level === "WARN").length;
-  pilotBody.appendChild(createKpiRow("ERR (approx 24h)", formatNumber(errCount), errCount > 0 ? "err" : "ok"));
-  pilotBody.appendChild(createKpiRow("WARN (approx 24h)", formatNumber(warnCount), warnCount > 0 ? "warn" : "ok"));
-  pilotBody.appendChild(createKpiRow("Dernière mise à jour", formatDateTime(data.lastUpdated)));
-  content.appendChild(pilotCard);
+    const { card: pilotCard, body: pilotBody } = createSectionCard({
+      title: "Pilotage",
+      description: "Synthèse rapide des erreurs"
+    });
 
-  const { card: flowCard, body: flowBody } = createSectionCard({
-    title: "Flux",
-    description: "Logs système et corrélation"
-  });
-
-  const tableState = {
-    search: "",
-    level: "",
-    source: ""
-  };
-
-  const { element: toolbar, searchInput } = createToolbar({
-    searchPlaceholder: "Rechercher message, module, code, correlationId...",
-    onSearch: (value) => {
-      tableState.search = value.toLowerCase().trim();
-      renderTable();
-    },
-    filters: [
-      {
-        label: "Niveau",
-        options: [
-          { label: "Tous", value: "" },
-          { label: "ERR", value: "ERR" },
-          { label: "WARN", value: "WARN" },
-          { label: "INFO", value: "INFO" },
-          { label: "DEBUG", value: "DEBUG" }
-        ],
-        onChange: (value) => {
-          tableState.level = value;
-          renderTable();
-        }
-      },
-      {
-        label: "Source",
-        options: [
-          { label: "Toutes", value: "" },
-          { label: "CP", value: "CP" },
-          { label: "API", value: "API" },
-          { label: "SYSTEM", value: "SYSTEM" },
-          { label: "AUDIT", value: "AUDIT" },
-          { label: "DEMO", value: "DEMO" }
-        ],
-        onChange: (value) => {
-          tableState.source = value;
-          renderTable();
-        }
-      }
-    ],
-    actions: [
-      {
-        label: "Rafraîchir",
-        primary: true,
-        onClick: () => refreshLogs()
-      },
-      {
-        label: "Exporter CSV",
-        onClick: () => exportCsv(getFilteredRows(data.rows, tableState))
-      }
-    ]
-  });
-
-  flowBody.appendChild(toolbar);
-
-  const tableContainer = document.createElement("div");
-  flowBody.appendChild(tableContainer);
-
-  const columns: TableColumn<LogRow>[] = [
-    {
-      key: "ts",
-      label: "Horodatage",
-      sortable: true,
-      render: (value) => {
-        const div = document.createElement("div");
-        div.style.cssText = "font-size: 11px; color: var(--ic-mutedText, #a7b0b7);";
-        const date = new Date(String(value));
-        div.textContent = `${date.toLocaleDateString("fr-CA")} ${date.toLocaleTimeString("fr-CA")}`;
-        return div;
-      }
-    },
-    {
-      key: "level",
-      label: "Niveau",
-      sortable: true,
-      render: (value) => {
-        const level = String(value);
-        const tone = level === "ERR" ? "err" : level === "WARN" ? "warn" : level === "INFO" ? "info" : "neutral";
-        return createBadge(level, tone);
-      }
-    },
-    {
-      key: "source",
-      label: "Source",
-      sortable: true,
-      render: (value) => createBadge(String(value), "neutral")
-    },
-    {
-      key: "message",
-      label: "Message",
-      sortable: false,
-      render: (value, row) => {
-        const div = document.createElement("div");
-        div.textContent = String(value);
-        div.style.cssText = `font-size: 12px; color: ${row.level === "ERR" ? "var(--ic-error, #f48771)" : "var(--ic-text, #e7ecef)"};`;
-        return div;
-      }
-    },
-    {
-      key: "correlationId",
-      label: "CorrelationId",
-      sortable: false,
-      render: (value) => {
-        const div = document.createElement("div");
-        div.textContent = value ? String(value) : "—";
-        div.style.cssText = "font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, \"Liberation Mono\", \"Courier New\", monospace; font-size: 11px; color: var(--ic-mutedText, #a7b0b7);";
-        return div;
-      }
+    if (errors.data) {
+      pilotBody.appendChild(createErrorState({ code: "ERR_LOGS_FETCH", message: errors.data }));
     }
-  ];
 
-  const renderTable = () => {
-    tableContainer.innerHTML = "";
-    const filtered = getFilteredRows(data.rows, tableState);
-    const table = createDataTable({
-      columns,
-      data: filtered,
-      searchable: false,
-      sortable: true,
-      pagination: true,
-      pageSize: 12,
-      actions: (row) => [
+    const errCount = data.rows.filter((row) => row.level === "ERR").length;
+    const warnCount = data.rows.filter((row) => row.level === "WARN").length;
+
+    pilotBody.appendChild(createKpiRow("ERR (approx 24h)", formatNumber(errCount), errCount > 0 ? "err" : "ok"));
+    pilotBody.appendChild(createKpiRow("WARN (approx 24h)", formatNumber(warnCount), warnCount > 0 ? "warn" : "ok"));
+    pilotBody.appendChild(createKpiRow("Dernière mise à jour", formatDateTime(data.lastUpdated)));
+
+    content.appendChild(pilotCard);
+
+    const { card: flowCard, body: flowBody } = createSectionCard({
+      title: "Flux",
+      description: "Logs système et corrélation"
+    });
+
+    const tableState = { search: "", level: "", source: "" };
+
+    const tableContainer = document.createElement("div");
+
+    const { element: toolbar, searchInput } = createToolbar({
+      searchPlaceholder: "Rechercher message, module, code, correlationId...",
+      onSearch: (value) => {
+        tableState.search = value.toLowerCase().trim();
+        renderTable();
+      },
+      filters: [
         {
-          label: "Copier CID",
-          onClick: () => copyToClipboard(row.correlationId || "")
+          label: "Niveau",
+          options: [
+            { label: "Tous", value: "" },
+            { label: "ERR", value: "ERR" },
+            { label: "WARN", value: "WARN" },
+            { label: "INFO", value: "INFO" },
+            { label: "DEBUG", value: "DEBUG" }
+          ],
+          onChange: (value) => {
+            tableState.level = value;
+            renderTable();
+          }
         },
         {
-          label: "Voir Dashboard",
-          onClick: () => { window.location.hash = "#/dashboard"; }
-        },
-        {
-          label: "Détails",
-          onClick: () => showToast({ status: "info", message: `Détails: ${row.message}` })
+          label: "Source",
+          options: [
+            { label: "Toutes", value: "" },
+            { label: "CP", value: "CP" },
+            { label: "API", value: "API" },
+            { label: "SYSTEM", value: "SYSTEM" },
+            { label: "AUDIT", value: "AUDIT" },
+            { label: "DEMO", value: "DEMO" }
+          ],
+          onChange: (value) => {
+            tableState.source = value;
+            renderTable();
+          }
         }
+      ],
+      actions: [
+        { label: "Rafraîchir", primary: true, onClick: () => refreshLogs() },
+        { label: "Exporter CSV", onClick: () => exportCsv(getFilteredRows(data.rows, tableState)) }
       ]
     });
-    tableContainer.appendChild(table);
 
-    if (filtered.length === 0) {
-      tableContainer.appendChild(createContextualEmptyState("logs", {
-        onAdd: () => refreshLogs(),
-        onClearFilter: () => {
-          tableState.search = "";
-          tableState.level = "";
-          tableState.source = "";
-          if (searchInput) searchInput.value = "";
-          renderTable();
+    flowBody.appendChild(toolbar);
+    flowBody.appendChild(tableContainer);
+
+    const columns: TableColumn<LogRow>[] = [
+      {
+        key: "ts",
+        label: "Horodatage",
+        sortable: true,
+        render: (value) => {
+          const div = document.createElement("div");
+          div.style.cssText = "font-size: 11px; color: var(--ic-mutedText, #a7b0b7);";
+          const date = new Date(String(value));
+          div.textContent = `${date.toLocaleDateString("fr-CA")} ${date.toLocaleTimeString("fr-CA")}`;
+          return div;
         }
-      }));
-    }
-  };
+      },
+      {
+        key: "level",
+        label: "Niveau",
+        sortable: true,
+        render: (value) => {
+          const level = String(value);
+          const tone = level === "ERR" ? "err" : level === "WARN" ? "warn" : level === "INFO" ? "info" : "neutral";
+          return createBadge(level, tone);
+        }
+      },
+      {
+        key: "source",
+        label: "Source",
+        sortable: true,
+        render: (value) => createBadge(String(value), "neutral")
+      },
+      {
+        key: "message",
+        label: "Message",
+        sortable: false,
+        render: (value, row) => {
+          const div = document.createElement("div");
+          div.textContent = String(value);
+          div.style.cssText = `font-size: 12px; color: ${row.level === "ERR" ? "var(--ic-error, #f48771)" : "var(--ic-text, #e7ecef)"};`;
+          return div;
+        }
+      },
+      {
+        key: "correlationId",
+        label: "CorrelationId",
+        sortable: false,
+        render: (value) => {
+          const div = document.createElement("div");
+          div.textContent = value ? String(value) : "—";
+          div.style.cssText = "font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, \"Liberation Mono\", \"Courier New\", monospace; font-size: 11px; color: var(--ic-mutedText, #a7b0b7);";
+          return div;
+        }
+      }
+    ];
 
-  renderTable();
+    const renderTable = () => {
+      tableContainer.innerHTML = "";
+      const filtered = getFilteredRows(data.rows, tableState);
 
-  content.appendChild(flowCard);
-  root.appendChild(shell);
+      const table = createDataTable({
+        columns,
+        data: filtered,
+        searchable: false,
+        sortable: true,
+        pagination: true,
+        pageSize: 12,
+        actions: (row) => [
+          {
+            label: row.correlationId ? "Copier CID" : "Copier CID (—)",
+            onClick: () => copyToClipboard(row.correlationId || "")
+          },
+          {
+            label: "Voir Dashboard",
+            onClick: () => { window.location.hash = "#/dashboard"; }
+          },
+          {
+            label: "Détails",
+            onClick: () => showToast({ status: "info", message: `Détails: ${row.message}` })
+          }
+        ]
+      });
+
+      tableContainer.appendChild(table);
+
+      if (filtered.length === 0) {
+        tableContainer.appendChild(createContextualEmptyState("logs", {
+          onAdd: () => refreshLogs(),
+          onClearFilter: () => {
+            tableState.search = "";
+            tableState.level = "";
+            tableState.source = "";
+            if (searchInput) searchInput.value = "";
+            renderTable();
+          }
+        }));
+      }
+    };
+
+    renderTable();
+
+    content.appendChild(flowCard);
+    root.appendChild(shell);
+  });
 }
 
 function mapSafeMode(value: string): "OFF" | "COMPAT" | "STRICT" {
@@ -328,9 +334,7 @@ function createSkeletonBlock(): HTMLElement {
 async function fetchJsonSafe<T = any>(url: string): Promise<{ ok: boolean; status: number; data?: T; error?: string }> {
   try {
     const res = await fetch(url, { headers: { "accept": "application/json" } });
-    if (!res.ok) {
-      return { ok: false, status: res.status, error: `HTTP ${res.status}` };
-    }
+    if (!res.ok) return { ok: false, status: res.status, error: `HTTP ${res.status}` };
     const data = await res.json();
     return { ok: true, status: res.status, data };
   } catch (error) {
@@ -344,29 +348,15 @@ async function getLogsData(): Promise<{ data: LogsData; errors: { data?: string 
 
   const logsRes = await fetchJsonSafe<any>("/api/cp/logs?limit=200");
   if (logsRes.ok && logsRes.data) {
-    const rows = normalizeRows(logsRes.data, "LOG");
-    return {
-      data: {
-        rows: rows.length > 0 ? rows : demo.rows,
-        lastUpdated: new Date().toISOString()
-      },
-      errors,
-      mode: "live"
-    };
+    const rows = normalizeRows(logsRes.data, "CP");
+    return { data: { rows: rows.length ? rows : demo.rows, lastUpdated: new Date().toISOString() }, errors, mode: "live" };
   }
 
   const auditRes = await fetchJsonSafe<any>("/api/cp/audit?limit=200");
   if (auditRes.ok && auditRes.data) {
     const rows = normalizeRows(auditRes.data, "AUDIT");
     errors.data = logsRes.error || "Logs indisponibles — fallback audit";
-    return {
-      data: {
-        rows: rows.length > 0 ? rows : demo.rows,
-        lastUpdated: new Date().toISOString()
-      },
-      errors,
-      mode: "demo"
-    };
+    return { data: { rows: rows.length ? rows : demo.rows, lastUpdated: new Date().toISOString() }, errors, mode: "demo" };
   }
 
   errors.data = logsRes.error || auditRes.error || "Impossible de charger les logs";
@@ -378,7 +368,7 @@ function normalizeRows(raw: any, fallbackSource: LogSource): LogRow[] {
   return rowsArray.map((item: any) => ({
     ts: String(item.ts || item.time || item.timestamp || new Date().toISOString()),
     level: mapLevel(item.level || item.severity || item.type),
-    source: mapSource(item.source || item.origin || fallbackSource),
+    source: mapSource(item.source || item.origin, fallbackSource),
     message: String(item.message || item.label || item.code || "Log"),
     correlationId: item.correlationId || item.correlation_id,
     code: item.code,
@@ -394,13 +384,14 @@ function mapLevel(value: any): LogLevel {
   return "INFO";
 }
 
-function mapSource(value: any): LogSource {
+function mapSource(value: any, fallback: LogSource): LogSource {
   const v = String(value || "").toUpperCase();
   if (v === "API") return "API";
   if (v === "SYSTEM") return "SYSTEM";
   if (v === "AUDIT") return "AUDIT";
   if (v === "CP") return "CP";
-  return "DEMO";
+  if (v === "DEMO") return "DEMO";
+  return fallback;
 }
 
 function buildDemoLogsData(): LogsData {
@@ -421,10 +412,10 @@ function buildDemoLogsData(): LogsData {
 }
 
 function getFilteredRows(rows: LogRow[], state: { search: string; level: string; source: string }): LogRow[] {
+  const q = state.search;
   return rows.filter((row) => {
     const matchLevel = !state.level || row.level === state.level;
     const matchSource = !state.source || row.source === state.source;
-    const q = state.search;
     const matchSearch = !q ||
       row.message.toLowerCase().includes(q) ||
       (row.module || "").toLowerCase().includes(q) ||
@@ -463,5 +454,5 @@ async function copyToClipboard(text: string): Promise<void> {
 
 function refreshLogs(): void {
   const target = currentRoot || getMountEl();
-  void renderLogsPage(target);
+  if (target) void renderLogsPageAsync(target);
 }
