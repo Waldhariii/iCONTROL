@@ -75,3 +75,6 @@ app/src/policies/*.BAK_*
 app-desktop-*/dist/
 app-desktop-*/src-tauri/target/
 app-desktop-*/src-tauri/gen/
+
+# Governance pack artifacts (generated)
+_gov_pack_final/
