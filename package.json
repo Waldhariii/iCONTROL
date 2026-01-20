@@ -42,7 +42,7 @@
     "proofs:developer:entitlements": "node scripts/check-developer-entitlements-route.js",
     "proofs:verification": "node scripts/check-verification-route.js",
     "proofs:dashboard": "node scripts/check-dashboard-route.js",
-    "proofs:all": "npm run -s proofs:logs && npm run -s proofs:system && npm run -s proofs:api && npm run -s proofs:network && npm run -s proofs:account && npm run -s proofs:developer && npm run -s proofs:developer:entitlements && npm run -s proofs:verification && npm run -s proofs:dashboard && npm run -s check:created-at && npm run -s prove:plugins && npm run -s check:paid-killswitch && npm run -s proofs:placeholders:normalize && npm run -s check:runtime-config-contract && npm run -s check:safe-mode && npm run -s check:governance-score && npm run -s check:safe-mode-enforcement && npm run -s check:governance-layer && npm run -s check:system-configuration && npm run -s check:governance-state",
+    "proofs:all": "npm run -s proofs:logs && npm run -s proofs:system && npm run -s proofs:api && npm run -s proofs:network && npm run -s proofs:account && npm run -s proofs:developer && npm run -s proofs:developer:entitlements && npm run -s proofs:verification && npm run -s proofs:dashboard && npm run -s check:created-at && npm run -s prove:plugins && npm run -s check:paid-killswitch && npm run -s proofs:placeholders:normalize && npm run -s check:runtime-config-contract && npm run -s check:safe-mode && npm run -s check:governance-score && npm run -s check:safe-mode-enforcement && npm run -s check:governance-layer && npm run -s check:system-configuration && npm run -s check:governance-state && npm run -s check:governance-activation-gate",
     "proofs:runtime:config": "node scripts/check-runtime-config.js",
     "check:created-at": "node scripts/check-created-at-governance.js",
     "prove:plugins": "bash scripts/prove-plugins-governance.sh",
@@ -57,7 +57,8 @@
     "check:system-configuration": "node scripts/governance/check-system-configuration.cjs",
     "gov:activate": "node scripts/governance/activate.cjs",
     "gov:deactivate": "node scripts/governance/deactivate.cjs",
-    "check:governance-state": "node scripts/governance/check-governance-state.cjs"
+    "check:governance-state": "node scripts/governance/check-governance-state.cjs",
+    "check:governance-activation-gate": "node scripts/governance/check-governance-activation-gate.cjs"
   },
   "devDependencies": {
     "esbuild": "^0.21.5",
