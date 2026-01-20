@@ -1,3 +1,18 @@
+/**
+ * PLACEHOLDER GOVERNANCE
+ * @placeholder
+ * code: WARN_PLACEHOLDER_NOT_IMPLEMENTED
+ * owner: core-platform
+ * expiry: TBD
+ * risk: LOW
+ * file: docs/contracts/runtime.md
+ * created_at: 2026-01-20T01:13:27.385Z
+ *
+ * Rationale:
+ * - Stub de compilation pour unblock bundling/tests.
+ * - À remplacer par une implémentation réelle avant prod.
+ */
+
 # Runtime Contract (iCONTROL) — ICONTROL_RUNTIME_CONTRACT_V1
 
 ## Pipeline canonique (non négociable)

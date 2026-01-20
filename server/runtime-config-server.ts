@@ -151,7 +151,7 @@ export function handleRuntimeConfigRequest(
       serveRuntimeConfig(req, res);
       return;
     }
-    if (pathname === "/cp/api/runtime-config") {
+    if (pathname === "/cp/api/runtime-config" || pathname === "/api/runtime/config") {
       serveRuntimeConfig(req, res);
       return;
     }

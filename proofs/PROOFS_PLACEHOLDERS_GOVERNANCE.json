@@ -1,0 +1,16 @@
+{
+  "kind": "ICONTROL_PLACEHOLDERS_GOVERNANCE_PROOF_V1",
+  "rule": "Any file containing placeholders must carry SSOT header: @placeholder owner:<..> expiry:<..> risk:<..> tag:WARN_PLACEHOLDER_NOT_IMPLEMENTED",
+  "roots": [
+    "app/src",
+    "modules",
+    "server",
+    "scripts"
+  ],
+  "total_files_scanned": 397,
+  "total_files_with_placeholder": null,
+  "total_placeholder_hits": 66,
+  "missing_header_count": 0,
+  "missing": [],
+  "note": "WARN_ONLY by design: produces proof for backlog governance without blocking CI."
+}

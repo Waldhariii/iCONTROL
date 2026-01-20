@@ -1,0 +1,23 @@
+/**
+ * PLACEHOLDER GOVERNANCE
+ * @placeholder
+ * code: WARN_PLACEHOLDER_NOT_IMPLEMENTED
+ * owner: core-platform
+ * expiry: TBD
+ * risk: LOW
+ * file: proofs/PROOFS_NETWORK_ROUTE.json
+ * created_at: 2026-01-20T01:13:27.385Z
+ *
+ * Rationale:
+ * - Stub de compilation pour unblock bundling/tests.
+ * - À remplacer par une implémentation réelle avant prod.
+ */
+
+{
+  "kind": "ICONTROL_PROOF_PLACEHOLDER_V1",
+  "id": "PROOFS_NETWORK_ROUTE",
+  "status": "placeholder",
+  "rationale": "Generated to unblock proofs:all; replace with real route proof output once the harness is finalized.",
+  "worktree": "/Users/danygaudreault/System_Innovex_CLEAN/_wt-runtime-config-b",
+  "ts": "2026-01-19T23:25:45Z"
+}

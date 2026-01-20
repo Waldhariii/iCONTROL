@@ -1,0 +1,6 @@
+{
+  "kind": "ICONTROL_ROUTE_CHECK_WARNINGS_PROOF_V1",
+  "ts": "2026-01-20T01:11:00Z",
+  "patched_files_count": 8,
+  "note": "Route-check scripts may still be placeholders. Wording normalized to WARN_ONLY for observability without breaking CI."
+}
