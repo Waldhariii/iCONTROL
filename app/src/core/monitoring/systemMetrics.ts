@@ -1,5 +1,10 @@
-// build-unblock stub (auto-generated)
-export const __STUB__ = true;
+type MetricValue = number;
 
-// AUTO-STUB export for build unblock
-export function systemMetrics(..._args: any[]): any { return undefined; }
+function record(name: string, value: MetricValue) {
+  // MVI instrumentation — no side effects
+  console.debug("[metric]", name, value);
+}
+
+export const systemMetrics = {
+  record,
+};
