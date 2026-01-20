@@ -1,57 +1,46 @@
-import { nsKey } from "../runtime/storageNs";
-import { isSafeMode } from "../runtime/safeMode";
-
-export type AuditLevel = "INFO" | "WARN" | "ERR";
-
-export type AuditEvent = {
-  ts: string;               // ISO
-  level: AuditLevel;
-  code: string;             // WARN_* / ERR_*
-  scope?: string;           // ex: "entitlements"
-  message?: string;
-  meta?: Record<string, any>;
+type AuditEvent = {
+  ts: string;
+  actor: string;
+  action: string;
+  target?: string;
 };
 
-const BASE_KEY = "auditLog.v1";
-const MAX = 500;
+const buffer: AuditEvent[] = [];
 
-function nowIso() {
-  return new Date().toISOString();
+function _append(event: Omit<AuditEvent,"ts">) {
+  const e: AuditEvent = {
+    ts: new Date().toISOString(),
+    ...event,
+  };
+
+  buffer.push(e);
+
+  // MVI: console-only, no persistence
+  console.info("[AUDIT]", e.action, e.target || "");
 }
 
-function key(): string {
-  return nsKey(BASE_KEY);
+/**
+ * Primary audit primitive (internal use)
+ */
+export function audit(event: Omit<AuditEvent,"ts">) {
+  _append(event);
 }
 
-export function readAuditLog(): AuditEvent[] {
-  try {
-    const raw = localStorage.getItem(key());
-    if (!raw) return [];
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
-  } catch {
-    return [];
-  }
+/**
+ * Compatibility alias (used by entitlements / governance)
+ * Explicit naming for compliance readability
+ */
+export function appendAuditEvent(
+  actor: string,
+  action: string,
+  target?: string
+) {
+  _append({ actor, action, target });
 }
 
-export function writeAuditLog(events: AuditEvent[]) {
-  if (isSafeMode()) return; // governance: read-only
-  const trimmed = events.slice(-MAX);
-  localStorage.setItem(key(), JSON.stringify(trimmed));
-}
-
-export function appendAuditEvent(ev: Omit<AuditEvent, "ts"> & { ts?: string }) {
-  if (isSafeMode()) return; // governance: read-only
-  const events = readAuditLog();
-  events.push({ ts: ev.ts ?? nowIso(), ...ev });
-  writeAuditLog(events);
-}
-
-export function exportAuditLogJson(): string {
-  return JSON.stringify(readAuditLog(), null, 2);
-}
-
-export function clearAuditLog() {
-  if (isSafeMode()) return; // governance: read-only
-  localStorage.removeItem(key());
+/**
+ * Read-only snapshot (debug / tests only)
+ */
+export function getAuditSnapshot() {
+  return [...buffer];
 }
