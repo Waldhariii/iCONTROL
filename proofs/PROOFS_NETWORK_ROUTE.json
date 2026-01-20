@@ -1,0 +1,13 @@
+{
+  "page": "network",
+  "hash": "#/network",
+  "network_file": "./app/src/pages/cp/network.ts",
+  "module_loader_file": "./app/src/moduleLoader.ts",
+  "cp_shell_file": "./app/src/core/ui/commandPalette.ts",
+  "anchors": {
+    "network_version": "ICONTROL_CP_NETWORK_V2",
+    "network_export": "export function renderNetworkPage(",
+    "dispatch_rid": "if ((rid as any) === \"network\")",
+    "cp_nav_hash": "hash: \"#/network\""
+  }
+}

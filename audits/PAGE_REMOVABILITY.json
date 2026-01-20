@@ -1,0 +1,985 @@
+[
+  {
+    "file": "app/src/pages/cp/account.ts",
+    "referenced_by_non_test": [],
+    "removable_candidate": true
+  },
+  {
+    "file": "app/src/pages/cp/login.ts",
+    "referenced_by_non_test": [],
+    "removable_candidate": true
+  },
+  {
+    "file": "app/src/pages/cp/management.ts",
+    "referenced_by_non_test": [],
+    "removable_candidate": true
+  },
+  {
+    "file": "app/src/pages/cp/network.ts",
+    "referenced_by_non_test": [],
+    "removable_candidate": true
+  },
+  {
+    "file": "app/src/pages/cp/settings.ts",
+    "referenced_by_non_test": [],
+    "removable_candidate": true
+  },
+  {
+    "file": "app/src/pages/cp/featureFlags.ts",
+    "referenced_by_non_test": [],
+    "removable_candidate": true
+  },
+  {
+    "file": "app/src/pages/cp/api.ts",
+    "referenced_by_non_test": [],
+    "removable_candidate": true
+  },
+  {
+    "file": "app/src/pages/cp/dashboard.ts",
+    "referenced_by_non_test": [],
+    "removable_candidate": true
+  },
+  {
+    "file": "app/src/pages/cp/twoFactor.ts",
+    "referenced_by_non_test": [],
+    "removable_candidate": true
+  },
+  {
+    "file": "app/src/pages/cp/organization.ts",
+    "referenced_by_non_test": [],
+    "removable_candidate": true
+  },
+  {
+    "file": "app/src/pages/cp/users.ts",
+    "referenced_by_non_test": [],
+    "removable_candidate": true
+  },
+  {
+    "file": "app/src/pages/cp/subscription.ts",
+    "referenced_by_non_test": [],
+    "removable_candidate": true
+  },
+  {
+    "file": "app/src/pages/cp/backup.ts",
+    "referenced_by_non_test": [],
+    "removable_candidate": true
+  },
+  {
+    "file": "app/src/pages/cp/system.ts",
+    "referenced_by_non_test": [],
+    "removable_candidate": true
+  },
+  {
+    "file": "app/src/pages/cp/sessions.ts",
+    "referenced_by_non_test": [],
+    "removable_candidate": true
+  },
+  {
+    "file": "app/src/pages/cp/models/account.ts",
+    "referenced_by_non_test": [
+      "app/src/pages/cp/views/account.ts"
+    ],
+    "removable_candidate": false
+  },
+  {
+    "file": "app/src/pages/cp/models/users.ts",
+    "referenced_by_non_test": [
+      "app/src/pages/cp/users.ts",
+      "app/src/pages/cp/views/users.ts"
+    ],
+    "removable_candidate": false
+  },
+  {
+    "file": "app/src/pages/cp/models/system.ts",
+    "referenced_by_non_test": [
+      "app/src/pages/cp/views/system.ts"
+    ],
+    "removable_candidate": false
+  },
+  {
+    "file": "app/src/pages/cp/views/account.ts",
+    "referenced_by_non_test": [],
+    "removable_candidate": true
+  },
+  {
+    "file": "app/src/pages/cp/views/users.ts",
+    "referenced_by_non_test": [
+      "app/src/pages/cp/users.ts"
+    ],
+    "removable_candidate": false
+  },
+  {
+    "file": "app/src/pages/cp/views/system.ts",
+    "referenced_by_non_test": [],
+    "removable_candidate": true
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/login.ts",
+    "referenced_by_non_test": [],
+    "removable_candidate": true
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/dashboard.ts",
+    "referenced_by_non_test": [],
+    "removable_candidate": true
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/toolbox.ts",
+    "referenced_by_non_test": [],
+    "removable_candidate": true
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/settings/index.test.ts",
+    "referenced_by_non_test": [],
+    "removable_candidate": true
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/settings/subscriptionHub.ts",
+    "referenced_by_non_test": [],
+    "removable_candidate": true
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/settings/branding.test.ts",
+    "referenced_by_non_test": [],
+    "removable_candidate": true
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/settings/index.ts",
+    "referenced_by_non_test": [],
+    "removable_candidate": true
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/settings/branding.ts",
+    "referenced_by_non_test": [],
+    "removable_candidate": true
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/developer/index.tsx",
+    "referenced_by_non_test": [
+      "app/src/pages/cp/management.ts"
+    ],
+    "removable_candidate": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/developer/contract.ts",
+    "referenced_by_non_test": [
+      "modules/core-system/ui/frontend-ts/pages/developer/entitlements.tsx",
+      "modules/core-system/ui/frontend-ts/pages/developer/index.tsx"
+    ],
+    "removable_candidate": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/developer/index.test.ts",
+    "referenced_by_non_test": [],
+    "removable_candidate": true
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/developer/entitlements.tsx",
+    "referenced_by_non_test": [],
+    "removable_candidate": true
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/developer/view.ts",
+    "referenced_by_non_test": [],
+    "removable_candidate": true
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/developer/model.ts",
+    "referenced_by_non_test": [
+      "modules/core-system/ui/frontend-ts/pages/developer/view.ts"
+    ],
+    "removable_candidate": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/activation/index.tsx",
+    "referenced_by_non_test": [],
+    "removable_candidate": true
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/dashboard/index.test.ts",
+    "referenced_by_non_test": [],
+    "removable_candidate": true
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/verification/contract.ts",
+    "referenced_by_non_test": [
+      "modules/core-system/ui/frontend-ts/pages/verification/index.ts"
+    ],
+    "removable_candidate": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/verification/index.test.ts",
+    "referenced_by_non_test": [],
+    "removable_candidate": true
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/verification/view.ts",
+    "referenced_by_non_test": [],
+    "removable_candidate": true
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/verification/model.ts",
+    "referenced_by_non_test": [
+      "modules/core-system/ui/frontend-ts/pages/verification/view.ts"
+    ],
+    "removable_candidate": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/verification/index.ts",
+    "referenced_by_non_test": [],
+    "removable_candidate": true
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/system/contract.ts",
+    "referenced_by_non_test": [
+      "app/src/pages/cp/system.ts",
+      "modules/core-system/ui/frontend-ts/pages/system/index.ts"
+    ],
+    "removable_candidate": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/system/index.test.ts",
+    "referenced_by_non_test": [],
+    "removable_candidate": true
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/system/model.ts",
+    "referenced_by_non_test": [
+      "modules/core-system/ui/frontend-ts/pages/system/index.ts",
+      "modules/core-system/ui/frontend-ts/pages/system/sections/flags-actions.ts",
+      "modules/core-system/ui/frontend-ts/pages/system/sections/flags.ts",
+      "modules/core-system/ui/frontend-ts/pages/system/sections/layout.ts",
+      "modules/core-system/ui/frontend-ts/pages/system/sections/safe-mode.ts"
+    ],
+    "removable_candidate": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/system/index.ts",
+    "referenced_by_non_test": [],
+    "removable_candidate": true
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/logs/contract.ts",
+    "referenced_by_non_test": [
+      "modules/core-system/ui/frontend-ts/pages/logs/index.ts"
+    ],
+    "removable_candidate": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/logs/index.test.ts",
+    "referenced_by_non_test": [],
+    "removable_candidate": true
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/logs/index.ts",
+    "referenced_by_non_test": [],
+    "removable_candidate": true
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/access-denied/index.tsx",
+    "referenced_by_non_test": [],
+    "removable_candidate": true
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/toolbox/contracts.ts",
+    "referenced_by_non_test": [
+      "modules/core-system/ui/frontend-ts/pages/toolbox.ts",
+      "modules/core-system/ui/frontend-ts/pages/toolbox/sections/api-tools.ts",
+      "modules/core-system/ui/frontend-ts/pages/toolbox/sections/diagnostics.ts",
+      "modules/core-system/ui/frontend-ts/pages/toolbox/sections/index.ts",
+      "modules/core-system/ui/frontend-ts/pages/toolbox/sections/logs.ts",
+      "modules/core-system/ui/frontend-ts/pages/toolbox/sections/pipeline.ts",
+      "modules/core-system/ui/frontend-ts/pages/toolbox/sections/policy.ts",
+      "modules/core-system/ui/frontend-ts/pages/toolbox/sections/tokens.ts",
+      "modules/core-system/ui/frontend-ts/pages/toolbox/sections/webhooks.ts"
+    ],
+    "removable_candidate": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/toolbox/ui.ts",
+    "referenced_by_non_test": [
+      "modules/core-system/ui/frontend-ts/pages/toolbox/sections/api-tools.ts",
+      "modules/core-system/ui/frontend-ts/pages/toolbox/sections/diagnostics.ts",
+      "modules/core-system/ui/frontend-ts/pages/toolbox/sections/logs.ts",
+      "modules/core-system/ui/frontend-ts/pages/toolbox/sections/pipeline.ts",
+      "modules/core-system/ui/frontend-ts/pages/toolbox/sections/policy.ts",
+      "modules/core-system/ui/frontend-ts/pages/toolbox/sections/tokens.ts",
+      "modules/core-system/ui/frontend-ts/pages/toolbox/sections/webhooks.ts"
+    ],
+    "removable_candidate": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/users/contract.ts",
+    "referenced_by_non_test": [
+      "app/src/pages/cp/users.ts",
+      "modules/core-system/ui/frontend-ts/pages/users/index.ts"
+    ],
+    "removable_candidate": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/users/index.test.ts",
+    "referenced_by_non_test": [],
+    "removable_candidate": true
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/users/view.ts",
+    "referenced_by_non_test": [],
+    "removable_candidate": true
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/users/model.ts",
+    "referenced_by_non_test": [
+      "modules/core-system/ui/frontend-ts/pages/users/index.ts",
+      "modules/core-system/ui/frontend-ts/pages/users/view.ts"
+    ],
+    "removable_candidate": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/users/index.ts",
+    "referenced_by_non_test": [],
+    "removable_candidate": true
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/dossiers/contract.ts",
+    "referenced_by_non_test": [
+      "modules/core-system/ui/frontend-ts/pages/dossiers/index.ts",
+      "modules/core-system/ui/frontend-ts/pages/dossiers/model.ts",
+      "modules/core-system/ui/frontend-ts/pages/dossiers/sections/actions.ts",
+      "modules/core-system/ui/frontend-ts/pages/dossiers/sections/bulk.ts",
+      "modules/core-system/ui/frontend-ts/pages/dossiers/sections/create.ts",
+      "modules/core-system/ui/frontend-ts/pages/dossiers/sections/list.ts"
+    ],
+    "removable_candidate": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/dossiers/index.test.ts",
+    "referenced_by_non_test": [],
+    "removable_candidate": true
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/dossiers/model.ts",
+    "referenced_by_non_test": [
+      "modules/core-system/ui/frontend-ts/pages/dossiers/sections/actions.ts",
+      "modules/core-system/ui/frontend-ts/pages/dossiers/sections/bulk.ts",
+      "modules/core-system/ui/frontend-ts/pages/dossiers/sections/create.ts",
+      "modules/core-system/ui/frontend-ts/pages/dossiers/sections/detail.ts",
+      "modules/core-system/ui/frontend-ts/pages/dossiers/sections/history.ts",
+      "modules/core-system/ui/frontend-ts/pages/dossiers/sections/list.ts",
+      "modules/core-system/ui/frontend-ts/pages/dossiers/sections/storage.ts"
+    ],
+    "removable_candidate": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/dossiers/index.ts",
+    "referenced_by_non_test": [],
+    "removable_candidate": true
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/_shared/uiBlocks.test.ts",
+    "referenced_by_non_test": [],
+    "removable_candidate": true
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/_shared/localAuth.ts",
+    "referenced_by_non_test": [
+      "modules/core-system/ui/frontend-ts/pages/_shared/recommendations.ctx.ts"
+    ],
+    "removable_candidate": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/_shared/recommendations.test.ts",
+    "referenced_by_non_test": [],
+    "removable_candidate": true
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/_shared/safe-mode-write.test.ts",
+    "referenced_by_non_test": [],
+    "removable_candidate": true
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/_shared/renderAccessDenied.ts",
+    "referenced_by_non_test": [
+      "app/src/pages/cp/account.ts",
+      "app/src/pages/cp/api.ts",
+      "app/src/pages/cp/network.ts",
+      "app/src/pages/cp/system.ts",
+      "modules/core-system/ui/frontend-ts/pages/developer/entitlements.tsx",
+      "modules/core-system/ui/frontend-ts/pages/developer/index.tsx",
+      "modules/core-system/ui/frontend-ts/pages/dossiers/index.ts",
+      "modules/core-system/ui/frontend-ts/pages/logs/index.ts",
+      "modules/core-system/ui/frontend-ts/pages/settings/index.ts",
+      "modules/core-system/ui/frontend-ts/pages/system/index.ts",
+      "modules/core-system/ui/frontend-ts/pages/verification/index.ts"
+    ],
+    "removable_candidate": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/_shared/recommendations.ctx.test.ts",
+    "referenced_by_non_test": [],
+    "removable_candidate": true
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/_shared/toolboxCard.ts",
+    "referenced_by_non_test": [
+      "modules/core-system/ui/frontend-ts/pages/developer/sections/audit-log.ts",
+      "modules/core-system/ui/frontend-ts/pages/developer/sections/contracts-form.ts",
+      "modules/core-system/ui/frontend-ts/pages/developer/sections/contracts-table.ts",
+      "modules/core-system/ui/frontend-ts/pages/developer/sections/datasources-viewer.ts",
+      "modules/core-system/ui/frontend-ts/pages/developer/sections/registry-viewer.ts",
+      "modules/core-system/ui/frontend-ts/pages/developer/sections/rules-viewer.ts"
+    ],
+    "removable_candidate": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/_shared/regression-wall.test.ts",
+    "referenced_by_non_test": [],
+    "removable_candidate": true
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/_shared/themeCssVars.ts",
+    "referenced_by_non_test": [],
+    "removable_candidate": true
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/_shared/storage.ts",
+    "referenced_by_non_test": [
+      "modules/core-system/ui/frontend-ts/pages/_shared/recommendations.ctx.ts"
+    ],
+    "removable_candidate": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/_shared/mainSystem.shared.ts",
+    "referenced_by_non_test": [
+      "app/src/pages/cp/account.ts",
+      "app/src/pages/cp/api.ts",
+      "app/src/pages/cp/dashboard.ts",
+      "app/src/pages/cp/network.ts",
+      "app/src/pages/cp/system.ts",
+      "app/src/pages/cp/users.ts",
+      "modules/core-system/ui/frontend-ts/pages/account/index.ts",
+      "modules/core-system/ui/frontend-ts/pages/dashboard.ts",
+      "modules/core-system/ui/frontend-ts/pages/developer/entitlements.tsx",
+      "modules/core-system/ui/frontend-ts/pages/developer/index.tsx",
+      "modules/core-system/ui/frontend-ts/pages/dossiers/index.ts",
+      "modules/core-system/ui/frontend-ts/pages/logs/index.ts",
+      "modules/core-system/ui/frontend-ts/pages/settings/branding.ts",
+      "modules/core-system/ui/frontend-ts/pages/settings/index.ts",
+      "modules/core-system/ui/frontend-ts/pages/settings/subscriptionHub.ts",
+      "modules/core-system/ui/frontend-ts/pages/system/index.ts",
+      "modules/core-system/ui/frontend-ts/pages/toolbox.ts",
+      "modules/core-system/ui/frontend-ts/pages/users/index.ts",
+      "modules/core-system/ui/frontend-ts/pages/verification/index.ts"
+    ],
+    "removable_candidate": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/_shared/entitlements.ts",
+    "referenced_by_non_test": [
+      "modules/core-system/ui/frontend-ts/pages/account/index.ts",
+      "modules/core-system/ui/frontend-ts/pages/dashboard.ts",
+      "modules/core-system/ui/frontend-ts/pages/settings/subscriptionHub.ts",
+      "modules/core-system/ui/frontend-ts/pages/users/index.ts"
+    ],
+    "removable_candidate": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/_shared/recommendations.contract.test.ts",
+    "referenced_by_non_test": [],
+    "removable_candidate": true
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/_shared/recommendations.ts",
+    "referenced_by_non_test": [
+      "modules/core-system/ui/frontend-ts/pages/dossiers/sections/detail.ts",
+      "modules/core-system/ui/frontend-ts/pages/dossiers/sections/list.ts",
+      "modules/core-system/ui/frontend-ts/pages/dossiers/sections/rules.ts",
+      "modules/core-system/ui/frontend-ts/pages/settings/index.ts"
+    ],
+    "removable_candidate": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/_shared/mainSystem.ui.ts",
+    "referenced_by_non_test": [],
+    "removable_candidate": true
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/_shared/role-policy.test.ts",
+    "referenced_by_non_test": [],
+    "removable_candidate": true
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/_shared/mainSystem.data.ts",
+    "referenced_by_non_test": [
+      "modules/core-system/ui/frontend-ts/pages/_shared/renderAccessDenied.ts",
+      "modules/core-system/ui/frontend-ts/pages/_shared/themeCssVars.ts",
+      "modules/core-system/ui/frontend-ts/pages/account/model.ts",
+      "modules/core-system/ui/frontend-ts/pages/dashboard.ts",
+      "modules/core-system/ui/frontend-ts/pages/developer/sections/contracts-form.ts",
+      "modules/core-system/ui/frontend-ts/pages/developer/sections/contracts-table.ts",
+      "modules/core-system/ui/frontend-ts/pages/developer/sections/datasources-viewer.ts",
+      "modules/core-system/ui/frontend-ts/pages/developer/sections/registry-viewer.ts",
+      "modules/core-system/ui/frontend-ts/pages/developer/sections/rules-viewer.ts",
+      "modules/core-system/ui/frontend-ts/pages/dossiers/sections/create.ts",
+      "modules/core-system/ui/frontend-ts/pages/dossiers/sections/list.ts",
+      "modules/core-system/ui/frontend-ts/pages/settings/branding.ts",
+      "modules/core-system/ui/frontend-ts/pages/system/model.ts",
+      "modules/core-system/ui/frontend-ts/pages/users/model.ts",
+      "modules/core-system/ui/frontend-ts/pages/verification/model.ts"
+    ],
+    "removable_candidate": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/_shared/uiBlocks.ts",
+    "referenced_by_non_test": [
+      "app/src/pages/cp/views/account.ts",
+      "app/src/pages/cp/views/system.ts",
+      "app/src/pages/cp/views/users.ts",
+      "modules/core-system/ui/frontend-ts/pages/account/view.ts",
+      "modules/core-system/ui/frontend-ts/pages/dashboard.ts",
+      "modules/core-system/ui/frontend-ts/pages/developer/sections/audit-log.ts",
+      "modules/core-system/ui/frontend-ts/pages/developer/sections/contracts-form.ts",
+      "modules/core-system/ui/frontend-ts/pages/developer/sections/contracts-table.ts",
+      "modules/core-system/ui/frontend-ts/pages/developer/sections/datasources-viewer.ts",
+      "modules/core-system/ui/frontend-ts/pages/developer/sections/registry-viewer.ts",
+      "modules/core-system/ui/frontend-ts/pages/developer/sections/rules-viewer.ts",
+      "modules/core-system/ui/frontend-ts/pages/developer/view.ts",
+      "modules/core-system/ui/frontend-ts/pages/dossiers/sections/actions.ts",
+      "modules/core-system/ui/frontend-ts/pages/dossiers/sections/bulk.ts",
+      "modules/core-system/ui/frontend-ts/pages/dossiers/sections/create.ts",
+      "modules/core-system/ui/frontend-ts/pages/dossiers/sections/detail.ts",
+      "modules/core-system/ui/frontend-ts/pages/dossiers/sections/filters.ts",
+      "modules/core-system/ui/frontend-ts/pages/dossiers/sections/history.ts",
+      "modules/core-system/ui/frontend-ts/pages/dossiers/sections/list.ts",
+      "modules/core-system/ui/frontend-ts/pages/dossiers/sections/rules.ts",
+      "modules/core-system/ui/frontend-ts/pages/dossiers/sections/safe-mode.ts",
+      "modules/core-system/ui/frontend-ts/pages/dossiers/sections/storage.ts",
+      "modules/core-system/ui/frontend-ts/pages/logs/sections/audit-log.ts",
+      "modules/core-system/ui/frontend-ts/pages/logs/sections/export.ts",
+      "modules/core-system/ui/frontend-ts/pages/logs/sections/filters.ts",
+      "modules/core-system/ui/frontend-ts/pages/logs/sections/local-audit.ts",
+      "modules/core-system/ui/frontend-ts/pages/logs/sections/retention.ts",
+      "modules/core-system/ui/frontend-ts/pages/system/sections/flags-actions.ts",
+      "modules/core-system/ui/frontend-ts/pages/system/sections/flags.ts",
+      "modules/core-system/ui/frontend-ts/pages/system/sections/layout.ts",
+      "modules/core-system/ui/frontend-ts/pages/system/sections/safe-mode-actions.ts",
+      "modules/core-system/ui/frontend-ts/pages/system/sections/safe-mode.ts",
+      "modules/core-system/ui/frontend-ts/pages/users/view.ts",
+      "modules/core-system/ui/frontend-ts/pages/verification/view.ts"
+    ],
+    "removable_candidate": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/_shared/safeMode.ts",
+    "referenced_by_non_test": [
+      "app/src/pages/cp/account.ts",
+      "app/src/pages/cp/api.ts",
+      "app/src/pages/cp/backup.ts",
+      "app/src/pages/cp/dashboard.ts",
+      "app/src/pages/cp/management.ts",
+      "app/src/pages/cp/network.ts",
+      "app/src/pages/cp/organization.ts",
+      "app/src/pages/cp/sessions.ts",
+      "app/src/pages/cp/subscription.ts",
+      "app/src/pages/cp/system.ts",
+      "app/src/pages/cp/twoFactor.ts",
+      "app/src/pages/cp/users.ts",
+      "app/src/pages/cp/views/system.ts",
+      "app/src/pages/cp/views/users.ts",
+      "modules/core-system/ui/frontend-ts/pages/_shared/recommendations.ctx.ts",
+      "modules/core-system/ui/frontend-ts/pages/account/contract.ts",
+      "modules/core-system/ui/frontend-ts/pages/account/index.ts",
+      "modules/core-system/ui/frontend-ts/pages/developer/contract.ts",
+      "modules/core-system/ui/frontend-ts/pages/developer/entitlements.tsx",
+      "modules/core-system/ui/frontend-ts/pages/developer/index.tsx",
+      "modules/core-system/ui/frontend-ts/pages/dossiers/contract.ts",
+      "modules/core-system/ui/frontend-ts/pages/dossiers/index.ts",
+      "modules/core-system/ui/frontend-ts/pages/dossiers/model.ts",
+      "modules/core-system/ui/frontend-ts/pages/dossiers/sections/actions.ts",
+      "modules/core-system/ui/frontend-ts/pages/dossiers/sections/bulk.ts",
+      "modules/core-system/ui/frontend-ts/pages/dossiers/sections/create.ts",
+      "modules/core-system/ui/frontend-ts/pages/dossiers/sections/safe-mode.ts",
+      "modules/core-system/ui/frontend-ts/pages/logs/contract.ts",
+      "modules/core-system/ui/frontend-ts/pages/logs/index.ts",
+      "modules/core-system/ui/frontend-ts/pages/logs/sections/export.ts",
+      "modules/core-system/ui/frontend-ts/pages/logs/sections/retention.ts",
+      "modules/core-system/ui/frontend-ts/pages/settings/subscriptionHub.ts",
+      "modules/core-system/ui/frontend-ts/pages/system/contract.ts",
+      "modules/core-system/ui/frontend-ts/pages/system/index.ts",
+      "modules/core-system/ui/frontend-ts/pages/system/model.ts",
+      "modules/core-system/ui/frontend-ts/pages/system/sections/flags-actions.ts",
+      "modules/core-system/ui/frontend-ts/pages/system/sections/safe-mode-actions.ts",
+      "modules/core-system/ui/frontend-ts/pages/system/sections/safe-mode.ts",
+      "modules/core-system/ui/frontend-ts/pages/toolbox.ts",
+      "modules/core-system/ui/frontend-ts/pages/users/contract.ts",
+      "modules/core-system/ui/frontend-ts/pages/users/index.ts",
+      "modules/core-system/ui/frontend-ts/pages/verification/contract.ts",
+      "modules/core-system/ui/frontend-ts/pages/verification/index.ts",
+      "modules/core-system/ui/frontend-ts/pages/verification/model.ts"
+    ],
+    "removable_candidate": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/_shared/recommendations.ctx.ts",
+    "referenced_by_non_test": [
+      "modules/core-system/ui/frontend-ts/pages/dossiers/sections/detail.ts",
+      "modules/core-system/ui/frontend-ts/pages/dossiers/sections/list.ts",
+      "modules/core-system/ui/frontend-ts/pages/dossiers/sections/rules.ts",
+      "modules/core-system/ui/frontend-ts/pages/settings/index.ts"
+    ],
+    "removable_candidate": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/_shared/sections.ts",
+    "referenced_by_non_test": [
+      "modules/core-system/ui/frontend-ts/pages/account/index.ts",
+      "modules/core-system/ui/frontend-ts/pages/dashboard.ts",
+      "modules/core-system/ui/frontend-ts/pages/dossiers/index.ts",
+      "modules/core-system/ui/frontend-ts/pages/settings/index.ts",
+      "modules/core-system/ui/frontend-ts/pages/system/index.ts",
+      "modules/core-system/ui/frontend-ts/pages/toolbox.ts",
+      "modules/core-system/ui/frontend-ts/pages/users/index.ts"
+    ],
+    "removable_candidate": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/_shared/rolePolicy.ts",
+    "referenced_by_non_test": [
+      "modules/core-system/ui/frontend-ts/pages/dossiers/model.ts",
+      "modules/core-system/ui/frontend-ts/pages/dossiers/sections/actions.ts",
+      "modules/core-system/ui/frontend-ts/pages/dossiers/sections/bulk.ts",
+      "modules/core-system/ui/frontend-ts/pages/dossiers/sections/create.ts",
+      "modules/core-system/ui/frontend-ts/pages/dossiers/sections/list.ts",
+      "modules/core-system/ui/frontend-ts/pages/settings/index.ts"
+    ],
+    "removable_candidate": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/_shared/audit.ts",
+    "referenced_by_non_test": [
+      "app/src/pages/cp/account.ts",
+      "app/src/pages/cp/api.ts",
+      "app/src/pages/cp/network.ts",
+      "app/src/pages/cp/system.ts",
+      "app/src/pages/cp/views/system.ts",
+      "modules/core-system/ui/frontend-ts/pages/_shared/recommendations.ts",
+      "modules/core-system/ui/frontend-ts/pages/_shared/renderAccessDenied.ts",
+      "modules/core-system/ui/frontend-ts/pages/_shared/sections.ts",
+      "modules/core-system/ui/frontend-ts/pages/_shared/uiBlocks.ts",
+      "modules/core-system/ui/frontend-ts/pages/developer/entitlements.tsx",
+      "modules/core-system/ui/frontend-ts/pages/developer/index.tsx",
+      "modules/core-system/ui/frontend-ts/pages/developer/sections/audit-log.ts",
+      "modules/core-system/ui/frontend-ts/pages/dossiers/model.ts",
+      "modules/core-system/ui/frontend-ts/pages/dossiers/sections/actions.ts",
+      "modules/core-system/ui/frontend-ts/pages/dossiers/sections/bulk.ts",
+      "modules/core-system/ui/frontend-ts/pages/dossiers/sections/list.ts",
+      "modules/core-system/ui/frontend-ts/pages/logs/index.ts",
+      "modules/core-system/ui/frontend-ts/pages/logs/sections/audit-log.ts",
+      "modules/core-system/ui/frontend-ts/pages/logs/sections/export.ts",
+      "modules/core-system/ui/frontend-ts/pages/logs/sections/retention.ts",
+      "modules/core-system/ui/frontend-ts/pages/system/index.ts",
+      "modules/core-system/ui/frontend-ts/pages/system/sections/cache-audit.ts",
+      "modules/core-system/ui/frontend-ts/pages/system/sections/flags-actions.ts",
+      "modules/core-system/ui/frontend-ts/pages/system/sections/safe-mode-actions.ts",
+      "modules/core-system/ui/frontend-ts/pages/verification/index.ts"
+    ],
+    "removable_candidate": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/_shared/obsCodes.ts",
+    "referenced_by_non_test": [
+      "app/src/pages/cp/account.ts",
+      "app/src/pages/cp/api.ts",
+      "app/src/pages/cp/network.ts",
+      "app/src/pages/cp/system.ts",
+      "app/src/pages/cp/views/system.ts",
+      "modules/core-system/ui/frontend-ts/pages/_shared/recommendations.ts",
+      "modules/core-system/ui/frontend-ts/pages/_shared/renderAccessDenied.ts",
+      "modules/core-system/ui/frontend-ts/pages/_shared/sections.ts",
+      "modules/core-system/ui/frontend-ts/pages/_shared/uiBlocks.ts",
+      "modules/core-system/ui/frontend-ts/pages/developer/entitlements.tsx",
+      "modules/core-system/ui/frontend-ts/pages/developer/index.tsx",
+      "modules/core-system/ui/frontend-ts/pages/dossiers/model.ts",
+      "modules/core-system/ui/frontend-ts/pages/dossiers/sections/actions.ts",
+      "modules/core-system/ui/frontend-ts/pages/dossiers/sections/bulk.ts",
+      "modules/core-system/ui/frontend-ts/pages/dossiers/sections/list.ts",
+      "modules/core-system/ui/frontend-ts/pages/logs/index.ts",
+      "modules/core-system/ui/frontend-ts/pages/logs/sections/retention.ts",
+      "modules/core-system/ui/frontend-ts/pages/system/index.ts",
+      "modules/core-system/ui/frontend-ts/pages/system/sections/cache-audit.ts",
+      "modules/core-system/ui/frontend-ts/pages/system/sections/flags-actions.ts",
+      "modules/core-system/ui/frontend-ts/pages/system/sections/safe-mode-actions.ts",
+      "modules/core-system/ui/frontend-ts/pages/verification/index.ts"
+    ],
+    "removable_candidate": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/account/contract.ts",
+    "referenced_by_non_test": [
+      "modules/core-system/ui/frontend-ts/pages/account/index.ts",
+      "modules/core-system/ui/frontend-ts/pages/settings/subscriptionHub.ts"
+    ],
+    "removable_candidate": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/account/index.test.ts",
+    "referenced_by_non_test": [],
+    "removable_candidate": true
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/account/view.ts",
+    "referenced_by_non_test": [],
+    "removable_candidate": true
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/account/model.ts",
+    "referenced_by_non_test": [
+      "modules/core-system/ui/frontend-ts/pages/account/index.ts",
+      "modules/core-system/ui/frontend-ts/pages/account/view.ts"
+    ],
+    "removable_candidate": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/account/index.ts",
+    "referenced_by_non_test": [],
+    "removable_candidate": true
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/blocked/index.test.ts",
+    "referenced_by_non_test": [],
+    "removable_candidate": true
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/blocked/index.ts",
+    "referenced_by_non_test": [],
+    "removable_candidate": true
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/dossiers/sections/history.ts",
+    "referenced_by_non_test": [
+      "modules/core-system/ui/frontend-ts/pages/dossiers/index.ts"
+    ],
+    "removable_candidate": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/dossiers/sections/filters.ts",
+    "referenced_by_non_test": [
+      "modules/core-system/ui/frontend-ts/pages/dossiers/index.ts",
+      "modules/core-system/ui/frontend-ts/pages/dossiers/sections/list.ts"
+    ],
+    "removable_candidate": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/dossiers/sections/safe-mode.ts",
+    "referenced_by_non_test": [
+      "modules/core-system/ui/frontend-ts/pages/dossiers/index.ts"
+    ],
+    "removable_candidate": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/dossiers/sections/storage.ts",
+    "referenced_by_non_test": [
+      "modules/core-system/ui/frontend-ts/pages/dossiers/index.ts"
+    ],
+    "removable_candidate": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/dossiers/sections/detail.ts",
+    "referenced_by_non_test": [
+      "modules/core-system/ui/frontend-ts/pages/dossiers/index.ts"
+    ],
+    "removable_candidate": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/dossiers/sections/rules.ts",
+    "referenced_by_non_test": [
+      "modules/core-system/ui/frontend-ts/pages/dossiers/index.ts"
+    ],
+    "removable_candidate": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/dossiers/sections/actions.ts",
+    "referenced_by_non_test": [
+      "modules/core-system/ui/frontend-ts/pages/dossiers/index.ts"
+    ],
+    "removable_candidate": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/dossiers/sections/bulk.ts",
+    "referenced_by_non_test": [
+      "modules/core-system/ui/frontend-ts/pages/dossiers/index.ts"
+    ],
+    "removable_candidate": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/dossiers/sections/create.ts",
+    "referenced_by_non_test": [
+      "modules/core-system/ui/frontend-ts/pages/dossiers/index.ts"
+    ],
+    "removable_candidate": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/dossiers/sections/list.ts",
+    "referenced_by_non_test": [
+      "modules/core-system/ui/frontend-ts/pages/dossiers/index.ts",
+      "modules/core-system/ui/frontend-ts/pages/dossiers/sections/actions.ts",
+      "modules/core-system/ui/frontend-ts/pages/dossiers/sections/bulk.ts"
+    ],
+    "removable_candidate": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/toolbox/sections/webhooks.ts",
+    "referenced_by_non_test": [
+      "modules/core-system/ui/frontend-ts/pages/toolbox/sections/index.ts"
+    ],
+    "removable_candidate": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/toolbox/sections/api-tools.ts",
+    "referenced_by_non_test": [
+      "modules/core-system/ui/frontend-ts/pages/toolbox/sections/index.ts"
+    ],
+    "removable_candidate": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/toolbox/sections/pipeline.ts",
+    "referenced_by_non_test": [
+      "modules/core-system/ui/frontend-ts/pages/toolbox/sections/index.ts"
+    ],
+    "removable_candidate": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/toolbox/sections/logs.ts",
+    "referenced_by_non_test": [
+      "modules/core-system/ui/frontend-ts/pages/toolbox/sections/index.ts"
+    ],
+    "removable_candidate": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/toolbox/sections/tokens.ts",
+    "referenced_by_non_test": [
+      "modules/core-system/ui/frontend-ts/pages/toolbox/sections/index.ts"
+    ],
+    "removable_candidate": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/toolbox/sections/policy.ts",
+    "referenced_by_non_test": [],
+    "removable_candidate": true
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/toolbox/sections/diagnostics.ts",
+    "referenced_by_non_test": [
+      "modules/core-system/ui/frontend-ts/pages/toolbox/sections/index.ts"
+    ],
+    "removable_candidate": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/toolbox/sections/index.ts",
+    "referenced_by_non_test": [],
+    "removable_candidate": true
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/logs/sections/filters.ts",
+    "referenced_by_non_test": [
+      "modules/core-system/ui/frontend-ts/pages/logs/sections/audit-log.ts"
+    ],
+    "removable_candidate": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/logs/sections/local-audit.ts",
+    "referenced_by_non_test": [],
+    "removable_candidate": true
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/logs/sections/retention.ts",
+    "referenced_by_non_test": [],
+    "removable_candidate": true
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/logs/sections/export.ts",
+    "referenced_by_non_test": [],
+    "removable_candidate": true
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/logs/sections/audit-log.ts",
+    "referenced_by_non_test": [],
+    "removable_candidate": true
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/system/sections/safe-mode.ts",
+    "referenced_by_non_test": [
+      "modules/core-system/ui/frontend-ts/pages/system/index.ts"
+    ],
+    "removable_candidate": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/system/sections/cache-audit.ts",
+    "referenced_by_non_test": [
+      "modules/core-system/ui/frontend-ts/pages/system/index.ts"
+    ],
+    "removable_candidate": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/system/sections/cache-audit.ui.test.ts",
+    "referenced_by_non_test": [],
+    "removable_candidate": true
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/system/sections/safe-mode-actions.ts",
+    "referenced_by_non_test": [
+      "modules/core-system/ui/frontend-ts/pages/system/index.ts"
+    ],
+    "removable_candidate": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/system/sections/layout.ts",
+    "referenced_by_non_test": [
+      "modules/core-system/ui/frontend-ts/pages/system/index.ts"
+    ],
+    "removable_candidate": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/system/sections/flags.ts",
+    "referenced_by_non_test": [
+      "modules/core-system/ui/frontend-ts/pages/system/index.ts"
+    ],
+    "removable_candidate": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/system/sections/flags-actions.ts",
+    "referenced_by_non_test": [
+      "modules/core-system/ui/frontend-ts/pages/system/index.ts"
+    ],
+    "removable_candidate": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/developer/sections/contracts-table.ts",
+    "referenced_by_non_test": [],
+    "removable_candidate": true
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/developer/sections/registry-viewer.ts",
+    "referenced_by_non_test": [],
+    "removable_candidate": true
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/developer/sections/contracts-form.ts",
+    "referenced_by_non_test": [],
+    "removable_candidate": true
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/developer/sections/audit-log.ts",
+    "referenced_by_non_test": [],
+    "removable_candidate": true
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/developer/sections/rules-viewer.ts",
+    "referenced_by_non_test": [],
+    "removable_candidate": true
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/developer/sections/datasources-viewer.ts",
+    "referenced_by_non_test": [],
+    "removable_candidate": true
+  }
+]

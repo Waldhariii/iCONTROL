@@ -1,6 +1,6 @@
-import { getSafeMode } from "../_shared/safeMode";
+import { getSafeMode } from "/src/core/runtime/safe";
 import { listFlags, setFlag, FLAG_DEFS } from "../../shared/featureFlags";
-import { MAIN_SYSTEM_LAYOUT } from "../_shared/mainSystem.data";
+import { MAIN_SYSTEM_LAYOUT } from "../../shared/mainSystem.data";
 
 export type SystemFlagVM = {
   id: string;

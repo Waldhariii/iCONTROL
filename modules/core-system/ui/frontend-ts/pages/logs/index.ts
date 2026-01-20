@@ -1,9 +1,8 @@
 import { getRole } from "/src/runtime/rbac";
-import { safeRender } from "../_shared/mainSystem.shared";
-import { recordObs } from "../_shared/audit";
-import { OBS } from "../_shared/obsCodes";
-import { getSafeMode } from "../_shared/safeMode";
-import { renderAccessDenied } from "../_shared/renderAccessDenied";
+import { renderAccessDenied } from "/src/core/runtime/accessDenied";
+import { OBS } from "/src/core/runtime/obs";
+import { recordObs } from "/src/core/runtime/audit";
+import { safeRender, fetchJsonSafe, mapSafeMode, getSafeMode } from "/src/core/runtime/safe";
 import { canAccess } from "./contract";
 
 import { coreBaseStyles } from "../../shared/coreStyles";
@@ -16,6 +15,7 @@ import { createContextualEmptyState } from "/src/core/ui/emptyState";
 import { createDataTable, type TableColumn } from "/src/core/ui/dataTable";
 import { showToast } from "/src/core/ui/toast";
 import { getMountEl } from "/src/router";
+import { navigate } from "/src/runtime/navigate";
 
 type LogLevel = "ERR" | "WARN" | "INFO" | "DEBUG";
 type LogSource = "CP" | "API" | "SYSTEM" | "AUDIT" | "DEMO";
@@ -259,7 +259,7 @@ function renderData(
           },
           {
             label: "Voir Dashboard",
-            onClick: () => { window.location.hash = "#/dashboard"; }
+            onClick: () => { navigate("#/dashboard"); }
           },
           {
             label: "Détails",
@@ -289,12 +289,6 @@ function renderData(
     content.appendChild(flowCard);
     root.appendChild(shell);
   });
-}
-
-function mapSafeMode(value: string): "OFF" | "COMPAT" | "STRICT" {
-  if (value === "STRICT") return "STRICT";
-  if (value === "COMPAT") return "COMPAT";
-  return "OFF";
 }
 
 function formatNumber(value: number): string {
@@ -329,17 +323,6 @@ function createSkeletonBlock(): HTMLElement {
   const block = document.createElement("div");
   block.style.cssText = "height: 140px; background: rgba(255,255,255,0.04); border-radius: 10px;";
   return block;
-}
-
-async function fetchJsonSafe<T = any>(url: string): Promise<{ ok: boolean; status: number; data?: T; error?: string }> {
-  try {
-    const res = await fetch(url, { headers: { "accept": "application/json" } });
-    if (!res.ok) return { ok: false, status: res.status, error: `HTTP ${res.status}` };
-    const data = await res.json();
-    return { ok: true, status: res.status, data };
-  } catch (error) {
-    return { ok: false, status: 0, error: String(error) };
-  }
 }
 
 async function getLogsData(): Promise<{ data: LogsData; errors: { data?: string }; mode: LogsMode }> {

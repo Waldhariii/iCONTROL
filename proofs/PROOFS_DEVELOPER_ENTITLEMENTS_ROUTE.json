@@ -1,0 +1,13 @@
+{
+  "page": "developer_entitlements",
+  "hash": "#/developer/entitlements",
+  "entitlements_file": "./modules/core-system/ui/frontend-ts/pages/developer/entitlements.tsx",
+  "module_loader_file": "./app/src/moduleLoader.ts",
+  "nav_file": "./app/src/core/ui/commandPalette.ts",
+  "anchors": {
+    "entitlements_version": "ICONTROL_CP_DEVELOPER_ENTITLEMENTS_V2",
+    "entitlements_export": "export function renderDeveloperEntitlementsPage(",
+    "dispatch_rid": "rid as any) === \"developer_entitlements\"",
+    "nav_hash": "hash: \"#/developer/entitlements\""
+  }
+}

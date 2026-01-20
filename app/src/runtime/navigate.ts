@@ -7,3 +7,7 @@ export function navigate(hashRoute: string): void {
   const h = hashRoute.startsWith("#") ? hashRoute : `#${hashRoute.startsWith("/") ? "" : "/"}${hashRoute}`;
   globalThis.location.hash = h;
 }
+
+export function getCurrentHash(): string {
+  return globalThis.location.hash || "";
+}

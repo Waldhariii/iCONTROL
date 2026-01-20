@@ -1,0 +1,101 @@
+{
+  "generatedAt": "2026-01-19T16:54:17.279Z",
+  "source": {
+    "moduleLoader": "app/src/moduleLoader.ts",
+    "cpShell": "app/src/core/layout/cpToolboxShell.ts",
+    "commandPalette": "app/src/core/ui/commandPalette.ts"
+  },
+  "note": "cpToolboxShell has no nav entries; commandPalette provides hash actions for api/network/logs/subscription/system.",
+  "pages": [
+    {
+      "id": "users",
+      "label": "Utilisateurs",
+      "hash": "#/users",
+      "rid": "users",
+      "filePathGuess": "app/src/pages/cp/users.ts",
+      "dispatchSnippetLine": "app/src/moduleLoader.ts:64",
+      "navSnippetLine": "app/src/core/ui/commandPalette.ts:297",
+      "status_migrated_v2": "OUI"
+    },
+    {
+      "id": "account",
+      "label": "Account",
+      "hash": "#/account",
+      "rid": "account",
+      "filePathGuess": "app/src/pages/cp/account.ts",
+      "dispatchSnippetLine": "app/src/moduleLoader.ts:77",
+      "navSnippetLine": null,
+      "status_migrated_v2": "OUI"
+    },
+    {
+      "id": "developer",
+      "label": "Developer",
+      "hash": "#/developer",
+      "rid": "developer",
+      "filePathGuess": "modules/core-system/ui/frontend-ts/pages/developer/index.tsx",
+      "dispatchSnippetLine": "app/src/moduleLoader.ts:109",
+      "navSnippetLine": null,
+      "status_migrated_v2": "OUI"
+    },
+    {
+      "id": "developer_entitlements",
+      "label": "Developer Entitlements",
+      "hash": "#/developer/entitlements",
+      "rid": "developer_entitlements",
+      "filePathGuess": "modules/core-system/ui/frontend-ts/pages/developer/entitlements",
+      "dispatchSnippetLine": "app/src/moduleLoader.ts:127",
+      "navSnippetLine": null,
+      "status_migrated_v2": "OUI"
+    },
+    {
+      "id": "verification",
+      "label": "Verification",
+      "hash": "#/verification",
+      "rid": "verification",
+      "filePathGuess": "modules/core-system/ui/frontend-ts/pages/verification/index.ts",
+      "dispatchSnippetLine": "app/src/moduleLoader.ts:169",
+      "navSnippetLine": null,
+      "status_migrated_v2": "OUI"
+    },
+    {
+      "id": "system",
+      "label": "Système",
+      "hash": "#/system",
+      "rid": "system",
+      "filePathGuess": "app/src/pages/cp/system.ts",
+      "dispatchSnippetLine": "app/src/moduleLoader.ts:187",
+      "navSnippetLine": "app/src/core/ui/commandPalette.ts:319",
+      "status_migrated_v2": "OUI"
+    },
+    {
+      "id": "logs",
+      "label": "Logs",
+      "hash": "#/logs",
+      "rid": "logs",
+      "filePathGuess": "modules/core-system/ui/frontend-ts/pages/logs/index.ts",
+      "dispatchSnippetLine": "app/src/moduleLoader.ts:196",
+      "navSnippetLine": "app/src/core/ui/commandPalette.ts:363",
+      "status_migrated_v2": "NON"
+    },
+    {
+      "id": "api",
+      "label": "API",
+      "hash": "#/api",
+      "rid": "api",
+      "filePathGuess": "app/src/pages/cp/api.ts",
+      "dispatchSnippetLine": "app/src/moduleLoader.ts:214",
+      "navSnippetLine": "app/src/core/ui/commandPalette.ts:341",
+      "status_migrated_v2": "OUI"
+    },
+    {
+      "id": "network",
+      "label": "Network",
+      "hash": "#/network",
+      "rid": "network",
+      "filePathGuess": "app/src/pages/cp/network.ts",
+      "dispatchSnippetLine": "app/src/moduleLoader.ts:224",
+      "navSnippetLine": "app/src/core/ui/commandPalette.ts:352",
+      "status_migrated_v2": "OUI"
+    }
+  ]
+}

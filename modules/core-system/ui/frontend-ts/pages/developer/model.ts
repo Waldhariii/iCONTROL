@@ -2,7 +2,7 @@ import {
   MAIN_SYSTEM_DATASOURCES,
   MAIN_SYSTEM_FORM_CONTRACT,
   MAIN_SYSTEM_TABLE_CONTRACT
-} from "../_shared/mainSystem.data";
+} from "../../shared/mainSystem.data";
 
 export type DeveloperModel = {
   title: string;

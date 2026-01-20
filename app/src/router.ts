@@ -2,31 +2,76 @@ import { getSession, isLoggedIn, logout } from "./localAuth";
 import { canAccessSettings } from "./runtime/rbac";
 import { navigate as coreNavigate } from "./runtime/navigate";
 import { applyVersionPolicyBootGuards } from "./policies/version_policy.runtime";
+import { getAppKind } from "./pages/appContext";
 /**
  * router.ts — minimal hash router with RBAC guard
  * Public:  #/login
  * Private: #/dashboard (and everything else by default)
  */
-export type RouteId = "login" | "dashboard" | "settings" | "settings_branding" | "blocked" | "notfound"
-  | "runtime_smoke" | "users" | "account" | "developer" | "developer_entitlements" | "access_denied" | "verification" | "toolbox"
-  | "system" | "logs" | "dossiers";
+export type RouteId = "login" | "dashboard" | "settings" | "blocked" | "notfound"
+  | "runtime_smoke" | "users" | "account" | "developer" | "developer_entitlements" | "access_denied" | "verification"
+  | "system" | "logs" | "api" | "network" | "dossiers" | "management" | "subscription" | "organization" | "twofactor" | "sessions" | "backup" | "featureflags";
 export function getRouteId(): RouteId {
   const h = (location.hash || "").replace(/^#\/?/, "");
   const seg = (h.split("?")[0] || "").trim();
+  const appKind = getAppKind();
+  
   if (!seg || seg === "login") return "login";
   if (seg === "dashboard") return "dashboard";
   if (seg === "users") return "users";
   if (seg === "account") return "account";
-  if (seg === "developer/entitlements" || seg === "dev/entitlements") return "developer_entitlements";
-  if (seg === "developer" || seg === "dev") return "developer";
+  
+  // ICONTROL_APP_CP_ROUTE_GUARDS_V1: Routes restreintes par application
+  // Routes CP uniquement (administration)
+  if (seg === "management") {
+    return appKind === "CP" ? "management" : "notfound";
+  }
+  if (seg === "developer/entitlements" || seg === "dev/entitlements") {
+    return appKind === "CP" ? "developer_entitlements" : "notfound";
+  }
+  if (seg === "developer" || seg === "dev") {
+    return appKind === "CP" ? "developer" : "notfound";
+  }
+  if (seg === "logs") {
+    return appKind === "CP" ? "logs" : "notfound";
+  }
+  if (seg === "api") {
+    return appKind === "CP" ? "api" : "notfound";
+  }
+  if (seg === "network") {
+    return appKind === "CP" ? "network" : "notfound";
+  }
+  if (seg === "verification" || seg === "verify") {
+    return appKind === "CP" ? "verification" : "notfound";
+  }
+  
+  // Routes APP uniquement (client)
+  if (seg === "dossiers") {
+    return appKind === "APP" ? "dossiers" : "notfound";
+  }
+  
+  // Routes partagées
   if (seg === "access-denied") return "access_denied";
-  if (seg === "toolbox" || seg === "dev-tools" || seg === "devtools") return "toolbox";
   if (seg === "system") return "system";
-  if (seg === "logs") return "logs";
-  if (seg === "dossiers") return "dossiers";
-  if (seg === "verification" || seg === "verify") return "verification";
+  if (seg === "subscription") {
+    return appKind === "CP" ? "subscription" : "notfound";
+  }
+  if (seg === "organization") {
+    return appKind === "CP" ? "organization" : "notfound";
+  }
+  if (seg === "twofactor" || seg === "2fa") {
+    return appKind === "CP" ? "twofactor" : "notfound";
+  }
+  if (seg === "sessions") {
+    return appKind === "CP" ? "sessions" : "notfound";
+  }
+  if (seg === "backup") {
+    return appKind === "CP" ? "backup" : "notfound";
+  }
+  if (seg === "featureflags" || seg === "feature-flags" || seg === "feature_flags") {
+    return appKind === "CP" ? "featureflags" : "notfound";
+  }
   if (seg === "settings") return canAccessSettings() ? "settings" : "dashboard";
-  if (seg === "settings/branding") return canAccessSettings() ? "settings_branding" : "dashboard";
   if (seg === "runtime-smoke" || seg === "runtime_smoke") return "runtime_smoke";
   if (seg === "blocked") return "blocked";
   return "notfound";
@@ -53,7 +98,8 @@ function ensureAuth(): boolean {
 export function getUserLabel(): string {
   const s = getSession();
   if (!s) return "Invité";
-  return `${s.username} (${s.role})`;
+  const displayRole = (s as any).username === "Master" ? "Master" : s.role;
+  return `${s.username} (${displayRole})`;
 }
 
 export function doLogout(): void {

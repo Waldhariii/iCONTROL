@@ -1,0 +1,555 @@
+/**
+ * ICONTROL_CP_TOOLBOX_SHELL_CSS_V1
+ * Styles CSS pour le shell style Developer Toolbox pour CP
+ */
+
+.icontrol-cp-toolbox-shell {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100%;
+  min-width: 320px; /* Largeur minimale pour éviter les problèmes */
+  background: var(--ic-bg, #0f1112);
+  color: var(--ic-text, #e7ecef);
+  overflow: hidden;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+  box-sizing: border-box;
+}
+
+/* Top Navigation */
+.icontrol-cp-topnav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 48px;
+  padding: 0 16px;
+  background: var(--ic-panel2, #202427);
+  border-bottom: 1px solid var(--ic-border, #2b3136);
+  flex-shrink: 0;
+  z-index: 10;
+  position: relative;
+  /* STRUCTURE PROPRE: alignement horizontal strict */
+}
+
+.icontrol-cp-topnav * {
+  box-sizing: border-box;
+}
+
+.icontrol-cp-topnav > * {
+  display: flex;
+  align-items: center;
+  /* Tous les enfants directs en flex horizontal, pas d'empilement vertical */
+}
+
+/* Left Section - Branding/Navigation (STRUCTURE PROFESSIONNELLE) */
+.icontrol-cp-left-section {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  flex-shrink: 0;
+  height: 100%;
+  padding: 0;
+  margin: 0;
+  /* UNE SEULE FONCTION: navigation + branding horizontal */
+  /* Pas d'empilement vertical, pas de sous-contexte, pas de texte parasite */
+  overflow: visible;
+}
+
+.icontrol-cp-brand-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ic-text, #e7ecef);
+  line-height: 1.2;
+  white-space: nowrap;
+  letter-spacing: 0.2px;
+  margin: 0;
+  padding: 0;
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  /* HIÉRARCHIE CLAIRE: un seul niveau, typographie forte */
+  /* Pas de sous-texte, pas de découpage vertical, pas de texte parasite */
+}
+
+/* Alias pour compatibilité */
+.icontrol-cp-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ic-text, #e7ecef);
+  line-height: 1.2;
+  white-space: nowrap;
+  margin: 0;
+  padding: 0;
+}
+
+.icontrol-cp-burger {
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  max-width: 36px;
+  border-radius: 8px;
+  background: transparent !important;
+  border: 1px solid var(--ic-border, #2b3136) !important;
+  color: var(--ic-text, #e7ecef);
+  font-size: 18px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+  outline: none !important;
+  box-shadow: none !important;
+  flex-shrink: 0;
+  /* Pas de texte parasite, pas de contenu supplémentaire */
+}
+
+.icontrol-cp-burger:hover {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border-color: var(--ic-border, #2b3136) !important;
+  box-shadow: none !important;
+}
+
+.icontrol-cp-burger:focus,
+.icontrol-cp-burger:focus-visible,
+.icontrol-cp-burger:focus-within,
+.icontrol-cp-burger:active {
+  outline: none !important;
+  border-color: var(--ic-border, #2b3136) !important;
+  box-shadow: none !important;
+  background: rgba(255, 255, 255, 0.05) !important;
+}
+
+.icontrol-cp-burger:active {
+  transform: scale(0.95);
+}
+
+/* Right Section */
+.icontrol-cp-right-section {
+  flex: 1;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
+  padding-right: 16px;
+  min-width: 0;
+  flex-wrap: nowrap;
+  overflow: visible;
+}
+
+/* Responsive layout pour petits écrans */
+@media (max-width: 768px) {
+  .icontrol-cp-right-section {
+    gap: 8px;
+    padding-right: 8px;
+  }
+  
+  .icontrol-cp-system-status {
+    padding: 4px 8px !important;
+    font-size: 10px !important;
+  }
+  
+  .icontrol-cp-brand-title {
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 480px) {
+  .icontrol-cp-right-section {
+    gap: 6px;
+    padding-right: 6px;
+  }
+  
+  .icontrol-cp-system-status span {
+    display: none;
+  }
+  
+  .icontrol-cp-system-status::before {
+    display: block !important;
+  }
+}
+
+.icontrol-cp-tabs {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  height: 100%;
+}
+
+.icontrol-cp-tab {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 16px;
+  height: 100%;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--ic-mutedText, #a7b0b7);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.icontrol-cp-tab:hover {
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--ic-text, #e7ecef);
+}
+
+.icontrol-cp-tab.active {
+  background: var(--ic-panel, #1a1d1f);
+  border-bottom-color: var(--ic-accent, #7b2cff);
+  color: var(--ic-text, #e7ecef);
+  font-weight: 600;
+}
+
+/* Main Container */
+.icontrol-cp-main-container {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  min-width: 0;
+}
+
+/* Sidebar */
+.icontrol-cp-sidebar {
+  width: 260px;
+  background: var(--ic-panel, #1a1d1f);
+  border-right: 1px solid var(--ic-border, #2b3136);
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 20px 12px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: fixed;
+  top: 48px;
+  left: 0;
+  bottom: 0;
+  z-index: 90;
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Sidebar cachée par défaut */
+.icontrol-cp-sidebar-hidden {
+  transform: translateX(-100%);
+  width: 0;
+  min-width: 0;
+  padding: 0;
+  border-right: 0;
+  overflow: hidden;
+}
+
+.icontrol-cp-sidebar-hidden ~ .icontrol-cp-content-wrapper {
+  margin-left: 0;
+}
+
+@media (min-width: 960px) {
+  /* Sur desktop, sidebar visible par défaut */
+  .icontrol-cp-sidebar {
+    position: relative;
+    top: 0;
+    box-shadow: none;
+  }
+  .icontrol-cp-sidebar-hidden {
+    transform: translateX(-100%);
+    width: 0;
+    min-width: 0;
+    padding: 0;
+    border-right: 0;
+    overflow: hidden;
+  }
+  .icontrol-cp-content-wrapper {
+    margin-left: 0;
+  }
+}
+
+@media (max-width: 959px) {
+  /* Sur mobile, sidebar toujours cachée par défaut */
+  .icontrol-cp-sidebar {
+    position: fixed;
+  }
+  .icontrol-cp-sidebar-hidden {
+    transform: translateX(-100%);
+  }
+}
+
+/* Overlay pour le sidebar */
+.icontrol-cp-sidebar-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 85;
+  display: none;
+}
+
+@media (min-width: 960px) {
+  .icontrol-cp-sidebar-overlay {
+    display: none !important;
+  }
+}
+
+.icontrol-cp-sidebar-section {
+  margin-bottom: 24px;
+}
+
+.icontrol-cp-sidebar-section-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--ic-mutedText, #a7b0b7);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+}
+
+.icontrol-cp-sidebar-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  margin-bottom: 2px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--ic-mutedText, #a7b0b7);
+  min-height: 40px;
+}
+
+.icontrol-cp-sidebar-item:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--ic-text, #e7ecef);
+  transform: translateX(2px);
+}
+
+.icontrol-cp-sidebar-item.active {
+  background: rgba(59, 130, 246, 0.12);
+  color: var(--ic-text, #e7ecef);
+  font-weight: 600;
+  border-left: 3px solid var(--ic-accent, #7b2cff);
+  padding-left: 11px;
+}
+
+.icontrol-cp-sidebar-item input[type="checkbox"] {
+  width: 14px;
+  height: 14px;
+  cursor: pointer;
+  accent-color: var(--ic-accent, #7b2cff);
+}
+
+.icontrol-cp-sidebar-footer {
+  margin-top: auto;
+  padding-top: 16px;
+  border-top: 1px solid var(--ic-border, #2b3136);
+}
+
+/* Content Wrapper - Largeur pleine écran */
+.icontrol-cp-content-wrapper {
+  flex: 1;
+  overflow: auto;
+  background: var(--ic-bg, #0f1112);
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  gap: 0;
+  margin-left: 0;
+  margin-right: 0;
+  max-width: 100%;
+  width: 100%;
+  transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-sizing: border-box;
+}
+
+/* ICONTROL_FULL_WIDTH_CONTENT_V1: Largeur pleine écran pour le contenu CP */
+@media (min-width: 768px) {
+  .icontrol-cp-content-wrapper {
+    max-width: 100%;
+    margin-left: 0;
+    margin-right: 0;
+    padding: 0;
+  }
+}
+
+@media (min-width: 960px) {
+  .icontrol-cp-content-wrapper {
+    max-width: 100%;
+    margin-left: 0;
+    margin-right: 0;
+  }
+}
+
+/* Sur très grands écrans, largeur pleine */
+@media (min-width: 1920px) {
+  .icontrol-cp-content-wrapper {
+    max-width: 100%;
+    margin-left: 0;
+    margin-right: 0;
+  }
+}
+
+@media (max-width: 959px) {
+  /* Sur mobile, ajouter margin si sidebar ouvert */
+  .icontrol-cp-sidebar:not(.icontrol-cp-sidebar-hidden) ~ .icontrol-cp-content-wrapper {
+    margin-left: 260px;
+  }
+}
+
+.icontrol-cp-content-wrapper > * {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.icontrol-cp-content-wrapper {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  overflow-x: hidden;
+}
+
+/* Styles pour cxWrap dans le contenu CP */
+.icontrol-cp-content-wrapper .cxWrap {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch !important;
+  justify-content: flex-start !important;
+  gap: 20px;
+  width: 100%;
+  max-width: 100%;
+  padding: 0;
+  margin: 0;
+  min-height: auto !important;
+  background: transparent !important;
+  box-sizing: border-box;
+}
+
+/* Styles pour les panneaux Toolbox dans le contenu CP */
+.icontrol-cp-content-wrapper .icontrol-toolbox-panel-element {
+  width: 100%;
+  max-width: 100%;
+  margin-bottom: 0;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Styles pour le contenu de page dans CP */
+.icontrol-cp-page-content {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+/* Scrollbar styling */
+.icontrol-cp-sidebar::-webkit-scrollbar,
+.icontrol-cp-content-wrapper::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.icontrol-cp-sidebar::-webkit-scrollbar-track,
+.icontrol-cp-content-wrapper::-webkit-scrollbar-track {
+  background: var(--ic-panel, #1a1d1f);
+}
+
+.icontrol-cp-sidebar::-webkit-scrollbar-thumb,
+.icontrol-cp-content-wrapper::-webkit-scrollbar-thumb {
+  background: var(--ic-border, #2b3136);
+  border-radius: 4px;
+}
+
+.icontrol-cp-sidebar::-webkit-scrollbar-thumb:hover,
+.icontrol-cp-content-wrapper::-webkit-scrollbar-thumb:hover {
+  background: var(--ic-mutedText, #a7b0b7);
+}
+
+/* Indicateur d'état système avec nouveau modèle visuel */
+.icontrol-cp-system-status {
+  position: relative;
+  overflow: visible;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Point lumineux indicateur avec clignotement doux permanent */
+.icontrol-cp-system-status::before {
+  content: "";
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+  background: currentColor;
+  box-shadow: 0 0 0 0 currentColor;
+  animation: icontrol-status-gentle-pulse 3s ease-in-out infinite;
+}
+
+/* Animation de clignotement doux permanente (3 secondes) */
+@keyframes icontrol-status-gentle-pulse {
+  0%, 100% {
+    opacity: 1;
+    box-shadow: 0 0 0 0 currentColor, 0 0 0 0 currentColor;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    box-shadow: 0 0 6px 2px currentColor, 0 0 12px 4px currentColor;
+    transform: scale(1.1);
+  }
+}
+
+/* Animation plus rapide pour les erreurs */
+@keyframes icontrol-status-error-pulse {
+  0%, 100% {
+    opacity: 1;
+    box-shadow: 0 0 0 0 currentColor, 0 0 0 0 currentColor;
+    transform: scale(1);
+  }
+  25%, 75% {
+    opacity: 0.7;
+    box-shadow: 0 0 8px 3px currentColor, 0 0 16px 6px currentColor;
+    transform: scale(1.15);
+  }
+  50% {
+    opacity: 0.5;
+    box-shadow: 0 0 12px 4px currentColor, 0 0 24px 8px currentColor;
+    transform: scale(1.2);
+  }
+}
+
+/* Animation intermédiaire pour les avertissements */
+@keyframes icontrol-status-warning-pulse {
+  0%, 100% {
+    opacity: 1;
+    box-shadow: 0 0 0 0 currentColor, 0 0 0 0 currentColor;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.65;
+    box-shadow: 0 0 7px 2.5px currentColor, 0 0 14px 5px currentColor;
+    transform: scale(1.12);
+  }
+}
+
+/* Application des animations selon le statut */
+.icontrol-cp-system-status.status-healthy::before {
+  animation: icontrol-status-gentle-pulse 3s ease-in-out infinite;
+}
+
+.icontrol-cp-system-status.status-warning::before {
+  animation: icontrol-status-warning-pulse 2.5s ease-in-out infinite;
+}
+
+.icontrol-cp-system-status.status-error::before {
+  animation: icontrol-status-error-pulse 1.5s ease-in-out infinite;
+}

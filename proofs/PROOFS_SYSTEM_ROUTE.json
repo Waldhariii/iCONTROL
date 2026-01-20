@@ -1,0 +1,13 @@
+{
+  "page": "system",
+  "hash": "#/system",
+  "system_file": "./app/src/pages/cp/system.ts",
+  "module_loader_file": "./app/src/moduleLoader.ts",
+  "nav_file": "./app/src/core/ui/commandPalette.ts",
+  "anchors": {
+    "system_export": "export function renderSystemPage(",
+    "system_version": "ICONTROL_CP_SYSTEM_V2",
+    "dispatch_rid": "if ((rid as any) === \"system\")",
+    "cp_nav_hash": "hash: \"#/system\""
+  }
+}

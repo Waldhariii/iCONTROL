@@ -1,4 +1,4 @@
-import { appendTable, sectionCard } from "../../_shared/uiBlocks";
+import { appendTable, sectionCard } from "../../../shared/uiBlocks";
 import { listDossiers, type DossierHistoryEntry } from "../model";
 
 export function renderDossiersHistory(host: HTMLElement, dossierId?: string | null): void {

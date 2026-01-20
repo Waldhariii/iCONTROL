@@ -1,4 +1,10 @@
 import { defineConfig } from "vite";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const appDir = __dirname; // app/
+const rootDir = path.resolve(__dirname, ".."); // iCONTROL/
 
 const enableRuntimeConfigDevMw = process.env.VITE_DEV_RUNTIME_CONFIG_MW === "1";
 
@@ -74,7 +80,24 @@ function icontrolRuntimeConfigDevPlugin() {
 
 export default defineConfig({
   plugins: enableRuntimeConfigDevMw ? [icontrolRuntimeConfigDevPlugin()] : [],
-  server: { port: 5176, strictPort: false },
+  resolve: {
+    alias: [
+      // ICONTROL_MODULES_ALIAS_V1: Alias pour résoudre modules/ depuis app/
+      // Permet d'utiliser "modules/..." au lieu de "../../../../modules/..."
+      {
+        find: /^modules\/(.*)$/,
+        replacement: path.resolve(rootDir, "modules/$1").replace(/\\/g, "/"),
+      },
+    ],
+  },
+  server: { 
+    port: 5176, 
+    strictPort: false,
+    fs: {
+      // ICONTROL_FS_ALLOW_V1: Permettre d'accéder aux fichiers en dehors de app/
+      allow: [".."],
+    },
+  },
   preview: { port: 5177, strictPort: false },
   test: {
     include: [

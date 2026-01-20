@@ -1,0 +1,13 @@
+{
+  "page": "account",
+  "hash": "#/account",
+  "account_file": "./app/src/pages/cp/account.ts",
+  "module_loader_file": "./app/src/moduleLoader.ts",
+  "cp_shell_file": "./app/src/core/layout/cpToolboxShell.ts",
+  "anchors": {
+    "account_version": "ICONTROL_CP_ACCOUNT_V2",
+    "account_export": "export function renderAccountPage(",
+    "dispatch_rid": "if ((rid as any) === \"account\")",
+    "cp_nav_hash": "navigate(\"#/account\")"
+  }
+}

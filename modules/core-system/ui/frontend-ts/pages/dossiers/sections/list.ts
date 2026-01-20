@@ -1,14 +1,15 @@
 import type { Role } from "/src/runtime/rbac";
-import { recordObs } from "../../_shared/audit";
-import { OBS } from "../../_shared/obsCodes";
-import { sectionCard } from "../../_shared/uiBlocks";
-import { MAIN_SYSTEM_THEME } from "../../_shared/mainSystem.data";
-import { renderRecommendations } from "../../_shared/recommendations";
-import { getSafeMode } from "../../_shared/recommendations.ctx";
-import { isWriteAllowed } from "../../_shared/rolePolicy";
+import { recordObs } from "/src/core/runtime/audit";
+import { OBS } from "/src/core/runtime/obs";
+import { sectionCard } from "../../../shared/uiBlocks";
+import { MAIN_SYSTEM_THEME } from "../../../shared/mainSystem.data";
+import { renderRecommendations } from "../../../shared/recommendations";
+import { getSafeMode } from "../../../shared/recommendations.ctx";
+import { isWriteAllowed } from "../../../shared/rolePolicy";
 import { getDossiersFilters } from "./filters";
 import { canWrite } from "../contract";
 import { listDossiers, transitionDossier, type Dossier } from "../model";
+import { navigate } from "/src/runtime/navigate";
 
 
 // P15: CSS vars pilot (var(--ic-*), fallback tokens)
@@ -107,7 +108,7 @@ function buildTable(
 
     actionsWrap.appendChild(
       mkBtn("Ouvrir", () => {
-        window.location.hash = `#/dossiers/${d.id}`;
+        navigate(`#/dossiers/${d.id}`);
       })
     );
 

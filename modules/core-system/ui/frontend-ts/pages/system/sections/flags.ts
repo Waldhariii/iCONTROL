@@ -1,5 +1,5 @@
 import type { SystemModel } from "../model";
-import { blockToggle } from "../../_shared/uiBlocks";
+import { blockToggle } from "../../../shared/uiBlocks";
 import { updateFlag } from "../model";
 
 export function renderSystemFlags(host: HTMLElement, model: SystemModel): void {

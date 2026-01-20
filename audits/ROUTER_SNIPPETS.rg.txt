@@ -1,0 +1,19 @@
+7: * router.ts — minimal hash router with RBAC guard
+8: * Public:  #/login
+9: * Private: #/dashboard (and everything else by default)
+15:  const h = (location.hash || "").replace(/^#\/?/, "");
+80:export function navigate(hash: string): void {
+81:  if (!hash.startsWith("#/")) coreNavigate("#/" + hash.replace(/^#\/?/, ""));
+82:  else coreNavigate(hash);
+87:  const rid = getRouteId();
+88:  if (rid === "login" || rid === "blocked") return true;
+92:    navigate("#/login");
+107:  navigate("#/login");
+110:export function bootRouter(onRoute: (rid: RouteId) => void): void {
+133:    const rid = getRouteId();
+134:    const h = String(location.hash || "");
+136:    // If Version Policy blocks this build, force a controlled route once.
+139:      try { coreNavigate("#/blocked"); } catch {}
+143:    console.info("ROUTER_TICK", { hash: h, rid, authed });
+145:    onRoute(rid);
+147:  window.addEventListener("hashchange", tick);

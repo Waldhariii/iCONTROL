@@ -1,9 +1,9 @@
 import type { Role } from "/src/runtime/rbac";
-import { blockActionBar, blockToast } from "../../_shared/uiBlocks";
-import { getSafeMode } from "../../_shared/safeMode";
-import { isWriteAllowed } from "../../_shared/rolePolicy";
-import { recordObs } from "../../_shared/audit";
-import { OBS } from "../../_shared/obsCodes";
+import { blockActionBar, blockToast } from "../../../shared/uiBlocks";
+import { getSafeMode } from "/src/core/runtime/safe";
+import { isWriteAllowed } from "../../../shared/rolePolicy";
+import { recordObs } from "/src/core/runtime/audit";
+import { OBS } from "/src/core/runtime/obs";
 import { canWrite } from "../contract";
 import { createDossier, listDossiers, transitionDossier, resetDossiers } from "../model";
 import { getSelectedIds } from "./list";

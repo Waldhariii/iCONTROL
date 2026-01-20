@@ -33,6 +33,7 @@ export function createPageShell(options: PageShellOptions): {
     padding: 16px;
     width: 100%;
     max-width: 100%;
+    min-width: 0;
     box-sizing: border-box;
   `;
 
@@ -120,7 +121,7 @@ export function createPageShell(options: PageShellOptions): {
   }
 
   const content = document.createElement("div");
-  content.style.cssText = "display:flex; flex-direction:column; gap:16px;";
+  content.style.cssText = "display:flex; flex-direction:column; gap:16px; min-width:0; width:100%; box-sizing:border-box;";
 
   shell.appendChild(header);
   shell.appendChild(content);

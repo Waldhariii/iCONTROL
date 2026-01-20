@@ -4,17 +4,17 @@
  * Liste cliquable des utilisateurs pour modifier leurs permissions
  */
 import { coreBaseStyles } from "../../../../modules/core-system/ui/frontend-ts/shared/coreStyles";
+import { renderAccessDenied } from "/src/core/runtime/accessDenied";
 import { requireSession } from "/src/localAuth";
 import { getRole } from "/src/runtime/rbac";
-import { getSafeMode } from "../../../../modules/core-system/ui/frontend-ts/pages/_shared/safeMode";
-import { renderAccessDenied, safeRender } from "../../../../modules/core-system/ui/frontend-ts/pages/_shared/mainSystem.shared";
 import { createUsersModelCp } from "./models/users";
 import { renderUsersListCp } from "./views/users";
-import { canAccess } from "../../../../modules/core-system/ui/frontend-ts/pages/users/contract";
+import { canAccess } from "/src/core/runtime/contracts/users";
 import { createPageShell } from "/src/core/ui/pageShell";
 import { createSectionCard } from "/src/core/ui/sectionCard";
+import { safeRender, getSafeMode } from "/src/core/runtime/safe";
 
-export function renderUsers(root: HTMLElement): void {
+export function renderUsersPage(root: HTMLElement): void {
   const role = getRole();
   const safeMode = getSafeMode();
 

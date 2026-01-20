@@ -1,4 +1,4 @@
-export type Role = "SYSADMIN" | "ADMIN" | "DEVELOPER" | "USER";
+export type Role = "SYSADMIN" | "ADMIN" | "DEVELOPER" | "USER" | "MASTER";
 
 export type PageId =
   | "dashboard"
@@ -31,6 +31,11 @@ export const POLICY_MARKER = "ICONTROL_POLICY_SSOT_V1";
  * Page-level RBAC: "can you enter this route/page?"
  */
 export function canAccessPage(role: Role, page: PageId): PolicyDecision {
+  // Master a toujours accès à tout
+  if (role === "MASTER") {
+    return { allow: true };
+  }
+  
   // USER role is restricted for privileged pages
   if (role === "USER") {
     if (page === "dashboard" || page === "account") return { allow: true };
@@ -51,6 +56,11 @@ export function canAccessPage(role: Role, page: PageId): PolicyDecision {
  * Note: must NOT override page-level deny; callers should check page first.
  */
 export function canAccessSection(role: Role, section: SectionId): PolicyDecision {
+  // Master a toujours accès à toutes les sections
+  if (role === "MASTER") {
+    return { allow: true };
+  }
+  
   // Developer toolbox rules is SYSADMIN-only (policy)
   if (section === "toolbox-rules") {
     return role === "SYSADMIN"

@@ -6,14 +6,22 @@
  * - Keep logic centralized to avoid drift
  */
 import { getSession } from "../localAuth";
+import { canAccessPage } from "../core/permissions/userPermissions";
 
-export type Role = "USER" | "ADMIN" | "SYSADMIN" | "DEVELOPER";
+export type Role = "USER" | "ADMIN" | "SYSADMIN" | "DEVELOPER" | "MASTER";
 
 export function getRole(): Role {
   try {
     const s = getSession();
+    if (!s) return "USER";
+    
+    // ICONTROL_MASTER_ROLE_V1: Master est toujours reconnu comme MASTER par son username
+    if ((s as any).username === "Master") {
+      return "MASTER" as Role;
+    }
+    
     const r = String((s as any)?.role || "USER").toUpperCase();
-    if (r === "ADMIN" || r === "SYSADMIN" || r === "DEVELOPER") return r as Role;
+    if (r === "ADMIN" || r === "SYSADMIN" || r === "DEVELOPER" || r === "MASTER") return r as Role;
     return "USER";
   } catch {
     return "USER";
@@ -21,8 +29,14 @@ export function getRole(): Role {
 }
 
 export function canSeeSettings(): boolean {
+  const s = getSession();
+  if (!s) return false;
   const r = getRole();
-  return r === "ADMIN" || r === "SYSADMIN" || r === "DEVELOPER";
+  // Master a toujours accès
+  if (r === "MASTER" || ((s as any).username === "Master" && r === "SYSADMIN")) {
+    return true;
+  }
+  return canAccessPage((s as any).username, r, "settings");
 }
 
 export function canAccessSettings(): boolean {
@@ -30,7 +44,18 @@ export function canAccessSettings(): boolean {
   return canSeeSettings();
 }
 
-export function canAccessToolbox(): boolean {
+// ICONTROL_TOOLBOX_REMOVED_V1: Fonction canAccessToolbox supprimée (Toolbox complètement retirée)
+
+export function canAccessPageRoute(page: string): boolean {
+  const s = getSession();
+  if (!s) return false;
   const r = getRole();
-  return r === "SYSADMIN" || r === "DEVELOPER";
+  const username = (s as any).username;
+  
+  // Master a toujours accès à tout
+  if (r === "MASTER" || (username === "Master" && r === "SYSADMIN")) {
+    return true;
+  }
+  
+  return canAccessPage(username, r, page as any);
 }

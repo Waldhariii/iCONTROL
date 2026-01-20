@@ -68,13 +68,23 @@ export function appendTable(
   const maxRows = 200;
   const safeRows = rows.slice(0, maxRows);
   const table = el("table");
-  table.style.cssText = "width:100%;border-collapse:collapse";
+  table.style.cssText = "width:100%;border-collapse:collapse;background:var(--ic-card, var(--panel));border-radius:8px;overflow:hidden";
 
   const thead = el("thead");
   const trh = el("tr");
   columns.forEach((c) => {
     const th = el("th", undefined, c);
-    th.style.cssText = "text-align:left;padding:8px;border-bottom:1px solid var(--line);font-size:12px;opacity:.85";
+    th.style.cssText = `
+      text-align:left;
+      padding:12px 16px;
+      border-bottom:1px solid var(--ic-border, var(--line));
+      font-size:12px;
+      font-weight:600;
+      color:var(--ic-mutedText, var(--muted));
+      text-transform:uppercase;
+      letter-spacing:0.5px;
+      background:var(--ic-panel, var(--panel2));
+    `;
     trh.appendChild(th);
   });
   thead.appendChild(trh);
@@ -84,16 +94,17 @@ export function appendTable(
   if (safeRows.length === 0) {
     const tr = el("tr");
     const td = el("td", undefined, "Aucune donnée");
-    td.style.cssText = "padding:8px;border-bottom:1px solid var(--line);opacity:.7";
+    td.style.cssText = "padding:16px;text-align:center;opacity:.7;color:var(--ic-mutedText, var(--muted));";
     td.colSpan = columns.length || 1;
     tr.appendChild(td);
     tbody.appendChild(tr);
   }
-  safeRows.forEach((row) => {
+  safeRows.forEach((row, idx) => {
     const tr = el("tr");
+    tr.style.cssText = idx % 2 === 0 ? "background:transparent;" : "background:rgba(255,255,255,0.01);";
     columns.forEach((c) => {
       const td = el("td", undefined, row[c] ?? "");
-      td.style.cssText = "padding:8px;border-bottom:1px solid var(--line)";
+      td.style.cssText = "padding:12px 16px;border-bottom:1px solid var(--ic-border, var(--line));color:var(--ic-text, var(--text));font-size:13px;";
       tr.appendChild(td);
     });
     tbody.appendChild(tr);
@@ -104,7 +115,7 @@ export function appendTable(
 
   if (rows.length > maxRows) {
     const note = el("div", undefined, `Affichage limité à ${maxRows} lignes (sur ${rows.length}).`);
-    note.style.cssText = "margin-top:8px;opacity:.7;font-size:12px";
+    note.style.cssText = "margin-top:12px;opacity:.7;font-size:12px;color:var(--ic-mutedText, var(--muted));padding:8px;background:rgba(255,255,255,0.02);border-radius:6px;";
     host.appendChild(note);
   }
 }
@@ -118,18 +129,30 @@ export type UiAction = {
 
 export function appendActionRow(host: HTMLElement, actions: UiAction[]): HTMLDivElement {
   const row = el("div");
-  row.style.cssText = "display:flex;gap:10px;flex-wrap:wrap;margin-top:10px";
+  row.style.cssText = "display:flex;gap:10px;flex-wrap:wrap;margin-top:16px;";
   actions.forEach((action) => {
     const btn = el("button", { type: "button", "data-action-id": action.id }, action.label);
     btn.setAttribute("aria-label", action.label);
-    btn.style.cssText = [
-      "padding:8px 12px",
-      "border-radius:10px",
-      "border:1px solid var(--line)",
-      "background:rgba(255,255,255,0.04)",
-      "color:inherit",
-      "cursor:pointer"
-    ].join(";");
+    btn.style.cssText = `
+      padding:10px 16px;
+      border-radius:8px;
+      border:1px solid var(--ic-border, var(--line));
+      background:var(--ic-panel, var(--panel2));
+      color:var(--ic-text, var(--text));
+      cursor:pointer;
+      font-weight:600;
+      font-size:13px;
+      transition:all 0.2s;
+      min-height:44px;
+    `;
+    btn.addEventListener("mouseenter", () => {
+      btn.style.background = "rgba(255,255,255,0.05)";
+      btn.style.borderColor = "var(--ic-accent, var(--accent))";
+    });
+    btn.addEventListener("mouseleave", () => {
+      btn.style.background = "var(--ic-panel, var(--panel2))";
+      btn.style.borderColor = "var(--ic-border, var(--line))";
+    });
     row.appendChild(btn);
   });
   host.appendChild(row);

@@ -1,10 +1,13 @@
-import { MAIN_SYSTEM_FORM_CONTRACT } from "../../_shared/mainSystem.data";
-import { appendTable, sectionCard } from "../../_shared/uiBlocks";
+import { MAIN_SYSTEM_FORM_CONTRACT } from "../../../shared/mainSystem.data";
+import { appendTable } from "../../../shared/uiBlocks";
+import { createToolboxCard } from "../../../shared/toolboxCard";
 
 export function render_contracts_form(host: HTMLElement): void {
-  const card = sectionCard("Contracts: FormDef");
+  const card = createToolboxCard("Contracts: FormDef", "Définition des contrats de formulaires");
+  const content = (card as any).content;
+  
   appendTable(
-    card,
+    content,
     ["fields", "validation", "visibleForRoles"],
     [
       {

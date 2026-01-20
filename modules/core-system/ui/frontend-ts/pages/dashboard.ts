@@ -1,16 +1,16 @@
 import { coreBaseStyles } from "../shared/coreStyles";
-import { logout, requireSession } from "../../../../../platform-services/security/auth/localAuth";
-import { MAIN_SYSTEM_ENABLED, MAIN_SYSTEM_LAYOUT, MAIN_SYSTEM_MODULES } from "./_shared/mainSystem.data";
-import { appendList, appendTable, sectionCard } from "./_shared/uiBlocks";
-import { mountSections, type SectionSpec } from "./_shared/sections";
-import { safeRender } from "./_shared/mainSystem.shared";
+import { logout, requireSession } from "/src/localAuth";
+import { MAIN_SYSTEM_ENABLED, MAIN_SYSTEM_LAYOUT, MAIN_SYSTEM_MODULES } from "./shared/mainSystem.data";
+import { appendList, appendTable, sectionCard } from "/src/core/ui/uiBlocks";
+import { mountSections, type SectionSpec } from "./shared/sections";
+import { safeRender } from "/src/core/runtime/safe";
 import { requireEntitlement } from "/src/core/access";
-import * as EntitlementsFacade from "./_shared/entitlements";
+import * as EntitlementsFacade from "./shared/entitlements";
 import { navigate } from "/src/runtime/navigate";
 
 const UI = {
   WRAP: "align-items:flex-start; padding-top:38px;",
-  CARD: "width:min(920px,92vw);",
+  CARD: "width:100%; max-width:100%;",
   BTN: "width:auto; margin-top:0;",
   USER_BOX: "margin-top:16px; border:1px solid var(--ic-border); border-radius:14px; padding:14px;",
   ACTION_ROW: "margin-top:14px; display:flex; gap:10px; flex-wrap:wrap;"

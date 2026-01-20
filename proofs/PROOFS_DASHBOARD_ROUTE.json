@@ -1,0 +1,14 @@
+{
+  "page": "dashboard",
+  "hash": "#/dashboard",
+  "dashboard_file": "./app/src/pages/cp/dashboard.ts",
+  "module_loader_file": "./app/src/moduleLoader.ts",
+  "nav_file": "./app/src/core/ui/commandPalette.ts",
+  "anchors": {
+    "v2": "ICONTROL_CP_DASHBOARD_V3",
+    "api_title": "API Testing",
+    "net_title": "Network Activity",
+    "dispatch": "rid === \"dashboard\"",
+    "nav": "hash: \"#/dashboard\""
+  }
+}

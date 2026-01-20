@@ -1,0 +1,1675 @@
+diff --git a/app/src/moduleLoader.ts b/app/src/moduleLoader.ts
+index fe09fd4..81dab39 100644
+--- a/app/src/moduleLoader.ts
++++ b/app/src/moduleLoader.ts
+@@ -1,11 +1,33 @@
+ import type { RouteId } from "./router";
++import { getAppKind } from "./pages/appContext";
++import { canAccessPageRoute } from "./runtime/rbac";
++import { debugLog, warnLog } from "./core/utils/logger";
++import { getSession } from "./localAuth";
+ 
+-// Import module pages (single source of truth)
+-import { renderLogin } from "../../modules/core-system/ui/frontend-ts/pages/login";
+-import { renderDashboard } from "../../modules/core-system/ui/frontend-ts/pages/dashboard";
+-import { renderSettingsPage } from "../../modules/core-system/ui/frontend-ts/pages/settings";
+-import { renderBrandingSettings } from "../../modules/core-system/ui/frontend-ts/pages/settings/branding";
+-import { canAccessToolbox } from "./runtime/rbac";
++// Import APP pages (client)
++import { renderLogin as renderLoginApp } from "./pages/app/login";
++import { renderDashboard as renderDashboardApp } from "./pages/app/dashboard";
++import { renderSystemPage as renderSystemPageApp } from "./pages/app/system";
++import { renderSettingsPage as renderSettingsPageApp } from "./pages/app/settings";
++import { renderUsers as renderUsersApp } from "./pages/app/users";
++import { renderAccount as renderAccountApp } from "./pages/app/account";
++
++// Import CP pages (administration)
++import { renderLoginPage as renderLoginCp } from "./pages/cp/login";
++import { renderDashboardPage as renderDashboardCp } from "./pages/cp/dashboard";
++import { renderSystemPage as renderSystemPageCp } from "./pages/cp/system";
++import { renderSettingsPage as renderSettingsPageCp } from "./pages/cp/settings";
++import { renderUsersPage as renderUsersCp } from "./pages/cp/users";
++import { renderAccountPage as renderAccountCp } from "./pages/cp/account";
++import { renderManagementPage as renderManagementCp } from "./pages/cp/management";
++import { renderSubscriptionPage as renderSubscriptionCp } from "./pages/cp/subscription";
++import { renderOrganizationPage as renderOrganizationCp } from "./pages/cp/organization";
++import { renderTwoFactorPage as renderTwoFactorCp } from "./pages/cp/twoFactor";
++import { renderSessionsPage as renderSessionsCp } from "./pages/cp/sessions";
++import { renderBackupPage as renderBackupCp } from "./pages/cp/backup";
++import { renderFeatureFlagsPage as renderFeatureFlagsCp } from "./pages/cp/featureFlags";
++import { renderApiPage as renderApiCp } from "./pages/cp/api";
++import { renderNetworkPage as renderNetworkCp } from "./pages/cp/network";
+ 
+ export function renderRoute(rid: RouteId, root: HTMLElement): void {
+   const getEntitlementFromHash = (): string => {
+@@ -27,7 +49,7 @@ export function renderRoute(rid: RouteId, root: HTMLElement): void {
+         .then((m) => m.renderRuntimeSmoke(root))
+         .catch((e) => {
+           /* ICONTROL_LOADER_IMPORT_GUARD_V1 */
+-          console.warn("WARN_ROUTE_IMPORT_FAILED", {
++          warnLog("WARN_ROUTE_IMPORT_FAILED", {
+             spec: "./pages/runtime-smoke",
+             err: String(e),
+           });
+@@ -35,40 +57,49 @@ export function renderRoute(rid: RouteId, root: HTMLElement): void {
+       return;
+     }
+   } catch (e) {
+-    console.warn("WARN_RUNTIME_SMOKE_ROUTE", String(e));
++    warnLog("WARN_RUNTIME_SMOKE_ROUTE", String(e));
+   }
+ 
+   try {
+     if ((rid as any) === "users") {
+-      import("../../modules/core-system/ui/frontend-ts/pages/users")
+-        .then((m) => m.renderUsers(root))
+-        .catch((e) => {
+-          /* ICONTROL_LOADER_IMPORT_GUARD_V1 */
+-          console.warn("WARN_ROUTE_IMPORT_FAILED", {
+-            spec: "../../modules/core-system/ui/frontend-ts/pages/users",
+-            err: String(e),
+-          });
+-        });
++      if (!canAccessPageRoute("users")) {
++        root.innerHTML = `<div style="max-width:980px;margin:40px auto;padding:0 16px;opacity:.8">Accès refusé à cette page.</div>`;
++        return;
++      }
++      const appKind = getAppKind();
++      if (appKind === "CP") {
++        renderUsersCp(root);
++      } else {
++        renderUsersApp(root);
++      }
+       return;
+     }
+     if ((rid as any) === "account") {
+-      import("../../modules/core-system/ui/frontend-ts/pages/account")
+-        .then((m) => m.renderAccount(root))
+-        .catch((e) => {
+-          /* ICONTROL_LOADER_IMPORT_GUARD_V1 */
+-          console.warn("WARN_ROUTE_IMPORT_FAILED", {
+-            spec: "../../modules/core-system/ui/frontend-ts/pages/account",
+-            err: String(e),
+-          });
+-        });
++      if (!canAccessPageRoute("account")) {
++        root.innerHTML = `<div style="max-width:980px;margin:40px auto;padding:0 16px;opacity:.8">Accès refusé à cette page.</div>`;
++        return;
++      }
++      const appKind = getAppKind();
++      if (appKind === "CP") {
++        renderAccountCp(root);
++      } else {
++        renderAccountApp(root);
++      }
+       return;
+     }
++    // ICONTROL_APP_CP_ROUTE_GUARDS_V1: Routes restreintes par application
+     if ((rid as any) === "dossiers") {
++      // Dossiers: APP uniquement (client)
++      const appKind = getAppKind();
++      if (appKind !== "APP") {
++        root.innerHTML = `<div style="max-width:980px;margin:40px auto;padding:0 16px;opacity:.8">Page non disponible dans l'application administration.</div>`;
++        return;
++      }
+       import("../../modules/core-system/ui/frontend-ts/pages/dossiers")
+         .then((m) => m.renderDossiersPage(root))
+         .catch((e) => {
+           /* ICONTROL_LOADER_IMPORT_GUARD_V1 */
+-          console.warn("WARN_ROUTE_IMPORT_FAILED", {
++          warnLog("WARN_ROUTE_IMPORT_FAILED", {
+             spec: "../../modules/core-system/ui/frontend-ts/pages/dossiers",
+             err: String(e),
+           });
+@@ -76,11 +107,17 @@ export function renderRoute(rid: RouteId, root: HTMLElement): void {
+       return;
+     }
+     if ((rid as any) === "developer") {
++      // Developer: CP uniquement (administration)
++      const appKind = getAppKind();
++      if (appKind !== "CP") {
++        root.innerHTML = `<div style="max-width:980px;margin:40px auto;padding:0 16px;opacity:.8">Page non disponible dans l'application client.</div>`;
++        return;
++      }
+       import("../../modules/core-system/ui/frontend-ts/pages/developer")
+         .then((m) => m.renderDeveloper(root))
+         .catch((e) => {
+           /* ICONTROL_LOADER_IMPORT_GUARD_V1 */
+-          console.warn("WARN_ROUTE_IMPORT_FAILED", {
++          warnLog("WARN_ROUTE_IMPORT_FAILED", {
+             spec: "../../modules/core-system/ui/frontend-ts/pages/developer",
+             err: String(e),
+           });
+@@ -88,6 +125,12 @@ export function renderRoute(rid: RouteId, root: HTMLElement): void {
+       return;
+     }
+     if ((rid as any) === "developer_entitlements") {
++      // Developer Entitlements: CP uniquement (administration)
++      const appKind = getAppKind();
++      if (appKind !== "CP") {
++        root.innerHTML = `<div style="max-width:980px;margin:40px auto;padding:0 16px;opacity:.8">Page non disponible dans l'application client.</div>`;
++        return;
++      }
+       import("../../modules/core-system/ui/frontend-ts/pages/developer/entitlements")
+         .then((m) => m.renderDeveloperEntitlements(root))
+         .catch((e) => {
+@@ -116,13 +159,20 @@ export function renderRoute(rid: RouteId, root: HTMLElement): void {
+       return;
+     }
+     // Activation / licence
++    const hash = String(location.hash || "");
+     if (hash.startsWith("#/activation")) {
+       import("../../modules/core-system/ui/frontend-ts/pages/activation").then(
+-        (m) => m.renderActivationPage(mount),
++        (m) => m.renderActivationPage(root),
+       );
+       return;
+     }
+     if ((rid as any) === "verification") {
++      // Verification: CP uniquement (administration)
++      const appKind = getAppKind();
++      if (appKind !== "CP") {
++        root.innerHTML = `<div style="max-width:980px;margin:40px auto;padding:0 16px;opacity:.8">Page non disponible dans l'application client.</div>`;
++        return;
++      }
+       import("../../modules/core-system/ui/frontend-ts/pages/verification")
+         .then((m) => m.renderVerification(root))
+         .catch((e) => {
+@@ -135,18 +185,21 @@ export function renderRoute(rid: RouteId, root: HTMLElement): void {
+       return;
+     }
+     if ((rid as any) === "system") {
+-      import("../../modules/core-system/ui/frontend-ts/pages/system")
+-        .then((m) => m.renderSystemPage(root))
+-        .catch((e) => {
+-          /* ICONTROL_LOADER_IMPORT_GUARD_V1 */
+-          console.warn("WARN_ROUTE_IMPORT_FAILED", {
+-            spec: "../../modules/core-system/ui/frontend-ts/pages/system",
+-            err: String(e),
+-          });
+-        });
++      const appKind = getAppKind();
++      if (appKind === "CP") {
++        renderSystemPageCp(root);
++      } else {
++        renderSystemPageApp(root);
++      }
+       return;
+     }
+     if ((rid as any) === "logs") {
++      // Logs: CP uniquement (administration)
++      const appKind = getAppKind();
++      if (appKind !== "CP") {
++        root.innerHTML = `<div style="max-width:980px;margin:40px auto;padding:0 16px;opacity:.8">Page non disponible dans l'application client.</div>`;
++        return;
++      }
+       import("../../modules/core-system/ui/frontend-ts/pages/logs")
+         .then((m) => m.renderLogsPage(root))
+         .catch((e) => {
+@@ -158,31 +211,124 @@ export function renderRoute(rid: RouteId, root: HTMLElement): void {
+         });
+       return;
+     }
+-    if ((rid as any) === "toolbox") {
+-      if (!canAccessToolbox()) {
+-        root.innerHTML =
+-          '<div style="padding:12px;opacity:0.9;"><h2 style="margin:0 0 8px 0;">Access denied</h2><div>Toolbox requires elevated role.</div></div>';
++    if ((rid as any) === "api") {
++      // API: CP uniquement (administration)
++      const appKind = getAppKind();
++      if (appKind !== "CP") {
++        root.innerHTML = `<div style="max-width:980px;margin:40px auto;padding:0 16px;opacity:.8">Page non disponible dans l'application client.</div>`;
+         return;
+       }
+-      import("../../modules/core-system/ui/frontend-ts/pages/toolbox")
+-        .then((m) => m.renderToolbox(root))
+-        .catch((e) => {
+-          /* ICONTROL_LOADER_IMPORT_GUARD_V1 */
+-          console.warn("WARN_ROUTE_IMPORT_FAILED", {
+-            spec: "../../modules/core-system/ui/frontend-ts/pages/toolbox",
+-            err: String(e),
+-          });
+-        });
++      renderApiCp(root);
++      return;
++    }
++    if ((rid as any) === "network") {
++      // Network: CP uniquement (administration)
++      const appKind = getAppKind();
++      if (appKind !== "CP") {
++        root.innerHTML = `<div style="max-width:980px;margin:40px auto;padding:0 16px;opacity:.8">Page non disponible dans l'application client.</div>`;
++        return;
++      }
++      renderNetworkCp(root);
+       return;
+     }
+   } catch (e) {
+-    console.warn("WARN_MAIN_SYSTEM_ROUTE", String(e));
++    warnLog("WARN_MAIN_SYSTEM_ROUTE", String(e));
+   }
+ 
+-  if (rid === "login") return renderLogin(root);
+-  if (rid === "dashboard") return renderDashboard(root);
+-  if (rid === "settings") return renderSettingsPage(root);
+-  if (rid === "settings_branding") return renderBrandingSettings(root);
++  // ICONTROL_APP_CP_ROUTING_V1: Router vers les pages appropriées selon le contexte
++  const appKind = getAppKind();
++
++  if (rid === "login") {
++    debugLog("🔵 moduleLoader: login route", { appKind, rootId: root.id });
++    const result = appKind === "CP" ? renderLoginCp(root) : renderLoginApp(root);
++    debugLog("✅ moduleLoader: login rendu", { length: root.innerHTML?.length || 0 });
++    return result;
++  }
++  if (rid === "dashboard") {
++    if (!canAccessPageRoute("dashboard")) {
++      root.innerHTML = `<div style="max-width:980px;margin:40px auto;padding:0 16px;opacity:.8">Accès refusé à cette page.</div>`;
++      return;
++    }
++    return appKind === "CP" ? renderDashboardCp(root) : renderDashboardApp(root);
++  }
++  if (rid === "settings") {
++    if (!canAccessPageRoute("settings")) {
++      root.innerHTML = `<div style="max-width:980px;margin:40px auto;padding:0 16px;opacity:.8">Accès refusé à cette page.</div>`;
++      return;
++    }
++    return appKind === "CP" ? renderSettingsPageCp(root) : renderSettingsPageApp(root);
++  }
++  if (rid === "management") {
++    // Management: CP uniquement (administration)
++    const appKind = getAppKind();
++    if (appKind !== "CP") {
++      root.innerHTML = `<div style="max-width:980px;margin:40px auto;padding:0 16px;opacity:.8">Page non disponible dans l'application client.</div>`;
++      return;
++    }
++    if (!canAccessPageRoute("management")) {
++      root.innerHTML = `<div style="max-width:980px;margin:40px auto;padding:0 16px;opacity:.8">Accès refusé à cette page.</div>`;
++      return;
++    }
++    return renderManagementCp(root);
++  }
++  if (rid === "subscription") {
++    // Subscription: CP uniquement (administration)
++    const appKind = getAppKind();
++    if (appKind !== "CP") {
++      root.innerHTML = `<div style="max-width:980px;margin:40px auto;padding:0 16px;opacity:.8">Page non disponible dans l'application client.</div>`;
++      return;
++    }
++    if (!canAccessPageRoute("settings")) {
++      root.innerHTML = `<div style="max-width:980px;margin:40px auto;padding:0 16px;opacity:.8">Accès refusé à cette page.</div>`;
++      return;
++    }
++    return renderSubscriptionCp(root);
++  }
++  if (rid === "organization") {
++    // Organization: CP uniquement (administration)
++    const appKind = getAppKind();
++    if (appKind !== "CP") {
++      root.innerHTML = `<div style="max-width:980px;margin:40px auto;padding:0 16px;opacity:.8">Page non disponible dans l'application client.</div>`;
++      return;
++    }
++    if (!canAccessPageRoute("settings")) {
++      root.innerHTML = `<div style="max-width:980px;margin:40px auto;padding:0 16px;opacity:.8">Accès refusé à cette page.</div>`;
++      return;
++    }
++    return renderOrganizationCp(root);
++  }
++  if (rid === "twofactor") {
++    const appKind = getAppKind();
++    if (appKind !== "CP") {
++      root.innerHTML = `<div style="max-width:980px;margin:40px auto;padding:0 16px;opacity:.8">Page non disponible dans l'application client.</div>`;
++      return;
++    }
++    return renderTwoFactorCp(root);
++  }
++  if (rid === "sessions") {
++    const appKind = getAppKind();
++    if (appKind !== "CP") {
++      root.innerHTML = `<div style="max-width:980px;margin:40px auto;padding:0 16px;opacity:.8">Page non disponible dans l'application client.</div>`;
++      return;
++    }
++    return renderSessionsCp(root);
++  }
++  if (rid === "backup") {
++    const appKind = getAppKind();
++    if (appKind !== "CP") {
++      root.innerHTML = `<div style="max-width:980px;margin:40px auto;padding:0 16px;opacity:.8">Page non disponible dans l'application client.</div>`;
++      return;
++    }
++    return renderBackupCp(root);
++  }
++  if (rid === "featureflags") {
++    const appKind = getAppKind();
++    if (appKind !== "CP") {
++      root.innerHTML = `<div style="max-width:980px;margin:40px auto;padding:0 16px;opacity:.8">Page non disponible dans l'application client.</div>`;
++      return;
++    }
++    return renderFeatureFlagsCp(root);
++  }
+ 
+   root.innerHTML = `<div style="max-width:980px;margin:40px auto;padding:0 16px;opacity:.8">Page introuvable.</div>`;
+ }
+diff --git a/app/src/pages/cp/dashboard.ts b/app/src/pages/cp/dashboard.ts
+index 7e94e73..d6065e0 100644
+--- a/app/src/pages/cp/dashboard.ts
++++ b/app/src/pages/cp/dashboard.ts
+@@ -1,419 +1,584 @@
+ /**
+- * ICONTROL_CP_DASHBOARD_V5
+- * Dashboard SSOT — PageShell + KPI grid + événements récents
++ * ICONTROL_CP_DASHBOARD_V3
++ * Console ops — KPI + Evenements + API Testing + Network Activity
+  */
+ import { coreBaseStyles } from "../../../../modules/core-system/ui/frontend-ts/shared/coreStyles";
+-import { getSafeMode } from "../../../../modules/core-system/ui/frontend-ts/pages/_shared/safeMode";
+ import { createCardSkeleton } from "/src/core/ui/skeletonLoader";
+ import { createPageShell } from "/src/core/ui/pageShell";
+ import { createSectionCard } from "/src/core/ui/sectionCard";
+ import { createBadge } from "/src/core/ui/badge";
+-import { createErrorState } from "/src/core/ui/errorState";
+-
+-type DashboardStatus = "OPERATIONNEL" | "DEGRADE" | "INCIDENT";
++import { createToolbar } from "/src/core/ui/toolbar";
++import { createDataTable, type TableColumn } from "/src/core/ui/dataTable";
++import { createContextualEmptyState } from "/src/core/ui/emptyState";
++import { createDonutGauge } from "/src/core/ui/charts/donutGauge";
++import { createMiniBars } from "/src/core/ui/charts/miniBars";
++import { createLineChart } from "/src/core/ui/charts/lineChart";
++import { navigate } from "/src/runtime/navigate";
++import { safeRender, fetchJsonSafe, mapSafeMode, getSafeMode } from "/src/core/runtime/safe";
++
++const API_TABS = [
++  { id: "headers", label: "Headers", content: "x-correlation-id: auto\nx-safe-mode: inherit" },
++  { id: "body", label: "Body", content: "{\n  \"limit\": 50,\n  \"sample\": true\n}" },
++  { id: "auth", label: "Auth", content: "Bearer <token>\nScope: cp:read" },
++  { id: "run", label: "Run", content: "Historique: 3 requêtes (DEMO)" }
++];
++
++type DashboardKpi = {
++  availabilityPct: number;
++  latencyP95: number;
++  errors24h: number;
++  requests24h: number;
++};
+ 
+ type DashboardEvent = {
+   time: string;
+-  type: "AUDIT" | "LOG" | "SYSTEM" | "API" | "DEMO";
+-  label: string;
+-  tone: "neutral" | "info" | "ok" | "warn" | "err" | "accent";
+-  correlationId?: string;
++  source: "DEMO" | "SYSTEM" | "CP";
++  severity: "INFO" | "WARN" | "ERR";
++  message: string;
++  code: string;
+ };
+ 
+-type DashboardData = {
+-  kpi: {
+-    cpuPct: number;
+-    memPct: number;
+-    latencyMs: number;
+-    api24h: number;
+-    jobs24h: number;
+-    activeUsers: number;
+-    warn24h: number;
+-    err24h: number;
+-    modulesActive: number;
+-    modulesInactive: number;
+-    topModule?: string;
+-    peak24h?: number;
+-  };
+-  status: DashboardStatus;
++type NetworkData = {
++  availabilityPct: number;
++  latencySeries: number[];
++  trafficSeries: number[];
++  statusBuckets: { ok: number; warn: number; err: number };
+   lastUpdated: string;
+-  recentEvents: DashboardEvent[];
+ };
+ 
+-export function renderDashboard(root: HTMLElement): void {
++type DashboardPayload = {
++  kpi: DashboardKpi;
++  events: DashboardEvent[];
++  network: NetworkData;
++  mode: "live" | "demo" | "error";
++  errors: { events?: string; network?: string };
++};
++
++export function renderDashboardPage(root: HTMLElement): void {
++  renderDashboardInternal(root);
++}
++
++function refreshDashboard(root: HTMLElement): void {
++  renderDashboardInternal(root);
++}
++
++function renderDashboardInternal(root: HTMLElement): void {
+   const renderLoading = () => {
+-    root.innerHTML = coreBaseStyles();
+-    const safeModeValue = mapSafeMode(getSafeMode());
+-    const { shell, content } = createPageShell({
+-      title: "Dashboard",
+-      subtitle: "Vue exécutive de la santé du Control Plane",
+-      safeMode: safeModeValue,
+-      statusBadge: { label: "CHARGEMENT", tone: "info" }
++    safeRender(root, () => {
++      root.innerHTML = coreBaseStyles();
++      const safeModeValue = mapSafeMode(getSafeMode());
++      const { shell, content } = createPageShell({
++        title: "Console",
++        subtitle: "API testing + network activity (console ops)",
++        safeMode: safeModeValue,
++        statusBadge: { label: "CHARGEMENT", tone: "info" },
++        actions: [
++          { label: "Actualiser", icon: "⟳", onClick: () => refreshDashboard(root) }
++        ]
++      });
++
++      const kpiGrid = createKpiGrid();
++      for (let i = 0; i < 4; i += 1) {
++        kpiGrid.appendChild(createCardSkeleton());
++      }
++      content.appendChild(kpiGrid);
++
++      const { card: eventsCard, body: eventsBody } = createSectionCard({
++        title: "Événements récents",
++        description: "Derniers événements système (audit / logs) — lecture seule",
++        variant: "glass"
++      });
++      eventsBody.appendChild(createCardSkeleton());
++      content.appendChild(eventsCard);
++
++      const toolsGrid = createToolsGrid();
++      toolsGrid.appendChild(createCardSkeleton());
++      toolsGrid.appendChild(createCardSkeleton());
++      content.appendChild(toolsGrid);
++
++      root.appendChild(shell);
+     });
++  };
+ 
+-    const grid = document.createElement("div");
+-    grid.style.cssText = `
+-      display: grid;
+-      grid-template-columns: repeat(2, minmax(0, 1fr));
+-      gap: 16px;
+-      width: 100%;
+-    `;
+-    for (let i = 0; i < 4; i += 1) {
+-      grid.appendChild(createCardSkeleton());
+-    }
+-    content.appendChild(grid);
++  const renderData = (payload: DashboardPayload) => {
++    safeRender(root, () => {
++      root.innerHTML = coreBaseStyles();
++      const safeModeValue = mapSafeMode(getSafeMode());
++      const statusBadge = payload.mode === "live"
++        ? { label: "LIVE", tone: "ok" as const }
++        : payload.mode === "demo"
++          ? { label: "DEMO", tone: "warn" as const }
++          : { label: "ERREUR", tone: "err" as const };
++
++      const { shell, content } = createPageShell({
++        title: "Console",
++        subtitle: "API testing + network activity (console ops)",
++        safeMode: safeModeValue,
++        statusBadge,
++        actions: [
++          { label: "Actualiser", icon: "⟳", onClick: () => refreshDashboard(root) },
++          { label: "Logs", icon: "📋", onClick: () => { navigate("#/logs"); } }
++        ]
++      });
++
++      const kpiGrid = createKpiGrid();
++      kpiGrid.appendChild(createKpiCard("Disponibilité", `${payload.kpi.availabilityPct}%`, "Global OK", "ok"));
++      kpiGrid.appendChild(createKpiCard("Latence p95", `${payload.kpi.latencyP95}ms`, "↗ stable", "info"));
++      kpiGrid.appendChild(createKpiCard("Erreurs (24h)", formatNumber(payload.kpi.errors24h), "Seuil normal", payload.kpi.errors24h > 20 ? "err" : payload.kpi.errors24h > 6 ? "warn" : "ok"));
++      kpiGrid.appendChild(createKpiCard("Requêtes (24h)", formatNumber(payload.kpi.requests24h), "API + Jobs", "info"));
++      content.appendChild(kpiGrid);
++
++      const eventsCard = createEventsSection(payload.events, payload.errors.events, () => refreshDashboard(root));
++      content.appendChild(eventsCard);
++
++      const toolsGrid = createToolsGrid();
++      toolsGrid.appendChild(createApiTestingPanel());
++      toolsGrid.appendChild(createNetworkActivityPanel(payload.network, payload.errors.network));
++      content.appendChild(toolsGrid);
++
++      root.appendChild(shell);
++    });
++  };
++
++  renderLoading();
++  getDashboardData()
++    .then((payload) => {
++      renderData(payload);
++    })
++    .catch((error) => {
++      const demo = buildDemoPayload();
++      demo.mode = "error";
++      demo.errors.network = String(error);
++      renderData(demo);
++    });
++}
++
++function createApiTestingPanel(): HTMLElement {
++  const { card, body } = createSectionCard({
++    title: "API Testing",
++    description: "Composer et simuler des appels en environnement CP",
++    variant: "glass"
++  });
+ 
+-    const { card: eventsCard, body: eventsBody } = createSectionCard({
+-      title: "Événements récents",
+-      description: "Derniers événements système (audit / logs) — lecture seule"
++  const formRow = document.createElement("div");
++  formRow.style.minWidth = "0";
++  formRow.style.boxSizing = "border-box";
++  formRow.style.cssText = "display:flex; gap:8px; align-items:center; flex-wrap:wrap;";
++
++  const method = document.createElement("select");
++  ["GET", "POST", "PUT", "DELETE"].forEach((opt) => {
++    const option = document.createElement("option");
++    option.value = opt;
++    option.textContent = opt;
++    method.appendChild(option);
++  });
++  method.style.cssText = "background: rgba(0,0,0,0.35); color: var(--ic-text,#e7ecef); border:1px solid rgba(255,255,255,0.12); border-radius:10px; padding:8px 10px; font-size:12px;";
++
++  const input = document.createElement("input");
++  input.placeholder = "/api/cp/metrics";
++  input.value = "/api/cp/network";
++  input.style.cssText = "flex:1; min-width:220px; background: rgba(0,0,0,0.35); color: var(--ic-text,#e7ecef); border:1px solid rgba(255,255,255,0.12); border-radius:10px; padding:8px 12px; font-size:12px;";
++
++  const send = document.createElement("button");
++  send.textContent = "Send";
++  send.style.cssText = "padding:8px 16px; border-radius:10px; border:1px solid var(--ic-accent,#7b2cff); background: var(--ic-accent,#7b2cff); color: white; font-weight:600; font-size:12px; cursor:pointer;";
++
++  formRow.appendChild(method);
++  formRow.appendChild(input);
++  formRow.appendChild(send);
++  body.appendChild(formRow);
++
++  const statusLine = document.createElement("div");
++  statusLine.textContent = "Prêt — aucune requête envoyée";
++  statusLine.style.cssText = "font-size: 11px; color: var(--ic-mutedText, #a7b0b7);";
++  body.appendChild(statusLine);
++
++  const tabRow = document.createElement("div");
++  tabRow.style.cssText = "display:flex; gap:8px; flex-wrap:wrap;";
++  const tabContent = document.createElement("div");
++  tabContent.style.cssText = "font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, \"Liberation Mono\", \"Courier New\", monospace; font-size: 11px; color: var(--ic-text,#e7ecef); background: rgba(0,0,0,0.35); border: 1px solid rgba(255,255,255,0.12); border-radius: 10px; padding: 10px; white-space: pre-wrap;";
++
++  const setActive = (id: string) => {
++    tabRow.querySelectorAll("button").forEach((btn) => {
++      const active = btn.getAttribute("data-id") === id;
++      btn.setAttribute("data-active", active ? "1" : "0");
++      (btn as HTMLButtonElement).style.background = active ? "rgba(255,255,255,0.12)" : "transparent";
++      (btn as HTMLButtonElement).style.color = active ? "var(--ic-text,#e7ecef)" : "var(--ic-mutedText,#a7b0b7)";
++      (btn as HTMLButtonElement).style.borderColor = active ? "rgba(255,255,255,0.2)" : "rgba(255,255,255,0.12)";
+     });
+-    eventsBody.appendChild(createCardSkeleton());
+-    content.appendChild(eventsCard);
++    const tab = API_TABS.find((t) => t.id === id) || API_TABS[0];
++    tabContent.textContent = tab.content;
++  };
++
++  API_TABS.forEach((tab, idx) => {
++    const btn = document.createElement("button");
++    btn.type = "button";
++    btn.textContent = tab.label;
++    btn.setAttribute("data-id", tab.id);
++    btn.style.cssText = "padding:6px 10px; border-radius:10px; border:1px solid rgba(255,255,255,0.12); background: transparent; font-size:11px; cursor:pointer;";
++    btn.onclick = () => setActive(tab.id);
++    tabRow.appendChild(btn);
++    if (idx === 0) setActive(tab.id);
++  });
++
++  body.appendChild(tabRow);
++  body.appendChild(tabContent);
+ 
+-    root.appendChild(shell);
++  send.onclick = () => {
++    const url = input.value.trim() || "/api/cp/metrics";
++    statusLine.textContent = `Dernier envoi: ${method.value} ${url} — 200 OK (DEMO)`;
+   };
+ 
+-  const renderData = (data: DashboardData, errors: { metrics?: string; events?: string }) => {
+-    root.innerHTML = coreBaseStyles();
+-    const safeModeValue = mapSafeMode(getSafeMode());
+-    const { shell, content } = createPageShell({
+-      title: "Dashboard",
+-      subtitle: "Vue exécutive de la santé du Control Plane",
+-      safeMode: safeModeValue,
+-      statusBadge: {
+-        label: data.status,
+-        tone: data.status === "OPERATIONNEL" ? "ok" : data.status === "DEGRADE" ? "warn" : "err"
++  return card;
++}
++
++function createNetworkActivityPanel(network: NetworkData, error?: string): HTMLElement {
++  const { card, body } = createSectionCard({
++    title: "Network Activity",
++    description: "Latence, disponibilité et flux temps réel",
++    variant: "glass"
++  });
++
++  if (error) {
++    body.appendChild(createCompactErrorBanner("ERR_NETWORK_FETCH", error));
++  }
++
++  const layout = document.createElement("div");
++  layout.style.cssText = "display:grid; grid-template-columns: 200px 1fr; gap:16px; align-items:start;";
++
++  const left = document.createElement("div");
++  left.style.cssText = "display:flex; flex-direction:column; gap:12px; align-items:flex-start;";
++  left.appendChild(createDonutGauge({
++    valuePct: network.availabilityPct,
++    label: "Availability",
++    sublabel: `${network.availabilityPct}%`
++  }));
++
++  const legend = document.createElement("div");
++  legend.style.cssText = "display:flex; flex-direction:column; gap:6px; font-size:12px;";
++  legend.appendChild(createLegendItem("OK", network.statusBuckets.ok, "ok"));
++  legend.appendChild(createLegendItem("WARN", network.statusBuckets.warn, "warn"));
++  legend.appendChild(createLegendItem("ERR", network.statusBuckets.err, "err"));
++  left.appendChild(legend);
++
++  const right = document.createElement("div");
++  right.style.cssText = "display:flex; flex-direction:column; gap:12px;";
++
++  const trafficWrap = document.createElement("div");
++  trafficWrap.style.cssText = "display:flex; align-items:center; justify-content:space-between; gap:12px;";
++  const trafficMeta = document.createElement("div");
++  trafficMeta.innerHTML = `<div style="font-size:12px; color: var(--ic-mutedText,#a7b0b7);">Throughput (req/min)</div><div style="font-size:14px; font-weight:700; color: var(--ic-text,#e7ecef);">${formatNumber(average(network.trafficSeries))}</div>`;
++  trafficWrap.appendChild(trafficMeta);
++  trafficWrap.appendChild(createMiniBars({ values: network.trafficSeries, height: 80 }));
++
++  const latencyWrap = document.createElement("div");
++  latencyWrap.style.cssText = "display:flex; flex-direction:column; gap:6px;";
++  const latencyLabel = document.createElement("div");
++  latencyLabel.textContent = "Latency timeline (ms)";
++  latencyLabel.style.cssText = "font-size:12px; color: var(--ic-mutedText,#a7b0b7);";
++  latencyWrap.appendChild(latencyLabel);
++  latencyWrap.appendChild(createLineChart({ values: network.latencySeries, height: 120 }));
++
++  const legendTable = document.createElement("div");
++  legendTable.style.cssText = "display:grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap:8px; font-size:12px;";
++  legendTable.appendChild(createLegendStat("Raw", `${network.statusBuckets.ok + network.statusBuckets.warn + network.statusBuckets.err}s`));
++  legendTable.appendChild(createLegendStat("Avg", `${Math.round(average(network.latencySeries))}ms`));
++  legendTable.appendChild(createLegendStat("Min", `${Math.min(...network.latencySeries)}ms`));
++  legendTable.appendChild(createLegendStat("Max", `${Math.max(...network.latencySeries)}ms`));
++
++  right.appendChild(trafficWrap);
++  right.appendChild(latencyWrap);
++  right.appendChild(legendTable);
++
++  layout.appendChild(left);
++  layout.appendChild(right);
++  body.appendChild(layout);
++
++  const updated = document.createElement("div");
++  updated.style.cssText = "margin-top: 6px; font-size: 11px; color: var(--ic-mutedText, #a7b0b7);";
++  updated.textContent = `Dernière mise à jour: ${new Date(network.lastUpdated).toLocaleString("fr-CA")}`;
++  body.appendChild(updated);
++
++  return card;
++}
++
++function createEventsSection(events: DashboardEvent[], error: string | undefined, onRefresh: () => void): HTMLElement {
++  const { card, body } = createSectionCard({
++    title: "Événements récents",
++    description: "Derniers événements système (audit / logs) — lecture seule",
++    variant: "glass"
++  });
++
++  if (error) {
++    body.appendChild(createCompactErrorBanner("ERR_EVENTS_FETCH", error));
++  }
++
++  const tableState = { search: "", severity: "" };
++  const tableContainer = document.createElement("div");
++
++  const { element: toolbar, searchInput } = createToolbar({
++    searchPlaceholder: "Rechercher...",
++    onSearch: (value) => {
++      tableState.search = value.toLowerCase().trim();
++      renderTable();
++    },
++    filters: [
++      {
++        label: "Sévérité",
++        options: [
++          { label: "Toutes", value: "" },
++          { label: "INFO", value: "INFO" },
++          { label: "WARN", value: "WARN" },
++          { label: "ERR", value: "ERR" }
++        ],
++        onChange: (value) => {
++          tableState.severity = value;
++          renderTable();
++        }
+       }
+-    });
++    ],
++    actions: [
++      { label: "Rafraîchir", primary: true, onClick: onRefresh },
++      { label: "Voir logs", onClick: () => { navigate("#/logs"); } }
++    ]
++  });
+ 
+-    const grid = document.createElement("div");
+-    grid.style.cssText = `
+-      display: grid;
+-      grid-template-columns: repeat(2, minmax(0, 1fr));
+-      gap: 16px;
+-      width: 100%;
+-    `;
+-
+-    const latencyTone = toneFromThresholds(data.kpi.latencyMs, { warn: 250, err: 800 });
+-    const cpuTone = toneFromThresholds(data.kpi.cpuPct, { warn: 85, err: 95 });
+-    const memTone = toneFromThresholds(data.kpi.memPct, { warn: 85, err: 95 });
+-
+-    const { card: healthCard, body: healthBody } = createSectionCard({
+-      title: "Santé système",
+-      description: "CPU, mémoire, latence p95 et état local"
+-    });
+-    if (errors.metrics) {
+-      healthBody.appendChild(createErrorState({
+-        code: "ERR_METRICS_FETCH",
+-        message: errors.metrics
+-      }));
+-    }
+-    healthBody.appendChild(createKpiRow("CPU", `${data.kpi.cpuPct}%`, cpuTone));
+-    healthBody.appendChild(createKpiRow("Mémoire", `${data.kpi.memPct}%`, memTone));
+-    healthBody.appendChild(createKpiRow("Latence p95", `${data.kpi.latencyMs} ms`, latencyTone));
+-    healthBody.appendChild(createKpiRow("État local", latencyTone === "err" ? "ERR" : latencyTone === "warn" ? "WARN" : "OK", latencyTone));
+-    healthBody.appendChild(createLastUpdatedRow(data.lastUpdated));
+-    grid.appendChild(healthCard);
+-
+-    const { card: activityCard, body: activityBody } = createSectionCard({
+-      title: "Activité",
+-      description: "Requêtes API, jobs et utilisateurs actifs"
+-    });
+-    if (errors.metrics) {
+-      activityBody.appendChild(createErrorState({
+-        code: "ERR_ACTIVITY_FETCH",
+-        message: errors.metrics
+-      }));
+-    }
+-    activityBody.appendChild(createKpiRow("Requêtes API (24h)", formatNumber(data.kpi.api24h)));
+-    activityBody.appendChild(createKpiRow("Jobs (24h)", formatNumber(data.kpi.jobs24h)));
+-    activityBody.appendChild(createKpiRow("Utilisateurs actifs (24h)", formatNumber(data.kpi.activeUsers)));
+-    if (data.kpi.peak24h !== undefined) {
+-      activityBody.appendChild(createKpiRow("Pic (24h)", formatNumber(data.kpi.peak24h)));
++  body.appendChild(toolbar);
++  body.appendChild(tableContainer);
++
++  const columns: TableColumn<DashboardEvent>[] = [
++    {
++      key: "time",
++      label: "Heure",
++      sortable: true,
++      render: (value) => {
++        const div = document.createElement("div");
++        div.textContent = formatTime(String(value));
++        div.style.cssText = "font-size: 11px; color: var(--ic-mutedText, #a7b0b7);";
++        return div;
++      }
++    },
++    {
++      key: "source",
++      label: "Source",
++      sortable: true,
++      render: (value) => createBadge(String(value), "neutral")
++    },
++    {
++      key: "message",
++      label: "Message",
++      sortable: false,
++      render: (value) => {
++        const div = document.createElement("div");
++        div.textContent = String(value);
++        div.style.cssText = "font-size: 12px; color: var(--ic-text, #e7ecef);";
++        return div;
++      }
++    },
++    {
++      key: "code",
++      label: "Code",
++      sortable: true,
++      render: (value, row) => {
++        const div = document.createElement("div");
++        div.textContent = String(value);
++        div.style.cssText = `font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, \"Liberation Mono\", \"Courier New\", monospace; color: ${row.severity === "ERR" ? "var(--ic-error,#f48771)" : "var(--ic-mutedText,#a7b0b7)"}; font-size: 11px;`;
++        return div;
++      }
+     }
+-    activityBody.appendChild(createLastUpdatedRow(data.lastUpdated));
+-    grid.appendChild(activityCard);
+-
+-    const { card: errorsCard, body: errorsBody } = createSectionCard({
+-      title: "Erreurs",
+-      description: "Alertes et erreurs des dernières 24 heures",
+-      actions: [
+-        {
+-          label: "Voir logs",
+-          onClick: () => { window.location.hash = "#/logs"; }
+-        }
+-      ]
++  ];
++
++  function renderTable(): void {
++    tableContainer.innerHTML = "";
++    const filtered = events.filter((row) => {
++      const matchSeverity = !tableState.severity || row.severity === tableState.severity;
++      const q = tableState.search;
++      const matchSearch = !q || row.message.toLowerCase().includes(q) || row.code.toLowerCase().includes(q);
++      return matchSeverity && matchSearch;
+     });
+-    if (errors.metrics) {
+-      errorsBody.appendChild(createErrorState({
+-        code: "ERR_LOGS_AGG",
+-        message: errors.metrics
+-      }));
+-    }
+-    errorsBody.appendChild(createKpiRow("WARN (24h)", formatNumber(data.kpi.warn24h), data.kpi.warn24h > 0 ? "warn" : "ok"));
+-    errorsBody.appendChild(createKpiRow("ERR (24h)", formatNumber(data.kpi.err24h), data.kpi.err24h > 0 ? "err" : "ok"));
+-    errorsBody.appendChild(createKpiRow("Top module", data.kpi.topModule || "N/A"));
+-    errorsBody.appendChild(createLastUpdatedRow(data.lastUpdated));
+-    grid.appendChild(errorsCard);
+-
+-    const { card: modulesCard, body: modulesBody } = createSectionCard({
+-      title: "Modules",
+-      description: "État des modules et impact SAFE_MODE",
+-      actions: [
+-        {
+-          label: "Gérer modules",
+-          onClick: () => { window.location.hash = "#/subscription"; }
+-        }
+-      ]
++
++    const table = createDataTable({
++      columns,
++      data: filtered,
++      searchable: false,
++      sortable: true,
++      pagination: true,
++      pageSize: 8
+     });
+-    if (errors.metrics) {
+-      modulesBody.appendChild(createErrorState({
+-        code: "ERR_MODULES_FETCH",
+-        message: errors.metrics
+-      }));
+-    }
+-    modulesBody.appendChild(createKpiRow("Actifs", formatNumber(data.kpi.modulesActive), data.kpi.modulesActive > 0 ? "ok" : "warn"));
+-    modulesBody.appendChild(createKpiRow("Inactifs", formatNumber(data.kpi.modulesInactive), data.kpi.modulesInactive > 0 ? "warn" : "ok"));
+-    modulesBody.appendChild(createKpiRow("SAFE_MODE impact", safeModeValue === "STRICT" ? "Routage auto limité" : safeModeValue === "COMPAT" ? "Compatibilité priorisée" : "Mode normal"));
+-    modulesBody.appendChild(createLastUpdatedRow(data.lastUpdated));
+-    grid.appendChild(modulesCard);
+-
+-    content.appendChild(grid);
+-
+-    const { card: eventsCard, body: eventsBody } = createSectionCard({
+-      title: "Événements récents",
+-      description: "Derniers événements système (audit / logs) — lecture seule",
+-      actions: [
+-        {
+-          label: "Rafraîchir",
+-          onClick: () => { renderDashboard(root); }
++    tableContainer.appendChild(table);
++
++    if (filtered.length === 0) {
++      tableContainer.appendChild(createContextualEmptyState("logs", {
++        searchQuery: tableState.search || undefined,
++        filter: tableState.severity || undefined,
++        onClearFilter: () => {
++          tableState.search = "";
++          tableState.severity = "";
++          if (searchInput) searchInput.value = "";
++          renderTable();
+         }
+-      ]
+-    });
+-    if (errors.events) {
+-      eventsBody.appendChild(createErrorState({
+-        code: "ERR_EVENTS_FETCH",
+-        message: errors.events
+       }));
+     }
+-    eventsBody.appendChild(createEventsTable(data.recentEvents));
+-    content.appendChild(eventsCard);
++  }
+ 
+-    root.appendChild(shell);
+-  };
++  renderTable();
++  return card;
++}
+ 
+-  renderLoading();
+-  getDashboardData()
+-    .then(({ data, errors }) => {
+-      renderData(data, errors);
+-    })
+-    .catch((error) => {
+-      const fallback = buildDemoDashboardData();
+-      renderData(fallback, { metrics: String(error) });
+-    });
++function createCompactErrorBanner(code: string, message: string): HTMLElement {
++  const banner = document.createElement("div");
++  banner.style.cssText = "padding: 8px 10px; border-radius: 10px; border: 1px solid rgba(244,135,113,0.35); background: rgba(244,135,113,0.08); display:flex; flex-direction:column; gap:4px;";
++  const title = document.createElement("div");
++  title.textContent = code;
++  title.style.cssText = "font-size: 12px; font-weight: 700; color: rgba(244,135,113,0.95);";
++  const desc = document.createElement("div");
++  desc.textContent = message;
++  desc.style.cssText = "font-size: 11px; color: rgba(231,236,239,0.78);";
++  banner.appendChild(title);
++  banner.appendChild(desc);
++  return banner;
+ }
+ 
+-function mapSafeMode(value: string): "OFF" | "COMPAT" | "STRICT" {
+-  if (value === "STRICT") return "STRICT";
+-  if (value === "COMPAT") return "COMPAT";
+-  return "OFF";
++function createKpiGrid(): HTMLElement {
++  const grid = document.createElement("div");
++  grid.style.cssText = "display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; width:100%;";
++  return grid;
+ }
+ 
+-function formatNumber(value: number): string {
+-  return new Intl.NumberFormat("fr-CA").format(value);
++function createToolsGrid(): HTMLElement {
++  const grid = document.createElement("div");
++  grid.style.cssText = "display:grid; grid-template-columns: repeat(auto-fit, minmax(560px, 1fr)); gap: 16px; width:100%;";
++  return grid;
+ }
+ 
+-function createKpiRow(label: string, value: string, tone?: "ok" | "warn" | "err"): HTMLElement {
++function createKpiCard(title: string, value: string, subtext: string, tone: "ok" | "warn" | "err" | "info"): HTMLElement {
++  const { card, body } = createSectionCard({
++    title,
++    description: subtext,
++    variant: "glass",
++    dense: true
++  });
++
++  const valueEl = document.createElement("div");
++  valueEl.textContent = value;
++  valueEl.style.cssText = "font-size: 22px; font-weight: 800; color: var(--ic-text, #e7ecef);";
++
++  const badge = createBadge(tone.toUpperCase(), tone === "info" ? "info" : tone);
++
+   const row = document.createElement("div");
+   row.style.cssText = "display:flex; align-items:center; justify-content:space-between; gap:12px;";
++  row.appendChild(valueEl);
++  row.appendChild(badge);
++
++  body.appendChild(row);
++  return card;
++}
++
++function createLegendItem(label: string, value: number, tone: "ok" | "warn" | "err"): HTMLElement {
++  const row = document.createElement("div");
++  row.style.cssText = "display:flex; align-items:center; justify-content:space-between; gap:8px;";
+   const left = document.createElement("div");
+   left.textContent = label;
+-  left.style.cssText = "font-size: 12px; color: var(--ic-mutedText, #a7b0b7);";
++  left.style.cssText = "font-size: 11px; color: var(--ic-mutedText, #a7b0b7);";
+   const right = document.createElement("div");
+-  right.textContent = value;
+-  right.style.cssText = `font-size: 13px; font-weight: 600; color: ${tone === "err" ? "var(--ic-error, #f48771)" : tone === "warn" ? "var(--ic-warn, #f59e0b)" : tone === "ok" ? "var(--ic-success, #4ec9b0)" : "var(--ic-text, #e7ecef)"};`;
++  right.textContent = String(value);
++  right.style.cssText = `font-size: 12px; font-weight: 700; color: ${tone === "err" ? "var(--ic-error,#f48771)" : tone === "warn" ? "var(--ic-warn,#f59e0b)" : "var(--ic-success,#4ec9b0)"};`;
+   row.appendChild(left);
+   row.appendChild(right);
+   return row;
+ }
+ 
+-function createLastUpdatedRow(value: string): HTMLElement {
++function createLegendStat(label: string, value: string): HTMLElement {
+   const row = document.createElement("div");
+-  row.style.cssText = "margin-top: 6px; font-size: 11px; color: var(--ic-mutedText, #a7b0b7);";
+-  row.textContent = `Dernière mise à jour: ${new Date(value).toLocaleString("fr-CA")}`;
++  row.style.cssText = "display:flex; align-items:center; justify-content:space-between; padding:6px 8px; border-radius:8px; border:1px solid rgba(255,255,255,0.08); background:rgba(255,255,255,0.03);";
++  const left = document.createElement("div");
++  left.textContent = label;
++  left.style.cssText = "font-size:11px; color: var(--ic-mutedText,#a7b0b7);";
++  const right = document.createElement("div");
++  right.textContent = value;
++  right.style.cssText = "font-size:12px; font-weight:700; color: var(--ic-text,#e7ecef);";
++  row.appendChild(left);
++  row.appendChild(right);
+   return row;
+ }
+ 
+-function toneFromThresholds(value: number, thresholds: { warn: number; err: number }): "ok" | "warn" | "err" {
+-  if (value >= thresholds.err) return "err";
+-  if (value >= thresholds.warn) return "warn";
+-  return "ok";
+-}
+ 
+-function buildDemoDashboardData(): DashboardData {
+-  return {
+-    kpi: {
+-      cpuPct: 32,
+-      memPct: 58,
+-      latencyMs: 180,
+-      api24h: 12840,
+-      jobs24h: 412,
+-      activeUsers: 68,
+-      warn24h: 4,
+-      err24h: 1,
+-      modulesActive: 14,
+-      modulesInactive: 2,
+-      topModule: "registry",
+-      peak24h: 320
+-    },
+-    status: "OPERATIONNEL",
+-    lastUpdated: new Date().toISOString(),
+-    recentEvents: [
+-      { time: new Date(Date.now() - 1000 * 60 * 6).toISOString(), type: "DEMO", label: "DEMO: Provisioning des métriques initiales", tone: "neutral" },
+-      { time: new Date(Date.now() - 1000 * 60 * 24).toISOString(), type: "DEMO", label: "DEMO: Synchronisation des modules terminée", tone: "neutral" },
+-      { time: new Date(Date.now() - 1000 * 60 * 47).toISOString(), type: "DEMO", label: "DEMO: Audit startup validé", tone: "neutral" }
+-    ]
+-  };
+-}
+ 
+-async function fetchJsonSafe<T = any>(url: string): Promise<{ ok: boolean; status: number; data?: T; error?: string }> {
+-  try {
+-    const res = await fetch(url, { headers: { "accept": "application/json" } });
+-    if (!res.ok) {
+-      return { ok: false, status: res.status, error: `HTTP ${res.status}` };
+-    }
+-    const data = await res.json();
+-    return { ok: true, status: res.status, data };
+-  } catch (error) {
+-    return { ok: false, status: 0, error: String(error) };
+-  }
++function formatNumber(value: number): string {
++  return new Intl.NumberFormat("fr-CA").format(value);
+ }
+ 
+-async function getDashboardData(): Promise<{ data: DashboardData; errors: { metrics?: string; events?: string } }> {
+-  const demo = buildDemoDashboardData();
+-  const errors: { metrics?: string; events?: string } = {};
+-
+-  const metricsRes = await fetchJsonSafe<any>("/api/cp/metrics");
+-  let kpi = demo.kpi;
+-  if (metricsRes.ok && metricsRes.data) {
+-    const raw = metricsRes.data;
+-    kpi = {
+-      cpuPct: Number(raw.cpuPct ?? raw.cpu ?? demo.kpi.cpuPct),
+-      memPct: Number(raw.memPct ?? raw.memoryPct ?? demo.kpi.memPct),
+-      latencyMs: Number(raw.latencyMs ?? raw.latency ?? demo.kpi.latencyMs),
+-      api24h: Number(raw.api24h ?? raw.apiRequests24h ?? demo.kpi.api24h),
+-      jobs24h: Number(raw.jobs24h ?? demo.kpi.jobs24h),
+-      activeUsers: Number(raw.activeUsers ?? demo.kpi.activeUsers),
+-      warn24h: Number(raw.warn24h ?? demo.kpi.warn24h),
+-      err24h: Number(raw.err24h ?? demo.kpi.err24h),
+-      modulesActive: Number(raw.modulesActive ?? demo.kpi.modulesActive),
+-      modulesInactive: Number(raw.modulesInactive ?? demo.kpi.modulesInactive),
+-      topModule: raw.topModule ?? demo.kpi.topModule,
+-      peak24h: Number(raw.peak24h ?? demo.kpi.peak24h)
+-    };
+-  } else {
+-    errors.metrics = metricsRes.error || "Impossible de charger /api/cp/metrics";
+-  }
+-
+-  const auditRes = await fetchJsonSafe<any>("/api/cp/audit?limit=10");
+-  const logsRes = await fetchJsonSafe<any>("/api/cp/logs?limit=10");
+-  let recentEvents: DashboardEvent[] = [];
+-
+-  if (auditRes.ok && Array.isArray(auditRes.data)) {
+-    recentEvents = recentEvents.concat(auditRes.data.map((item: any) => ({
+-      time: String(item.ts || item.time || item.timestamp || new Date().toISOString()),
+-      type: "AUDIT",
+-      label: String(item.label || item.message || item.code || "Audit"),
+-      tone: "info",
+-      correlationId: item.correlationId || item.correlation_id
+-    })));
+-  }
+-
+-  if (logsRes.ok && Array.isArray(logsRes.data)) {
+-    recentEvents = recentEvents.concat(logsRes.data.map((item: any) => ({
+-      time: String(item.ts || item.time || item.timestamp || new Date().toISOString()),
+-      type: "LOG",
+-      label: String(item.label || item.message || item.code || "Log"),
+-      tone: item.level === "ERR" ? "err" : item.level === "WARN" ? "warn" : "neutral",
+-      correlationId: item.correlationId || item.correlation_id
+-    })));
+-  }
++function formatTime(value: string): string {
++  const date = new Date(value);
++  return date.toLocaleTimeString("fr-CA");
++}
+ 
+-  if (!auditRes.ok && !logsRes.ok) {
+-    errors.events = "Aucun flux audit/log disponible — fallback démo activé";
+-  }
++function average(values: number[]): number {
++  if (!values.length) return 0;
++  const total = values.reduce((sum, v) => sum + v, 0);
++  return Math.round(total / values.length);
++}
+ 
+-  if (recentEvents.length === 0) {
+-    recentEvents = demo.recentEvents;
+-  }
++function buildDemoPayload(): DashboardPayload {
++  const kpi = buildDemoKpis();
++  const events = buildDemoEvents();
++  const network = buildDemoNetwork();
++  return { kpi, events, network, mode: "demo", errors: {} };
++}
+ 
+-  const status = computeStatus(kpi);
++function buildDemoKpis(): DashboardKpi {
+   return {
+-    data: {
+-      kpi,
+-      status,
+-      lastUpdated: new Date().toISOString(),
+-      recentEvents: recentEvents.slice(0, 10)
+-    },
+-    errors
++    availabilityPct: 99.9,
++    latencyP95: 22,
++    errors24h: 12,
++    requests24h: 12840
+   };
+ }
+ 
+-function computeStatus(kpi: DashboardData["kpi"]): DashboardStatus {
+-  if (kpi.err24h > 0 || kpi.latencyMs > 800 || kpi.cpuPct > 95 || kpi.memPct > 95) {
+-    return "INCIDENT";
+-  }
+-  if (kpi.warn24h > 0 || kpi.latencyMs > 250 || kpi.cpuPct > 85 || kpi.memPct > 85) {
+-    return "DEGRADE";
+-  }
+-  return "OPERATIONNEL";
++function buildDemoEvents(): DashboardEvent[] {
++  return [
++    { time: "2026-01-19T12:18:04.000Z", source: "SYSTEM", severity: "INFO", message: "Sync modules termine", code: "SYNC_OK" },
++    { time: "2026-01-19T12:16:42.000Z", source: "CP", severity: "WARN", message: "Quota d'appel eleve", code: "WARN_RATE" },
++    { time: "2026-01-19T12:15:21.000Z", source: "SYSTEM", severity: "INFO", message: "Rotation cle API", code: "KEY_ROTATE" },
++    { time: "2026-01-19T12:12:17.000Z", source: "DEMO", severity: "INFO", message: "Provisioning metrics", code: "DEMO_INIT" },
++    { time: "2026-01-19T12:10:48.000Z", source: "CP", severity: "WARN", message: "Latence p95 elevee", code: "WARN_LAT" },
++    { time: "2026-01-19T12:09:11.000Z", source: "SYSTEM", severity: "ERR", message: "Erreur d'ecriture audit", code: "ERR_AUDIT" }
++  ];
+ }
+ 
+-function createEventsTable(events: DashboardEvent[]): HTMLElement {
+-  const wrapper = document.createElement("div");
+-  wrapper.style.cssText = "display:flex; flex-direction:column; gap:10px;";
++function buildDemoNetwork(): NetworkData {
++  return {
++    availabilityPct: 79,
++    latencySeries: [18, 21, 28, 26, 24, 22, 27, 30, 28, 32, 26, 24, 29, 33, 31, 27, 25, 22, 24, 28, 30, 33, 27, 25, 29, 34, 36, 31, 28, 26, 24, 22, 25, 27, 31, 35, 33, 29, 26, 24, 22, 23, 25, 28, 31, 34, 32, 29, 27, 25],
++    trafficSeries: [14, 18, 22, 20, 26, 30, 28, 34, 32, 38, 36, 30, 24, 28, 32, 26, 22, 24, 28, 30, 34, 36, 32, 28],
++    statusBuckets: { ok: 824, warn: 36, err: 12 },
++    lastUpdated: "2026-01-19T12:20:00.000Z"
++  };
++}
+ 
+-  if (!events || events.length === 0) {
+-    const empty = document.createElement("div");
+-    empty.style.cssText = "padding: 16px; color: var(--ic-mutedText, #a7b0b7); font-size: 13px;";
+-    empty.textContent = "Aucun événement pour cette période. Rafraîchissez dans quelques minutes.";
+-    wrapper.appendChild(empty);
+-    return wrapper;
++async function getDashboardData(): Promise<DashboardPayload> {
++  const demo = buildDemoPayload();
++
++  const networkRes = await fetchJsonSafe<any>("/api/cp/network");
++  if (networkRes.ok && networkRes.data) {
++    const raw = networkRes.data;
++    const latencySeries = Array.isArray(raw.latencySeries) ? raw.latencySeries : demo.network.latencySeries;
++    const trafficSeries = Array.isArray(raw.trafficSeries) ? raw.trafficSeries : demo.network.trafficSeries;
++    const statusBuckets = raw.statusBuckets || raw.status || demo.network.statusBuckets;
++    const network: NetworkData = {
++      availabilityPct: Number(raw.availabilityPct ?? raw.availability ?? demo.network.availabilityPct),
++      latencySeries,
++      trafficSeries,
++      statusBuckets: {
++        ok: Number(statusBuckets?.ok ?? demo.network.statusBuckets.ok),
++        warn: Number(statusBuckets?.warn ?? demo.network.statusBuckets.warn),
++        err: Number(statusBuckets?.err ?? demo.network.statusBuckets.err)
++      },
++      lastUpdated: "2026-01-19T12:20:00.000Z"
++    };
++    return { ...demo, network, mode: "live", errors: {} };
+   }
+ 
+-  events.forEach((event) => {
+-    const row = document.createElement("div");
+-    row.style.cssText = `
+-      display: grid;
+-      grid-template-columns: 140px 90px 1fr 160px;
+-      gap: 12px;
+-      align-items: center;
+-      padding: 8px 10px;
+-      border: 1px solid var(--ic-border, #2b3136);
+-      border-radius: 8px;
+-      background: rgba(255,255,255,0.02);
+-      font-size: 12px;
+-    `;
+-    const time = document.createElement("div");
+-    time.textContent = new Date(event.time).toLocaleTimeString("fr-CA");
+-    time.style.cssText = "color: var(--ic-mutedText, #a7b0b7);";
+-
+-    const typeBadge = createBadge(event.type, event.tone);
+-
+-    const label = document.createElement("div");
+-    label.textContent = event.label;
+-    label.style.cssText = "color: var(--ic-text, #e7ecef);";
+-
+-    const correlation = document.createElement("div");
+-    correlation.style.cssText = "font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, \"Liberation Mono\", \"Courier New\", monospace; color: var(--ic-mutedText, #a7b0b7);";
+-    correlation.textContent = event.correlationId ? event.correlationId : "—";
+-
+-    row.appendChild(time);
+-    row.appendChild(typeBadge);
+-    row.appendChild(label);
+-    row.appendChild(correlation);
+-    wrapper.appendChild(row);
+-  });
+-
+-  return wrapper;
++  demo.errors.network = networkRes.error || "Impossible de charger /api/cp/network";
++  return demo;
+ }
+diff --git a/app/src/pages/cp/subscription.ts b/app/src/pages/cp/subscription.ts
+index 41a8acf..29de030 100644
+--- a/app/src/pages/cp/subscription.ts
++++ b/app/src/pages/cp/subscription.ts
+@@ -3,7 +3,6 @@
+  * SSOT Abonnements — PageShell + Tabs + KPI + listes + analyse
+  */
+ import { coreBaseStyles } from "../../../../modules/core-system/ui/frontend-ts/shared/coreStyles";
+-import { getSafeMode } from "../../../../modules/core-system/ui/frontend-ts/pages/_shared/safeMode";
+ import { createPageShell } from "/src/core/ui/pageShell";
+ import { createSectionCard } from "/src/core/ui/sectionCard";
+ import { createToolbar } from "/src/core/ui/toolbar";
+@@ -21,6 +20,8 @@ import {
+   deactivateSubscription,
+   isSubscriptionActive
+ } from "/src/core/subscriptions/subscriptionManager";
++import { navigate, getCurrentHash } from "/src/runtime/navigate";
++import { safeRender, fetchJsonSafe, mapSafeMode, getSafeMode } from "/src/core/runtime/safe";
+ 
+ type SubTab = "freemium" | "subscriptions" | "analysis";
+ 
+@@ -64,40 +65,35 @@ type SubscriptionData = {
+   lastUpdated: string;
+ };
+ 
+-export async function renderSubscription(root: HTMLElement): Promise<void> {
+-  currentRoot = root;
+-  const renderLoading = () => {
+-    root.innerHTML = coreBaseStyles();
+-    const safeModeValue = mapSafeMode(getSafeMode());
+-    const { shell, content } = createPageShell({
+-      title: "Abonnements",
+-      subtitle: "Gestion freemium et modules optionnels (sans interruption du core gratuit)",
+-      safeMode: safeModeValue,
+-      statusBadge: { label: "FREEMIUM: ACTIF", tone: "ok" }
+-    });
++export function renderSubscriptionPage(root: HTMLElement): void {
++  void renderSubscriptionPageAsync(root);
++}
+ 
+-    const grid = document.createElement("div");
+-    grid.style.cssText = `
+-      display: grid;
+-      grid-template-columns: repeat(2, minmax(0, 1fr));
+-      gap: 16px;
+-      width: 100%;
+-    `;
+-    for (let i = 0; i < 4; i += 1) {
+-      const skeleton = document.createElement("div");
+-      skeleton.style.cssText = `
+-        height: 120px;
+-        border: 1px solid var(--ic-border, #2b3136);
+-        background: rgba(255,255,255,0.03);
+-        border-radius: 10px;
+-      `;
+-      grid.appendChild(skeleton);
+-    }
+-    content.appendChild(grid);
+-    root.appendChild(shell);
+-  };
++async function renderSubscriptionPageAsync(root: HTMLElement): Promise<void> {
++  currentRoot = root;
++  root.innerHTML = coreBaseStyles();
++  const safeModeValue = mapSafeMode(getSafeMode());
++  const { shell, content } = createPageShell({
++    title: "Abonnements",
++    subtitle: "Gestion freemium et modules optionnels (sans interruption du core gratuit)",
++    safeMode: safeModeValue,
++    statusBadge: { label: "FREEMIUM: ACTIF", tone: "ok" }
++  });
+ 
+-  renderLoading();
++  const grid = document.createElement("div");
++  grid.style.cssText =
++    "display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));" +
++    "gap:16px;width:100%;min-width:0;box-sizing:border-box;";
++  for (let i = 0; i < 4; i += 1) {
++    const skeleton = document.createElement("div");
++    skeleton.style.cssText =
++      "height:120px;border:1px solid var(--ic-border,#2b3136);" +
++      "background:rgba(255,255,255,0.03);border-radius:10px;" +
++      "min-width:0;box-sizing:border-box;";
++    grid.appendChild(skeleton);
++  }
++  content.appendChild(grid);
++  root.appendChild(shell);
+ 
+   const { data, errors } = await getSubscriptionData();
+   const currentTab = getCurrentTab();
+@@ -110,15 +106,16 @@ function renderData(
+   errors: { data?: string; analytics?: string },
+   tab: SubTab
+ ): void {
+-  root.innerHTML = coreBaseStyles();
+-  const safeModeValue = mapSafeMode(getSafeMode());
+-  const canManage = canManageSubscriptions(getRole());
+-  const { shell, content } = createPageShell({
+-    title: "Abonnements",
+-    subtitle: "Gestion freemium et modules optionnels (sans interruption du core gratuit)",
+-    safeMode: safeModeValue,
+-    statusBadge: { label: "FREEMIUM: ACTIF", tone: "ok" }
+-  });
++  safeRender(root, () => {
++    root.innerHTML = coreBaseStyles();
++    const safeModeValue = mapSafeMode(getSafeMode());
++    const canManage = canManageSubscriptions(getRole());
++    const { shell, content } = createPageShell({
++      title: "Abonnements",
++      subtitle: "Gestion freemium et modules optionnels (sans interruption du core gratuit)",
++      safeMode: safeModeValue,
++      statusBadge: { label: "FREEMIUM: ACTIF", tone: "ok" }
++    });
+ 
+   const tabs = createTabs(tab);
+   content.appendChild(tabs);
+@@ -131,7 +128,8 @@ function renderData(
+     renderAnalysisTab(content, data, errors);
+   }
+ 
+-  root.appendChild(shell);
++    root.appendChild(shell);
++  });
+ }
+ 
+ function renderFreemiumTab(content: HTMLElement, data: SubscriptionData, safeMode: "OFF" | "COMPAT" | "STRICT"): void {
+@@ -191,12 +189,9 @@ function renderSubscriptionsTab(
+   canManage: boolean
+ ): void {
+   const kpiGrid = document.createElement("div");
+-  kpiGrid.style.cssText = `
+-    display: grid;
+-    grid-template-columns: repeat(2, minmax(0, 1fr));
+-    gap: 16px;
+-    width: 100%;
+-  `;
++  kpiGrid.style.cssText =
++    "display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));" +
++    "gap:16px;width:100%;min-width:0;box-sizing:border-box;";
+ 
+   const { card: kpiActive, body: kpiActiveBody } = createSectionCard({
+     title: "Actifs",
+@@ -460,7 +455,7 @@ function renderAnalysisTab(content: HTMLElement, data: SubscriptionData, errors:
+   table.style.cssText = "display:flex; flex-direction:column; gap:8px;";
+   data.analytics.topCategories.forEach((entry) => {
+     const row = document.createElement("div");
+-    row.style.cssText = "display:grid; grid-template-columns: 160px 80px 100px 1fr; gap: 12px; align-items:center; padding: 8px; border: 1px solid var(--ic-border, #2b3136); border-radius: 8px;";
++    row.style.cssText = "display:grid; grid-template-columns: 160px 80px 100px 1fr; gap: 12px; align-items:center; padding: 8px; border: 1px solid var(--ic-border, #2b3136); border-radius: 8px; min-width:0; box-sizing:border-box;";
+     row.innerHTML = `
+       <div style="font-size:12px;color:var(--ic-text,#e7ecef);">${entry.category}</div>
+       <div style="font-size:12px;color:var(--ic-text,#e7ecef);">${entry.active}</div>
+@@ -475,7 +470,7 @@ function renderAnalysisTab(content: HTMLElement, data: SubscriptionData, errors:
+ 
+ function createTabs(active: SubTab): HTMLElement {
+   const container = document.createElement("div");
+-  container.style.cssText = "display:flex; gap:8px; flex-wrap:wrap;";
++  container.style.cssText = "display:flex; gap:8px; flex-wrap:wrap; min-width:0; box-sizing:border-box;";
+   const tabs: Array<{ id: SubTab; label: string }> = [
+     { id: "freemium", label: "Freemium" },
+     { id: "subscriptions", label: "Abonnements" },
+@@ -503,11 +498,11 @@ function createTabs(active: SubTab): HTMLElement {
+ }
+ 
+ function setTab(tab: SubTab): void {
+-  window.location.hash = `#/subscription?tab=${tab}`;
++  navigate(`#/subscription?tab=${tab}`);
+ }
+ 
+ function getCurrentTab(): SubTab {
+-  const hash = window.location.hash || "";
++  const hash = getCurrentHash() || "";
+   const query = hash.split("?")[1] || "";
+   const search = new URLSearchParams(query);
+   const tab = search.get("tab") as SubTab | null;
+@@ -517,11 +512,7 @@ function getCurrentTab(): SubTab {
+   return "freemium";
+ }
+ 
+-function mapSafeMode(value: string): "OFF" | "COMPAT" | "STRICT" {
+-  if (value === "STRICT") return "STRICT";
+-  if (value === "COMPAT") return "COMPAT";
+-  return "OFF";
+-}
++
+ 
+ function formatNumber(value: number): string {
+   return new Intl.NumberFormat("fr-CA").format(value);
+@@ -628,19 +619,6 @@ function buildDemoSubscriptionData(): SubscriptionData {
+   };
+ }
+ 
+-async function fetchJsonSafe<T = any>(url: string): Promise<{ ok: boolean; status: number; data?: T; error?: string }> {
+-  try {
+-    const res = await fetch(url, { headers: { "accept": "application/json" } });
+-    if (!res.ok) {
+-      return { ok: false, status: res.status, error: `HTTP ${res.status}` };
+-    }
+-    const data = await res.json();
+-    return { ok: true, status: res.status, data };
+-  } catch (error) {
+-    return { ok: false, status: 0, error: String(error) };
+-  }
+-}
+-
+ async function getSubscriptionData(): Promise<{ data: SubscriptionData; errors: { data?: string; analytics?: string } }> {
+   const demo = buildDemoSubscriptionData();
+   const errors: { data?: string; analytics?: string } = {};
+@@ -811,6 +789,6 @@ function getRenderRoot(): HTMLElement {
+ function refreshSubscription(): void {
+   const target = getRenderRoot();
+   if (target) {
+-    void renderSubscription(target);
++    void renderSubscriptionPageAsync(target);
+   }
+ }
+diff --git a/app/src/pages/cp/system.ts b/app/src/pages/cp/system.ts
+index e1a0c9a..075b90a 100644
+--- a/app/src/pages/cp/system.ts
++++ b/app/src/pages/cp/system.ts
+@@ -3,12 +3,10 @@
+  * SSOT System/SAFE_MODE page (CP)
+  */
+ import { getRole } from "/src/runtime/rbac";
+-import { safeRender } from "../../../../modules/core-system/ui/frontend-ts/pages/_shared/mainSystem.shared";
+-import { recordObs } from "../../../../modules/core-system/ui/frontend-ts/pages/_shared/audit";
+-import { OBS } from "../../../../modules/core-system/ui/frontend-ts/pages/_shared/obsCodes";
+-import { getSafeMode } from "../../../../modules/core-system/ui/frontend-ts/pages/_shared/safeMode";
+-import { renderAccessDenied } from "../../../../modules/core-system/ui/frontend-ts/pages/_shared/renderAccessDenied";
+-import { canAccess } from "../../../../modules/core-system/ui/frontend-ts/pages/system/contract";
++import { renderAccessDenied } from "/src/core/runtime/accessDenied";
++import { OBS } from "/src/core/runtime/obs";
++import { recordObs } from "/src/core/runtime/audit";
++import { canAccess } from "/src/core/runtime/contracts/system";
+ import { coreBaseStyles } from "../../../../modules/core-system/ui/frontend-ts/shared/coreStyles";
+ import { createPageShell } from "/src/core/ui/pageShell";
+ import { createSectionCard } from "/src/core/ui/sectionCard";
+@@ -19,6 +17,8 @@ import { createContextualEmptyState } from "/src/core/ui/emptyState";
+ import { createDataTable, type TableColumn } from "/src/core/ui/dataTable";
+ import { showToast } from "/src/core/ui/toast";
+ import { getMountEl } from "/src/router";
++import { navigate } from "/src/runtime/navigate";
++import { safeRender, fetchJsonSafe, mapSafeMode, getSafeMode } from "/src/core/runtime/safe";
+ 
+ type SystemDomain = "safeMode" | "rbac" | "runtime" | "featureFlags" | "security" | "demo";
+ type SystemSource = "CP" | "SYSTEM" | "DEMO";
+@@ -71,6 +71,8 @@ async function renderSystemPageAsync(root: HTMLElement): Promise<void> {
+       });
+ 
+       const grid = document.createElement("div");
++  grid.style.minWidth = "0";
++  grid.style.boxSizing = "border-box";
+       grid.style.cssText = `
+         display: grid;
+         grid-template-columns: repeat(2, minmax(0, 1fr));
+@@ -293,7 +295,7 @@ function renderData(
+           },
+           {
+             label: "Voir logs",
+-            onClick: () => { window.location.hash = "#/logs"; }
++            onClick: () => { navigate("#/logs"); }
+           }
+         ]
+       });
+@@ -319,11 +321,7 @@ function renderData(
+   });
+ }
+ 
+-function mapSafeMode(value: string): "OFF" | "COMPAT" | "STRICT" {
+-  if (value === "STRICT") return "STRICT";
+-  if (value === "COMPAT") return "COMPAT";
+-  return "OFF";
+-}
++
+ 
+ function formatNumber(value: number): string {
+   return new Intl.NumberFormat("fr-CA").format(value);
+@@ -347,17 +345,6 @@ function createKpiRow(label: string, value: string, tone?: "ok" | "warn" | "err"
+   return row;
+ }
+ 
+-async function fetchJsonSafe<T = any>(url: string): Promise<{ ok: boolean; status: number; data?: T; error?: string }> {
+-  try {
+-    const res = await fetch(url, { headers: { "accept": "application/json" } });
+-    if (!res.ok) return { ok: false, status: res.status, error: `HTTP ${res.status}` };
+-    const data = await res.json();
+-    return { ok: true, status: res.status, data };
+-  } catch (error) {
+-    return { ok: false, status: 0, error: String(error) };
+-  }
+-}
+-
+ async function getSystemData(defaultSafeMode: "OFF" | "COMPAT" | "STRICT"): Promise<{ data: SystemData; errors: { data?: string }; mode: SystemMode }> {
+   const demo = buildDemoSystemData(defaultSafeMode);
+   const errors: { data?: string } = {};
+diff --git a/app/src/pages/cp/users.ts b/app/src/pages/cp/users.ts
+index 098c175..8014097 100644
+--- a/app/src/pages/cp/users.ts
++++ b/app/src/pages/cp/users.ts
+@@ -4,17 +4,17 @@
+  * Liste cliquable des utilisateurs pour modifier leurs permissions
+  */
+ import { coreBaseStyles } from "../../../../modules/core-system/ui/frontend-ts/shared/coreStyles";
++import { renderAccessDenied } from "/src/core/runtime/accessDenied";
+ import { requireSession } from "/src/localAuth";
+ import { getRole } from "/src/runtime/rbac";
+-import { getSafeMode } from "../../../../modules/core-system/ui/frontend-ts/pages/_shared/safeMode";
+-import { renderAccessDenied, safeRender } from "../../../../modules/core-system/ui/frontend-ts/pages/_shared/mainSystem.shared";
+ import { createUsersModelCp } from "./models/users";
+ import { renderUsersListCp } from "./views/users";
+-import { canAccess } from "../../../../modules/core-system/ui/frontend-ts/pages/users/contract";
++import { canAccess } from "/src/core/runtime/contracts/users";
+ import { createPageShell } from "/src/core/ui/pageShell";
+ import { createSectionCard } from "/src/core/ui/sectionCard";
++import { safeRender, getSafeMode } from "/src/core/runtime/safe";
+ 
+-export function renderUsers(root: HTMLElement): void {
++export function renderUsersPage(root: HTMLElement): void {
+   const role = getRole();
+   const safeMode = getSafeMode();
+ 
+diff --git a/app/src/pages/cp/views/users.ts b/app/src/pages/cp/views/users.ts
+index 4d5a025..8573061 100644
+--- a/app/src/pages/cp/views/users.ts
++++ b/app/src/pages/cp/views/users.ts
+@@ -4,7 +4,7 @@
+  * Complètement indépendant de APP
+  */
+ import type { UsersModelCp } from "../models/users";
+-import { appendList, appendTable, sectionCard } from "../../../../../modules/core-system/ui/frontend-ts/pages/_shared/uiBlocks";
++import { appendList, appendTable, sectionCard } from "/src/core/ui/uiBlocks";
+ import { getUserPermissions, setUserPermissions, canManagePermissions, type PageId } from "../../../core/permissions/userPermissions";
+ import { requireSession } from "../../../localAuth";
+ import { getRole } from "../../../runtime/rbac";
+@@ -15,7 +15,7 @@ import { addTooltipToElement } from "../../../core/ui/tooltip";
+ import { createToolbar } from "../../../core/ui/toolbar";
+ import { createContextualEmptyState } from "../../../core/ui/emptyState";
+ import { createRoleBadge } from "../../../core/ui/badge";
+-import { getSafeMode } from "../../../../../modules/core-system/ui/frontend-ts/pages/_shared/safeMode";
++import { getSafeMode } from "/src/core/runtime/safe";
+ 
+ // Type pour un utilisateur système
+ type SystemUser = {
+@@ -74,7 +74,7 @@ function deleteSystemUser(userId: string): void {
+   saveSystemUsers(filtered);
+ }
+ 
+-export function renderUsersOverviewCp(root: HTMLElement, model: UsersModelCp): void {
++function renderUsersOverviewCp(root: HTMLElement, model: UsersModelCp): void {
+   const card = sectionCard(model.title);
+   appendList(card, [
+     "Gestion complète des utilisateurs du système.",
+@@ -128,6 +128,8 @@ export function renderUsersListCp(root: HTMLElement, model: UsersModelCp): void
+       sortable: true,
+       render: (value, row) => {
+         const div = document.createElement("div");
++  div.style.minWidth = "0";
++  div.style.boxSizing = "border-box";
+         div.style.cssText = "display: flex; align-items: center; gap: 8px;";
+         const name = document.createElement("span");
+         name.style.cssText = "font-weight: 600; color: var(--ic-text, #e7ecef);";
+@@ -429,7 +431,7 @@ export function renderUsersListCp(root: HTMLElement, model: UsersModelCp): void
+   };
+ }
+ 
+-export function renderUsersRolesCp(root: HTMLElement, model: UsersModelCp): void {
++function renderUsersRolesCp(root: HTMLElement, model: UsersModelCp): void {
+   const card = sectionCard("Roles catalog - Administration");
+   appendTable(
+     card,
+@@ -439,7 +441,7 @@ export function renderUsersRolesCp(root: HTMLElement, model: UsersModelCp): void
+   root.appendChild(card);
+ }
+ 
+-export function renderUsersPermissionsCp(root: HTMLElement, model: UsersModelCp): void {
++function renderUsersPermissionsCp(root: HTMLElement, model: UsersModelCp): void {
+   const card = sectionCard("Role permissions - Administration");
+   appendTable(
+     card,
+@@ -453,7 +455,7 @@ export function renderUsersPermissionsCp(root: HTMLElement, model: UsersModelCp)
+   root.appendChild(card);
+ }
+ 
+-export function renderUsersMenuAccessCp(root: HTMLElement, model: UsersModelCp): void {
++function renderUsersMenuAccessCp(root: HTMLElement, model: UsersModelCp): void {
+   const card = sectionCard("Menu access - Administration (roles)");
+   appendTable(
+     card,

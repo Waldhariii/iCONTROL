@@ -1,11 +1,33 @@
 import type { RouteId } from "./router";
+import { getAppKind } from "./pages/appContext";
+import { canAccessPageRoute } from "./runtime/rbac";
+import { debugLog, warnLog } from "./core/utils/logger";
+import { getSession } from "./localAuth";
 
-// Import module pages (single source of truth)
-import { renderLogin } from "../../modules/core-system/ui/frontend-ts/pages/login";
-import { renderDashboard } from "../../modules/core-system/ui/frontend-ts/pages/dashboard";
-import { renderSettingsPage } from "../../modules/core-system/ui/frontend-ts/pages/settings";
-import { renderBrandingSettings } from "../../modules/core-system/ui/frontend-ts/pages/settings/branding";
-import { canAccessToolbox } from "./runtime/rbac";
+// Import APP pages (client)
+import { renderLogin as renderLoginApp } from "./pages/app/login";
+import { renderDashboard as renderDashboardApp } from "./pages/app/dashboard";
+import { renderSystemPage as renderSystemPageApp } from "./pages/app/system";
+import { renderSettingsPage as renderSettingsPageApp } from "./pages/app/settings";
+import { renderUsers as renderUsersApp } from "./pages/app/users";
+import { renderAccount as renderAccountApp } from "./pages/app/account";
+
+// Import CP pages (administration)
+import { renderLoginPage as renderLoginCp } from "./pages/cp/login";
+import { renderDashboardPage as renderDashboardCp } from "./pages/cp/dashboard";
+import { renderSystemPage as renderSystemPageCp } from "./pages/cp/system";
+import { renderSettingsPage as renderSettingsPageCp } from "./pages/cp/settings";
+import { renderUsersPage as renderUsersCp } from "./pages/cp/users";
+import { renderAccountPage as renderAccountCp } from "./pages/cp/account";
+import { renderManagementPage as renderManagementCp } from "./pages/cp/management";
+import { renderSubscriptionPage as renderSubscriptionCp } from "./pages/cp/subscription";
+import { renderOrganizationPage as renderOrganizationCp } from "./pages/cp/organization";
+import { renderTwoFactorPage as renderTwoFactorCp } from "./pages/cp/twoFactor";
+import { renderSessionsPage as renderSessionsCp } from "./pages/cp/sessions";
+import { renderBackupPage as renderBackupCp } from "./pages/cp/backup";
+import { renderFeatureFlagsPage as renderFeatureFlagsCp } from "./pages/cp/featureFlags";
+import { renderApiPage as renderApiCp } from "./pages/cp/api";
+import { renderNetworkPage as renderNetworkCp } from "./pages/cp/network";
 
 export function renderRoute(rid: RouteId, root: HTMLElement): void {
   const getEntitlementFromHash = (): string => {
@@ -27,7 +49,7 @@ export function renderRoute(rid: RouteId, root: HTMLElement): void {
         .then((m) => m.renderRuntimeSmoke(root))
         .catch((e) => {
           /* ICONTROL_LOADER_IMPORT_GUARD_V1 */
-          console.warn("WARN_ROUTE_IMPORT_FAILED", {
+          warnLog("WARN_ROUTE_IMPORT_FAILED", {
             spec: "./pages/runtime-smoke",
             err: String(e),
           });
@@ -35,40 +57,49 @@ export function renderRoute(rid: RouteId, root: HTMLElement): void {
       return;
     }
   } catch (e) {
-    console.warn("WARN_RUNTIME_SMOKE_ROUTE", String(e));
+    warnLog("WARN_RUNTIME_SMOKE_ROUTE", String(e));
   }
 
   try {
     if ((rid as any) === "users") {
-      import("../../modules/core-system/ui/frontend-ts/pages/users")
-        .then((m) => m.renderUsers(root))
-        .catch((e) => {
-          /* ICONTROL_LOADER_IMPORT_GUARD_V1 */
-          console.warn("WARN_ROUTE_IMPORT_FAILED", {
-            spec: "../../modules/core-system/ui/frontend-ts/pages/users",
-            err: String(e),
-          });
-        });
+      if (!canAccessPageRoute("users")) {
+        root.innerHTML = `<div style="max-width:980px;margin:40px auto;padding:0 16px;opacity:.8">Accès refusé à cette page.</div>`;
+        return;
+      }
+      const appKind = getAppKind();
+      if (appKind === "CP") {
+        renderUsersCp(root);
+      } else {
+        renderUsersApp(root);
+      }
       return;
     }
     if ((rid as any) === "account") {
-      import("../../modules/core-system/ui/frontend-ts/pages/account")
-        .then((m) => m.renderAccount(root))
-        .catch((e) => {
-          /* ICONTROL_LOADER_IMPORT_GUARD_V1 */
-          console.warn("WARN_ROUTE_IMPORT_FAILED", {
-            spec: "../../modules/core-system/ui/frontend-ts/pages/account",
-            err: String(e),
-          });
-        });
+      if (!canAccessPageRoute("account")) {
+        root.innerHTML = `<div style="max-width:980px;margin:40px auto;padding:0 16px;opacity:.8">Accès refusé à cette page.</div>`;
+        return;
+      }
+      const appKind = getAppKind();
+      if (appKind === "CP") {
+        renderAccountCp(root);
+      } else {
+        renderAccountApp(root);
+      }
       return;
     }
+    // ICONTROL_APP_CP_ROUTE_GUARDS_V1: Routes restreintes par application
     if ((rid as any) === "dossiers") {
+      // Dossiers: APP uniquement (client)
+      const appKind = getAppKind();
+      if (appKind !== "APP") {
+        root.innerHTML = `<div style="max-width:980px;margin:40px auto;padding:0 16px;opacity:.8">Page non disponible dans l'application administration.</div>`;
+        return;
+      }
       import("../../modules/core-system/ui/frontend-ts/pages/dossiers")
         .then((m) => m.renderDossiersPage(root))
         .catch((e) => {
           /* ICONTROL_LOADER_IMPORT_GUARD_V1 */
-          console.warn("WARN_ROUTE_IMPORT_FAILED", {
+          warnLog("WARN_ROUTE_IMPORT_FAILED", {
             spec: "../../modules/core-system/ui/frontend-ts/pages/dossiers",
             err: String(e),
           });
@@ -76,11 +107,17 @@ export function renderRoute(rid: RouteId, root: HTMLElement): void {
       return;
     }
     if ((rid as any) === "developer") {
+      // Developer: CP uniquement (administration)
+      const appKind = getAppKind();
+      if (appKind !== "CP") {
+        root.innerHTML = `<div style="max-width:980px;margin:40px auto;padding:0 16px;opacity:.8">Page non disponible dans l'application client.</div>`;
+        return;
+      }
       import("../../modules/core-system/ui/frontend-ts/pages/developer")
         .then((m) => m.renderDeveloper(root))
         .catch((e) => {
           /* ICONTROL_LOADER_IMPORT_GUARD_V1 */
-          console.warn("WARN_ROUTE_IMPORT_FAILED", {
+          warnLog("WARN_ROUTE_IMPORT_FAILED", {
             spec: "../../modules/core-system/ui/frontend-ts/pages/developer",
             err: String(e),
           });
@@ -88,6 +125,12 @@ export function renderRoute(rid: RouteId, root: HTMLElement): void {
       return;
     }
     if ((rid as any) === "developer_entitlements") {
+      // Developer Entitlements: CP uniquement (administration)
+      const appKind = getAppKind();
+      if (appKind !== "CP") {
+        root.innerHTML = `<div style="max-width:980px;margin:40px auto;padding:0 16px;opacity:.8">Page non disponible dans l'application client.</div>`;
+        return;
+      }
       import("../../modules/core-system/ui/frontend-ts/pages/developer/entitlements")
         .then((m) => m.renderDeveloperEntitlements(root))
         .catch((e) => {
@@ -116,13 +159,20 @@ export function renderRoute(rid: RouteId, root: HTMLElement): void {
       return;
     }
     // Activation / licence
+    const hash = String(location.hash || "");
     if (hash.startsWith("#/activation")) {
       import("../../modules/core-system/ui/frontend-ts/pages/activation").then(
-        (m) => m.renderActivationPage(mount),
+        (m) => m.renderActivationPage(root),
       );
       return;
     }
     if ((rid as any) === "verification") {
+      // Verification: CP uniquement (administration)
+      const appKind = getAppKind();
+      if (appKind !== "CP") {
+        root.innerHTML = `<div style="max-width:980px;margin:40px auto;padding:0 16px;opacity:.8">Page non disponible dans l'application client.</div>`;
+        return;
+      }
       import("../../modules/core-system/ui/frontend-ts/pages/verification")
         .then((m) => m.renderVerification(root))
         .catch((e) => {
@@ -135,18 +185,21 @@ export function renderRoute(rid: RouteId, root: HTMLElement): void {
       return;
     }
     if ((rid as any) === "system") {
-      import("../../modules/core-system/ui/frontend-ts/pages/system")
-        .then((m) => m.renderSystemPage(root))
-        .catch((e) => {
-          /* ICONTROL_LOADER_IMPORT_GUARD_V1 */
-          console.warn("WARN_ROUTE_IMPORT_FAILED", {
-            spec: "../../modules/core-system/ui/frontend-ts/pages/system",
-            err: String(e),
-          });
-        });
+      const appKind = getAppKind();
+      if (appKind === "CP") {
+        renderSystemPageCp(root);
+      } else {
+        renderSystemPageApp(root);
+      }
       return;
     }
     if ((rid as any) === "logs") {
+      // Logs: CP uniquement (administration)
+      const appKind = getAppKind();
+      if (appKind !== "CP") {
+        root.innerHTML = `<div style="max-width:980px;margin:40px auto;padding:0 16px;opacity:.8">Page non disponible dans l'application client.</div>`;
+        return;
+      }
       import("../../modules/core-system/ui/frontend-ts/pages/logs")
         .then((m) => m.renderLogsPage(root))
         .catch((e) => {
@@ -158,31 +211,124 @@ export function renderRoute(rid: RouteId, root: HTMLElement): void {
         });
       return;
     }
-    if ((rid as any) === "toolbox") {
-      if (!canAccessToolbox()) {
-        root.innerHTML =
-          '<div style="padding:12px;opacity:0.9;"><h2 style="margin:0 0 8px 0;">Access denied</h2><div>Toolbox requires elevated role.</div></div>';
+    if ((rid as any) === "api") {
+      // API: CP uniquement (administration)
+      const appKind = getAppKind();
+      if (appKind !== "CP") {
+        root.innerHTML = `<div style="max-width:980px;margin:40px auto;padding:0 16px;opacity:.8">Page non disponible dans l'application client.</div>`;
         return;
       }
-      import("../../modules/core-system/ui/frontend-ts/pages/toolbox")
-        .then((m) => m.renderToolbox(root))
-        .catch((e) => {
-          /* ICONTROL_LOADER_IMPORT_GUARD_V1 */
-          console.warn("WARN_ROUTE_IMPORT_FAILED", {
-            spec: "../../modules/core-system/ui/frontend-ts/pages/toolbox",
-            err: String(e),
-          });
-        });
+      renderApiCp(root);
+      return;
+    }
+    if ((rid as any) === "network") {
+      // Network: CP uniquement (administration)
+      const appKind = getAppKind();
+      if (appKind !== "CP") {
+        root.innerHTML = `<div style="max-width:980px;margin:40px auto;padding:0 16px;opacity:.8">Page non disponible dans l'application client.</div>`;
+        return;
+      }
+      renderNetworkCp(root);
       return;
     }
   } catch (e) {
-    console.warn("WARN_MAIN_SYSTEM_ROUTE", String(e));
+    warnLog("WARN_MAIN_SYSTEM_ROUTE", String(e));
   }
 
-  if (rid === "login") return renderLogin(root);
-  if (rid === "dashboard") return renderDashboard(root);
-  if (rid === "settings") return renderSettingsPage(root);
-  if (rid === "settings_branding") return renderBrandingSettings(root);
+  // ICONTROL_APP_CP_ROUTING_V1: Router vers les pages appropriées selon le contexte
+  const appKind = getAppKind();
+
+  if (rid === "login") {
+    debugLog("🔵 moduleLoader: login route", { appKind, rootId: root.id });
+    const result = appKind === "CP" ? renderLoginCp(root) : renderLoginApp(root);
+    debugLog("✅ moduleLoader: login rendu", { length: root.innerHTML?.length || 0 });
+    return result;
+  }
+  if (rid === "dashboard") {
+    if (!canAccessPageRoute("dashboard")) {
+      root.innerHTML = `<div style="max-width:980px;margin:40px auto;padding:0 16px;opacity:.8">Accès refusé à cette page.</div>`;
+      return;
+    }
+    return appKind === "CP" ? renderDashboardCp(root) : renderDashboardApp(root);
+  }
+  if (rid === "settings") {
+    if (!canAccessPageRoute("settings")) {
+      root.innerHTML = `<div style="max-width:980px;margin:40px auto;padding:0 16px;opacity:.8">Accès refusé à cette page.</div>`;
+      return;
+    }
+    return appKind === "CP" ? renderSettingsPageCp(root) : renderSettingsPageApp(root);
+  }
+  if (rid === "management") {
+    // Management: CP uniquement (administration)
+    const appKind = getAppKind();
+    if (appKind !== "CP") {
+      root.innerHTML = `<div style="max-width:980px;margin:40px auto;padding:0 16px;opacity:.8">Page non disponible dans l'application client.</div>`;
+      return;
+    }
+    if (!canAccessPageRoute("management")) {
+      root.innerHTML = `<div style="max-width:980px;margin:40px auto;padding:0 16px;opacity:.8">Accès refusé à cette page.</div>`;
+      return;
+    }
+    return renderManagementCp(root);
+  }
+  if (rid === "subscription") {
+    // Subscription: CP uniquement (administration)
+    const appKind = getAppKind();
+    if (appKind !== "CP") {
+      root.innerHTML = `<div style="max-width:980px;margin:40px auto;padding:0 16px;opacity:.8">Page non disponible dans l'application client.</div>`;
+      return;
+    }
+    if (!canAccessPageRoute("settings")) {
+      root.innerHTML = `<div style="max-width:980px;margin:40px auto;padding:0 16px;opacity:.8">Accès refusé à cette page.</div>`;
+      return;
+    }
+    return renderSubscriptionCp(root);
+  }
+  if (rid === "organization") {
+    // Organization: CP uniquement (administration)
+    const appKind = getAppKind();
+    if (appKind !== "CP") {
+      root.innerHTML = `<div style="max-width:980px;margin:40px auto;padding:0 16px;opacity:.8">Page non disponible dans l'application client.</div>`;
+      return;
+    }
+    if (!canAccessPageRoute("settings")) {
+      root.innerHTML = `<div style="max-width:980px;margin:40px auto;padding:0 16px;opacity:.8">Accès refusé à cette page.</div>`;
+      return;
+    }
+    return renderOrganizationCp(root);
+  }
+  if (rid === "twofactor") {
+    const appKind = getAppKind();
+    if (appKind !== "CP") {
+      root.innerHTML = `<div style="max-width:980px;margin:40px auto;padding:0 16px;opacity:.8">Page non disponible dans l'application client.</div>`;
+      return;
+    }
+    return renderTwoFactorCp(root);
+  }
+  if (rid === "sessions") {
+    const appKind = getAppKind();
+    if (appKind !== "CP") {
+      root.innerHTML = `<div style="max-width:980px;margin:40px auto;padding:0 16px;opacity:.8">Page non disponible dans l'application client.</div>`;
+      return;
+    }
+    return renderSessionsCp(root);
+  }
+  if (rid === "backup") {
+    const appKind = getAppKind();
+    if (appKind !== "CP") {
+      root.innerHTML = `<div style="max-width:980px;margin:40px auto;padding:0 16px;opacity:.8">Page non disponible dans l'application client.</div>`;
+      return;
+    }
+    return renderBackupCp(root);
+  }
+  if (rid === "featureflags") {
+    const appKind = getAppKind();
+    if (appKind !== "CP") {
+      root.innerHTML = `<div style="max-width:980px;margin:40px auto;padding:0 16px;opacity:.8">Page non disponible dans l'application client.</div>`;
+      return;
+    }
+    return renderFeatureFlagsCp(root);
+  }
 
   root.innerHTML = `<div style="max-width:980px;margin:40px auto;padding:0 16px;opacity:.8">Page introuvable.</div>`;
 }

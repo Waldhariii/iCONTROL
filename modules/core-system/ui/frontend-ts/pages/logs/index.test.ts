@@ -3,8 +3,8 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { clearSession, setSession } from "/src/localAuth";
 import { renderLogsPage, logsSections } from "./index";
-import { recordObs, getAuditLog, clearAuditLog } from "../_shared/audit";
-import { OBS } from "../_shared/obsCodes";
+import { recordObs, getAuditLog, clearAuditLog } from "/src/core/runtime/audit";
+import { OBS } from "/src/core/runtime/obs";
 
 function createLocalStorageMock() {
   const store = new Map<string, string>();

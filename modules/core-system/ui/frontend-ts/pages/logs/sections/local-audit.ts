@@ -1,5 +1,5 @@
 import { readAuditLog, exportAuditLogJson, clearAuditLog } from "/src/core/audit/auditLog";
-import { blockKeyValueTable, sectionCard } from "../../_shared/uiBlocks";
+import { blockKeyValueTable, sectionCard } from "../../../shared/uiBlocks";
 
 export function renderLogsLocalAudit(host: HTMLElement): void {
   const card = sectionCard("Audit log (local)");

@@ -1,5 +1,5 @@
 import type { SystemModel } from "../model";
-import { blockKeyValueTable } from "../../_shared/uiBlocks";
+import { blockKeyValueTable } from "../../../shared/uiBlocks";
 
 export function renderSystemLayout(host: HTMLElement, model: SystemModel): void {
   host.appendChild(

@@ -49,8 +49,8 @@ describe("APP login session scope (contract)", () => {
     }
   });
 
-  it("writes only APP session key and Path=/app cookie", () => {
-    const res = authenticate("admin", "admin");
+  it("writes only APP session key and Path=/app cookie", async () => {
+    const res = await authenticate("admin", "admin");
     expect(res.ok).toBe(true);
 
     expect(localStorage.getItem("icontrol_session_v1")).toBeTruthy();

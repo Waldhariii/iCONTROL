@@ -1,11 +1,11 @@
 import { getSession } from "/src/localAuth";
 import type { Role } from "/src/runtime/rbac";
 import { navigate } from "/src/router";
-import { safeRender } from "../_shared/mainSystem.shared";
+import { safeRender } from "/src/core/runtime/safe";
 import { getBrandResolved, setBrandLocalOverride, clearBrandLocalOverride } from "../../../../../../platform-services/branding/brandService";
-import { MAIN_SYSTEM_THEME } from "../_shared/mainSystem.data";
+import { MAIN_SYSTEM_THEME } from "../../shared/mainSystem.data";
 const UI = {
-  WRAP: "max-width:980px;margin:20px auto;padding:0 16px",
+  WRAP: "width:100%;max-width:100%;margin:20px 0;padding:0 clamp(16px,2vw,24px)",
   TITLE: "font-size:18px;font-weight:900;margin-bottom:8px",
   TABLE: "width:100%;border-collapse:collapse",
   KEY_CELL: "padding:8px;border-bottom:1px solid var(--ic-border);color:var(--ic-mutedText);width:40%",
@@ -53,7 +53,7 @@ export function renderBrandingSettings(root: HTMLElement): void {
   if (!canEdit()) {
     navigate("#/dashboard");
     const html = `
-      <div style="max-width:980px;margin:26px auto;padding:0 16px">
+      <div style="width:100%;max-width:100%;margin:26px 0;padding:0 clamp(16px,2vw,24px)">
         <div style="font-size:22px;font-weight:900">Parametres — Identité & marque</div>
         <div style="color:var(--ic-mutedText);margin-top:8px">Acces refuse (SYSADMIN/DEVELOPER requis).</div>
       </div>
@@ -75,7 +75,7 @@ export function renderBrandingSettings(root: HTMLElement): void {
       </div>
       <div style="color:var(--ic-mutedText);margin-top:8px">Changer le nom affiche sans toucher au code (localStorage).</div>
 
-      <div style="margin-top:16px;max-width:520px;display:flex;flex-direction:column;gap:10px">
+      <div style="margin-top:16px;width:100%;max-width:100%;display:flex;flex-direction:column;gap:10px">
         <label style="color:var(--ic-mutedText)">Nom de l'application</label>
         <input id="brand_app_name" value="${escapeHtml(currentName)}" placeholder="Ex: Innovex Control"
           style="padding:10px 12px;border-radius:12px;border:1px solid var(--ic-border);background:var(--ic-panel);color:var(--ic-text)" />

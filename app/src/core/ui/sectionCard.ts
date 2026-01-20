@@ -9,6 +9,7 @@ export interface SectionCardOptions {
   dense?: boolean;
   collapsible?: boolean;
   headerRight?: HTMLElement;
+  variant?: "default" | "glass";
 }
 
 export function createSectionCard(options: SectionCardOptions): {
@@ -16,25 +17,29 @@ export function createSectionCard(options: SectionCardOptions): {
   body: HTMLElement;
   header: HTMLElement;
 } {
+  const isGlass = options.variant === "glass";
   const card = document.createElement("div");
   card.style.cssText = `
-    background: var(--ic-card, #1a1d1f);
-    border: 1px solid var(--ic-border, #2b3136);
+    background: ${isGlass ? "linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02))" : "var(--ic-card, #1a1d1f)"};
+    border: 1px solid ${isGlass ? "rgba(255,255,255,0.16)" : "var(--ic-border, #2b3136)"};
     border-radius: 10px;
     overflow: hidden;
     display: flex;
     flex-direction: column;
+    min-width: 0;
+    ${isGlass ? "backdrop-filter: blur(10px);" : ""}
   `;
 
   const header = document.createElement("div");
   header.style.cssText = `
     padding: ${options.dense ? "10px 14px" : "12px 16px"};
-    background: var(--ic-panel, #1a1d1f);
-    border-bottom: 1px solid var(--ic-border, #2b3136);
+    background: ${isGlass ? "rgba(12, 14, 18, 0.55)" : "var(--ic-panel, #1a1d1f)"};
+    border-bottom: 1px solid ${isGlass ? "rgba(255,255,255,0.08)" : "var(--ic-border, #2b3136)"};
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 12px;
+    min-width: 0;
   `;
 
   const titleBlock = document.createElement("div");
@@ -82,6 +87,7 @@ export function createSectionCard(options: SectionCardOptions): {
     display: flex;
     flex-direction: column;
     gap: 12px;
+    min-width: 0;
   `;
 
   if (options.collapsible) {

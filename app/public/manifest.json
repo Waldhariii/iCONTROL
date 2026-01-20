@@ -1,0 +1,35 @@
+{
+  "name": "iCONTROL Console",
+  "short_name": "iCONTROL",
+  "description": "Application de contrôle et administration iCONTROL",
+  "start_url": "/cp/",
+  "display": "standalone",
+  "background_color": "#0f1112",
+  "theme_color": "#7b2cff",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["business", "productivity"],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "Dashboard",
+      "short_name": "Dashboard",
+      "description": "Accéder au tableau de bord",
+      "url": "/cp/#/dashboard",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    }
+  ]
+}

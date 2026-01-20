@@ -1,5 +1,5 @@
-import { blockKeyValueTable } from "../../_shared/uiBlocks";
-import { getSafeMode } from "../../_shared/safeMode";
+import { blockKeyValueTable } from "../../../shared/uiBlocks";
+import { getSafeMode } from "/src/core/runtime/safe";
 
 export function renderDossiersSafeMode(host: HTMLElement): void {
   const safeMode = getSafeMode();

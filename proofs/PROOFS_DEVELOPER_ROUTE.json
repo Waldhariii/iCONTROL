@@ -1,0 +1,13 @@
+{
+  "page": "developer",
+  "hash": "#/developer",
+  "developer_file": "./modules/core-system/ui/frontend-ts/pages/developer/index.tsx",
+  "module_loader_file": "./app/src/moduleLoader.ts",
+  "nav_file": "./app/src/core/ui/commandPalette.ts",
+  "anchors": {
+    "developer_version": "ICONTROL_CP_DEVELOPER_V2",
+    "developer_export": "export function renderDeveloperPage(",
+    "dispatch_rid": "rid as any) === \"developer\"",
+    "nav_hash": "hash: \"#/developer\""
+  }
+}

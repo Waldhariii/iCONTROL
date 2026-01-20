@@ -1,0 +1,92 @@
+name: CI Complete - Quality Gates
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - master
+      - develop
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+      - name: Install dependencies
+        working-directory: app
+        run: npm ci
+      - name: Run ESLint
+        working-directory: app
+        run: npm run lint
+
+  typecheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+      - name: Install dependencies
+        working-directory: app
+        run: npm ci
+      - name: TypeScript check
+        working-directory: app
+        run: npm run typecheck
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+      - name: Install dependencies
+        working-directory: app
+        run: npm ci
+      - name: Run tests
+        working-directory: app
+        run: npm test
+      - name: Test coverage
+        working-directory: app
+        run: npm run test:coverage || true
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+      - name: Install dependencies
+        working-directory: app
+        run: npm ci
+      - name: Build application
+        working-directory: app
+        run: npm run build
+      - name: Check bundle size (Performance Budget)
+        working-directory: app
+        run: |
+          if [ -d "dist" ]; then
+            echo "Build successful, checking sizes..."
+            SIZE=$(du -sk dist/ | cut -f1)
+            SIZE_KB=$((SIZE))
+            echo "Bundle size: ${SIZE_KB}KB"
+            if [ $SIZE_KB -gt 500 ]; then
+              echo "⚠️ Bundle size exceeds 500KB threshold"
+              exit 1
+            fi
+            echo "✅ Bundle size within budget"
+          fi
+      - name: Performance Budget Check
+        working-directory: app
+        run: |
+          # Vérifier taille des assets JS
+          find dist -name "*.js" -exec ls -lh {} \; | awk '{sum+=$5} END {print "Total JS size: " sum}'

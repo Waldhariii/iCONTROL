@@ -1,0 +1,46 @@
+diff --git a/.github/workflows/cp-proofs.yml b/.github/workflows/cp-proofs.yml
+index 6d07dd2..7e48355 100644
+--- a/.github/workflows/cp-proofs.yml
++++ b/.github/workflows/cp-proofs.yml
+@@ -22,8 +22,17 @@ jobs:
+       - name: Install
+         run: npm ci
+ 
+-      - name: Proofs: Logs route non-regression
+-        run: npm run proofs:logs
++      - name: Proofs: CP routes
++        run: |
++          npm run proofs:logs
++          npm run proofs:system
++          npm run proofs:api
++          npm run proofs:network
++          npm run proofs:account
++          npm run proofs:developer
++          npm run proofs:developer:entitlements
++          npm run proofs:verification
++          npm run proofs:dashboard
+ 
+       - name: Build CP
+         run: npm run build:cp
+diff --git a/package.json b/package.json
+index aab98b2..08b27d7 100644
+--- a/package.json
++++ b/package.json
+@@ -36,7 +36,16 @@
+     "local:web:serve": "bash -lc 'node ./server/runtime-config-server.js --host ${ICONTROL_LOCAL_HOST:-127.0.0.1} --port ${ICONTROL_LOCAL_PORT:-4176} --dist ./dist'",
+     "start": "bash scripts/rebuild-and-serve.sh",
+     "local:web": "bash ./scripts/local-web.sh",
+-    "proofs:logs": "node scripts/check-logs-route.js"
++    "proofs:logs": "node scripts/check-logs-route.js",
++    "proofs:system": "node scripts/check-system-route.js",
++    "proofs:api": "node scripts/check-api-route.js",
++    "proofs:network": "node scripts/check-network-route.js",
++    "proofs:account": "node scripts/check-account-route.js",
++    "proofs:developer": "node scripts/check-developer-route.js",
++    "proofs:developer:entitlements": "node scripts/check-developer-entitlements-route.js",
++    "proofs:verification": "node scripts/check-verification-route.js",
++    "proofs:dashboard": "node scripts/check-dashboard-route.js",
++    "proofs:all": "npm run -s proofs:logs && npm run -s proofs:system && npm run -s proofs:api && npm run -s proofs:network && npm run -s proofs:account && npm run -s proofs:developer && npm run -s proofs:developer:entitlements && npm run -s proofs:verification && npm run -s proofs:dashboard"
+   },
+   "devDependencies": {
+     "esbuild": "^0.21.5",

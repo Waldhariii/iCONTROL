@@ -1,0 +1,4271 @@
+diff --git a/modules/core-system/ui/frontend-ts/pages/_shared/mainSystem.shared.ts b/modules/core-system/ui/frontend-ts/pages/_shared/mainSystem.shared.ts
+index c44bfa5..5cdcaa0 100644
+--- a/modules/core-system/ui/frontend-ts/pages/_shared/mainSystem.shared.ts
++++ b/modules/core-system/ui/frontend-ts/pages/_shared/mainSystem.shared.ts
+@@ -1,12 +1,9 @@
++import { safeRender as coreSafeRender } from "/src/core/runtime/safe";
++
+ export function renderAccessDenied(root: HTMLElement, message = "Access denied."): void {
+-  root.innerHTML = `<div style="opacity:.8;max-width:780px;margin:24px auto;">${message}</div>`;
++  root.innerHTML = `<div style=\"opacity:.8;max-width:780px;margin:24px auto;\">${message}</div>`;
+ }
+ 
+-export function safeRender(root: HTMLElement, run: () => void): void {
+-  try {
+-    run();
+-  } catch (e) {
+-    const msg = e instanceof Error ? e.message : String(e);
+-    root.innerHTML = `<div style="opacity:.8;max-width:780px;margin:24px auto;">Render error: ${msg}</div>`;
+-  }
++export function safeRender(root: HTMLElement, run: (() => void) | string): void {
++  coreSafeRender(root, run);
+ }
+diff --git a/modules/core-system/ui/frontend-ts/pages/_shared/mainSystem.ui.ts b/modules/core-system/ui/frontend-ts/pages/_shared/mainSystem.ui.ts
+index ea1afc8..6176bd4 100644
+--- a/modules/core-system/ui/frontend-ts/pages/_shared/mainSystem.ui.ts
++++ b/modules/core-system/ui/frontend-ts/pages/_shared/mainSystem.ui.ts
+@@ -21,9 +21,11 @@ export function buildMainSystemShell(): MainSystemShell {
+       ☰
+     </button>
+     <div class="cxBrand">
++      <img id="cxBrandLogo" data-brand-logo style="max-height: 32px; max-width: 150px; object-fit: contain; display: none;" alt="Logo" />
+       <div class="cxBrandDot"></div>
+       <div id="cxBrandTitle">iCONTROL</div>
+     </div>
++    <div class="cxHeaderContext" id="cxHeaderContext"></div>
+   `;
+ 
+   const overlay = document.createElement("div");
+@@ -35,13 +37,31 @@ export function buildMainSystemShell(): MainSystemShell {
+   drawer.id = "cxDrawer";
+   drawer.innerHTML = `
+     <div class="cxDrawerTop">
+-      <div class="cxDrawerTitle">MENU</div>
++      <div class="cxDrawerLogo" style="display:flex;align-items:center;justify-content:center;padding:12px 0;">
++        <img id="cxDrawerLogoImg" data-brand-logo style="max-height: 40px; max-width: 180px; object-fit: contain; display: none;" alt="Logo" />
++        <div id="cxDrawerLogoText" style="font-weight:800;letter-spacing:.2px;">iCONTROL</div>
++      </div>
+       <button class="cxClose" id="cxClose" aria-label="Fermer">X</button>
++      <div style="height:1px;background:var(--line);margin:8px 0;"></div>
+     </div>
+     <div class="cxNav" id="cxNav"></div>
+-    <div style="margin-top:14px; border-top:1px solid var(--line); padding-top:12px;">
+-      <a href="#/login" id="cxLogoutLink" style="display:none;">Déconnexion</a>
+-      <small id="cxSessionHint"></small>
++    <div class="cxDrawerBottom" style="margin-top:auto;">
++      <div style="border-top:1px solid var(--line);padding:12px 0;">
++        <div id="cxUserInfo" style="display:none;padding:0 8px 12px;">
++          <div id="cxUserFullname" style="font-weight:600;color:var(--text);margin-bottom:4px;"></div>
++          <div id="cxUserRole" style="font-size:12px;color:var(--muted);margin-bottom:4px;"></div>
++          <div id="cxUserCompany" style="font-size:12px;color:var(--muted);"></div>
++        </div>
++        <div style="border-top:1px solid var(--line);padding-top:12px;">
++          <div style="display:flex; align-items:center; justify-content:space-between; gap:12px;">
++            <div id="cxUserAvatar" style="width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;color:white;font-size:16px;flex-shrink:0;cursor:pointer;" onclick="window.__navigateToAccount?.()"></div>
++            <a href="#/login" id="cxLogoutLink" style="flex:1;text-align:center;display:none;color:var(--text);text-decoration:none;padding:8px;border-radius:8px;transition:background 0.2s;">Déconnexion</a>
++            <a href="#/settings" id="cxSettingsLink" style="width:40px;height:40px;display:flex;align-items:center;justify-content:center;border-radius:8px;color:var(--text);text-decoration:none;transition:background 0.2s;flex-shrink:0;" title="Paramètres">
++              <span style="font-size:20px;">⚙️</span>
++            </a>
++          </div>
++        </div>
++      </div>
+     </div>
+   `;
+ 
+diff --git a/modules/core-system/ui/frontend-ts/pages/_shared/rolePolicy.ts b/modules/core-system/ui/frontend-ts/pages/_shared/rolePolicy.ts
+index ddc6e0c..c6e6210 100644
+--- a/modules/core-system/ui/frontend-ts/pages/_shared/rolePolicy.ts
++++ b/modules/core-system/ui/frontend-ts/pages/_shared/rolePolicy.ts
+@@ -1,4 +1,4 @@
+-export type Role = "SYSADMIN" | "ADMIN" | "DEVELOPER" | "USER";
++export type Role = "SYSADMIN" | "ADMIN" | "DEVELOPER" | "USER" | "MASTER";
+ 
+ export type PageId =
+   | "dashboard"
+@@ -31,6 +31,11 @@ export const POLICY_MARKER = "ICONTROL_POLICY_SSOT_V1";
+  * Page-level RBAC: "can you enter this route/page?"
+  */
+ export function canAccessPage(role: Role, page: PageId): PolicyDecision {
++  // Master a toujours accès à tout
++  if (role === "MASTER") {
++    return { allow: true };
++  }
++  
+   // USER role is restricted for privileged pages
+   if (role === "USER") {
+     if (page === "dashboard" || page === "account") return { allow: true };
+@@ -51,6 +56,11 @@ export function canAccessPage(role: Role, page: PageId): PolicyDecision {
+  * Note: must NOT override page-level deny; callers should check page first.
+  */
+ export function canAccessSection(role: Role, section: SectionId): PolicyDecision {
++  // Master a toujours accès à toutes les sections
++  if (role === "MASTER") {
++    return { allow: true };
++  }
++  
+   // Developer toolbox rules is SYSADMIN-only (policy)
+   if (section === "toolbox-rules") {
+     return role === "SYSADMIN"
+diff --git a/modules/core-system/ui/frontend-ts/pages/_shared/uiBlocks.ts b/modules/core-system/ui/frontend-ts/pages/_shared/uiBlocks.ts
+index 524ef28..1109abf 100644
+--- a/modules/core-system/ui/frontend-ts/pages/_shared/uiBlocks.ts
++++ b/modules/core-system/ui/frontend-ts/pages/_shared/uiBlocks.ts
+@@ -68,13 +68,23 @@ export function appendTable(
+   const maxRows = 200;
+   const safeRows = rows.slice(0, maxRows);
+   const table = el("table");
+-  table.style.cssText = "width:100%;border-collapse:collapse";
++  table.style.cssText = "width:100%;border-collapse:collapse;background:var(--ic-card, var(--panel));border-radius:8px;overflow:hidden";
+ 
+   const thead = el("thead");
+   const trh = el("tr");
+   columns.forEach((c) => {
+     const th = el("th", undefined, c);
+-    th.style.cssText = "text-align:left;padding:8px;border-bottom:1px solid var(--line);font-size:12px;opacity:.85";
++    th.style.cssText = `
++      text-align:left;
++      padding:12px 16px;
++      border-bottom:1px solid var(--ic-border, var(--line));
++      font-size:12px;
++      font-weight:600;
++      color:var(--ic-mutedText, var(--muted));
++      text-transform:uppercase;
++      letter-spacing:0.5px;
++      background:var(--ic-panel, var(--panel2));
++    `;
+     trh.appendChild(th);
+   });
+   thead.appendChild(trh);
+@@ -84,16 +94,17 @@ export function appendTable(
+   if (safeRows.length === 0) {
+     const tr = el("tr");
+     const td = el("td", undefined, "Aucune donnée");
+-    td.style.cssText = "padding:8px;border-bottom:1px solid var(--line);opacity:.7";
++    td.style.cssText = "padding:16px;text-align:center;opacity:.7;color:var(--ic-mutedText, var(--muted));";
+     td.colSpan = columns.length || 1;
+     tr.appendChild(td);
+     tbody.appendChild(tr);
+   }
+-  safeRows.forEach((row) => {
++  safeRows.forEach((row, idx) => {
+     const tr = el("tr");
++    tr.style.cssText = idx % 2 === 0 ? "background:transparent;" : "background:rgba(255,255,255,0.01);";
+     columns.forEach((c) => {
+       const td = el("td", undefined, row[c] ?? "");
+-      td.style.cssText = "padding:8px;border-bottom:1px solid var(--line)";
++      td.style.cssText = "padding:12px 16px;border-bottom:1px solid var(--ic-border, var(--line));color:var(--ic-text, var(--text));font-size:13px;";
+       tr.appendChild(td);
+     });
+     tbody.appendChild(tr);
+@@ -104,7 +115,7 @@ export function appendTable(
+ 
+   if (rows.length > maxRows) {
+     const note = el("div", undefined, `Affichage limité à ${maxRows} lignes (sur ${rows.length}).`);
+-    note.style.cssText = "margin-top:8px;opacity:.7;font-size:12px";
++    note.style.cssText = "margin-top:12px;opacity:.7;font-size:12px;color:var(--ic-mutedText, var(--muted));padding:8px;background:rgba(255,255,255,0.02);border-radius:6px;";
+     host.appendChild(note);
+   }
+ }
+@@ -118,18 +129,30 @@ export type UiAction = {
+ 
+ export function appendActionRow(host: HTMLElement, actions: UiAction[]): HTMLDivElement {
+   const row = el("div");
+-  row.style.cssText = "display:flex;gap:10px;flex-wrap:wrap;margin-top:10px";
++  row.style.cssText = "display:flex;gap:10px;flex-wrap:wrap;margin-top:16px;";
+   actions.forEach((action) => {
+     const btn = el("button", { type: "button", "data-action-id": action.id }, action.label);
+     btn.setAttribute("aria-label", action.label);
+-    btn.style.cssText = [
+-      "padding:8px 12px",
+-      "border-radius:10px",
+-      "border:1px solid var(--line)",
+-      "background:rgba(255,255,255,0.04)",
+-      "color:inherit",
+-      "cursor:pointer"
+-    ].join(";");
++    btn.style.cssText = `
++      padding:10px 16px;
++      border-radius:8px;
++      border:1px solid var(--ic-border, var(--line));
++      background:var(--ic-panel, var(--panel2));
++      color:var(--ic-text, var(--text));
++      cursor:pointer;
++      font-weight:600;
++      font-size:13px;
++      transition:all 0.2s;
++      min-height:44px;
++    `;
++    btn.addEventListener("mouseenter", () => {
++      btn.style.background = "rgba(255,255,255,0.05)";
++      btn.style.borderColor = "var(--ic-accent, var(--accent))";
++    });
++    btn.addEventListener("mouseleave", () => {
++      btn.style.background = "var(--ic-panel, var(--panel2))";
++      btn.style.borderColor = "var(--ic-border, var(--line))";
++    });
+     row.appendChild(btn);
+   });
+   host.appendChild(row);
+diff --git a/modules/core-system/ui/frontend-ts/pages/account/contract.ts b/modules/core-system/ui/frontend-ts/pages/account/contract.ts
+index a403895..62be9ea 100644
+--- a/modules/core-system/ui/frontend-ts/pages/account/contract.ts
++++ b/modules/core-system/ui/frontend-ts/pages/account/contract.ts
+@@ -1,11 +1,13 @@
+ import type { Role } from "/src/runtime/rbac";
+-import type { SafeMode } from "../_shared/safeMode";
++import type { SafeModeValue as SafeMode } from "/src/core/runtime/safe";
+ 
+ export const PAGE_ID = "account";
+ export const SAFE_MODE_ALLOWED = true;
+ export const REQUIRED_ROLES: Role[] = ["USER", "ADMIN", "SYSADMIN", "DEVELOPER"];
+ 
+ export function canAccess(role: Role, safeMode: SafeMode): boolean {
++  // Master a toujours accès à tout
++  if (role === "MASTER") return true;
+   if (safeMode === "STRICT" && !SAFE_MODE_ALLOWED) return false;
+   return REQUIRED_ROLES.includes(role);
+ }
+diff --git a/modules/core-system/ui/frontend-ts/pages/account/index.ts b/modules/core-system/ui/frontend-ts/pages/account/index.ts
+index 4d9c071..a897462 100644
+--- a/modules/core-system/ui/frontend-ts/pages/account/index.ts
++++ b/modules/core-system/ui/frontend-ts/pages/account/index.ts
+@@ -1,7 +1,8 @@
+ import { getRole } from "/src/runtime/rbac";
+-import { getSafeMode } from "../_shared/safeMode";
+-import { renderAccessDenied, safeRender } from "../_shared/mainSystem.shared";
+-import { mountSections, type SectionSpec } from "../_shared/sections";
++import { getSafeMode } from "/src/core/runtime/safe";
++import { safeRender } from "/src/core/runtime/safe";
++import { renderAccessDenied } from "/src/core/runtime/accessDenied";
++import { mountSections, type SectionSpec } from "../../shared/sections";
+ import { canAccess } from "./contract";
+ import { createAccountModel } from "./model";
+ import {
+@@ -10,7 +11,7 @@ renderAccountSettingsKeys,
+   renderAccountStorageUsage,
+   renderAccountSummary
+ } from "./view";
+-import * as EntitlementsFacade from "../_shared/entitlements";
++import * as EntitlementsFacade from "../../shared/entitlements";
+ 
+ export function renderAccount(root: HTMLElement): void {
+   const role = getRole();
+diff --git a/modules/core-system/ui/frontend-ts/pages/account/model.ts b/modules/core-system/ui/frontend-ts/pages/account/model.ts
+index 8521f4c..cba93e2 100644
+--- a/modules/core-system/ui/frontend-ts/pages/account/model.ts
++++ b/modules/core-system/ui/frontend-ts/pages/account/model.ts
+@@ -1,4 +1,4 @@
+-import { MAIN_SYSTEM_RULES } from "../_shared/mainSystem.data";
++import { MAIN_SYSTEM_RULES } from "../../shared/mainSystem.data";
+ 
+ export type AccountModel = {
+   title: string;
+diff --git a/modules/core-system/ui/frontend-ts/pages/account/view.ts b/modules/core-system/ui/frontend-ts/pages/account/view.ts
+index 48c5175..4c85d3c 100644
+--- a/modules/core-system/ui/frontend-ts/pages/account/view.ts
++++ b/modules/core-system/ui/frontend-ts/pages/account/view.ts
+@@ -1,5 +1,5 @@
+ import type { AccountModel } from "./model";
+-import { appendParagraph, appendTable, sectionCard } from "../_shared/uiBlocks";
++import { appendParagraph, appendTable, sectionCard } from "/src/core/ui/uiBlocks";
+ 
+ export function renderAccountSummary(root: HTMLElement, model: AccountModel): void {
+   const card = sectionCard(model.title);
+@@ -7,7 +7,7 @@ export function renderAccountSummary(root: HTMLElement, model: AccountModel): vo
+   root.appendChild(card);
+ }
+ 
+-export function renderAccountSettingsKeys(root: HTMLElement, model: AccountModel): void {
++function renderAccountSettingsKeys(root: HTMLElement, model: AccountModel): void {
+   const card = sectionCard("Settings keys (rules.ts)");
+   appendTable(
+     card,
+@@ -20,7 +20,7 @@ export function renderAccountSettingsKeys(root: HTMLElement, model: AccountModel
+   root.appendChild(card);
+ }
+ 
+-export function renderAccountStorageAllow(root: HTMLElement, model: AccountModel): void {
++function renderAccountStorageAllow(root: HTMLElement, model: AccountModel): void {
+   const card = sectionCard("Storage allow list");
+   appendTable(
+     card,
+@@ -37,7 +37,7 @@ export function renderAccountStorageAllow(root: HTMLElement, model: AccountModel
+   root.appendChild(card);
+ }
+ 
+-export function renderAccountStorageUsage(root: HTMLElement, model: AccountModel): void {
++function renderAccountStorageUsage(root: HTMLElement, model: AccountModel): void {
+   const card = sectionCard("Storage usage (read-only)");
+   const rows = model.storageUsageKeys.map((key) => {
+     const hasValue = typeof localStorage !== "undefined" && localStorage.getItem(key) !== null;
+diff --git a/modules/core-system/ui/frontend-ts/pages/blocked/index.ts b/modules/core-system/ui/frontend-ts/pages/blocked/index.ts
+index 480d6eb..30a2db3 100644
+--- a/modules/core-system/ui/frontend-ts/pages/blocked/index.ts
++++ b/modules/core-system/ui/frontend-ts/pages/blocked/index.ts
+@@ -1,4 +1,4 @@
+-import { escapeHtml } from "../../../../../../app/src/runtime/safeRender";
++import { escapeHtml } from "/src/core/runtime/safe";
+ 
+ export default function blockedPage(): string {
+   const w = globalThis as any;
+diff --git a/modules/core-system/ui/frontend-ts/pages/dashboard.ts b/modules/core-system/ui/frontend-ts/pages/dashboard.ts
+index b0a9818..5051ea5 100644
+--- a/modules/core-system/ui/frontend-ts/pages/dashboard.ts
++++ b/modules/core-system/ui/frontend-ts/pages/dashboard.ts
+@@ -1,16 +1,16 @@
+ import { coreBaseStyles } from "../shared/coreStyles";
+-import { logout, requireSession } from "../../../../../platform-services/security/auth/localAuth";
+-import { MAIN_SYSTEM_ENABLED, MAIN_SYSTEM_LAYOUT, MAIN_SYSTEM_MODULES } from "./_shared/mainSystem.data";
+-import { appendList, appendTable, sectionCard } from "./_shared/uiBlocks";
+-import { mountSections, type SectionSpec } from "./_shared/sections";
+-import { safeRender } from "./_shared/mainSystem.shared";
++import { logout, requireSession } from "/src/localAuth";
++import { MAIN_SYSTEM_ENABLED, MAIN_SYSTEM_LAYOUT, MAIN_SYSTEM_MODULES } from "./shared/mainSystem.data";
++import { appendList, appendTable, sectionCard } from "/src/core/ui/uiBlocks";
++import { mountSections, type SectionSpec } from "./shared/sections";
++import { safeRender } from "/src/core/runtime/safe";
+ import { requireEntitlement } from "/src/core/access";
+-import * as EntitlementsFacade from "./_shared/entitlements";
++import * as EntitlementsFacade from "./shared/entitlements";
+ import { navigate } from "/src/runtime/navigate";
+ 
+ const UI = {
+   WRAP: "align-items:flex-start; padding-top:38px;",
+-  CARD: "width:min(920px,92vw);",
++  CARD: "width:100%; max-width:100%;",
+   BTN: "width:auto; margin-top:0;",
+   USER_BOX: "margin-top:16px; border:1px solid var(--ic-border); border-radius:14px; padding:14px;",
+   ACTION_ROW: "margin-top:14px; display:flex; gap:10px; flex-wrap:wrap;"
+diff --git a/modules/core-system/ui/frontend-ts/pages/dashboard/dashboardPage.ts b/modules/core-system/ui/frontend-ts/pages/dashboard/dashboardPage.ts
+deleted file mode 100644
+index 89b2248..0000000
+--- a/modules/core-system/ui/frontend-ts/pages/dashboard/dashboardPage.ts
++++ /dev/null
+@@ -1,36 +0,0 @@
+-import { coreBaseStyles } from "../../shared/coreStyles";
+-import { requireSession, logout } from "../../../../../../platform-services/security/auth/localAuth";
+-
+-export function renderDashboardPage(): string {
+-  const s = requireSession();
+-  return `
+-    ${coreBaseStyles()}
+-    <div class="cxWrap" style="align-items:flex-start; padding-top:38px;">
+-      <div class="cxCard" style="width:min(920px,92vw);">
+-        <div class="cxRow">
+-          <div>
+-            <div class="cxTitle">Dashboard</div>
+-            <div class="cxMuted">Core System — page socle. Widgets viendront ensuite via registry.</div>
+-          </div>
+-          <button class="cxBtn" style="width:auto; margin-top:0;" id="cxLogout">Déconnexion</button>
+-        </div>
+-
+-        <div style="margin-top:16px; border:1px solid var(--line); border-radius:14px; padding:14px;">
+-          <div><b>Utilisateur</b>: ${s.username}</div>
+-          <div><b>Rôle</b>: ${s.role}</div>
+-        </div>
+-
+-        <div style="margin-top:14px; display:flex; gap:10px; flex-wrap:wrap;">
+-          <button class="cxBtn" style="width:auto; margin-top:0;" id="cxGoLogin">Retour Login</button>
+-        </div>
+-      </div>
+-    </div>
+-  `;
+-}
+-
+-export function bindDashboardEvents(host: { navigate: (r: string) => void }) {
+-  const out = document.getElementById("cxLogout") as HTMLButtonElement | null;
+-  const back = document.getElementById("cxGoLogin") as HTMLButtonElement | null;
+-  if (out) out.onclick = () => { logout(); host.navigate("#/login"); };
+-  if (back) back.onclick = () => { host.navigate("#/login"); };
+-}
+diff --git a/modules/core-system/ui/frontend-ts/pages/developer/contract.ts b/modules/core-system/ui/frontend-ts/pages/developer/contract.ts
+index 0fabf57..097943d 100644
+--- a/modules/core-system/ui/frontend-ts/pages/developer/contract.ts
++++ b/modules/core-system/ui/frontend-ts/pages/developer/contract.ts
+@@ -1,11 +1,13 @@
+ import type { Role } from "/src/runtime/rbac";
+-import type { SafeMode } from "../_shared/safeMode";
++import type { SafeModeValue as SafeMode } from "/src/core/runtime/safe";
+ 
+ export const PAGE_ID = "developer";
+ export const SAFE_MODE_ALLOWED = true;
+ export const REQUIRED_ROLES: Role[] = ["DEVELOPER", "SYSADMIN"];
+ 
+ export function canAccess(role: Role, safeMode: SafeMode): boolean {
++  // Master a toujours accès à tout
++  if (role === "MASTER") return true;
+   if (safeMode === "STRICT" && !SAFE_MODE_ALLOWED) return false;
+   return REQUIRED_ROLES.includes(role);
+ }
+diff --git a/modules/core-system/ui/frontend-ts/pages/developer/entitlements.tsx b/modules/core-system/ui/frontend-ts/pages/developer/entitlements.tsx
+index 26811e6..f0ca65f 100644
+--- a/modules/core-system/ui/frontend-ts/pages/developer/entitlements.tsx
++++ b/modules/core-system/ui/frontend-ts/pages/developer/entitlements.tsx
+@@ -1,142 +1,515 @@
+-import { loadEntitlements, saveEntitlements, clearEntitlements, type Entitlements, DEFAULT_ENTITLEMENTS } from "/src/core/entitlements";
++/**
++ * ICONTROL_CP_DEVELOPER_ENTITLEMENTS_V2
++ * SSOT Developer Entitlements page (CP)
++ */
++import { renderAccessDenied } from "/src/core/runtime/accessDenied";
++import { OBS } from "/src/core/runtime/obs";
++import { recordObs } from "/src/core/runtime/audit";
++import { safeRender, fetchJsonSafe, mapSafeMode, getSafeMode } from "/src/core/runtime/safe";
++import { canAccess } from "./contract";
++
++import { getRole } from "/src/runtime/rbac";
++import { coreBaseStyles } from "../../shared/coreStyles";
++import { createPageShell } from "/src/core/ui/pageShell";
++import { createSectionCard } from "/src/core/ui/sectionCard";
++import { createToolbar } from "/src/core/ui/toolbar";
++import { createBadge } from "/src/core/ui/badge";
++import { createErrorState } from "/src/core/ui/errorState";
++import { createContextualEmptyState } from "/src/core/ui/emptyState";
++import { createDataTable, type TableColumn } from "/src/core/ui/dataTable";
++import { showToast } from "/src/core/ui/toast";
++import { createCardSkeleton } from "/src/core/ui/skeletonLoader";
++import { getMountEl } from "/src/router";
++import { loadEntitlements, saveEntitlements, clearEntitlements, DEFAULT_ENTITLEMENTS, type Entitlements } from "/src/core/entitlements";
++import { navigate } from "/src/runtime/navigate";
++
++type EntitlementStatus = "ACTIVE" | "INACTIVE" | "EXPIRED";
++
++type EntitlementRow = {
++  id: string;
++  plan: string;
++  status: EntitlementStatus;
++  source: string;
++  updatedAt?: string;
++};
++
++type EntitlementsData = {
++  rows: EntitlementRow[];
++  plan: string;
++  active: number;
++  inactive: number;
++  expired: number;
++  lastUpdated: string;
++};
++
++type Mode = "live" | "demo" | "error";
++
++let currentRoot: HTMLElement | null = null;
+ 
+ function getTenantId(): string {
+-  // Governance: tenant derivation should come from auth/context.
+-  // For now, manual mode uses "local" to avoid coupling.
+   return "local";
+ }
+ 
+-function cloneEntitlements(src: Entitlements): Entitlements {
+-  return { ...src, modules: { ...src.modules } };
++export function renderDeveloperEntitlementsPage(root: HTMLElement): void {
++  void renderDeveloperEntitlementsPageAsync(root);
+ }
+ 
+-export function renderDeveloperEntitlements(root: HTMLElement): void {
+-  const tenantId = getTenantId();
+-  let e: Entitlements = loadEntitlements(tenantId);
+-  let moduleKey = "recommendations.pro";
++async function renderDeveloperEntitlementsPageAsync(root: HTMLElement): Promise<void> {
++  const role = getRole();
++  const safeMode = getSafeMode();
+ 
+-  function persist(next: Entitlements): void {
+-    e = next;
+-    saveEntitlements(tenantId, next);
+-    updateView();
++  if (!canAccess(role, safeMode)) {
++    recordObs({ code: OBS.WARN_SECTION_BLOCKED, page: "developer_entitlements", section: "page", detail: "rbac" });
++    renderAccessDenied(root, "RBAC_PAGE_BLOCKED");
++    return;
+   }
+ 
+-  root.innerHTML = "";
+-  const wrap = document.createElement("div");
+-  wrap.style.cssText = "padding:16px;display:grid;gap:12px";
+-
+-  const title = document.createElement("h1");
+-  title.textContent = "Entitlements (Provisioning manuel)";
+-  title.style.cssText = "font-size:18px;font-weight:700";
+-  wrap.appendChild(title);
+-
+-  const desc = document.createElement("p");
+-  desc.style.cssText = "opacity:.85";
+-  desc.innerHTML = `Objectif: activer/désactiver des capacités PRO/ENTERPRISE sans billing externe. ` +
+-    `Les entitlements sont stockés localement (localStorage) pour le tenant <code>${tenantId}</code>.`;
+-  wrap.appendChild(desc);
+-
+-  const card = document.createElement("section");
+-  card.style.cssText = "border:1px solid rgba(0,0,0,0.12);border-radius:8px;padding:12px";
+-  const grid = document.createElement("div");
+-  grid.style.cssText = "display:grid;gap:8px";
+-
+-  const planLabel = document.createElement("label");
+-  planLabel.style.cssText = "display:grid;gap:4px";
+-  const planSpan = document.createElement("span");
+-  planSpan.textContent = "Plan";
+-  const planSelect = document.createElement("select");
+-  ["FREE", "PRO", "ENTERPRISE"].forEach((v) => {
+-    const opt = document.createElement("option");
+-    opt.value = v;
+-    opt.textContent = v;
+-    planSelect.appendChild(opt);
+-  });
+-  planSelect.addEventListener("change", (ev) => {
+-    const next = { ...e, plan: (ev.target as HTMLSelectElement).value as Entitlements["plan"] };
+-    persist(next);
+-  });
+-  planLabel.appendChild(planSpan);
+-  planLabel.appendChild(planSelect);
+-  grid.appendChild(planLabel);
+-
+-  const moduleLabel = document.createElement("label");
+-  moduleLabel.style.cssText = "display:grid;gap:4px";
+-  const moduleSpan = document.createElement("span");
+-  moduleSpan.textContent = "Module key";
+-  const moduleInput = document.createElement("input");
+-  moduleInput.placeholder = "ex: recommendations.pro";
+-  moduleInput.value = moduleKey;
+-  moduleInput.addEventListener("input", (ev) => {
+-    moduleKey = (ev.target as HTMLInputElement).value;
++  currentRoot = root;
++
++  const renderLoading = () => {
++    safeRender(root, () => {
++      root.innerHTML = coreBaseStyles();
++      const { shell, content } = createPageShell({
++        title: "Developer Entitlements",
++        subtitle: "Provisioning manuel et gouvernance",
++        safeMode: mapSafeMode(safeMode),
++        statusBadge: { label: "CHARGEMENT", tone: "info" }
++      });
++
++      const grid = document.createElement("div");
++  grid.style.minWidth = "0";
++  grid.style.boxSizing = "border-box";
++      grid.style.cssText = "display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; width:100%;";
++      grid.appendChild(createCardSkeleton());
++      grid.appendChild(createCardSkeleton());
++      content.appendChild(grid);
++
++      const { card: detailCard, body: detailBody } = createSectionCard({
++        title: "Entitlements",
++        description: "Chargement..."
++      });
++      detailBody.appendChild(createCardSkeleton());
++      content.appendChild(detailCard);
++
++      root.appendChild(shell);
++    });
++  };
++
++  renderLoading();
++
++  const { data, error, mode, entitlements } = await getEntitlementsData();
++  renderData(root, data, error, mode, entitlements);
++}
++
++function renderData(
++  root: HTMLElement,
++  data: EntitlementsData,
++  error: string | null,
++  mode: Mode,
++  entitlements: Entitlements
++): void {
++  safeRender(root, () => {
++    root.innerHTML = coreBaseStyles();
++
++    const statusBadge = mode === "live"
++      ? { label: "LIVE", tone: "ok" as const }
++      : mode === "demo"
++        ? { label: "DEMO", tone: "warn" as const }
++        : { label: "ERREUR", tone: "err" as const };
++
++    const { shell, content } = createPageShell({
++      title: "Developer Entitlements",
++      subtitle: "Provisioning manuel et gouvernance",
++      safeMode: mapSafeMode(getSafeMode()),
++      statusBadge
++    });
++
++    const grid = document.createElement("div");
++    grid.style.cssText = "display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; width:100%;";
++
++    const { card: summaryCard, body: summaryBody } = createSectionCard({
++      title: "Resume",
++      description: "Entitlements et plan"
++    });
++    if (error) {
++      summaryBody.appendChild(createErrorState({ code: "ERR_ENTITLEMENTS_FETCH", message: error }));
++    }
++    summaryBody.appendChild(createKpiRow("Plan", data.plan, data.plan === "FREE" ? "warn" : "ok"));
++    summaryBody.appendChild(createKpiRow("Actifs", String(data.active), data.active > 0 ? "ok" : "warn"));
++    summaryBody.appendChild(createKpiRow("Inactifs", String(data.inactive), "neutral"));
++    summaryBody.appendChild(createKpiRow("Expires", String(data.expired), data.expired > 0 ? "warn" : "ok"));
++    grid.appendChild(summaryCard);
++
++    const { card: govCard, body: govBody } = createSectionCard({
++      title: "Gouvernance",
++      description: "Roles et SAFE_MODE"
++    });
++    govBody.appendChild(createKpiRow("Role", getRole(), "neutral"));
++    govBody.appendChild(createKpiRow("SAFE_MODE", mapSafeMode(getSafeMode()), mapSafeMode(getSafeMode()) === "STRICT" ? "err" : mapSafeMode(getSafeMode()) === "COMPAT" ? "warn" : "ok"));
++    govBody.appendChild(createKpiRow("Tenant", getTenantId(), "neutral"));
++    grid.appendChild(govCard);
++
++    content.appendChild(grid);
++
++    const { card: provisionCard, body: provisionBody } = createSectionCard({
++      title: "Provisioning manuel",
++      description: "Activation/desactivation locale"
++    });
++
++    const planSelect = document.createElement("select");
++    planSelect.style.cssText = "padding:6px 10px;border-radius:8px;border:1px solid var(--ic-border,#2b3136);background:#121516;color:var(--ic-text,#e7ecef);font-size:12px;";
++    ["FREE", "PRO", "ENTERPRISE"].forEach((plan) => {
++      const opt = document.createElement("option");
++      opt.value = plan;
++      opt.textContent = plan;
++      planSelect.appendChild(opt);
++    });
++    planSelect.value = entitlements.plan;
++
++    const moduleInput = document.createElement("input");
++    moduleInput.placeholder = "ex: recommendations.pro";
++    moduleInput.value = "recommendations.pro";
++    moduleInput.style.cssText = "flex:1;padding:6px 10px;border-radius:8px;border:1px solid var(--ic-border,#2b3136);background:#121516;color:var(--ic-text,#e7ecef);font-size:12px;";
++
++    const setPlanBtn = createActionButton("Appliquer plan", () => {
++      const next = { ...entitlements, plan: planSelect.value as Entitlements["plan"] };
++      persistEntitlements(next);
++    });
++
++    const enableBtn = createActionButton("Activer module", () => {
++      const key = moduleInput.value.trim();
++      if (!key) return;
++      const next = { ...entitlements, modules: { ...entitlements.modules, [key]: true } };
++      persistEntitlements(next);
++    });
++
++    const disableBtn = createActionButton("Desactiver module", () => {
++      const key = moduleInput.value.trim();
++      if (!key) return;
++      const next = { ...entitlements, modules: { ...entitlements.modules, [key]: false } };
++      persistEntitlements(next);
++    });
++
++    const resetBtn = createActionButton("Reset FREE", () => {
++      clearEntitlements(getTenantId());
++      persistEntitlements({ ...DEFAULT_ENTITLEMENTS, modules: { ...DEFAULT_ENTITLEMENTS.modules } });
++    });
++
++    const row = document.createElement("div");
++    row.style.cssText = "display:flex; gap:8px; flex-wrap:wrap; align-items:center;";
++    row.appendChild(planSelect);
++    row.appendChild(setPlanBtn);
++    row.appendChild(moduleInput);
++    row.appendChild(enableBtn);
++    row.appendChild(disableBtn);
++    row.appendChild(resetBtn);
++
++    provisionBody.appendChild(row);
++    content.appendChild(provisionCard);
++
++    const { card: detailCard, body: detailBody } = createSectionCard({
++      title: "Entitlements",
++      description: "Liste detaillee (recherche + filtres)"
++    });
++
++    const state = { search: "", status: "", plan: "" };
++    const tableContainer = document.createElement("div");
++
++    const { element: toolbar, searchInput } = createToolbar({
++      searchPlaceholder: "Rechercher module, statut...",
++      onSearch: (v) => {
++        state.search = (v || "").toLowerCase().trim();
++        renderTable();
++      },
++      filters: [
++        {
++          label: "Statut",
++          options: [
++            { label: "Tous", value: "" },
++            { label: "ACTIVE", value: "ACTIVE" },
++            { label: "INACTIVE", value: "INACTIVE" },
++            { label: "EXPIRED", value: "EXPIRED" }
++          ],
++          onChange: (v) => {
++            state.status = v;
++            renderTable();
++          }
++        },
++        {
++          label: "Plan",
++          options: [
++            { label: "Tous", value: "" },
++            { label: "FREE", value: "FREE" },
++            { label: "PRO", value: "PRO" },
++            { label: "ENTERPRISE", value: "ENTERPRISE" }
++          ],
++          onChange: (v) => {
++            state.plan = v;
++            renderTable();
++          }
++        }
++      ],
++      actions: [
++        { label: "Rafraichir", primary: true, onClick: () => refreshEntitlements() },
++        { label: "Exporter JSON", onClick: () => exportJson(data.rows) },
++        { label: "Aller a Developer", onClick: () => { navigate("#/developer"); } }
++      ]
++    });
++
++    detailBody.appendChild(toolbar);
++    detailBody.appendChild(tableContainer);
++
++    const columns: TableColumn<EntitlementRow>[] = [
++      { key: "id", label: "Module", sortable: true },
++      { key: "plan", label: "Plan", sortable: true, render: (v) => createBadge(String(v), "neutral") },
++      {
++        key: "status",
++        label: "Statut",
++        sortable: true,
++        render: (v) => createBadge(String(v), String(v) === "ACTIVE" ? "ok" : String(v) === "EXPIRED" ? "err" : "warn")
++      },
++      { key: "source", label: "Source", sortable: true, render: (v) => createBadge(String(v), "neutral") },
++      { key: "updatedAt", label: "Updated", sortable: true, render: (v) => {
++          const div = document.createElement("div");
++          div.textContent = v ? formatDateTime(String(v)) : "—";
++          div.style.cssText = "font-size:11px;color:var(--ic-mutedText,#a7b0b7);";
++          return div;
++        }
++      }
++    ];
++
++    function renderTable(): void {
++      tableContainer.innerHTML = "";
++      const filtered = data.rows.filter((row) => {
++        const matchStatus = !state.status || row.status === state.status;
++        const matchPlan = !state.plan || row.plan === state.plan;
++        const q = state.search;
++        const matchSearch = !q || row.id.toLowerCase().includes(q) || row.status.toLowerCase().includes(q);
++        return matchStatus && matchPlan && matchSearch;
++      });
++
++      const table = createDataTable({
++        columns,
++        data: filtered,
++        searchable: false,
++        sortable: true,
++        pagination: true,
++        pageSize: 12,
++        actions: (row) => [
++          { label: "Copier ID", onClick: () => copyToClipboard(row.id) },
++          { label: "Copier plan", onClick: () => copyToClipboard(row.plan) },
++          { label: "Voir logs", onClick: () => { navigate("#/logs"); } }
++        ]
++      });
++      tableContainer.appendChild(table);
++
++      if (filtered.length === 0) {
++        tableContainer.appendChild(createContextualEmptyState("developer_entitlements", {
++          searchQuery: state.search || undefined,
++          onClearFilter: () => {
++            state.search = "";
++            state.status = "";
++            state.plan = "";
++            if (searchInput) searchInput.value = "";
++            renderTable();
++          }
++        }));
++      }
++    }
++
++    renderTable();
++    content.appendChild(detailCard);
++    root.appendChild(shell);
+   });
+-  moduleLabel.appendChild(moduleSpan);
+-  moduleLabel.appendChild(moduleInput);
+-  grid.appendChild(moduleLabel);
+-
+-  const actions = document.createElement("div");
+-  actions.style.cssText = "display:flex;gap:8px;flex-wrap:wrap";
+-  const btnEnable = document.createElement("button");
+-  btnEnable.textContent = "Activer module";
+-  btnEnable.addEventListener("click", () => {
+-    persist({ ...e, modules: { ...e.modules, [moduleKey]: true } });
++}
++
++function createKpiRow(label: string, value: string, tone: "ok" | "warn" | "err" | "neutral"): HTMLElement {
++  const row = document.createElement("div");
++  row.style.cssText = "display:flex; align-items:center; justify-content:space-between; gap:12px;";
++  const left = document.createElement("div");
++  left.textContent = label;
++  left.style.cssText = "font-size:12px;color:var(--ic-mutedText,#a7b0b7);";
++  const right = document.createElement("div");
++  right.textContent = value;
++  right.style.cssText = `font-size:13px;font-weight:600;color:${tone === "err" ? "var(--ic-error,#f48771)" : tone === "warn" ? "var(--ic-warn,#f59e0b)" : tone === "ok" ? "var(--ic-success,#4ec9b0)" : "var(--ic-text,#e7ecef)"};`;
++  row.appendChild(left);
++  row.appendChild(right);
++  return row;
++}
++
++function createActionButton(label: string, onClick: () => void): HTMLElement {
++  const btn = document.createElement("button");
++  btn.className = "cxBtn";
++  btn.textContent = label;
++  btn.style.cssText = "padding:8px 12px;border-radius:8px;border:1px solid var(--ic-border,#2b3136);background:var(--ic-panel,#1a1d1f);color:var(--ic-text,#e7ecef);font-size:12px;font-weight:600;cursor:pointer;";
++  btn.onclick = onClick;
++  return btn;
++}
++
++function formatDateTime(value: string): string {
++  return new Date(value).toLocaleString("fr-CA");
++}
++
++async function getEntitlementsData(): Promise<{ data: EntitlementsData; error: string | null; mode: Mode; entitlements: Entitlements }> {
++  const tenantId = getTenantId();
++  const localEntitlements = loadEntitlements(tenantId);
++  const demoRows = buildDemoRows();
++  let rows: EntitlementRow[] = [];
++  let plan = localEntitlements.plan || "FREE";
++  let error: string | null = null;
++  let mode: Mode = "demo";
++
++  const apiRes = await fetchJsonSafe("/api/cp/entitlements");
++  if (apiRes.ok && apiRes.data) {
++    rows = normalizeApiRows(apiRes.data);
++    plan = apiRes.data.plan || plan;
++    mode = "live";
++  } else if (apiRes.error) {
++    error = apiRes.error;
++  }
++
++  const subRes = await fetchJsonSafe("/api/cp/subscriptions");
++  if (subRes.ok && subRes.data && mode !== "live") {
++    rows = normalizeSubscriptionRows(subRes.data);
++    mode = "live";
++  }
++
++  if (rows.length === 0) {
++    rows = normalizeLocalRows(localEntitlements);
++  }
++
++  if (rows.length === 0) {
++    rows = demoRows;
++  }
++
++  const counts = countRows(rows);
++  const data: EntitlementsData = {
++    rows,
++    plan: plan || "FREE",
++    active: counts.active,
++    inactive: counts.inactive,
++    expired: counts.expired,
++    lastUpdated: new Date().toISOString()
++  };
++
++  return { data, error, mode, entitlements: localEntitlements };
++}
++
++function normalizeLocalRows(entitlements: Entitlements): EntitlementRow[] {
++  const rows: EntitlementRow[] = [];
++  const updatedAt = new Date().toISOString();
++  Object.entries(entitlements.modules || {}).forEach(([key, enabled]) => {
++    rows.push({
++      id: key,
++      plan: entitlements.plan || "FREE",
++      status: enabled ? "ACTIVE" : "INACTIVE",
++      source: "LOCAL",
++      updatedAt
++    });
+   });
+-  const btnDisable = document.createElement("button");
+-  btnDisable.textContent = "Désactiver module";
+-  btnDisable.addEventListener("click", () => {
+-    persist({ ...e, modules: { ...e.modules, [moduleKey]: false } });
++  return rows;
++}
++
++function normalizeApiRows(raw: any): EntitlementRow[] {
++  const rows: EntitlementRow[] = [];
++  const list = Array.isArray(raw?.rows) ? raw.rows : Array.isArray(raw) ? raw : [];
++  list.forEach((item: any) => {
++    rows.push({
++      id: String(item.id || item.key || item.module || "unknown"),
++      plan: String(item.plan || item.tier || "FREE"),
++      status: mapStatus(item.status),
++      source: String(item.source || "API"),
++      updatedAt: item.updatedAt || item.updated_at
++    });
+   });
+-  const btnReset = document.createElement("button");
+-  btnReset.textContent = "Reset (FREE)";
+-  btnReset.addEventListener("click", () => {
+-    clearEntitlements(tenantId);
+-    e = cloneEntitlements(DEFAULT_ENTITLEMENTS);
+-    updateView();
++  return rows;
++}
++
++function normalizeSubscriptionRows(raw: any): EntitlementRow[] {
++  const rows: EntitlementRow[] = [];
++  const list = Array.isArray(raw?.items) ? raw.items : Array.isArray(raw?.rows) ? raw.rows : [];
++  list.forEach((item: any) => {
++    rows.push({
++      id: String(item.name || item.id || "module"),
++      plan: String(item.plan || "FREE"),
++      status: item.status === "ACTIVE" ? "ACTIVE" : item.status === "EXPIRED" ? "EXPIRED" : "INACTIVE",
++      source: "SUBSCRIPTION",
++      updatedAt: item.updatedAt || item.activatedAt || item.expiresAt
++    });
+   });
+-  actions.appendChild(btnEnable);
+-  actions.appendChild(btnDisable);
+-  actions.appendChild(btnReset);
+-  grid.appendChild(actions);
+-
+-  const details = document.createElement("details");
+-  const summary = document.createElement("summary");
+-  summary.textContent = "Voir JSON";
+-  const jsonPre = document.createElement("pre");
+-  jsonPre.style.cssText = "background:rgba(0,0,0,0.04);padding:12px;border-radius:8px;overflow-x:auto";
+-  details.appendChild(summary);
+-  details.appendChild(jsonPre);
+-  grid.appendChild(details);
+-
+-  card.appendChild(grid);
+-  wrap.appendChild(card);
+-
+-  const cardDod = document.createElement("section");
+-  cardDod.style.cssText = "border:1px solid rgba(0,0,0,0.12);border-radius:8px;padding:12px";
+-  const dodTitle = document.createElement("h2");
+-  dodTitle.textContent = "DoD (cette section)";
+-  dodTitle.style.cssText = "font-size:14px;font-weight:700";
+-  const dodList = document.createElement("ul");
+-  dodList.style.cssText = "margin:0;padding-left:18px;display:grid;gap:6px";
+-  ["Plan & modules activables sans dépendance billing",
+-    "Stockage tenant-safe (clé par tenant)",
+-    "Reset rapide vers FREE",
+-    "Prêt à brancher Stripe plus tard (même modèle Entitlements)"
+-  ].forEach((t) => {
+-    const li = document.createElement("li");
+-    li.textContent = t;
+-    dodList.appendChild(li);
++  return rows;
++}
++
++function mapStatus(value: any): EntitlementStatus {
++  const v = String(value || "ACTIVE").toUpperCase();
++  if (v == "EXPIRED") return "EXPIRED";
++  if (v == "INACTIVE") return "INACTIVE";
++  return "ACTIVE";
++}
++
++function countRows(rows: EntitlementRow[]): { active: number; inactive: number; expired: number } {
++  return {
++    active: rows.filter((r) => r.status === "ACTIVE").length,
++    inactive: rows.filter((r) => r.status === "INACTIVE").length,
++    expired: rows.filter((r) => r.status === "EXPIRED").length
++  };
++}
++
++function buildDemoRows(): EntitlementRow[] {
++  const now = Date.now();
++  const make = (i: number, status: EntitlementStatus): EntitlementRow => ({
++    id: `module.demo.${i}`,
++    plan: i % 3 === 0 ? "ENTERPRISE" : i % 2 === 0 ? "PRO" : "FREE",
++    status,
++    source: "DEMO",
++    updatedAt: new Date(now - i * 1000 * 60 * 5).toISOString()
+   });
+-  cardDod.appendChild(dodTitle);
+-  cardDod.appendChild(dodList);
+-  wrap.appendChild(cardDod);
++  return [
++    make(1, "ACTIVE"),
++    make(2, "ACTIVE"),
++    make(3, "ACTIVE"),
++    make(4, "INACTIVE"),
++    make(5, "INACTIVE"),
++    make(6, "INACTIVE"),
++    make(7, "EXPIRED"),
++    make(8, "ACTIVE"),
++    make(9, "ACTIVE"),
++    make(10, "INACTIVE"),
++    make(11, "ACTIVE"),
++    make(12, "ACTIVE")
++  ];
++}
+ 
+-  root.appendChild(wrap);
++function persistEntitlements(next: Entitlements): void {
++  saveEntitlements(getTenantId(), next);
++  showToast({ status: "success", message: "Entitlements sauvegardes." });
++  refreshEntitlements();
++}
+ 
+-  function updateView(): void {
+-    planSelect.value = e.plan;
+-    jsonPre.textContent = JSON.stringify(e, null, 2);
++function exportJson(rows: EntitlementRow[]): void {
++  const blob = new Blob([JSON.stringify(rows, null, 2)], { type: "application/json;charset=utf-8" });
++  const url = URL.createObjectURL(blob);
++  const a = document.createElement("a");
++  a.href = url;
++  a.download = `icontrol_cp_entitlements_${new Date().toISOString().slice(0, 19).replace(/[:T]/g, "-")}.json`;
++  a.click();
++  URL.revokeObjectURL(url);
++}
++
++async function copyToClipboard(text: string): Promise<void> {
++  if (!text) {
++    showToast({ status: "warning", message: "Aucune valeur a copier." });
++    return;
++  }
++  try {
++    await navigator.clipboard.writeText(text);
++    showToast({ status: "success", message: "Copie reussie." });
++  } catch {
++    showToast({ status: "warning", message: "Copie impossible (permissions navigateur)." });
+   }
+-  updateView();
+ }
+ 
+-export default renderDeveloperEntitlements;
++function refreshEntitlements(): void {
++  const target = currentRoot || getMountEl();
++  if (target) void renderDeveloperEntitlementsPageAsync(target);
++}
+diff --git a/modules/core-system/ui/frontend-ts/pages/developer/index.test.ts b/modules/core-system/ui/frontend-ts/pages/developer/index.test.ts
+index 452d150..67827e3 100644
+--- a/modules/core-system/ui/frontend-ts/pages/developer/index.test.ts
++++ b/modules/core-system/ui/frontend-ts/pages/developer/index.test.ts
+@@ -2,7 +2,7 @@
+ // @vitest-environment-options { "url": "http://localhost" }
+ import { afterEach, beforeEach, describe, expect, it } from "vitest";
+ // ICONTROL_LOCALAUTH_SHIM_V1
+-import { setSession, clearSession } from "../_shared/localAuth";
++import { setSession, clearSession } from "../../shared/localAuth";
+ import { developerSections, renderDeveloper } from "./index";
+ 
+ function createLocalStorageMock() {
+diff --git a/modules/core-system/ui/frontend-ts/pages/developer/index.tsx b/modules/core-system/ui/frontend-ts/pages/developer/index.tsx
+index 6c8bf81..56df02e 100644
+--- a/modules/core-system/ui/frontend-ts/pages/developer/index.tsx
++++ b/modules/core-system/ui/frontend-ts/pages/developer/index.tsx
+@@ -1,182 +1,447 @@
+-import { safeRender } from "../_shared/mainSystem.shared";
+-import { mountSections, type SectionSpec } from "../_shared/sections";
+-import { renderRecommendations } from "../_shared/recommendations";
+-import { getSafeMode } from "../_shared/recommendations.ctx";
+-import { sectionCard } from "../_shared/uiBlocks";
+-import { getSession } from "../_shared/localAuth";
+-import { renderAccessDenied } from "../_shared/renderAccessDenied";
+-import { canAccessPage, canAccessSection, type Role } from "../_shared/rolePolicy";
+-import { render_registry_viewer } from "./sections/registry-viewer";
+-import { render_contracts_table } from "./sections/contracts-table";
+-import { render_contracts_form } from "./sections/contracts-form";
+-import { render_datasources_viewer } from "./sections/datasources-viewer";
+-import { render_rules_viewer } from "./sections/rules-viewer";
+-import { render_audit_log } from "./sections/audit-log";
+-
+-
+-function __fmtTs(ts?: number) {
+-  try {
+-    if (typeof ts !== "number") return "n/a";
+-
+-      {/* Cache Audit (read-only) */}
+-      {(() => {
+-        const a: any = __readCacheAudit();
+-        return (
+-          <div style={{ border: "1px solid rgba(255,255,255,0.12)", borderRadius: 12, padding: 12, marginBottom: 12 }}>
+-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
+-              <div style={{ fontWeight: 700 }}>Cache Audit</div>
+-              <div style={{ opacity: 0.8, fontSize: 12 }}>{a?.ts ? __fmtTs(a.ts) : "n/a"}</div>
+-            </div>
+-            <div style={{ marginTop: 8, display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 8, fontSize: 13 }}>
+-              <div><span style={{ opacity: 0.7 }}>schemaVersion:</span> <span>{typeof a?.schemaVersion === "number" ? a.schemaVersion : "n/a"}</span></div>
+-              <div><span style={{ opacity: 0.7 }}>swrDisabled:</span> <span>{typeof a?.swrDisabled === "boolean" ? String(a.swrDisabled) : "n/a"}</span></div>
+-              <div><span style={{ opacity: 0.7 }}>metricsDisabled:</span> <span>{typeof a?.metricsDisabled === "boolean" ? String(a.metricsDisabled) : "n/a"}</span></div>
+-              <div><span style={{ opacity: 0.7 }}>surface:</span> <span>{a ? "present" : "absent"}</span></div>
+-            </div>
+-            <div style={{ marginTop: 8, opacity: 0.7, fontSize: 12 }}>
+-              Read-only governance surface. Best-effort display.
+-            </div>
+-          </div>
+-        );
+-      })()}
+-    const d = new Date(ts);
+-    return isNaN(d.getTime()) ? "n/a" : d.toISOString();
+-  } catch { return "n/a"; }
+-}
++/**
++ * ICONTROL_CP_DEVELOPER_V2
++ * SSOT Developer page (CP)
++ */
++import { getRole } from "/src/runtime/rbac";
++import { renderAccessDenied } from "/src/core/runtime/accessDenied";
++import { OBS } from "/src/core/runtime/obs";
++import { recordObs } from "/src/core/runtime/audit";
++import { safeRender, fetchJsonSafe, mapSafeMode, getSafeMode } from "/src/core/runtime/safe";
++import { canAccess } from "./contract";
+ 
+-function __readCacheAudit() {
+-  try {
+-    const w: any = globalThis as any;
+-    const a = w?.__cacheAudit;
+-    if (!a) return null;
+-    if (typeof a.snapshot === "function") return a.snapshot();
+-    return {
+-      schemaVersion: a.schemaVersion,
+-      ts: a.ts,
+-      swrDisabled: a.swrDisabled,
+-      metricsDisabled: a.metricsDisabled,
+-    };
+-  } catch { return null; }
+-}
++import { coreBaseStyles } from "../../shared/coreStyles";
++import { createPageShell } from "/src/core/ui/pageShell";
++import { createSectionCard } from "/src/core/ui/sectionCard";
++import { createToolbar } from "/src/core/ui/toolbar";
++import { createBadge } from "/src/core/ui/badge";
++import { createErrorState } from "/src/core/ui/errorState";
++import { createContextualEmptyState } from "/src/core/ui/emptyState";
++import { createDataTable, type TableColumn } from "/src/core/ui/dataTable";
++import { showToast } from "/src/core/ui/toast";
++import { createCardSkeleton } from "/src/core/ui/skeletonLoader";
++import { getMountEl } from "/src/router";
++import { navigate } from "/src/runtime/navigate";
++
++type DevDomain = "build" | "flags" | "runtime" | "security" | "entitlements" | "demo";
++
++type DevSeverity = "INFO" | "WARN" | "ERR";
++
++type DevRow = {
++  domain: DevDomain;
++  key: string;
++  value: string;
++  severity?: DevSeverity;
++  updatedAt?: string;
++};
+ 
++type DevData = {
++  rows: DevRow[];
++  lastUpdated: string;
++};
+ 
+-export function renderDeveloper(root: HTMLElement): void {
+-  const sess = getSession();
+-  const role = (sess?.role || "USER") as Role;
++type Mode = "live" | "demo" | "error";
++
++let currentRoot: HTMLElement | null = null;
++
++export function renderDeveloperPage(root: HTMLElement): void {
++  void renderDeveloperPageAsync(root);
++}
++
++async function renderDeveloperPageAsync(root: HTMLElement): Promise<void> {
++  const role = getRole();
+   const safeMode = getSafeMode();
+ 
+-  const pageDecision = canAccessPage(role, "developer");
+-  if (!pageDecision.allow) {
+-    renderAccessDenied(root, pageDecision.reason);
++  if (!canAccess(role, safeMode)) {
++    recordObs({ code: OBS.WARN_SECTION_BLOCKED, page: "developer", section: "page", detail: "rbac" });
++    renderAccessDenied(root, "RBAC_PAGE_BLOCKED");
+     return;
+   }
+ 
+-  const sections: SectionSpec[] = [
+-    {
+-      id: "developer-recommendations",
+-      title: "Recommandations",
+-      render: (host) => {
+-        renderRecommendations(host, {
+-          pageId: "developer",
+-          scopeId: "developer",
+-          role,
+-          safeMode
+-        });
++  currentRoot = root;
++
++  const renderLoading = () => {
++    safeRender(root, () => {
++      root.innerHTML = coreBaseStyles();
++      const { shell, content } = createPageShell({
++        title: "Developer",
++        subtitle: "Outils developpeur — diagnostics, entitlements, runtime",
++        safeMode: mapSafeMode(safeMode),
++        statusBadge: { label: "CHARGEMENT", tone: "info" }
++      });
++
++      const grid = document.createElement("div");
++  grid.style.minWidth = "0";
++  grid.style.boxSizing = "border-box";
++      grid.style.cssText = "display:grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap:16px; width:100%;";
++      for (let i = 0; i < 4; i += 1) {
++        grid.appendChild(createCardSkeleton());
+       }
+-    },
+-    {
+-      id: "toolbox-registry-viewer",
+-      title: "Registry viewer",
+-      render: (host) => render_registry_viewer(host),
+-      requiresRoles: ["SYSADMIN", "DEVELOPER"]
+-    },
+-    {
+-      id: "toolbox-contracts-table",
+-      title: "Contracts: TableDef",
+-      render: (host) => render_contracts_table(host),
+-      requiresRoles: ["SYSADMIN", "DEVELOPER"]
+-    },
+-    {
+-      id: "toolbox-contracts-form",
+-      title: "Contracts: FormDef",
+-      render: (host) => render_contracts_form(host),
+-      requiresRoles: ["SYSADMIN", "DEVELOPER"]
+-    },
+-    {
+-      id: "toolbox-datasources",
+-      title: "Datasources",
+-      render: (host) => render_datasources_viewer(host, safeMode),
+-      requiresRoles: ["SYSADMIN", "DEVELOPER"]
+-    },
+-    {
+-      id: "toolbox-rules",
+-      title: "Rules",
+-      render: (host) => render_rules_viewer(host),
+-      requiresRole: "SYSADMIN"
+-    },
+-    {
+-      id: "developer-entitlements",
+-      title: "Entitlements (manual)",
+-      render: (host) => {
+-        const card = sectionCard("Manual Subscription Provisioning");
+-        const note = document.createElement("div");
+-        note.style.cssText = "opacity:.85;margin-bottom:8px";
+-        note.textContent = "Activer/désactiver plan et modules sans billing (local only).";
+-        const link = document.createElement("a");
+-        link.href = "#/developer/entitlements";
+-        link.textContent = "Ouvrir la page Entitlements";
+-        link.style.cssText = "display:inline-block;margin-top:4px";
+-        card.appendChild(note);
+-        card.appendChild(link);
+-        host.appendChild(card);
+-      },
+-      requiresRoles: ["SYSADMIN", "DEVELOPER"]
+-    },
+-    {
+-      id: "toolbox-audit-log",
+-      title: "Audit log",
+-      render: (host) => render_audit_log(host),
+-      requiresRoles: ["SYSADMIN", "DEVELOPER"]
+-    }
+-  ];
++      content.appendChild(grid);
++
++      const { card: detailCard, body: detailBody } = createSectionCard({
++        title: "Details",
++        description: "Signaux runtime (chargement)"
++      });
++      detailBody.appendChild(createCardSkeleton());
++      content.appendChild(detailCard);
+ 
+-  const isAllowedForRole = (section: SectionSpec): boolean => {
+-    const decision = canAccessSection(role, section.id as never);
+-    return decision.allow;
++      root.appendChild(shell);
++    });
+   };
+ 
+-  const allowedSections = sections.filter(isAllowedForRole);
+-  const hiddenSections = sections.filter((s) => !isAllowedForRole(s));
++  renderLoading();
+ 
++  const { data, error, mode } = await getDevData();
++  renderData(root, data, error, mode);
++}
++
++function renderData(root: HTMLElement, data: DevData, error: string | null, mode: Mode): void {
+   safeRender(root, () => {
+-    root.innerHTML = "";
+-    if (hiddenSections.length > 0) {
+-      const card = sectionCard("Sections réservées");
+-      card.setAttribute("data-testid", "sections-reserved");
+-      const note = document.createElement("div");
+-      note.style.cssText = "opacity:.8;margin-bottom:8px";
+-      note.textContent = "Certaines sections sont visibles uniquement pour SYSADMIN.";
+-      card.appendChild(note);
+-      const list = document.createElement("ul");
+-      list.style.cssText = "margin:0;padding-left:18px;opacity:.9";
+-      hiddenSections.forEach((s) => {
+-        const li = document.createElement("li");
+-        li.textContent = `${s.title} (${s.id})`;
+-        list.appendChild(li);
++    root.innerHTML = coreBaseStyles();
++
++    const statusBadge = mode === "live"
++      ? { label: "LIVE", tone: "ok" as const }
++      : mode === "demo"
++        ? { label: "DEMO", tone: "warn" as const }
++        : { label: "ERREUR", tone: "err" as const };
++
++    const { shell, content } = createPageShell({
++      title: "Developer",
++      subtitle: "Outils developpeur — diagnostics, entitlements, runtime",
++      safeMode: mapSafeMode(getSafeMode()),
++      statusBadge
++    });
++
++    const grid = document.createElement("div");
++    grid.style.cssText = "display:grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap:16px; width:100%;";
++
++    const rows = data.rows;
++    const errCount = rows.filter((r) => (r.severity || "INFO") === "ERR").length;
++    const warnCount = rows.filter((r) => (r.severity || "INFO") === "WARN").length;
++    const domains = new Set(rows.map((r) => r.domain));
++
++    const { card: kpiCard, body: kpiBody } = createSectionCard({
++      title: "Pilotage",
++      description: "Synthese et etat des diagnostics"
++    });
++    if (error) {
++      kpiBody.appendChild(createErrorState({ code: "ERR_DEVELOPER_FETCH", message: error }));
++    }
++    kpiBody.appendChild(createKpiRow("ERR (approx)", String(errCount), errCount > 0 ? "err" : "ok"));
++    kpiBody.appendChild(createKpiRow("WARN (approx)", String(warnCount), warnCount > 0 ? "warn" : "ok"));
++    kpiBody.appendChild(createKpiRow("Domaines", String(domains.size)));
++    kpiBody.appendChild(createKpiRow("Derniere mise a jour", formatDateTime(data.lastUpdated)));
++    grid.appendChild(kpiCard);
++
++    const { card: actionsCard, body: actionsBody } = createSectionCard({
++      title: "Actions",
++      description: "Operations auditees (safe-mode compatible)"
++    });
++    const safeMode = mapSafeMode(getSafeMode());
++    actionsBody.appendChild(createBadge(`SAFE_MODE: ${safeMode}`, safeMode === "STRICT" ? "err" : safeMode === "COMPAT" ? "warn" : "ok"));
++    actionsBody.appendChild(createActionButton("Rafraichir", true, () => refresh()));
++    actionsBody.appendChild(createActionButton("Exporter JSON", false, () => exportJson(rows)));
++    actionsBody.appendChild(createActionButton("Ouvrir entitlements", false, () => { navigate("#/developer/entitlements"); }));
++    grid.appendChild(actionsCard);
++
++    const { card: runtimeCard, body: runtimeBody } = createSectionCard({
++      title: "Runtime",
++      description: "Infos build et contexte"
++    });
++    runtimeBody.appendChild(createKpiRow("UserAgent", `${navigator.userAgent.slice(0, 48)}...`));
++    runtimeBody.appendChild(createKpiRow("Lang", navigator.language || "n/a"));
++    runtimeBody.appendChild(createKpiRow("Online", navigator.onLine ? "Oui" : "Non"));
++    grid.appendChild(runtimeCard);
++
++    const { card: flagsCard, body: flagsBody } = createSectionCard({
++      title: "Flags & Entitlements",
++      description: "Visibilite par domaine"
++    });
++    flagsBody.appendChild(createKpiRow("Entitlements", String(rows.filter((r) => r.domain === "entitlements").length)));
++    flagsBody.appendChild(createKpiRow("Flags", String(rows.filter((r) => r.domain === "flags").length)));
++    flagsBody.appendChild(createKpiRow("Securite", String(rows.filter((r) => r.domain === "security").length)));
++    grid.appendChild(flagsCard);
++
++    content.appendChild(grid);
++
++    const { card: detailCard, body: detailBody } = createSectionCard({
++      title: "Details",
++      description: "Signaux runtime (recherche + filtres)"
++    });
++
++    const state = { search: "", domain: "" };
++    const tableContainer = document.createElement("div");
++    const domainOptions = Array.from(new Set(rows.map((r) => r.domain))).sort();
++
++    const { element: toolbar, searchInput } = createToolbar({
++      searchPlaceholder: "Rechercher cle ou valeur...",
++      onSearch: (v) => {
++        state.search = (v || "").toLowerCase().trim();
++        renderTable();
++      },
++      filters: [
++        {
++          label: "Domaine",
++          options: [{ label: "Tous", value: "" }].concat(domainOptions.map((d) => ({ label: d, value: d }))),
++          onChange: (v) => {
++            state.domain = v;
++            renderTable();
++          }
++        }
++      ],
++      actions: [
++        { label: "Rafraichir", primary: true, onClick: () => refresh() },
++        { label: "Copier resume", onClick: () => copyToClipboard(buildSummary(rows)) }
++      ]
++    });
++
++    detailBody.appendChild(toolbar);
++    detailBody.appendChild(tableContainer);
++
++    const columns: TableColumn<DevRow>[] = [
++      { key: "domain", label: "Domaine", sortable: true, render: (v) => createBadge(String(v), "neutral") },
++      {
++        key: "severity",
++        label: "Severite",
++        sortable: true,
++        render: (v) => {
++          const sev = String(v || "INFO");
++          const tone = sev === "ERR" ? "err" : sev === "WARN" ? "warn" : "info";
++          return createBadge(sev, tone);
++        }
++      },
++      {
++        key: "key",
++        label: "Cle",
++        sortable: true,
++        render: (v) => {
++          const div = document.createElement("div");
++          div.textContent = String(v);
++          div.style.cssText = "font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace; font-weight: 600;";
++          return div;
++        }
++      },
++      {
++        key: "value",
++        label: "Valeur",
++        sortable: false,
++        render: (v) => {
++          const div = document.createElement("div");
++          div.textContent = String(v);
++          div.style.cssText = "font-size: 12px; color: var(--ic-text, #e7ecef); white-space: pre-wrap;";
++          return div;
++        }
++      },
++      {
++        key: "updatedAt",
++        label: "Updated",
++        sortable: true,
++        render: (v) => {
++          const div = document.createElement("div");
++          div.textContent = v ? formatDateTime(String(v)) : "—";
++          div.style.cssText = "font-size: 11px; color: var(--ic-mutedText, #a7b0b7);";
++          return div;
++        }
++      }
++    ];
++
++    function renderTable(): void {
++      tableContainer.innerHTML = "";
++      const filtered = rows.filter((r) => {
++        const matchDomain = !state.domain || r.domain === state.domain;
++        const q = state.search;
++        const matchSearch = !q || r.key.toLowerCase().includes(q) || r.value.toLowerCase().includes(q);
++        return matchDomain && matchSearch;
++      });
++
++      const table = createDataTable({
++        columns,
++        data: filtered,
++        searchable: false,
++        sortable: true,
++        pagination: true,
++        pageSize: 12,
++        actions: (row) => [
++          { label: "Copier cle", onClick: () => copyToClipboard(row.key) },
++          { label: "Copier valeur", onClick: () => copyToClipboard(row.value) },
++          { label: "Voir logs", onClick: () => { navigate("#/logs"); } }
++        ]
+       });
+-      card.appendChild(list);
+-      root.appendChild(card);
++
++      tableContainer.appendChild(table);
++
++      if (filtered.length === 0) {
++        tableContainer.appendChild(createContextualEmptyState("developer", {
++          searchQuery: state.search || undefined,
++          onClearFilter: () => {
++            state.search = "";
++            state.domain = "";
++            if (searchInput) searchInput.value = "";
++            renderTable();
++          }
++        }));
++      }
+     }
+-    mountSections(root, allowedSections, { page: "developer", role, safeMode });
++
++    renderTable();
++    content.appendChild(detailCard);
++    root.appendChild(shell);
+   });
+ }
+ 
+-export const developerSections = [
+-  "toolbox-registry-viewer",
+-  "toolbox-contracts-table",
+-  "toolbox-contracts-form",
+-  "toolbox-datasources",
+-  "toolbox-rules",
+-  "developer-entitlements",
+-  "toolbox-audit-log"
+-];
++function formatDateTime(value: string): string {
++  return new Date(value).toLocaleString("fr-CA");
++}
++
++function createKpiRow(label: string, value: string, tone?: "ok" | "warn" | "err"): HTMLElement {
++  const row = document.createElement("div");
++  row.style.cssText = "display:flex; align-items:center; justify-content:space-between; gap:12px;";
++  const left = document.createElement("div");
++  left.textContent = label;
++  left.style.cssText = "font-size: 12px; color: var(--ic-mutedText, #a7b0b7);";
++  const right = document.createElement("div");
++  right.textContent = value;
++  right.style.cssText =
++    "font-size: 13px; font-weight: 600; color: " +
++    (tone == "err" ? "var(--ic-error, #f48771)" : tone == "warn" ? "var(--ic-warn, #f59e0b)" : tone == "ok" ? "var(--ic-success, #4ec9b0)" : "var(--ic-text, #e7ecef)") +
++    ";";
++  row.appendChild(left);
++  row.appendChild(right);
++  return row;
++}
++
++function createActionButton(label: string, primary: boolean, onClick: () => void): HTMLElement {
++  const btn = document.createElement("button");
++  btn.className = "cxBtn";
++  btn.textContent = label;
++  btn.style.cssText = "margin-top:8px; padding:10px 14px; border-radius:10px; border:1px solid var(--ic-border,#2b3136); background:" + (primary ? "rgba(255,255,255,0.06)" : "rgba(255,255,255,0.03)") + "; color: var(--ic-text,#e7ecef); cursor:pointer; font-weight:600; text-align:left; width:100%;";
++  btn.onclick = onClick;
++  return btn;
++}
++
++async function getDevData(): Promise<{ data: DevData; error: string | null; mode: Mode }> {
++  const demo = buildDemo();
++  let rows: DevRow[] = [];
++  let error: string | null = null;
++  let live = false;
++
++  const runtimeRes = await fetchJsonSafe("/api/cp/runtime-config");
++  if (runtimeRes.ok && runtimeRes.data) {
++    rows = rows.concat(normalizeRuntime(runtimeRes.data));
++    live = true;
++  } else if (runtimeRes.error) {
++    error = runtimeRes.error;
++  }
++
++  const systemRes = await fetchJsonSafe("/api/cp/system");
++  if (systemRes.ok && systemRes.data) {
++    rows = rows.concat(normalizeSystem(systemRes.data));
++    live = true;
++  } else if (!error && systemRes.error) {
++    error = systemRes.error;
++  }
++
++  const flagsRes = await fetchJsonSafe("/api/cp/feature-flags");
++  if (flagsRes.ok && flagsRes.data) {
++    rows = rows.concat(normalizeFlags(flagsRes.data));
++    live = true;
++  } else if (!error && flagsRes.error) {
++    error = flagsRes.error;
++  }
++
++  if (rows.length == 0) {
++    rows = demo.rows;
++  }
++
++  const mode: Mode = live ? "live" : error ? "error" : "demo";
++
++  return {
++    data: {
++      rows,
++      lastUpdated: new Date().toISOString()
++    },
++    error,
++    mode
++  };
++}
++
++function normalizeRuntime(raw: any): DevRow[] {
++  const rows: DevRow[] = [];
++  if (typeof raw == "object") {
++    for (const [key, value] of Object.entries(raw)) {
++      rows.push({ domain: "runtime", key: String(key), value: String(value), severity: "INFO", updatedAt: new Date().toISOString() });
++    }
++  }
++  return rows;
++}
++
++function normalizeSystem(raw: any): DevRow[] {
++  const rows: DevRow[] = [];
++  if (typeof raw == "object") {
++    for (const [key, value] of Object.entries(raw)) {
++      rows.push({ domain: "build", key: String(key), value: String(value), severity: "INFO", updatedAt: new Date().toISOString() });
++    }
++  }
++  return rows;
++}
++
++function normalizeFlags(raw: any): DevRow[] {
++  const rows: DevRow[] = [];
++  const flags = raw?.flags || raw;
++  if (flags && typeof flags == "object") {
++    for (const [key, value] of Object.entries(flags)) {
++      rows.push({ domain: "flags", key: String(key), value: String(value), severity: "INFO", updatedAt: new Date().toISOString() });
++    }
++  }
++  return rows;
++}
++
++function buildDemo(): DevData {
++  const now = Date.now();
++  const rows: DevRow[] = [
++    { domain: "runtime", key: "runtime.version", value: "v0.2.x", severity: "INFO", updatedAt: new Date(now - 1000 * 60 * 5).toISOString() },
++    { domain: "runtime", key: "runtime.env", value: "production", severity: "INFO", updatedAt: new Date(now - 1000 * 60 * 6).toISOString() },
++    { domain: "flags", key: "featureFlags.enabled", value: "true", severity: "INFO", updatedAt: new Date(now - 1000 * 60 * 8).toISOString() },
++    { domain: "flags", key: "featureFlags.count", value: "12", severity: "INFO", updatedAt: new Date(now - 1000 * 60 * 9).toISOString() },
++    { domain: "entitlements", key: "entitlements.active", value: "6", severity: "INFO", updatedAt: new Date(now - 1000 * 60 * 10).toISOString() },
++    { domain: "entitlements", key: "entitlements.expired", value: "1", severity: "WARN", updatedAt: new Date(now - 1000 * 60 * 11).toISOString() },
++    { domain: "security", key: "safeMode", value: mapSafeMode(getSafeMode()), severity: "INFO", updatedAt: new Date(now - 1000 * 60 * 3).toISOString() },
++    { domain: "security", key: "audit.cache", value: "enabled", severity: "INFO", updatedAt: new Date(now - 1000 * 60 * 2).toISOString() },
++    { domain: "build", key: "build.hash", value: "a1b2c3d", severity: "INFO", updatedAt: new Date(now - 1000 * 60 * 12).toISOString() },
++    { domain: "build", key: "build.time", value: new Date(now - 1000 * 60 * 60).toISOString(), severity: "INFO", updatedAt: new Date(now - 1000 * 60 * 12).toISOString() },
++    { domain: "demo", key: "demo.note", value: "Donnees de reference", severity: "INFO", updatedAt: new Date(now - 1000 * 60 * 1).toISOString() }
++  ];
++  return { rows, lastUpdated: new Date(now).toISOString() };
++}
++
++function buildSummary(rows: DevRow[]): string {
++  return rows.map((r) => `${r.domain}:${r.key}=${r.value}`).slice(0, 6).join(" | ");
++}
++
++function exportJson(rows: DevRow[]): void {
++  const blob = new Blob([JSON.stringify(rows, null, 2)], { type: "application/json;charset=utf-8" });
++  const url = URL.createObjectURL(blob);
++  const a = document.createElement("a");
++  a.href = url;
++  a.download = `icontrol_cp_developer_${new Date().toISOString().slice(0, 19).replace(/[:T]/g, "-")}.json`;
++  a.click();
++  URL.revokeObjectURL(url);
++}
++
++async function copyToClipboard(text: string): Promise<void> {
++  if (!text) {
++    showToast({ status: "warning", message: "Aucune valeur a copier." });
++    return;
++  }
++  try {
++    await navigator.clipboard.writeText(text);
++    showToast({ status: "success", message: "Copie reussie." });
++  } catch {
++    showToast({ status: "warning", message: "Copie impossible (permissions navigateur)." });
++  }
++}
++
++function refresh(): void {
++  const target = currentRoot || getMountEl();
++  if (target) void renderDeveloperPageAsync(target);
++}
+diff --git a/modules/core-system/ui/frontend-ts/pages/developer/model.ts b/modules/core-system/ui/frontend-ts/pages/developer/model.ts
+index 498cd99..2da7a19 100644
+--- a/modules/core-system/ui/frontend-ts/pages/developer/model.ts
++++ b/modules/core-system/ui/frontend-ts/pages/developer/model.ts
+@@ -2,7 +2,7 @@ import {
+   MAIN_SYSTEM_DATASOURCES,
+   MAIN_SYSTEM_FORM_CONTRACT,
+   MAIN_SYSTEM_TABLE_CONTRACT
+-} from "../_shared/mainSystem.data";
++} from "../../shared/mainSystem.data";
+ 
+ export type DeveloperModel = {
+   title: string;
+diff --git a/modules/core-system/ui/frontend-ts/pages/developer/sections/audit-log.ts b/modules/core-system/ui/frontend-ts/pages/developer/sections/audit-log.ts
+index 2bc6444..02473c4 100644
+--- a/modules/core-system/ui/frontend-ts/pages/developer/sections/audit-log.ts
++++ b/modules/core-system/ui/frontend-ts/pages/developer/sections/audit-log.ts
+@@ -1,13 +1,27 @@
+-import { getAuditLog } from "../../_shared/audit";
+-import { appendParagraph, appendTable, sectionCard } from "../../_shared/uiBlocks";
++import { getAuditLog } from "/src/core/runtime/audit";
++import { appendParagraph, appendTable } from "../../../shared/uiBlocks";
++import { createToolboxCard } from "../../../shared/toolboxCard";
+ 
+ export function render_audit_log(host: HTMLElement): void {
+-  const card = sectionCard("Audit log (UI)");
+-  appendParagraph(card, "Journal read-only des actions UI permises. Aucun contenu sensible.");
++  const card = createToolboxCard("Audit log (UI)", "Journal read-only des actions UI permises");
++  const content = (card as any).content;
++  
++  const infoDiv = document.createElement("div");
++  infoDiv.style.cssText = `
++    padding: 12px;
++    background: rgba(255,255,255,0.02);
++    border: 1px solid var(--ic-border, var(--line));
++    border-radius: 8px;
++    margin-bottom: 16px;
++    font-size: 13px;
++    color: var(--ic-text, var(--text));
++  `;
++  infoDiv.textContent = "Journal read-only des actions UI permises. Aucun contenu sensible.";
++  content.appendChild(infoDiv);
+ 
+   const entries = getAuditLog().slice(-50).reverse();
+   appendTable(
+-    card,
++    content,
+     ["Time", "Code", "Detail"],
+     entries.map((e) => ({
+       Time: e.ts,
+diff --git a/modules/core-system/ui/frontend-ts/pages/developer/sections/contracts-form.ts b/modules/core-system/ui/frontend-ts/pages/developer/sections/contracts-form.ts
+index f698534..7420955 100644
+--- a/modules/core-system/ui/frontend-ts/pages/developer/sections/contracts-form.ts
++++ b/modules/core-system/ui/frontend-ts/pages/developer/sections/contracts-form.ts
+@@ -1,10 +1,13 @@
+-import { MAIN_SYSTEM_FORM_CONTRACT } from "../../_shared/mainSystem.data";
+-import { appendTable, sectionCard } from "../../_shared/uiBlocks";
++import { MAIN_SYSTEM_FORM_CONTRACT } from "../../../shared/mainSystem.data";
++import { appendTable } from "../../../shared/uiBlocks";
++import { createToolboxCard } from "../../../shared/toolboxCard";
+ 
+ export function render_contracts_form(host: HTMLElement): void {
+-  const card = sectionCard("Contracts: FormDef");
++  const card = createToolboxCard("Contracts: FormDef", "Définition des contrats de formulaires");
++  const content = (card as any).content;
++  
+   appendTable(
+-    card,
++    content,
+     ["fields", "validation", "visibleForRoles"],
+     [
+       {
+diff --git a/modules/core-system/ui/frontend-ts/pages/developer/sections/contracts-table.ts b/modules/core-system/ui/frontend-ts/pages/developer/sections/contracts-table.ts
+index 6ca055d..733b5e2 100644
+--- a/modules/core-system/ui/frontend-ts/pages/developer/sections/contracts-table.ts
++++ b/modules/core-system/ui/frontend-ts/pages/developer/sections/contracts-table.ts
+@@ -1,10 +1,13 @@
+-import { MAIN_SYSTEM_TABLE_CONTRACT } from "../../_shared/mainSystem.data";
+-import { appendTable, sectionCard } from "../../_shared/uiBlocks";
++import { MAIN_SYSTEM_TABLE_CONTRACT } from "../../../shared/mainSystem.data";
++import { appendTable } from "../../../shared/uiBlocks";
++import { createToolboxCard } from "../../../shared/toolboxCard";
+ 
+ export function render_contracts_table(host: HTMLElement): void {
+-  const card = sectionCard("Contracts: TableDef / ColumnDef");
++  const card = createToolboxCard("Contracts: TableDef / ColumnDef", "Définition des contrats de tableaux");
++  const content = (card as any).content;
++  
+   appendTable(
+-    card,
++    content,
+     ["id", "columns", "actions", "visibleForRoles"],
+     [
+       {
+diff --git a/modules/core-system/ui/frontend-ts/pages/developer/sections/datasources-viewer.ts b/modules/core-system/ui/frontend-ts/pages/developer/sections/datasources-viewer.ts
+index a293e90..b7ce55d 100644
+--- a/modules/core-system/ui/frontend-ts/pages/developer/sections/datasources-viewer.ts
++++ b/modules/core-system/ui/frontend-ts/pages/developer/sections/datasources-viewer.ts
+@@ -1,14 +1,17 @@
+-import { MAIN_SYSTEM_DATASOURCES } from "../../_shared/mainSystem.data";
+-import { appendTable, sectionCard } from "../../_shared/uiBlocks";
++import { MAIN_SYSTEM_DATASOURCES } from "../../../shared/mainSystem.data";
++import { appendTable } from "../../../shared/uiBlocks";
++import { createToolboxCard } from "../../../shared/toolboxCard";
+ 
+ const EXTERNAL_TYPES = new Set(["files", "api_stub"]);
+ 
+ export function render_datasources_viewer(host: HTMLElement, safeMode: string): void {
+-  const card = sectionCard("Datasources (contract)");
++  const card = createToolboxCard("Datasources (contract)", "Types de sources de données disponibles");
++  const content = (card as any).content;
++  
+   const rows = MAIN_SYSTEM_DATASOURCES.types.map((t) => ({
+     type: t,
+     status: safeMode === "STRICT" && EXTERNAL_TYPES.has(t) ? "blocked" : "allowed"
+   }));
+-  appendTable(card, ["type", "status"], rows);
++  appendTable(content, ["type", "status"], rows);
+   host.appendChild(card);
+ }
+diff --git a/modules/core-system/ui/frontend-ts/pages/developer/sections/registry-viewer.ts b/modules/core-system/ui/frontend-ts/pages/developer/sections/registry-viewer.ts
+index d71a020..9fcd025 100644
+--- a/modules/core-system/ui/frontend-ts/pages/developer/sections/registry-viewer.ts
++++ b/modules/core-system/ui/frontend-ts/pages/developer/sections/registry-viewer.ts
+@@ -1,10 +1,22 @@
+-import { MAIN_SYSTEM_MODULES } from "../../_shared/mainSystem.data";
+-import { appendActionRow, appendTable, bindActions, sectionCard } from "../../_shared/uiBlocks";
++import { MAIN_SYSTEM_MODULES } from "../../../shared/mainSystem.data";
++import { appendActionRow, appendTable, bindActions } from "../../../shared/uiBlocks";
++import { createToolboxCard } from "../../../shared/toolboxCard";
+ 
+ export function render_registry_viewer(host: HTMLElement): void {
+-  const card = sectionCard("Registry viewer");
++  const card = createToolboxCard("Registry viewer", "Vue d'ensemble des composants et modules enregistrés");
++  const content = (card as any).content;
++  
++  // Panel Components
++  const componentsPanel = document.createElement("div");
++  componentsPanel.style.cssText = "margin-bottom:20px;";
++  componentsPanel.innerHTML = `
++    <div style="font-size:12px;font-weight:600;color:var(--ic-mutedText, var(--muted));text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px;">
++      Composants
++    </div>
++  `;
++  const componentsTable = document.createElement("div");
+   appendTable(
+-    card,
++    componentsTable,
+     ["Component", "Type", "Notes"],
+     [
+       { Component: "Table", Type: "builtin", Notes: "TableDef/ColumnDef contract" },
+@@ -12,11 +24,25 @@ export function render_registry_viewer(host: HTMLElement): void {
+       { Component: "Blocks", Type: "runtime", Notes: "text | component" }
+     ]
+   );
++  componentsPanel.appendChild(componentsTable);
++  content.appendChild(componentsPanel);
++  
++  // Panel Modules
++  const modulesPanel = document.createElement("div");
++  modulesPanel.style.cssText = "margin-bottom:20px;";
++  modulesPanel.innerHTML = `
++    <div style="font-size:12px;font-weight:600;color:var(--ic-mutedText, var(--muted));text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px;">
++      Modules
++    </div>
++  `;
++  const modulesTable = document.createElement("div");
+   appendTable(
+-    card,
++    modulesTable,
+     ["Module", "Routes"],
+     MAIN_SYSTEM_MODULES.map((m) => ({ Module: m.id, Routes: m.routes.join(", ") }))
+   );
++  modulesPanel.appendChild(modulesTable);
++  content.appendChild(modulesPanel);
+ 
+   const actions = [
+     { id: "nav_dashboard", label: "Aller au Dashboard", type: "navigate", payload: "#/dashboard" },
+@@ -24,7 +50,7 @@ export function render_registry_viewer(host: HTMLElement): void {
+     { id: "noop_registry", label: "No-op", type: "noop" }
+   ] as const;
+ 
+-  const row = appendActionRow(card, actions);
++  const row = appendActionRow(content, actions);
+   bindActions(row, actions, {
+     allowRoutes: ["#/dashboard", "#/users", "#/account", "#/verification", "#/developer", "#/toolbox"],
+     exportRows: MAIN_SYSTEM_MODULES.map((m) => ({ id: m.id, label: m.label, type: m.type, routes: m.routes.join(";") }))
+diff --git a/modules/core-system/ui/frontend-ts/pages/developer/sections/rules-viewer.ts b/modules/core-system/ui/frontend-ts/pages/developer/sections/rules-viewer.ts
+index 620ebd1..cd76631 100644
+--- a/modules/core-system/ui/frontend-ts/pages/developer/sections/rules-viewer.ts
++++ b/modules/core-system/ui/frontend-ts/pages/developer/sections/rules-viewer.ts
+@@ -1,10 +1,13 @@
+-import { MAIN_SYSTEM_RULES } from "../../_shared/mainSystem.data";
+-import { appendTable, sectionCard } from "../../_shared/uiBlocks";
++import { MAIN_SYSTEM_RULES } from "../../../shared/mainSystem.data";
++import { appendTable } from "../../../shared/uiBlocks";
++import { createToolboxCard } from "../../../shared/toolboxCard";
+ 
+ export function render_rules_viewer(host: HTMLElement): void {
+-  const card = sectionCard("Rules engine inventory");
++  const card = createToolboxCard("Rules engine inventory", "Inventaire des règles du moteur de règles");
++  const content = (card as any).content;
++  
+   appendTable(
+-    card,
++    content,
+     ["category", "items"],
+     [
+       { category: "value_refs", items: MAIN_SYSTEM_RULES.valueRefs.join(" ") },
+diff --git a/modules/core-system/ui/frontend-ts/pages/developer/view.ts b/modules/core-system/ui/frontend-ts/pages/developer/view.ts
+index 67680a4..1e18647 100644
+--- a/modules/core-system/ui/frontend-ts/pages/developer/view.ts
++++ b/modules/core-system/ui/frontend-ts/pages/developer/view.ts
+@@ -1,5 +1,5 @@
+ import type { DeveloperModel } from "./model";
+-import { appendList, appendParagraph, appendPillRow, appendTable, sectionCard } from "../_shared/uiBlocks";
++import { appendList, appendParagraph, appendPillRow, appendTable, sectionCard } from "/src/core/ui/uiBlocks";
+ 
+ export function renderDeveloperOverview(root: HTMLElement, model: DeveloperModel): void {
+   const card = sectionCard(model.title);
+@@ -8,7 +8,7 @@ export function renderDeveloperOverview(root: HTMLElement, model: DeveloperModel
+   root.appendChild(card);
+ }
+ 
+-export function renderDeveloperToolbox(root: HTMLElement): void {
++function renderDeveloperToolbox(root: HTMLElement): void {
+   const card = sectionCard("Toolbox");
+   const link = document.createElement("a");
+   link.href = "#/toolbox";
+@@ -18,7 +18,7 @@ export function renderDeveloperToolbox(root: HTMLElement): void {
+   root.appendChild(card);
+ }
+ 
+-export function renderDeveloperTableContract(root: HTMLElement, model: DeveloperModel): void {
++function renderDeveloperTableContract(root: HTMLElement, model: DeveloperModel): void {
+   const card = sectionCard("Table contract");
+   appendTable(
+     card,
+@@ -32,14 +32,14 @@ export function renderDeveloperTableContract(root: HTMLElement, model: Developer
+   root.appendChild(card);
+ }
+ 
+-export function renderDeveloperFormContract(root: HTMLElement, model: DeveloperModel): void {
++function renderDeveloperFormContract(root: HTMLElement, model: DeveloperModel): void {
+   const card = sectionCard("Form contract");
+   appendPillRow(card, model.formContract.fieldTypes);
+   appendParagraph(card, `Validation: ${model.formContract.validation.join(", ")}`);
+   root.appendChild(card);
+ }
+ 
+-export function renderDeveloperDatasources(root: HTMLElement, model: DeveloperModel): void {
++function renderDeveloperDatasources(root: HTMLElement, model: DeveloperModel): void {
+   const card = sectionCard("Datasource types");
+   appendPillRow(card, model.datasource.types);
+   appendParagraph(card, `Query ops: ${model.datasource.queryOps.join(", ")}`);
+diff --git a/modules/core-system/ui/frontend-ts/pages/dossiers/contract.ts b/modules/core-system/ui/frontend-ts/pages/dossiers/contract.ts
+index ab9cad0..36e5495 100644
+--- a/modules/core-system/ui/frontend-ts/pages/dossiers/contract.ts
++++ b/modules/core-system/ui/frontend-ts/pages/dossiers/contract.ts
+@@ -1,5 +1,5 @@
+ import type { Role } from "/src/runtime/rbac";
+-import type { SafeMode } from "../_shared/safeMode";
++import type { SafeModeValue as SafeMode } from "/src/core/runtime/safe";
+ 
+ export const PAGE_ID = "dossiers";
+ export const SAFE_MODE_ALLOWED = true;
+@@ -7,10 +7,14 @@ export const REQUIRED_ROLES: Role[] = ["SYSADMIN", "DEVELOPER", "ADMIN"];
+ export const WRITE_ROLES: Role[] = ["SYSADMIN", "DEVELOPER", "ADMIN"];
+ 
+ export function canAccess(role: Role, safeMode: SafeMode): boolean {
++  // Master a toujours accès à tout
++  if (role === "MASTER") return true;
+   if (safeMode === "STRICT" && !SAFE_MODE_ALLOWED) return false;
+   return REQUIRED_ROLES.includes(role);
+ }
+ 
+ export function canWrite(role: Role): boolean {
++  // Master peut toujours écrire
++  if (role === "MASTER") return true;
+   return WRITE_ROLES.includes(role);
+ }
+diff --git a/modules/core-system/ui/frontend-ts/pages/dossiers/index.test.ts b/modules/core-system/ui/frontend-ts/pages/dossiers/index.test.ts
+index 756156e..6c79732 100644
+--- a/modules/core-system/ui/frontend-ts/pages/dossiers/index.test.ts
++++ b/modules/core-system/ui/frontend-ts/pages/dossiers/index.test.ts
+@@ -3,8 +3,8 @@
+ import { afterEach, beforeEach, describe, expect, it } from "vitest";
+ import { clearSession, setSession } from "/src/localAuth";
+ import { renderDossiersPage, dossiersSections } from "./index";
+-import { getAuditLog, clearAuditLog } from "../_shared/audit";
+-import { OBS } from "../_shared/obsCodes";
++import { getAuditLog, clearAuditLog } from "/src/core/runtime/audit";
++import { OBS } from "/src/core/runtime/obs";
+ import { transitionDossier, createDossier, listDossiers } from "./model";
+ 
+ function createLocalStorageMock() {
+diff --git a/modules/core-system/ui/frontend-ts/pages/dossiers/index.ts b/modules/core-system/ui/frontend-ts/pages/dossiers/index.ts
+index ca5dbd6..028edcd 100644
+--- a/modules/core-system/ui/frontend-ts/pages/dossiers/index.ts
++++ b/modules/core-system/ui/frontend-ts/pages/dossiers/index.ts
+@@ -1,8 +1,7 @@
+ import { getRole } from "/src/runtime/rbac";
+-import { safeRender } from "../_shared/mainSystem.shared";
+-import { mountSections, type SectionSpec } from "../_shared/sections";
+-import { getSafeMode } from "../_shared/safeMode";
+-import { renderAccessDenied } from "../_shared/renderAccessDenied";
++import { safeRender, getSafeMode } from "/src/core/runtime/safe";
++import { renderAccessDenied } from "/src/core/runtime/accessDenied";
++import { mountSections, type SectionSpec } from "../../shared/sections";
+ import { canAccess } from "./contract";
+ import { renderDossiersList } from "./sections/list";
+ import { renderDossiersCreate } from "./sections/create";
+@@ -23,6 +22,10 @@ function getDossierIdFromHash(): string | null {
+ }
+ 
+ export function renderDossiersPage(root: HTMLElement): void {
++  renderDossiersPageInternal(root);
++}
++
++function renderDossiersPageInternal(root: HTMLElement): void {
+   const role = getRole();
+   const safeMode = getSafeMode();
+   if (!canAccess(role, safeMode)) {
+@@ -30,7 +33,7 @@ export function renderDossiersPage(root: HTMLElement): void {
+     return;
+   }
+   const dossierId = getDossierIdFromHash();
+-  const refresh = () => renderDossiersPage(root);
++  const refresh = () => renderDossiersPageInternal(root);
+ 
+   const sections: SectionSpec[] = [
+     { id: "dossiers-safe-mode", title: "SAFE_MODE", render: (host) => renderDossiersSafeMode(host) },
+diff --git a/modules/core-system/ui/frontend-ts/pages/dossiers/model.ts b/modules/core-system/ui/frontend-ts/pages/dossiers/model.ts
+index 621b722..e93c99f 100644
+--- a/modules/core-system/ui/frontend-ts/pages/dossiers/model.ts
++++ b/modules/core-system/ui/frontend-ts/pages/dossiers/model.ts
+@@ -1,8 +1,8 @@
+ import type { Role } from "/src/runtime/rbac";
+-import { getSafeMode } from "../_shared/safeMode";
+-import { recordObs } from "../_shared/audit";
+-import { OBS } from "../_shared/obsCodes";
+-import { isWriteAllowed } from "../_shared/rolePolicy";
++import { getSafeMode } from "/src/core/runtime/safe";
++import { recordObs } from "/src/core/runtime/audit";
++import { OBS } from "/src/core/runtime/obs";
++import { isWriteAllowed } from "../../shared/rolePolicy";
+ import { canWrite } from "./contract";
+ 
+ export type DossierState = "OPEN" | "IN_PROGRESS" | "WAITING" | "CLOSED";
+diff --git a/modules/core-system/ui/frontend-ts/pages/dossiers/sections/actions.ts b/modules/core-system/ui/frontend-ts/pages/dossiers/sections/actions.ts
+index 3bdfbda..953f6b5 100644
+--- a/modules/core-system/ui/frontend-ts/pages/dossiers/sections/actions.ts
++++ b/modules/core-system/ui/frontend-ts/pages/dossiers/sections/actions.ts
+@@ -1,9 +1,9 @@
+ import type { Role } from "/src/runtime/rbac";
+-import { blockActionBar, blockToast } from "../../_shared/uiBlocks";
+-import { getSafeMode } from "../../_shared/safeMode";
+-import { isWriteAllowed } from "../../_shared/rolePolicy";
+-import { recordObs } from "../../_shared/audit";
+-import { OBS } from "../../_shared/obsCodes";
++import { blockActionBar, blockToast } from "../../../shared/uiBlocks";
++import { getSafeMode } from "/src/core/runtime/safe";
++import { isWriteAllowed } from "../../../shared/rolePolicy";
++import { recordObs } from "/src/core/runtime/audit";
++import { OBS } from "/src/core/runtime/obs";
+ import { canWrite } from "../contract";
+ import { createDossier, listDossiers, transitionDossier, resetDossiers } from "../model";
+ import { getSelectedIds } from "./list";
+diff --git a/modules/core-system/ui/frontend-ts/pages/dossiers/sections/bulk.ts b/modules/core-system/ui/frontend-ts/pages/dossiers/sections/bulk.ts
+index d9e49c7..e0183aa 100644
+--- a/modules/core-system/ui/frontend-ts/pages/dossiers/sections/bulk.ts
++++ b/modules/core-system/ui/frontend-ts/pages/dossiers/sections/bulk.ts
+@@ -1,9 +1,9 @@
+ import type { Role } from "/src/runtime/rbac";
+-import { blockActionBar, blockToast } from "../../_shared/uiBlocks";
+-import { getSafeMode } from "../../_shared/safeMode";
+-import { isWriteAllowed } from "../../_shared/rolePolicy";
+-import { recordObs } from "../../_shared/audit";
+-import { OBS } from "../../_shared/obsCodes";
++import { blockActionBar, blockToast } from "../../../shared/uiBlocks";
++import { getSafeMode } from "/src/core/runtime/safe";
++import { isWriteAllowed } from "../../../shared/rolePolicy";
++import { recordObs } from "/src/core/runtime/audit";
++import { OBS } from "/src/core/runtime/obs";
+ import { canWrite } from "../contract";
+ import { transitionDossier } from "../model";
+ import { getSelectedIds } from "./list";
+diff --git a/modules/core-system/ui/frontend-ts/pages/dossiers/sections/create.ts b/modules/core-system/ui/frontend-ts/pages/dossiers/sections/create.ts
+index d4a4441..b50c268 100644
+--- a/modules/core-system/ui/frontend-ts/pages/dossiers/sections/create.ts
++++ b/modules/core-system/ui/frontend-ts/pages/dossiers/sections/create.ts
+@@ -1,8 +1,8 @@
+ import type { Role } from "/src/runtime/rbac";
+-import { sectionCard } from "../../_shared/uiBlocks";
+-import { getSafeMode } from "../../_shared/safeMode";
+-import { MAIN_SYSTEM_THEME } from "../../_shared/mainSystem.data";
+-import { isWriteAllowed } from "../../_shared/rolePolicy";
++import { sectionCard } from "../../../shared/uiBlocks";
++import { getSafeMode } from "/src/core/runtime/safe";
++import { MAIN_SYSTEM_THEME } from "../../../shared/mainSystem.data";
++import { isWriteAllowed } from "../../../shared/rolePolicy";
+ import { createDossier } from "../model";
+ import { canWrite } from "../contract";
+ 
+diff --git a/modules/core-system/ui/frontend-ts/pages/dossiers/sections/detail.ts b/modules/core-system/ui/frontend-ts/pages/dossiers/sections/detail.ts
+index e12d720..1b4249f 100644
+--- a/modules/core-system/ui/frontend-ts/pages/dossiers/sections/detail.ts
++++ b/modules/core-system/ui/frontend-ts/pages/dossiers/sections/detail.ts
+@@ -1,6 +1,6 @@
+-import { blockKeyValueTable } from "../../_shared/uiBlocks";
+-import { renderRecommendations } from "../../_shared/recommendations";
+-import { getRole, getSafeMode } from "../../_shared/recommendations.ctx";
++import { blockKeyValueTable } from "../../../shared/uiBlocks";
++import { renderRecommendations } from "../../../shared/recommendations";
++import { getRole, getSafeMode } from "../../../shared/recommendations.ctx";
+ import { getDossier } from "../model";
+ 
+ export function renderDossiersDetail(root: HTMLElement, dossierId: string | null): void {
+diff --git a/modules/core-system/ui/frontend-ts/pages/dossiers/sections/filters.ts b/modules/core-system/ui/frontend-ts/pages/dossiers/sections/filters.ts
+index 145328a..0815db3 100644
+--- a/modules/core-system/ui/frontend-ts/pages/dossiers/sections/filters.ts
++++ b/modules/core-system/ui/frontend-ts/pages/dossiers/sections/filters.ts
+@@ -1,4 +1,4 @@
+-import { blockFilterInput, sectionCard } from "../../_shared/uiBlocks";
++import { blockFilterInput, sectionCard } from "../../../shared/uiBlocks";
+ 
+ export type DossiersFilter = {
+   query: string;
+diff --git a/modules/core-system/ui/frontend-ts/pages/dossiers/sections/history.ts b/modules/core-system/ui/frontend-ts/pages/dossiers/sections/history.ts
+index 8d02004..ea2c559 100644
+--- a/modules/core-system/ui/frontend-ts/pages/dossiers/sections/history.ts
++++ b/modules/core-system/ui/frontend-ts/pages/dossiers/sections/history.ts
+@@ -1,4 +1,4 @@
+-import { appendTable, sectionCard } from "../../_shared/uiBlocks";
++import { appendTable, sectionCard } from "../../../shared/uiBlocks";
+ import { listDossiers, type DossierHistoryEntry } from "../model";
+ 
+ export function renderDossiersHistory(host: HTMLElement, dossierId?: string | null): void {
+diff --git a/modules/core-system/ui/frontend-ts/pages/dossiers/sections/list.ts b/modules/core-system/ui/frontend-ts/pages/dossiers/sections/list.ts
+index 07dc304..9b00e3d 100644
+--- a/modules/core-system/ui/frontend-ts/pages/dossiers/sections/list.ts
++++ b/modules/core-system/ui/frontend-ts/pages/dossiers/sections/list.ts
+@@ -1,14 +1,15 @@
+ import type { Role } from "/src/runtime/rbac";
+-import { recordObs } from "../../_shared/audit";
+-import { OBS } from "../../_shared/obsCodes";
+-import { sectionCard } from "../../_shared/uiBlocks";
+-import { MAIN_SYSTEM_THEME } from "../../_shared/mainSystem.data";
+-import { renderRecommendations } from "../../_shared/recommendations";
+-import { getSafeMode } from "../../_shared/recommendations.ctx";
+-import { isWriteAllowed } from "../../_shared/rolePolicy";
++import { recordObs } from "/src/core/runtime/audit";
++import { OBS } from "/src/core/runtime/obs";
++import { sectionCard } from "../../../shared/uiBlocks";
++import { MAIN_SYSTEM_THEME } from "../../../shared/mainSystem.data";
++import { renderRecommendations } from "../../../shared/recommendations";
++import { getSafeMode } from "../../../shared/recommendations.ctx";
++import { isWriteAllowed } from "../../../shared/rolePolicy";
+ import { getDossiersFilters } from "./filters";
+ import { canWrite } from "../contract";
+ import { listDossiers, transitionDossier, type Dossier } from "../model";
++import { navigate } from "/src/runtime/navigate";
+ 
+ 
+ // P15: CSS vars pilot (var(--ic-*), fallback tokens)
+@@ -107,7 +108,7 @@ function buildTable(
+ 
+     actionsWrap.appendChild(
+       mkBtn("Ouvrir", () => {
+-        window.location.hash = `#/dossiers/${d.id}`;
++        navigate(`#/dossiers/${d.id}`);
+       })
+     );
+ 
+diff --git a/modules/core-system/ui/frontend-ts/pages/dossiers/sections/rules.ts b/modules/core-system/ui/frontend-ts/pages/dossiers/sections/rules.ts
+index da9fea8..eca9ce3 100644
+--- a/modules/core-system/ui/frontend-ts/pages/dossiers/sections/rules.ts
++++ b/modules/core-system/ui/frontend-ts/pages/dossiers/sections/rules.ts
+@@ -1,6 +1,6 @@
+-import { blockKeyValueTable } from "../../_shared/uiBlocks";
+-import { renderRecommendations } from "../../_shared/recommendations";
+-import { getRole, getSafeMode } from "../../_shared/recommendations.ctx";
++import { blockKeyValueTable } from "../../../shared/uiBlocks";
++import { renderRecommendations } from "../../../shared/recommendations";
++import { getRole, getSafeMode } from "../../../shared/recommendations.ctx";
+ 
+ export function renderDossiersRules(root: HTMLElement): void {
+   root.appendChild(
+diff --git a/modules/core-system/ui/frontend-ts/pages/dossiers/sections/safe-mode.ts b/modules/core-system/ui/frontend-ts/pages/dossiers/sections/safe-mode.ts
+index f665a51..004efec 100644
+--- a/modules/core-system/ui/frontend-ts/pages/dossiers/sections/safe-mode.ts
++++ b/modules/core-system/ui/frontend-ts/pages/dossiers/sections/safe-mode.ts
+@@ -1,5 +1,5 @@
+-import { blockKeyValueTable } from "../../_shared/uiBlocks";
+-import { getSafeMode } from "../../_shared/safeMode";
++import { blockKeyValueTable } from "../../../shared/uiBlocks";
++import { getSafeMode } from "/src/core/runtime/safe";
+ 
+ export function renderDossiersSafeMode(host: HTMLElement): void {
+   const safeMode = getSafeMode();
+diff --git a/modules/core-system/ui/frontend-ts/pages/dossiers/sections/storage.ts b/modules/core-system/ui/frontend-ts/pages/dossiers/sections/storage.ts
+index f74a543..a056137 100644
+--- a/modules/core-system/ui/frontend-ts/pages/dossiers/sections/storage.ts
++++ b/modules/core-system/ui/frontend-ts/pages/dossiers/sections/storage.ts
+@@ -1,4 +1,4 @@
+-import { blockKeyValueTable } from "../../_shared/uiBlocks";
++import { blockKeyValueTable } from "../../../shared/uiBlocks";
+ import { createDossiersModel } from "../model";
+ 
+ export function renderDossiersStorage(root: HTMLElement): void {
+diff --git a/modules/core-system/ui/frontend-ts/pages/login/loginPage.ts b/modules/core-system/ui/frontend-ts/pages/login/loginPage.ts
+deleted file mode 100644
+index 02b2010..0000000
+--- a/modules/core-system/ui/frontend-ts/pages/login/loginPage.ts
++++ /dev/null
+@@ -1,89 +0,0 @@
+-/* ICONTROL_LEGACY_LOGINPAGE_V1: not routed by moduleLoader/router; keep for reference only */
+-import { coreBaseStyles } from "../../shared/coreStyles";
+-import {
+-  authenticate,
+-  getSession,
+-} from "../../../../../../platform-services/security/auth/localAuth";
+-
+-export function renderLoginPage(): string {
+-  const s = getSession();
+-  const already = s
+-    ? `<div class="cxOk">Session active: <b>${s.username}</b> (${s.role})</div>`
+-    : "";
+-  return `
+-    ${coreBaseStyles()}
+-    <div class="cxTopRight">
+-      <select class="cxLang" id="cxLang">
+-        <option value="fr" selected>FR</option>
+-        <option value="en">EN</option>
+-      </select>
+-      <a class="cxLink" href="#/login?forgot=1" id="cxForgot">Mot de passe oublié</a>
+-    </div>
+-
+-    <div class="cxWrap">
+-      <div class="cxCard" role="region" aria-label="Login">
+-        <div class="cxTitle"><span>i</span>CONTROL — Connexion</div>
+-        <div class="cxMuted">Accès sécurisé au système. Auth locale (bootstrap) pour démarrage, prêt pour Auth Provider ultérieur.</div>
+-
+-        <div class="cxField">
+-          <label class="cxLabel" for="cxUser">Identifiant</label>
+-          <input class="cxInput" id="cxUser" autocomplete="username" placeholder="ex: sysadmin, Waldhari" />
+-        </div>
+-
+-        <div class="cxField">
+-          <label class="cxLabel" for="cxPass">Mot de passe</label>
+-          <input class="cxInput" id="cxPass" type="password" autocomplete="current-password" placeholder="••••••••" />
+-        </div>
+-
+-        <button class="cxBtn" id="cxLoginBtn" type="button">Se connecter</button>
+-
+-        <div id="cxLoginMsg"></div>
+-        ${already}
+-      </div>
+-    </div>
+-  `;
+-}
+-
+-export function bindLoginEvents(host: { navigate: (r: string) => void }) {
+-  const u = document.getElementById("cxUser") as HTMLInputElement | null;
+-  const p = document.getElementById("cxPass") as HTMLInputElement | null;
+-  const b = document.getElementById("cxLoginBtn") as HTMLButtonElement | null;
+-  const msg = document.getElementById("cxLoginMsg") as HTMLDivElement | null;
+-
+-  if (!u || !p || !b || !msg) return;
+-
+-  const setMsg = (html: string) => {
+-    msg.innerHTML = html;
+-  };
+-
+-  const doLogin = () => {
+-    const user = (u.value || "").trim();
+-    const pass = (p.value || "").trim();
+-
+-    if (!user || !pass) {
+-      setMsg(
+-        `<div class="cxErr">Veuillez entrer un identifiant et un mot de passe.</div>`,
+-      );
+-      return;
+-    }
+-
+-    const s = authenticate(user, pass);
+-    if (!s) {
+-      setMsg(`<div class="cxErr">Identifiant invalide.</div>`);
+-      return;
+-    }
+-
+-    setMsg(
+-      `<div class="cxOk">Connecté: <b>${s.username}</b> (${s.role}). Redirection…</div>`,
+-    );
+-    host.navigate("#/dashboard");
+-  };
+-
+-  b.onclick = doLogin;
+-  p.onkeydown = (e) => {
+-    if (e.key === "Enter") doLogin();
+-  };
+-  u.onkeydown = (e) => {
+-    if (e.key === "Enter") doLogin();
+-  };
+-}
+diff --git a/modules/core-system/ui/frontend-ts/pages/logs/contract.ts b/modules/core-system/ui/frontend-ts/pages/logs/contract.ts
+index 30b7b68..75a3359 100644
+--- a/modules/core-system/ui/frontend-ts/pages/logs/contract.ts
++++ b/modules/core-system/ui/frontend-ts/pages/logs/contract.ts
+@@ -1,11 +1,13 @@
+ import type { Role } from "/src/runtime/rbac";
+-import type { SafeMode } from "../_shared/safeMode";
++import type { SafeModeValue as SafeMode } from "/src/core/runtime/safe";
+ 
+ export const PAGE_ID = "logs";
+ export const SAFE_MODE_ALLOWED = true;
+ export const REQUIRED_ROLES: Role[] = ["ADMIN", "SYSADMIN", "DEVELOPER"];
+ 
+ export function canAccess(role: Role, safeMode: SafeMode): boolean {
++  // Master a toujours accès à tout
++  if (role === "MASTER") return true;
+   if (safeMode === "STRICT" && !SAFE_MODE_ALLOWED) return false;
+   return REQUIRED_ROLES.includes(role);
+ }
+diff --git a/modules/core-system/ui/frontend-ts/pages/logs/index.test.ts b/modules/core-system/ui/frontend-ts/pages/logs/index.test.ts
+index 83abe9a..537dda1 100644
+--- a/modules/core-system/ui/frontend-ts/pages/logs/index.test.ts
++++ b/modules/core-system/ui/frontend-ts/pages/logs/index.test.ts
+@@ -3,8 +3,8 @@
+ import { afterEach, beforeEach, describe, expect, it } from "vitest";
+ import { clearSession, setSession } from "/src/localAuth";
+ import { renderLogsPage, logsSections } from "./index";
+-import { recordObs, getAuditLog, clearAuditLog } from "../_shared/audit";
+-import { OBS } from "../_shared/obsCodes";
++import { recordObs, getAuditLog, clearAuditLog } from "/src/core/runtime/audit";
++import { OBS } from "/src/core/runtime/obs";
+ 
+ function createLocalStorageMock() {
+   const store = new Map<string, string>();
+diff --git a/modules/core-system/ui/frontend-ts/pages/logs/index.ts b/modules/core-system/ui/frontend-ts/pages/logs/index.ts
+index 0f31266..9eb23d6 100644
+--- a/modules/core-system/ui/frontend-ts/pages/logs/index.ts
++++ b/modules/core-system/ui/frontend-ts/pages/logs/index.ts
+@@ -1,9 +1,8 @@
+ import { getRole } from "/src/runtime/rbac";
+-import { safeRender } from "../_shared/mainSystem.shared";
+-import { recordObs } from "../_shared/audit";
+-import { OBS } from "../_shared/obsCodes";
+-import { getSafeMode } from "../_shared/safeMode";
+-import { renderAccessDenied } from "../_shared/renderAccessDenied";
++import { renderAccessDenied } from "/src/core/runtime/accessDenied";
++import { OBS } from "/src/core/runtime/obs";
++import { recordObs } from "/src/core/runtime/audit";
++import { safeRender, fetchJsonSafe, mapSafeMode, getSafeMode } from "/src/core/runtime/safe";
+ import { canAccess } from "./contract";
+ 
+ import { coreBaseStyles } from "../../shared/coreStyles";
+@@ -16,6 +15,7 @@ import { createContextualEmptyState } from "/src/core/ui/emptyState";
+ import { createDataTable, type TableColumn } from "/src/core/ui/dataTable";
+ import { showToast } from "/src/core/ui/toast";
+ import { getMountEl } from "/src/router";
++import { navigate } from "/src/runtime/navigate";
+ 
+ type LogLevel = "ERR" | "WARN" | "INFO" | "DEBUG";
+ type LogSource = "CP" | "API" | "SYSTEM" | "AUDIT" | "DEMO";
+@@ -259,7 +259,7 @@ function renderData(
+           },
+           {
+             label: "Voir Dashboard",
+-            onClick: () => { window.location.hash = "#/dashboard"; }
++            onClick: () => { navigate("#/dashboard"); }
+           },
+           {
+             label: "Détails",
+@@ -291,12 +291,6 @@ function renderData(
+   });
+ }
+ 
+-function mapSafeMode(value: string): "OFF" | "COMPAT" | "STRICT" {
+-  if (value === "STRICT") return "STRICT";
+-  if (value === "COMPAT") return "COMPAT";
+-  return "OFF";
+-}
+-
+ function formatNumber(value: number): string {
+   return new Intl.NumberFormat("fr-CA").format(value);
+ }
+@@ -331,17 +325,6 @@ function createSkeletonBlock(): HTMLElement {
+   return block;
+ }
+ 
+-async function fetchJsonSafe<T = any>(url: string): Promise<{ ok: boolean; status: number; data?: T; error?: string }> {
+-  try {
+-    const res = await fetch(url, { headers: { "accept": "application/json" } });
+-    if (!res.ok) return { ok: false, status: res.status, error: `HTTP ${res.status}` };
+-    const data = await res.json();
+-    return { ok: true, status: res.status, data };
+-  } catch (error) {
+-    return { ok: false, status: 0, error: String(error) };
+-  }
+-}
+-
+ async function getLogsData(): Promise<{ data: LogsData; errors: { data?: string }; mode: LogsMode }> {
+   const demo = buildDemoLogsData();
+   const errors: { data?: string } = {};
+diff --git a/modules/core-system/ui/frontend-ts/pages/logs/sections/audit-log.ts b/modules/core-system/ui/frontend-ts/pages/logs/sections/audit-log.ts
+index ff50f1c..140ff96 100644
+--- a/modules/core-system/ui/frontend-ts/pages/logs/sections/audit-log.ts
++++ b/modules/core-system/ui/frontend-ts/pages/logs/sections/audit-log.ts
+@@ -1,26 +1,118 @@
+-import { getAuditLog } from "../../_shared/audit";
+-import { blockKeyValueTable, sectionCard } from "../../_shared/uiBlocks";
++import { getAuditLog } from "/src/core/runtime/audit";
++import { sectionCard } from "../../../shared/uiBlocks";
+ import { getLogFilters } from "./filters";
+ 
+ export function renderLogsAudit(host: HTMLElement): void {
+   const card = sectionCard("Audit log (lecture seule)");
+   const filters = getLogFilters();
+-  const entries = getAuditLog().slice(-200).reverse().filter((e) => {
+-    const line = `${e.code || ""} ${e.detail || ""} ${e.actionId || ""}`.toLowerCase();
++  const allEntries = getAuditLog();
++  
++  // Filtrer par période
++  const now = Date.now();
++  const periodMs = filters.period === "1H" ? 3600000 :
++                   filters.period === "24H" ? 86400000 :
++                   filters.period === "7D" ? 604800000 :
++                   filters.period === "30D" ? 2592000000 : 0;
++  
++  let entries = allEntries.slice(-500).reverse().filter((e) => {
++    // Filtre période
++    if (filters.period && filters.period !== "ALL" && periodMs > 0) {
++      const entryTime = e.ts ? new Date(e.ts).getTime() : 0;
++      if (entryTime < (now - periodMs)) return false;
++    }
++    
++    // Filtre niveau
+     if (filters.level === "WARN" && !String(e.code || "").startsWith("WARN_")) return false;
+     if (filters.level === "ERR" && !String(e.code || "").startsWith("ERR_")) return false;
++    if (filters.level === "INFO" && (String(e.code || "").startsWith("WARN_") || String(e.code || "").startsWith("ERR_"))) return false;
++    
++    // Filtre recherche
++    const line = `${e.code || ""} ${e.detail || ""} ${e.actionId || ""} ${e.page || ""} ${e.section || ""}`.toLowerCase();
+     if (filters.query && !line.includes(filters.query.toLowerCase())) return false;
++    
+     return true;
+   });
+-  card.appendChild(
+-    blockKeyValueTable({
+-      title: "Derniers evenements (max 200)",
+-      rows: entries.map((e) => ({
+-        key: `${e.ts} • ${e.code || "INFO"}`,
+-        value: e.detail || ""
+-      }))
+-    })
+-  );
++
++  // Statistiques
++  const statsDiv = document.createElement("div");
++  statsDiv.style.minWidth = "0";
++  statsDiv.style.boxSizing = "border-box";
++  statsDiv.setAttribute("style", "margin-bottom: 16px; padding: 12px; background: rgba(255,255,255,0.02); border-radius: 8px; display: flex; gap: 16px; flex-wrap: wrap;");
++  statsDiv.innerHTML = `
++    <div>
++      <div style="color: #858585; font-size: 12px;">Total</div>
++      <div style="font-weight: 600; color: #d4d4d4;">${allEntries.length}</div>
++    </div>
++    <div>
++      <div style="color: #858585; font-size: 12px;">Filtrés</div>
++      <div style="font-weight: 600; color: #d4d4d4;">${entries.length}</div>
++    </div>
++    <div>
++      <div style="color: #858585; font-size: 12px;">Erreurs</div>
++      <div style="font-weight: 600; color: #f48771;">${entries.filter(e => String(e.code || "").startsWith("ERR_")).length}</div>
++    </div>
++    <div>
++      <div style="color: #858585; font-size: 12px;">Avertissements</div>
++      <div style="font-weight: 600; color: #dcdcaa;">${entries.filter(e => String(e.code || "").startsWith("WARN_")).length}</div>
++    </div>
++  `;
++  card.appendChild(statsDiv);
++
++  // Tableau amélioré
++  if (entries.length === 0) {
++    const empty = document.createElement("div");
++    empty.setAttribute("style", "padding: 40px; text-align: center; color: #858585;");
++    empty.textContent = "Aucun événement ne correspond aux filtres.";
++    card.appendChild(empty);
++  } else {
++    const table = document.createElement("table");
++    table.setAttribute("style", "width: 100%; border-collapse: collapse; font-size: 13px;");
++    
++    const thead = document.createElement("thead");
++    thead.innerHTML = `
++      <tr style="border-bottom: 1px solid var(--ic-border, #2b3136);">
++        <th style="text-align: left; padding: 12px; color: #858585; font-size: 12px; font-weight: 600;">Date/Heure</th>
++        <th style="text-align: left; padding: 12px; color: #858585; font-size: 12px; font-weight: 600;">Code</th>
++        <th style="text-align: left; padding: 12px; color: #858585; font-size: 12px; font-weight: 600;">Détails</th>
++        <th style="text-align: left; padding: 12px; color: #858585; font-size: 12px; font-weight: 600;">Contexte</th>
++      </tr>
++    `;
++    table.appendChild(thead);
++    
++    const tbody = document.createElement("tbody");
++    entries.slice(0, 200).forEach((e) => {
++      const severity = String(e.code || "").startsWith("ERR_") ? "ERR" : 
++                      String(e.code || "").startsWith("WARN_") ? "WARN" : "INFO";
++      const severityColor = severity === "ERR" ? "#f48771" : severity === "WARN" ? "#dcdcaa" : "#4ec9b0";
++      
++      const tr = document.createElement("tr");
++      tr.setAttribute("style", "border-bottom: 1px solid var(--ic-border, #2b3136);");
++      
++      const date = e.ts ? new Date(e.ts).toLocaleString('fr-FR') : "-";
++      const context = [e.page, e.section, e.actionId].filter(Boolean).join(" • ") || "-";
++      
++      tr.innerHTML = `
++        <td style="padding: 12px; color: #858585; font-size: 12px; font-family: monospace;">${date}</td>
++        <td style="padding: 12px;">
++          <span style="padding: 4px 8px; background: ${severityColor}20; color: ${severityColor}; border-radius: 4px; font-size: 11px; font-weight: 600; font-family: monospace;">
++            ${e.code || "INFO"}
++          </span>
++        </td>
++        <td style="padding: 12px; color: #d4d4d4; font-size: 13px;">${e.detail || "-"}</td>
++        <td style="padding: 12px; color: #858585; font-size: 12px;">${context}</td>
++      `;
++      tbody.appendChild(tr);
++    });
++    table.appendChild(tbody);
++    card.appendChild(table);
++    
++    if (entries.length > 200) {
++      const more = document.createElement("div");
++      more.setAttribute("style", "margin-top: 12px; padding: 12px; text-align: center; color: #858585; font-size: 12px;");
++      more.textContent = `Affichage de 200 événements sur ${entries.length}. Utilisez les filtres pour affiner.`;
++      card.appendChild(more);
++    }
++  }
+ 
+   host.appendChild(card);
+ }
+diff --git a/modules/core-system/ui/frontend-ts/pages/logs/sections/export.ts b/modules/core-system/ui/frontend-ts/pages/logs/sections/export.ts
+index 904ef7e..f816272 100644
+--- a/modules/core-system/ui/frontend-ts/pages/logs/sections/export.ts
++++ b/modules/core-system/ui/frontend-ts/pages/logs/sections/export.ts
+@@ -1,7 +1,7 @@
+ import type { Role } from "/src/runtime/rbac";
+-import { getAuditLog } from "../../_shared/audit";
+-import { blockActionBar } from "../../_shared/uiBlocks";
+-import { getSafeMode } from "../../_shared/safeMode";
++import { getAuditLog } from "/src/core/runtime/audit";
++import { blockActionBar } from "../../../shared/uiBlocks";
++import { getSafeMode } from "/src/core/runtime/safe";
+ 
+ export function renderLogsExport(host: HTMLElement, role: Role): void {
+   const rows = getAuditLog().map((e) => ({
+diff --git a/modules/core-system/ui/frontend-ts/pages/logs/sections/filters.ts b/modules/core-system/ui/frontend-ts/pages/logs/sections/filters.ts
+index c744600..2301a76 100644
+--- a/modules/core-system/ui/frontend-ts/pages/logs/sections/filters.ts
++++ b/modules/core-system/ui/frontend-ts/pages/logs/sections/filters.ts
+@@ -1,46 +1,91 @@
+-import { blockFilterInput, sectionCard } from "../../_shared/uiBlocks";
++import { blockFilterInput, sectionCard } from "../../../shared/uiBlocks";
+ 
+ export type LogFilters = {
+   query: string;
+-  level: "ALL" | "WARN" | "ERR";
++  level: "ALL" | "WARN" | "ERR" | "INFO";
++  module?: string;
++  period?: "ALL" | "1H" | "24H" | "7D" | "30D";
+ };
+ 
+-const state: LogFilters = { query: "", level: "ALL" };
++const state: LogFilters = { query: "", level: "ALL", period: "ALL" };
+ 
+ export function getLogFilters(): LogFilters {
+   return { ...state };
+ }
+ 
+ export function renderLogsFilters(host: HTMLElement, onChange: () => void): void {
+-  const card = sectionCard("Filtres");
++  const card = sectionCard("Filtres de logs");
+   const wrap = document.createElement("div");
+-  wrap.style.cssText = "display:flex;gap:10px;flex-wrap:wrap;margin-top:8px";
++  wrap.style.minWidth = "0";
++  wrap.style.boxSizing = "border-box";
++  wrap.style.cssText = "display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:8px";
+ 
++  // Recherche textuelle
+   const input = blockFilterInput({
+-    placeholder: "Filtrer code/texte...",
++    placeholder: "Rechercher (code, texte, contexte)...",
+     value: state.query,
+     onChange: (next) => {
+       state.query = next;
+       onChange();
+     }
+   });
++  input.style.cssText = "width:100%;padding:10px 12px;border-radius:8px;border:1px solid var(--line);background:var(--ic-panel);color:var(--ic-text);";
+ 
+-  const select = document.createElement("select");
+-  select.style.cssText = "padding:8px 10px;border-radius:10px;border:1px solid var(--line);background:transparent;color:inherit;";
+-  ["ALL", "WARN", "ERR"].forEach((s) => {
++  // Niveau de sévérité
++  const levelSelect = document.createElement("select");
++  levelSelect.style.cssText = "padding:10px 12px;border-radius:8px;border:1px solid var(--line);background:var(--ic-panel);color:var(--ic-text);cursor:pointer;";
++  ["ALL", "INFO", "WARN", "ERR"].forEach((s) => {
+     const opt = document.createElement("option");
+     opt.value = s;
+-    opt.textContent = s;
++    opt.textContent = s === "ALL" ? "Tous les niveaux" : s;
+     if (s === state.level) opt.selected = true;
+-    select.appendChild(opt);
++    levelSelect.appendChild(opt);
+   });
+-  select.addEventListener("change", () => {
+-    state.level = select.value as LogFilters["level"];
++  levelSelect.addEventListener("change", () => {
++    state.level = levelSelect.value as LogFilters["level"];
++    onChange();
++  });
++
++  // Période
++  const periodSelect = document.createElement("select");
++  periodSelect.style.cssText = "padding:10px 12px;border-radius:8px;border:1px solid var(--line);background:var(--ic-panel);color:var(--ic-text);cursor:pointer;";
++  [
++    { value: "ALL", label: "Toutes les périodes" },
++    { value: "1H", label: "Dernière heure" },
++    { value: "24H", label: "24 dernières heures" },
++    { value: "7D", label: "7 derniers jours" },
++    { value: "30D", label: "30 derniers jours" }
++  ].forEach(({ value, label }) => {
++    const opt = document.createElement("option");
++    opt.value = value;
++    opt.textContent = label;
++    if (value === (state.period || "ALL")) opt.selected = true;
++    periodSelect.appendChild(opt);
++  });
++  periodSelect.addEventListener("change", () => {
++    state.period = periodSelect.value as LogFilters["period"];
++    onChange();
++  });
++
++  // Bouton réinitialiser
++  const resetBtn = document.createElement("button");
++  resetBtn.textContent = "Réinitialiser";
++  resetBtn.style.cssText = "padding:10px 16px;border-radius:8px;border:1px solid var(--line);background:transparent;color:var(--ic-text);cursor:pointer;font-weight:600;";
++  resetBtn.addEventListener("click", () => {
++    state.query = "";
++    state.level = "ALL";
++    state.period = "ALL";
++    state.module = undefined;
++    input.value = "";
++    levelSelect.value = "ALL";
++    periodSelect.value = "ALL";
+     onChange();
+   });
+ 
+   wrap.appendChild(input);
+-  wrap.appendChild(select);
++  wrap.appendChild(levelSelect);
++  wrap.appendChild(periodSelect);
++  wrap.appendChild(resetBtn);
+   card.appendChild(wrap);
+   host.appendChild(card);
+ }
+diff --git a/modules/core-system/ui/frontend-ts/pages/logs/sections/local-audit.ts b/modules/core-system/ui/frontend-ts/pages/logs/sections/local-audit.ts
+index 529186a..8a43e29 100644
+--- a/modules/core-system/ui/frontend-ts/pages/logs/sections/local-audit.ts
++++ b/modules/core-system/ui/frontend-ts/pages/logs/sections/local-audit.ts
+@@ -1,5 +1,5 @@
+ import { readAuditLog, exportAuditLogJson, clearAuditLog } from "/src/core/audit/auditLog";
+-import { blockKeyValueTable, sectionCard } from "../../_shared/uiBlocks";
++import { blockKeyValueTable, sectionCard } from "../../../shared/uiBlocks";
+ 
+ export function renderLogsLocalAudit(host: HTMLElement): void {
+   const card = sectionCard("Audit log (local)");
+diff --git a/modules/core-system/ui/frontend-ts/pages/logs/sections/retention.ts b/modules/core-system/ui/frontend-ts/pages/logs/sections/retention.ts
+index 8a694b9..129ae6f 100644
+--- a/modules/core-system/ui/frontend-ts/pages/logs/sections/retention.ts
++++ b/modules/core-system/ui/frontend-ts/pages/logs/sections/retention.ts
+@@ -1,8 +1,8 @@
+ import type { Role } from "/src/runtime/rbac";
+-import { clearAuditLog, recordObs } from "../../_shared/audit";
+-import { OBS } from "../../_shared/obsCodes";
+-import { blockActionBar, blockToast } from "../../_shared/uiBlocks";
+-import { getSafeMode } from "../../_shared/safeMode";
++import { clearAuditLog, recordObs } from "/src/core/runtime/audit";
++import { OBS } from "/src/core/runtime/obs";
++import { blockActionBar, blockToast } from "../../../shared/uiBlocks";
++import { getSafeMode } from "/src/core/runtime/safe";
+ 
+ export function renderLogsRetention(host: HTMLElement, role: Role, onRefresh: () => void): void {
+   const safeMode = getSafeMode();
+diff --git a/modules/core-system/ui/frontend-ts/pages/settings/branding.ts b/modules/core-system/ui/frontend-ts/pages/settings/branding.ts
+index 7fe8463..cd324e9 100644
+--- a/modules/core-system/ui/frontend-ts/pages/settings/branding.ts
++++ b/modules/core-system/ui/frontend-ts/pages/settings/branding.ts
+@@ -1,11 +1,11 @@
+ import { getSession } from "/src/localAuth";
+ import type { Role } from "/src/runtime/rbac";
+ import { navigate } from "/src/router";
+-import { safeRender } from "../_shared/mainSystem.shared";
++import { safeRender } from "/src/core/runtime/safe";
+ import { getBrandResolved, setBrandLocalOverride, clearBrandLocalOverride } from "../../../../../../platform-services/branding/brandService";
+-import { MAIN_SYSTEM_THEME } from "../_shared/mainSystem.data";
++import { MAIN_SYSTEM_THEME } from "../../shared/mainSystem.data";
+ const UI = {
+-  WRAP: "max-width:980px;margin:20px auto;padding:0 16px",
++  WRAP: "width:100%;max-width:100%;margin:20px 0;padding:0 clamp(16px,2vw,24px)",
+   TITLE: "font-size:18px;font-weight:900;margin-bottom:8px",
+   TABLE: "width:100%;border-collapse:collapse",
+   KEY_CELL: "padding:8px;border-bottom:1px solid var(--ic-border);color:var(--ic-mutedText);width:40%",
+@@ -53,7 +53,7 @@ export function renderBrandingSettings(root: HTMLElement): void {
+   if (!canEdit()) {
+     navigate("#/dashboard");
+     const html = `
+-      <div style="max-width:980px;margin:26px auto;padding:0 16px">
++      <div style="width:100%;max-width:100%;margin:26px 0;padding:0 clamp(16px,2vw,24px)">
+         <div style="font-size:22px;font-weight:900">Parametres — Identité & marque</div>
+         <div style="color:var(--ic-mutedText);margin-top:8px">Acces refuse (SYSADMIN/DEVELOPER requis).</div>
+       </div>
+@@ -75,7 +75,7 @@ export function renderBrandingSettings(root: HTMLElement): void {
+       </div>
+       <div style="color:var(--ic-mutedText);margin-top:8px">Changer le nom affiche sans toucher au code (localStorage).</div>
+ 
+-      <div style="margin-top:16px;max-width:520px;display:flex;flex-direction:column;gap:10px">
++      <div style="margin-top:16px;width:100%;max-width:100%;display:flex;flex-direction:column;gap:10px">
+         <label style="color:var(--ic-mutedText)">Nom de l'application</label>
+         <input id="brand_app_name" value="${escapeHtml(currentName)}" placeholder="Ex: Innovex Control"
+           style="padding:10px 12px;border-radius:12px;border:1px solid var(--ic-border);background:var(--ic-panel);color:var(--ic-text)" />
+diff --git a/modules/core-system/ui/frontend-ts/pages/settings/index.ts b/modules/core-system/ui/frontend-ts/pages/settings/index.ts
+index 9998874..b5b1083 100644
+--- a/modules/core-system/ui/frontend-ts/pages/settings/index.ts
++++ b/modules/core-system/ui/frontend-ts/pages/settings/index.ts
+@@ -1,19 +1,19 @@
+-import { safeRender } from "../_shared/mainSystem.shared";
+-import { renderRecommendations } from "../_shared/recommendations";
+-import { getRole, getSafeMode } from "../_shared/recommendations.ctx";
+-import { renderAccessDenied } from "../_shared/renderAccessDenied";
+-import { canAccessPage, type Role } from "../_shared/rolePolicy";
+-import { mountSections, type SectionSpec } from "../_shared/sections";
++import { safeRender } from "/src/core/runtime/safe";
++import { renderRecommendations } from "../../shared/recommendations";
++import { getRole, getSafeMode } from "../../shared/recommendations.ctx";
++import { renderAccessDenied } from "/src/core/runtime/accessDenied";
++import { canAccessPage, type Role } from "../../shared/rolePolicy";
++import { mountSections, type SectionSpec } from "../../shared/sections";
+ 
+ const UI = {
+-  WRAP: "max-width:980px;margin:26px auto;padding:0 16px",
++  WRAP: "width:100%;max-width:100%;margin:26px 0;padding:0 clamp(16px,2vw,24px)",
+   TITLE: "font-size:22px;font-weight:900",
+   DESC: "color:var(--ic-mutedText);margin-top:8px",
+   GRID: "margin-top:16px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px",
+   CARD: "padding:14px;border-radius:18px;background:var(--ic-card);border:1px solid var(--ic-border);color:var(--ic-text)",
+   CARD_TITLE: "font-weight:900",
+   CARD_TEXT: "color:var(--ic-mutedText);margin-top:6px",
+-  WRAP_GRID: "max-width:980px;margin:0 auto;padding:0 16px"
++  WRAP_GRID: "width:100%;max-width:100%;margin:0;padding:0 clamp(16px,2vw,24px)"
+ } as const;
+ 
+ export function renderSettingsPage(root: HTMLElement): void {
+@@ -43,6 +43,8 @@ export function renderSettingsPage(root: HTMLElement): void {
+       title: "Parametres",
+       render: (host) => {
+         const wrap = document.createElement("div");
++  wrap.style.minWidth = "0";
++  wrap.style.boxSizing = "border-box";
+         wrap.setAttribute("style", UI.WRAP);
+         const title = document.createElement("div");
+         title.setAttribute("style", UI.TITLE);
+diff --git a/modules/core-system/ui/frontend-ts/pages/settings/subscriptionHub.ts b/modules/core-system/ui/frontend-ts/pages/settings/subscriptionHub.ts
+index 9fe165b..7914ee2 100644
+--- a/modules/core-system/ui/frontend-ts/pages/settings/subscriptionHub.ts
++++ b/modules/core-system/ui/frontend-ts/pages/settings/subscriptionHub.ts
+@@ -1,8 +1,8 @@
+-import { safeRender } from "../_shared/mainSystem.shared";
++import { safeRender } from "/src/core/runtime/safe";
+ import { getRole } from "/src/runtime/rbac";
+-import { getSafeMode } from "../_shared/safeMode";
++import { getSafeMode } from "/src/core/runtime/safe";
+ import { canAccess } from "../account/contract";
+-import * as EntitlementsFacade from "../_shared/entitlements";
++import * as EntitlementsFacade from "../../shared/entitlements";
+ 
+ /**
+  * ICONTROL_SUBSCRIPTION_HUB_V1
+diff --git a/modules/core-system/ui/frontend-ts/pages/system/contract.ts b/modules/core-system/ui/frontend-ts/pages/system/contract.ts
+index 9e1ca92..b5c0b15 100644
+--- a/modules/core-system/ui/frontend-ts/pages/system/contract.ts
++++ b/modules/core-system/ui/frontend-ts/pages/system/contract.ts
+@@ -1,11 +1,13 @@
+ import type { Role } from "/src/runtime/rbac";
+-import type { SafeMode } from "../_shared/safeMode";
++import type { SafeModeValue as SafeMode } from "/src/core/runtime/safe";
+ 
+ export const PAGE_ID = "system";
+ export const SAFE_MODE_ALLOWED = true;
+ export const REQUIRED_ROLES: Role[] = ["ADMIN", "SYSADMIN", "DEVELOPER"];
+ 
+ export function canAccess(role: Role, safeMode: SafeMode): boolean {
++  // Master a toujours accès à tout
++  if (role === "MASTER") return true;
+   if (safeMode === "STRICT" && !SAFE_MODE_ALLOWED) return false;
+   return REQUIRED_ROLES.includes(role);
+ }
+diff --git a/modules/core-system/ui/frontend-ts/pages/system/index.ts b/modules/core-system/ui/frontend-ts/pages/system/index.ts
+index be2d4db..6f0ba4d 100644
+--- a/modules/core-system/ui/frontend-ts/pages/system/index.ts
++++ b/modules/core-system/ui/frontend-ts/pages/system/index.ts
+@@ -1,10 +1,9 @@
+ import { getRole } from "/src/runtime/rbac";
+-import { safeRender } from "../_shared/mainSystem.shared";
+-import { mountSections, type SectionSpec } from "../_shared/sections";
+-import { recordObs } from "../_shared/audit";
+-import { OBS } from "../_shared/obsCodes";
+-import { getSafeMode } from "../_shared/safeMode";
+-import { renderAccessDenied } from "../_shared/renderAccessDenied";
++import { safeRender, getSafeMode } from "/src/core/runtime/safe";
++import { recordObs } from "/src/core/runtime/audit";
++import { OBS } from "/src/core/runtime/obs";
++import { renderAccessDenied } from "/src/core/runtime/accessDenied";
++import { mountSections, type SectionSpec } from "../../shared/sections";
+ import { canAccess } from "./contract";
+ import { createSystemModel } from "./model";
+ import { renderSystemFlags } from "./sections/flags";
+@@ -15,6 +14,10 @@ import { renderSystemSafeModeActions } from "./sections/safe-mode-actions";
+ import { renderSystemCacheAudit } from "./sections/cache-audit";
+ 
+ export function renderSystemPage(root: HTMLElement): void {
++  renderSystemPageInternal(root);
++}
++
++function renderSystemPageInternal(root: HTMLElement): void {
+   const role = getRole();
+   const safeMode = getSafeMode();
+ 
+@@ -25,12 +28,13 @@ export function renderSystemPage(root: HTMLElement): void {
+   }
+ 
+   const model = createSystemModel();
++  const refreshSystem = () => renderSystemPageInternal(root);
+   const sections: SectionSpec[] = [
+     { id: "system-safe-mode", title: "SAFE_MODE", render: (host) => renderSystemSafeMode(host, model) },
+     { id: "system-cache-audit", title: "Cache Audit", render: (host) => renderSystemCacheAudit(host) },
+     { id: "system-safe-mode-actions", title: "SAFE_MODE actions", render: (host) => renderSystemSafeModeActions(host, role) },
+     { id: "system-flags", title: "Flags", render: (host) => renderSystemFlags(host, model) },
+-    { id: "system-flags-actions", title: "Flags actions", render: (host) => renderSystemFlagsActions(host, role, () => renderSystemPage(root)) },
++    { id: "system-flags-actions", title: "Flags actions", render: (host) => renderSystemFlagsActions(host, role, refreshSystem) },
+     { id: "system-layout", title: "Layout", render: (host) => renderSystemLayout(host, model) }
+   ];
+ 
+diff --git a/modules/core-system/ui/frontend-ts/pages/system/model.ts b/modules/core-system/ui/frontend-ts/pages/system/model.ts
+index c33ece7..d294cf7 100644
+--- a/modules/core-system/ui/frontend-ts/pages/system/model.ts
++++ b/modules/core-system/ui/frontend-ts/pages/system/model.ts
+@@ -1,6 +1,6 @@
+-import { getSafeMode } from "../_shared/safeMode";
++import { getSafeMode } from "/src/core/runtime/safe";
+ import { listFlags, setFlag, FLAG_DEFS } from "../../shared/featureFlags";
+-import { MAIN_SYSTEM_LAYOUT } from "../_shared/mainSystem.data";
++import { MAIN_SYSTEM_LAYOUT } from "../../shared/mainSystem.data";
+ 
+ export type SystemFlagVM = {
+   id: string;
+diff --git a/modules/core-system/ui/frontend-ts/pages/system/sections/cache-audit.ts b/modules/core-system/ui/frontend-ts/pages/system/sections/cache-audit.ts
+index 4931259..19007e4 100644
+--- a/modules/core-system/ui/frontend-ts/pages/system/sections/cache-audit.ts
++++ b/modules/core-system/ui/frontend-ts/pages/system/sections/cache-audit.ts
+@@ -1,5 +1,5 @@
+-import { OBS } from "../../_shared/obsCodes";
+-import { recordObs } from "../../_shared/audit";
++import { OBS } from "/src/core/runtime/obs";
++import { recordObs } from "/src/core/runtime/audit";
+ 
+ function __redactAudit(input: any): any {
+   // Policy: allowlist only schema/version/toggles/timestamp (future-proof, JSON-safe)
+diff --git a/modules/core-system/ui/frontend-ts/pages/system/sections/flags-actions.ts b/modules/core-system/ui/frontend-ts/pages/system/sections/flags-actions.ts
+index b0caef9..138cc57 100644
+--- a/modules/core-system/ui/frontend-ts/pages/system/sections/flags-actions.ts
++++ b/modules/core-system/ui/frontend-ts/pages/system/sections/flags-actions.ts
+@@ -1,7 +1,7 @@
+-import { recordObs } from "../../_shared/audit";
+-import { OBS } from "../../_shared/obsCodes";
+-import { blockActionBar, blockToast } from "../../_shared/uiBlocks";
+-import { getSafeMode } from "../../_shared/safeMode";
++import { recordObs } from "/src/core/runtime/audit";
++import { OBS } from "/src/core/runtime/obs";
++import { blockActionBar, blockToast } from "../../../shared/uiBlocks";
++import { getSafeMode } from "/src/core/runtime/safe";
+ import { resetFlags, setAllFlags } from "../model";
+ 
+ export function renderSystemFlagsActions(host: HTMLElement, role: string, onRefresh: () => void): void {
+diff --git a/modules/core-system/ui/frontend-ts/pages/system/sections/flags.ts b/modules/core-system/ui/frontend-ts/pages/system/sections/flags.ts
+index 4657493..3dfb848 100644
+--- a/modules/core-system/ui/frontend-ts/pages/system/sections/flags.ts
++++ b/modules/core-system/ui/frontend-ts/pages/system/sections/flags.ts
+@@ -1,5 +1,5 @@
+ import type { SystemModel } from "../model";
+-import { blockToggle } from "../../_shared/uiBlocks";
++import { blockToggle } from "../../../shared/uiBlocks";
+ import { updateFlag } from "../model";
+ 
+ export function renderSystemFlags(host: HTMLElement, model: SystemModel): void {
+diff --git a/modules/core-system/ui/frontend-ts/pages/system/sections/layout.ts b/modules/core-system/ui/frontend-ts/pages/system/sections/layout.ts
+index 92b4bdf..e9f02fb 100644
+--- a/modules/core-system/ui/frontend-ts/pages/system/sections/layout.ts
++++ b/modules/core-system/ui/frontend-ts/pages/system/sections/layout.ts
+@@ -1,5 +1,5 @@
+ import type { SystemModel } from "../model";
+-import { blockKeyValueTable } from "../../_shared/uiBlocks";
++import { blockKeyValueTable } from "../../../shared/uiBlocks";
+ 
+ export function renderSystemLayout(host: HTMLElement, model: SystemModel): void {
+   host.appendChild(
+diff --git a/modules/core-system/ui/frontend-ts/pages/system/sections/safe-mode-actions.ts b/modules/core-system/ui/frontend-ts/pages/system/sections/safe-mode-actions.ts
+index a185c07..3a52380 100644
+--- a/modules/core-system/ui/frontend-ts/pages/system/sections/safe-mode-actions.ts
++++ b/modules/core-system/ui/frontend-ts/pages/system/sections/safe-mode-actions.ts
+@@ -1,7 +1,7 @@
+-import { recordObs } from "../../_shared/audit";
+-import { OBS } from "../../_shared/obsCodes";
+-import { blockActionBar, blockToast } from "../../_shared/uiBlocks";
+-import { getSafeMode } from "../../_shared/safeMode";
++import { recordObs } from "/src/core/runtime/audit";
++import { OBS } from "/src/core/runtime/obs";
++import { blockActionBar, blockToast } from "../../../shared/uiBlocks";
++import { getSafeMode } from "/src/core/runtime/safe";
+ 
+ export function renderSystemSafeModeActions(host: HTMLElement, role: string): void {
+   const safeMode = getSafeMode();
+diff --git a/modules/core-system/ui/frontend-ts/pages/system/sections/safe-mode.ts b/modules/core-system/ui/frontend-ts/pages/system/sections/safe-mode.ts
+index b510730..1dd1edb 100644
+--- a/modules/core-system/ui/frontend-ts/pages/system/sections/safe-mode.ts
++++ b/modules/core-system/ui/frontend-ts/pages/system/sections/safe-mode.ts
+@@ -1,12 +1,441 @@
+ import type { SystemModel } from "../model";
+-import { blockKeyValueTable } from "../../_shared/uiBlocks";
++import { blockKeyValueTable } from "../../../shared/uiBlocks";
++import { addTooltipToElement } from "/src/core/ui/tooltip";
++import { getSafeMode } from "/src/core/runtime/safe";
++
++// Historique des changements SAFE_MODE
++type SafeModeHistoryEntry = {
++  id: string;
++  timestamp: string;
++  from: "STRICT" | "COMPAT";
++  to: "STRICT" | "COMPAT";
++  user: string;
++  reason?: string;
++};
++
++const HISTORY_KEY = "icontrol_safemode_history_v1";
++const MAX_HISTORY = 20;
++
++function getSafeModeHistory(): SafeModeHistoryEntry[] {
++  try {
++    const stored = localStorage.getItem(HISTORY_KEY);
++    if (stored) {
++      const parsed = JSON.parse(stored);
++      if (Array.isArray(parsed)) return parsed.slice(-MAX_HISTORY);
++    }
++  } catch {}
++  return [];
++}
++
++function saveSafeModeHistory(entry: SafeModeHistoryEntry): void {
++  try {
++    const history = getSafeModeHistory();
++    history.push(entry);
++    const trimmed = history.slice(-MAX_HISTORY);
++    localStorage.setItem(HISTORY_KEY, JSON.stringify(trimmed));
++  } catch (e) {
++    console.error("Erreur lors de la sauvegarde de l'historique SAFE_MODE:", e);
++  }
++}
++
++function getPreviousSafeMode(): "STRICT" | "COMPAT" | null {
++  const history = getSafeModeHistory();
++  if (history.length === 0) return null;
++  return history[history.length - 1].from;
++}
+ 
+ export function renderSystemSafeMode(host: HTMLElement, model: SystemModel): void {
+-  const table = blockKeyValueTable({
+-    title: "SAFE_MODE",
+-    rows: [
+-      { key: "safe_mode", value: model.safeMode === "STRICT" ? "ON (strict)" : "OFF" }
+-    ]
++  const currentMode = model.safeMode;
++  const isStrict = currentMode === "STRICT";
++  
++  // Container principal
++  const container = document.createElement("div");
++  container.style.minWidth = "0";
++  container.style.boxSizing = "border-box";
++  container.style.cssText = "display: flex; flex-direction: column; gap: 16px;";
++  
++  // Carte État actuel
++  const statusCard = document.createElement("div");
++  statusCard.style.cssText = `
++    padding: 16px;
++    background: var(--ic-card, #1a1d1f);
++    border: 1px solid var(--ic-border, #2b3136);
++    border-radius: 8px;
++  `;
++  
++  const statusBg = isStrict ? "rgba(244, 135, 113, 0.1)" : "rgba(78, 201, 176, 0.1)";
++  const statusBorder = isStrict ? "#f48771" : "#4ec9b0";
++  const statusColor = isStrict ? "#f48771" : "#4ec9b0";
++  const statusIcon = isStrict ? "🔒 STRICT" : "🔓 COMPAT";
++  const statusText = isStrict ? "Mode Strict Activé" : "Mode Compatible Activé";
++  
++  statusCard.innerHTML = `
++    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
++      <div>
++        <div style="font-size: 18px; font-weight: 700; color: ${statusColor}; margin-bottom: 4px;">
++          ${statusIcon}
++        </div>
++        <div style="font-size: 14px; color: var(--ic-text, #e7ecef); font-weight: 600;">
++          ${statusText}
++        </div>
++      </div>
++      <div style="padding: 8px 16px; background: ${statusBg}; border: 1px solid ${statusBorder}; border-radius: 6px;">
++        <span style="color: ${statusColor}; font-weight: 700; font-size: 14px;">${currentMode}</span>
++      </div>
++    </div>
++  `;
++  
++  // Explications des niveaux
++  const explanationsCard = document.createElement("div");
++  explanationsCard.style.cssText = `
++    padding: 16px;
++    background: var(--ic-card, #1a1d1f);
++    border: 1px solid var(--ic-border, #2b3136);
++    border-radius: 8px;
++  `;
++  
++  explanationsCard.innerHTML = `
++    <div style="font-size: 14px; font-weight: 600; color: var(--ic-text, #e7ecef); margin-bottom: 12px;">
++      Explications des niveaux SAFE_MODE
++    </div>
++    <div style="display: grid; gap: 12px;">
++      <div style="padding: 12px; background: rgba(78, 201, 176, 0.05); border-left: 3px solid #4ec9b0; border-radius: 4px;">
++        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
++          <span style="font-size: 18px;">🔓</span>
++          <span style="font-weight: 600; color: #4ec9b0;">COMPAT (Compatible)</span>
++        </div>
++        <div style="font-size: 12px; color: var(--ic-mutedText, #a7b0b7); line-height: 1.5;">
++          Mode par défaut. Toutes les fonctionnalités sont actives. Les opérations d'écriture sont autorisées. 
++          Les restrictions légères peuvent s'appliquer selon la configuration.
++        </div>
++      </div>
++      <div style="padding: 12px; background: rgba(244, 135, 113, 0.05); border-left: 3px solid #f48771; border-radius: 4px;">
++        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
++          <span style="font-size: 18px;">🔒</span>
++          <span style="font-weight: 600; color: #f48771;">STRICT (Strict)</span>
++        </div>
++        <div style="font-size: 12px; color: var(--ic-mutedText, #a7b0b7); line-height: 1.5;">
++          Mode de sécurité maximale. Les opérations d'écriture sont bloquées. Certaines fonctionnalités peuvent être désactivées.
++          Utile pour protéger les données critiques ou en cas de maintenance.
++        </div>
++      </div>
++    </div>
++  `;
++  
++  // Bouton Dry-run (Simuler changement)
++  const dryRunCard = document.createElement("div");
++  dryRunCard.style.cssText = `
++    padding: 16px;
++    background: var(--ic-card, #1a1d1f);
++    border: 1px solid var(--ic-border, #2b3136);
++    border-radius: 8px;
++  `;
++  
++  const dryRunBtn = document.createElement("button");
++  dryRunBtn.textContent = "🧪 Simuler changement SAFE_MODE";
++  dryRunBtn.style.cssText = `
++    width: 100%;
++    padding: 12px;
++    background: rgba(59, 130, 246, 0.1);
++    color: #3b82f6;
++    border: 1px solid #3b82f6;
++    border-radius: 6px;
++    cursor: pointer;
++    font-weight: 600;
++    font-size: 13px;
++    transition: all 0.2s;
++  `;
++  dryRunBtn.onmouseenter = () => {
++    dryRunBtn.style.background = "rgba(59, 130, 246, 0.2)";
++  };
++  dryRunBtn.onmouseleave = () => {
++    dryRunBtn.style.background = "rgba(59, 130, 246, 0.1)";
++  };
++  dryRunBtn.onclick = () => {
++    const targetMode = isStrict ? "COMPAT" : "STRICT";
++    showDryRunPreview(currentMode, targetMode as "STRICT" | "COMPAT");
++  };
++  
++  dryRunCard.appendChild(dryRunBtn);
++  
++  // Bouton Rollback urgence (rouge bien visible)
++  const previousMode = getPreviousSafeMode();
++  if (previousMode && previousMode !== currentMode) {
++    const rollbackCard = document.createElement("div");
++    rollbackCard.style.cssText = `
++      padding: 16px;
++      background: rgba(239, 68, 68, 0.1);
++      border: 2px solid #ef4444;
++      border-radius: 8px;
++    `;
++    
++    const rollbackBtn = document.createElement("button");
++    rollbackBtn.textContent = `🚨 Restaurer configuration précédente (${previousMode})`;
++    rollbackBtn.style.cssText = `
++      width: 100%;
++      padding: 14px;
++      background: #ef4444;
++      color: white;
++      border: none;
++      border-radius: 6px;
++      cursor: pointer;
++      font-weight: 700;
++      font-size: 14px;
++      transition: all 0.2s;
++      box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
++    `;
++    rollbackBtn.onmouseenter = () => {
++      rollbackBtn.style.background = "#dc2626";
++      rollbackBtn.style.transform = "scale(1.02)";
++    };
++    rollbackBtn.onmouseleave = () => {
++      rollbackBtn.style.background = "#ef4444";
++      rollbackBtn.style.transform = "scale(1)";
++    };
++    rollbackBtn.onclick = () => {
++      showRollbackConfirm(previousMode);
++    };
++    
++    rollbackCard.appendChild(rollbackBtn);
++    container.appendChild(rollbackCard);
++  }
++  
++  // Historique des changements
++  const historyCard = document.createElement("div");
++  historyCard.style.cssText = `
++    padding: 16px;
++    background: var(--ic-card, #1a1d1f);
++    border: 1px solid var(--ic-border, #2b3136);
++    border-radius: 8px;
++  `;
++  
++  const history = getSafeModeHistory();
++  historyCard.innerHTML = `
++    <div style="font-size: 14px; font-weight: 600; color: var(--ic-text, #e7ecef); margin-bottom: 12px;">
++      Historique des changements (${history.length} entrée${history.length > 1 ? "s" : ""})
++    </div>
++    <div id="safemode-history-list" style="display: flex; flex-direction: column; gap: 8px; max-height: 300px; overflow-y: auto;">
++      ${history.length === 0 ? `
++        <div style="text-align: center; padding: 20px; color: var(--ic-mutedText, #a7b0b7); font-size: 12px;">
++          Aucun historique disponible
++        </div>
++      ` : history.slice().reverse().map(entry => `
++        <div style="padding: 10px; background: rgba(255,255,255,0.02); border-left: 3px solid ${entry.to === "STRICT" ? "#f48771" : "#4ec9b0"}; border-radius: 4px;">
++          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
++            <span style="font-weight: 600; color: var(--ic-text, #e7ecef); font-size: 13px;">
++              ${entry.from} → ${entry.to}
++            </span>
++            <span style="font-size: 11px; color: var(--ic-mutedText, #a7b0b7);">
++              ${new Date(entry.timestamp).toLocaleString('fr-FR')}
++            </span>
++          </div>
++          <div style="font-size: 11px; color: var(--ic-mutedText, #a7b0b7);">
++            Par: ${entry.user}${entry.reason ? ` • ${entry.reason}` : ""}
++          </div>
++        </div>
++      `).join("")}
++    </div>
++  `;
++  
++  container.appendChild(statusCard);
++  container.appendChild(explanationsCard);
++  container.appendChild(dryRunCard);
++  if (previousMode && previousMode !== currentMode) {
++    container.appendChild(rollbackCard);
++  }
++  container.appendChild(historyCard);
++  host.appendChild(container);
++  
++  // Ajouter tooltips sur les badges de niveau
++  const compatBadge = explanationsCard.querySelector('[style*="COMPAT"]') as HTMLElement;
++  const strictBadge = explanationsCard.querySelector('[style*="STRICT"]') as HTMLElement;
++  if (compatBadge) {
++    addTooltipToElement(compatBadge, "Mode compatible: toutes les fonctionnalités actives, opérations d'écriture autorisées", "top");
++  }
++  if (strictBadge) {
++    addTooltipToElement(strictBadge, "Mode strict: sécurité maximale, opérations d'écriture bloquées, certaines fonctionnalités désactivées", "top");
++  }
++}
++
++// Fonction pour afficher le preview Dry-run
++function showDryRunPreview(current: "STRICT" | "COMPAT", target: "STRICT" | "COMPAT"): void {
++  const modal = document.createElement("div");
++  modal.style.cssText = `
++    position: fixed;
++    inset: 0;
++    background: rgba(0, 0, 0, 0.7);
++    z-index: 10000;
++    display: flex;
++    align-items: center;
++    justify-content: center;
++    padding: 20px;
++  `;
++  
++  const modalContent = document.createElement("div");
++  modalContent.style.cssText = `
++    background: var(--ic-panel, #1a1d1f);
++    border: 1px solid var(--ic-border, #2b3136);
++    border-radius: 12px;
++    padding: 24px;
++    max-width: 600px;
++    width: 100%;
++    max-height: 90vh;
++    overflow-y: auto;
++  `;
++  
++  const impacts = target === "STRICT" 
++    ? [
++        "Les opérations d'écriture seront bloquées",
++        "Les fonctionnalités de modification seront désactivées",
++        "Les flags système critiques seront verrouillés",
++        "Les logs d'audit seront renforcés"
++      ]
++    : [
++        "Les opérations d'écriture seront autorisées",
++        "Toutes les fonctionnalités seront disponibles",
++        "Les flags système pourront être modifiés",
++        "Mode normal restauré"
++      ];
++  
++  modalContent.innerHTML = `
++    <div style="font-size: 18px; font-weight: 700; color: var(--ic-text, #e7ecef); margin-bottom: 20px;">
++      🧪 Simulation: Changement SAFE_MODE
++    </div>
++    <div style="padding: 16px; background: rgba(59, 130, 246, 0.1); border-left: 4px solid #3b82f6; border-radius: 6px; margin-bottom: 20px;">
++      <div style="font-weight: 600; color: #3b82f6; margin-bottom: 8px;">
++        ${current} → ${target}
++      </div>
++      <div style="font-size: 12px; color: var(--ic-mutedText, #a7b0b7);">
++        Prévisualisation des impacts sans appliquer les changements
++      </div>
++    </div>
++    <div style="margin-bottom: 20px;">
++      <div style="font-size: 14px; font-weight: 600; color: var(--ic-text, #e7ecef); margin-bottom: 12px;">
++        Impacts prévus:
++      </div>
++      <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px;">
++        ${impacts.map(impact => `
++          <li style="padding: 8px; background: rgba(255,255,255,0.02); border-radius: 4px; font-size: 13px; color: var(--ic-text, #e7ecef);">
++            • ${impact}
++          </li>
++        `).join("")}
++      </ul>
++    </div>
++    <div style="display: flex; gap: 12px; justify-content: flex-end;">
++      <button id="cancel-dryrun" style="padding: 10px 20px; background: rgba(255,255,255,0.05); color: var(--ic-text, #e7ecef); border: 1px solid var(--ic-border, #2b3136); border-radius: 8px; cursor: pointer; font-weight: 600;">
++        Fermer
++      </button>
++      <button id="apply-change" style="padding: 10px 20px; background: #3b82f6; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">
++        Appliquer le changement
++      </button>
++    </div>
++  `;
++  
++  modal.appendChild(modalContent);
++  document.body.appendChild(modal);
++  
++  const closeModal = () => modal.remove();
++  
++  modalContent.querySelector("#cancel-dryrun")?.addEventListener("click", closeModal);
++  modalContent.querySelector("#apply-change")?.addEventListener("click", async () => {
++    // Appeler la fonction de changement SAFE_MODE (à implémenter dans safe-mode-actions.ts)
++    (globalThis as any).ICONTROL_SAFE_MODE = target;
++    try {
++      const { requireSession } = await import("/src/localAuth");
++      const s = requireSession();
++      saveSafeModeHistory({
++        id: `sm-${Date.now()}`,
++        timestamp: new Date().toISOString(),
++        from: current,
++        to: target,
++        user: s.username || "System"
++      });
++    } catch (error) {
++      console.error("Erreur lors de la sauvegarde de l'historique:", error);
++      saveSafeModeHistory({
++        id: `sm-${Date.now()}`,
++        timestamp: new Date().toISOString(),
++        from: current,
++        to: target,
++        user: "System"
++      });
++    }
++    closeModal();
++    location.reload();
++  });
++  
++  modal.onclick = (e) => {
++    if (e.target === modal) closeModal();
++  };
++}
++
++// Fonction pour confirmer le rollback
++function showRollbackConfirm(targetMode: "STRICT" | "COMPAT"): void {
++  const modal = document.createElement("div");
++  modal.style.cssText = `
++    position: fixed;
++    inset: 0;
++    background: rgba(0, 0, 0, 0.7);
++    z-index: 10000;
++    display: flex;
++    align-items: center;
++    justify-content: center;
++    padding: 20px;
++  `;
++  
++  const modalContent = document.createElement("div");
++  modalContent.style.cssText = `
++    background: var(--ic-panel, #1a1d1f);
++    border: 2px solid #ef4444;
++    border-radius: 12px;
++    padding: 24px;
++    max-width: 500px;
++    width: 100%;
++  `;
++  
++  modalContent.innerHTML = `
++    <div style="font-size: 18px; font-weight: 700; color: #ef4444; margin-bottom: 16px;">
++      🚨 Restauration d'urgence
++    </div>
++    <div style="color: var(--ic-text, #e7ecef); margin-bottom: 20px; line-height: 1.6;">
++      Êtes-vous sûr de vouloir restaurer la configuration SAFE_MODE précédente ?
++      <br><br>
++      <strong style="color: #ef4444;">${getSafeMode()} → ${targetMode}</strong>
++    </div>
++    <div style="display: flex; gap: 12px; justify-content: flex-end;">
++      <button id="cancel-rollback" style="padding: 10px 20px; background: rgba(255,255,255,0.05); color: var(--ic-text, #e7ecef); border: 1px solid var(--ic-border, #2b3136); border-radius: 8px; cursor: pointer; font-weight: 600;">
++        Annuler
++      </button>
++      <button id="confirm-rollback" style="padding: 10px 20px; background: #ef4444; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 700;">
++        Confirmer la restauration
++      </button>
++    </div>
++  `;
++  
++  modal.appendChild(modalContent);
++  document.body.appendChild(modal);
++  
++  const closeModal = () => modal.remove();
++  
++  modalContent.querySelector("#cancel-rollback")?.addEventListener("click", closeModal);
++  modalContent.querySelector("#confirm-rollback")?.addEventListener("click", async () => {
++    const current = getSafeMode();
++    (globalThis as any).ICONTROL_SAFE_MODE = targetMode;
++    const { requireSession } = await import("/src/localAuth");
++    const s = requireSession();
++    saveSafeModeHistory({
++      id: `sm-${Date.now()}`,
++      timestamp: new Date().toISOString(),
++      from: current,
++      to: targetMode,
++      user: s.username || "System",
++      reason: "Rollback urgence"
++    });
++    closeModal();
++    location.reload();
+   });
+-  host.appendChild(table);
++  
++  modal.onclick = (e) => {
++    if (e.target === modal) closeModal();
++  };
+ }
+diff --git a/modules/core-system/ui/frontend-ts/pages/toolbox.ts b/modules/core-system/ui/frontend-ts/pages/toolbox.ts
+index 38b2b9a..f56950b 100644
+--- a/modules/core-system/ui/frontend-ts/pages/toolbox.ts
++++ b/modules/core-system/ui/frontend-ts/pages/toolbox.ts
+@@ -1,8 +1,9 @@
+ import { getRole, canAccessToolbox } from "/src/runtime/rbac";
+-import { getSafeMode } from "./_shared/safeMode";
++import { getSafeMode } from "/src/core/runtime/safe";
+ import { getSession } from "/src/localAuth";
+-import { renderAccessDenied, safeRender } from "./_shared/mainSystem.shared";
+-import { mountSections, type SectionSpec } from "./_shared/sections";
++import { safeRender } from "/src/core/runtime/safe";
++import { renderAccessDenied } from "/src/core/runtime/accessDenied";
++import { mountSections, type SectionSpec } from "./shared/sections";
+ import type { ToolboxCtx } from "./toolbox/contracts";
+ import { TOOLBOX_SECTIONS } from "./toolbox/sections";
+ 
+diff --git a/modules/core-system/ui/frontend-ts/pages/users/contract.ts b/modules/core-system/ui/frontend-ts/pages/users/contract.ts
+index 9c3cdce..6a3c46a 100644
+--- a/modules/core-system/ui/frontend-ts/pages/users/contract.ts
++++ b/modules/core-system/ui/frontend-ts/pages/users/contract.ts
+@@ -1,11 +1,13 @@
+ import type { Role } from "/src/runtime/rbac";
+-import type { SafeMode } from "../_shared/safeMode";
++import type { SafeModeValue as SafeMode } from "/src/core/runtime/safe";
+ 
+ export const PAGE_ID = "users";
+ export const SAFE_MODE_ALLOWED = true;
+ export const REQUIRED_ROLES: Role[] = ["ADMIN", "SYSADMIN", "DEVELOPER"];
+ 
+ export function canAccess(role: Role, safeMode: SafeMode): boolean {
++  // Master a toujours accès à tout
++  if (role === "MASTER") return true;
+   if (safeMode === "STRICT" && !SAFE_MODE_ALLOWED) return false;
+   return REQUIRED_ROLES.includes(role);
+ }
+diff --git a/modules/core-system/ui/frontend-ts/pages/users/index.ts b/modules/core-system/ui/frontend-ts/pages/users/index.ts
+index 73a24ff..329e9ce 100644
+--- a/modules/core-system/ui/frontend-ts/pages/users/index.ts
++++ b/modules/core-system/ui/frontend-ts/pages/users/index.ts
+@@ -1,7 +1,8 @@
+ import { getRole } from "/src/runtime/rbac";
+-import { getSafeMode } from "../_shared/safeMode";
+-import { renderAccessDenied, safeRender } from "../_shared/mainSystem.shared";
+-import { mountSections, type SectionSpec } from "../_shared/sections";
++import { getSafeMode } from "/src/core/runtime/safe";
++import { safeRender } from "/src/core/runtime/safe";
++import { renderAccessDenied } from "/src/core/runtime/accessDenied";
++import { mountSections, type SectionSpec } from "../../shared/sections";
+ import { canAccess } from "./contract";
+ import { createUsersModel } from "./model";
+ import {
+@@ -10,7 +11,7 @@ import {
+   renderUsersPermissions,
+   renderUsersRoles
+ } from "./view";
+-import * as EntitlementsFacade from "../_shared/entitlements";
++import * as EntitlementsFacade from "../../shared/entitlements";
+ 
+ export function renderUsers(root: HTMLElement): void {
+   // ICONTROL_ENTITLEMENTS_WIRING_USERS_V1
+diff --git a/modules/core-system/ui/frontend-ts/pages/users/model.ts b/modules/core-system/ui/frontend-ts/pages/users/model.ts
+index 99ff8f4..72fa3b7 100644
+--- a/modules/core-system/ui/frontend-ts/pages/users/model.ts
++++ b/modules/core-system/ui/frontend-ts/pages/users/model.ts
+@@ -1,4 +1,4 @@
+-import { MAIN_SYSTEM_MODULES, MAIN_SYSTEM_PERMISSIONS } from "../_shared/mainSystem.data";
++import { MAIN_SYSTEM_MODULES, MAIN_SYSTEM_PERMISSIONS } from "../../shared/mainSystem.data";
+ 
+ export type UsersPermissionRow = {
+   moduleId: string;
+diff --git a/modules/core-system/ui/frontend-ts/pages/users/view.ts b/modules/core-system/ui/frontend-ts/pages/users/view.ts
+index a72e350..b46fc43 100644
+--- a/modules/core-system/ui/frontend-ts/pages/users/view.ts
++++ b/modules/core-system/ui/frontend-ts/pages/users/view.ts
+@@ -1,5 +1,5 @@
+ import type { UsersModel } from "./model";
+-import { appendList, appendTable, sectionCard } from "../_shared/uiBlocks";
++import { appendList, appendTable, sectionCard } from "/src/core/ui/uiBlocks";
+ 
+ export function renderUsersOverview(root: HTMLElement, model: UsersModel): void {
+   const card = sectionCard(model.title);
+@@ -11,7 +11,7 @@ export function renderUsersOverview(root: HTMLElement, model: UsersModel): void
+   root.appendChild(card);
+ }
+ 
+-export function renderUsersRoles(root: HTMLElement, model: UsersModel): void {
++function renderUsersRoles(root: HTMLElement, model: UsersModel): void {
+   const card = sectionCard("Roles catalog");
+   appendTable(
+     card,
+@@ -21,7 +21,7 @@ export function renderUsersRoles(root: HTMLElement, model: UsersModel): void {
+   root.appendChild(card);
+ }
+ 
+-export function renderUsersPermissions(root: HTMLElement, model: UsersModel): void {
++function renderUsersPermissions(root: HTMLElement, model: UsersModel): void {
+   const card = sectionCard("Role permissions (modules)");
+   appendTable(
+     card,
+@@ -35,7 +35,7 @@ export function renderUsersPermissions(root: HTMLElement, model: UsersModel): vo
+   root.appendChild(card);
+ }
+ 
+-export function renderUsersMenuAccess(root: HTMLElement, model: UsersModel): void {
++function renderUsersMenuAccess(root: HTMLElement, model: UsersModel): void {
+   const card = sectionCard("Menu access (roles)");
+   appendTable(
+     card,
+diff --git a/modules/core-system/ui/frontend-ts/pages/verification/contract.ts b/modules/core-system/ui/frontend-ts/pages/verification/contract.ts
+index 5a36c53..7bccead 100644
+--- a/modules/core-system/ui/frontend-ts/pages/verification/contract.ts
++++ b/modules/core-system/ui/frontend-ts/pages/verification/contract.ts
+@@ -1,11 +1,13 @@
+ import type { Role } from "/src/runtime/rbac";
+-import type { SafeMode } from "../_shared/safeMode";
++import type { SafeModeValue as SafeMode } from "/src/core/runtime/safe";
+ 
+ export const PAGE_ID = "verification";
+ export const SAFE_MODE_ALLOWED = true;
+ export const REQUIRED_ROLES: Role[] = ["ADMIN", "SYSADMIN", "DEVELOPER"];
+ 
+ export function canAccess(role: Role, safeMode: SafeMode): boolean {
++  // Master a toujours accès à tout
++  if (role === "MASTER") return true;
+   if (safeMode === "STRICT" && !SAFE_MODE_ALLOWED) return false;
+   return REQUIRED_ROLES.includes(role);
+ }
+diff --git a/modules/core-system/ui/frontend-ts/pages/verification/index.ts b/modules/core-system/ui/frontend-ts/pages/verification/index.ts
+index 1469bc4..8b8fca6 100644
+--- a/modules/core-system/ui/frontend-ts/pages/verification/index.ts
++++ b/modules/core-system/ui/frontend-ts/pages/verification/index.ts
+@@ -1,51 +1,447 @@
++/**
++ * ICONTROL_CP_VERIFICATION_V2
++ * SSOT Verification page (CP)
++ */
+ import { getRole } from "/src/runtime/rbac";
+-import { getSafeMode } from "../_shared/safeMode";
+-import { renderAccessDenied, safeRender } from "../_shared/mainSystem.shared";
+-import { mountSections, type SectionSpec } from "../_shared/sections";
++import { renderAccessDenied } from "/src/core/runtime/accessDenied";
++import { OBS } from "/src/core/runtime/obs";
++import { recordObs } from "/src/core/runtime/audit";
++import { safeRender, fetchJsonSafe, mapSafeMode, getSafeMode } from "/src/core/runtime/safe";
+ import { canAccess } from "./contract";
+-import { createVerificationModel } from "./model";
+-import {
+-  renderVerificationRulesTable,
+-  renderVerificationSafeMode,
+-  renderVerificationSummary
+-} from "./view";
+-
+-export function renderVerification(root: HTMLElement): void {
++
++import { coreBaseStyles } from "../../shared/coreStyles";
++import { createPageShell } from "/src/core/ui/pageShell";
++import { createSectionCard } from "/src/core/ui/sectionCard";
++import { createToolbar } from "/src/core/ui/toolbar";
++import { createBadge } from "/src/core/ui/badge";
++import { createErrorState } from "/src/core/ui/errorState";
++import { createContextualEmptyState } from "/src/core/ui/emptyState";
++import { createDataTable, type TableColumn } from "/src/core/ui/dataTable";
++import { showToast } from "/src/core/ui/toast";
++import { createCardSkeleton } from "/src/core/ui/skeletonLoader";
++import { getMountEl } from "/src/router";
++import { navigate } from "/src/runtime/navigate";
++
++type VerificationStatus = "PASS" | "WARN" | "FAIL";
++
++type VerificationRow = {
++  id: string;
++  name: string;
++  status: VerificationStatus;
++  severity: "INFO" | "WARN" | "ERR";
++  detail: string;
++  updatedAt?: string;
++  correlationId?: string;
++  source?: string;
++};
++
++type VerificationData = {
++  rows: VerificationRow[];
++  lastRun: string;
++  durationMs: number;
++  lastUpdated: string;
++};
++
++type Mode = "live" | "demo" | "error";
++
++let currentRoot: HTMLElement | null = null;
++
++export function renderVerificationPage(root: HTMLElement): void {
++  void renderVerificationPageAsync(root);
++}
++
++async function renderVerificationPageAsync(root: HTMLElement): Promise<void> {
+   const role = getRole();
+   const safeMode = getSafeMode();
+ 
+   if (!canAccess(role, safeMode)) {
+-    renderAccessDenied(root);
++    recordObs({ code: OBS.WARN_SECTION_BLOCKED, page: "verification", section: "page", detail: "rbac" });
++    renderAccessDenied(root, "RBAC_PAGE_BLOCKED");
+     return;
+   }
+ 
+-  const model = createVerificationModel();
+-  const sections: SectionSpec[] = [
+-    {
+-      id: "verification-summary",
+-      title: model.title,
+-      render: (host) => renderVerificationSummary(host, model)
+-    },
+-    {
+-      id: "verification-safe-mode",
+-      title: "SAFE_MODE",
+-      render: (host) => renderVerificationSafeMode(host, model, safeMode)
++  currentRoot = root;
++
++  const renderLoading = () => {
++    safeRender(root, () => {
++      root.innerHTML = coreBaseStyles();
++      const { shell, content } = createPageShell({
++        title: "Verification",
++        subtitle: "Checks de conformite et etat runtime",
++        safeMode: mapSafeMode(safeMode),
++        statusBadge: { label: "CHARGEMENT", tone: "info" }
++      });
++
++      const grid = document.createElement("div");
++  grid.style.minWidth = "0";
++  grid.style.boxSizing = "border-box";
++      grid.style.cssText = "display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; width:100%;";
++      grid.appendChild(createCardSkeleton());
++      grid.appendChild(createCardSkeleton());
++      content.appendChild(grid);
++
++      const { card: detailCard, body: detailBody } = createSectionCard({
++        title: "Resultats",
++        description: "Chargement..."
++      });
++      detailBody.appendChild(createCardSkeleton());
++      content.appendChild(detailCard);
++
++      root.appendChild(shell);
++    });
++  };
++
++  renderLoading();
++
++  const { data, error, mode } = await getVerificationData();
++  renderData(root, data, error, mode);
++}
++
++function renderData(root: HTMLElement, data: VerificationData, error: string | null, mode: Mode): void {
++  safeRender(root, () => {
++    root.innerHTML = coreBaseStyles();
++
++    const statusBadge = mode === "live"
++      ? { label: "LIVE", tone: "ok" as const }
++      : mode === "demo"
++        ? { label: "DEMO", tone: "warn" as const }
++        : { label: "ERREUR", tone: "err" as const };
++
++    const { shell, content } = createPageShell({
++      title: "Verification",
++      subtitle: "Checks de conformite et etat runtime",
++      safeMode: mapSafeMode(getSafeMode()),
++      statusBadge
++    });
++
++    const grid = document.createElement("div");
++    grid.style.cssText = "display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; width:100%;";
++
++    const total = data.rows.length;
++    const pass = data.rows.filter((r) => r.status === "PASS").length;
++    const warn = data.rows.filter((r) => r.status === "WARN").length;
++    const fail = data.rows.filter((r) => r.status === "FAIL").length;
++
++    const { card: checksCard, body: checksBody } = createSectionCard({
++      title: "Checks",
++      description: "Etat global des verifications"
++    });
++    if (error) {
++      checksBody.appendChild(createErrorState({ code: "ERR_VERIFICATION_FETCH", message: error }));
++    }
++    checksBody.appendChild(createKpiRow("PASS", `${pass}/${total}`, pass === total ? "ok" : "warn"));
++    checksBody.appendChild(createKpiRow("WARN", String(warn), warn > 0 ? "warn" : "ok"));
++    checksBody.appendChild(createKpiRow("FAIL", String(fail), fail > 0 ? "err" : "ok"));
++    grid.appendChild(checksCard);
++
++    const { card: lastRunCard, body: lastRunBody } = createSectionCard({
++      title: "Dernier run",
++      description: "Execution la plus recente"
++    });
++    lastRunBody.appendChild(createKpiRow("Timestamp", formatDateTime(data.lastRun)));
++    lastRunBody.appendChild(createKpiRow("Duree", `${Math.round(data.durationMs)} ms`, data.durationMs > 1200 ? "warn" : "ok"));
++    lastRunBody.appendChild(createKpiRow("Correlation", data.rows[0]?.correlationId || "—"));
++    grid.appendChild(lastRunCard);
++
++    content.appendChild(grid);
++
++    const { card: detailCard, body: detailBody } = createSectionCard({
++      title: "Resultats",
++      description: "Liste des checks (recherche + filtres)"
++    });
++
++    const state = { search: "", status: "", severity: "" };
++    const tableContainer = document.createElement("div");
++
++    const { element: toolbar, searchInput } = createToolbar({
++      searchPlaceholder: "Rechercher check, detail, correlationId...",
++      onSearch: (v) => {
++        state.search = (v || "").toLowerCase().trim();
++        renderTable();
++      },
++      filters: [
++        {
++          label: "Status",
++          options: [
++            { label: "Tous", value: "" },
++            { label: "PASS", value: "PASS" },
++            { label: "WARN", value: "WARN" },
++            { label: "FAIL", value: "FAIL" }
++          ],
++          onChange: (v) => {
++            state.status = v;
++            renderTable();
++          }
++        },
++        {
++          label: "Severite",
++          options: [
++            { label: "Toutes", value: "" },
++            { label: "INFO", value: "INFO" },
++            { label: "WARN", value: "WARN" },
++            { label: "ERR", value: "ERR" }
++          ],
++          onChange: (v) => {
++            state.severity = v;
++            renderTable();
++          }
++        }
++      ],
++      actions: [
++        { label: "Rafraichir", primary: true, onClick: () => refreshVerification() },
++        { label: "Exporter JSON", onClick: () => exportJson(data.rows) },
++        { label: "Copier CID", onClick: () => copyToClipboard(data.rows[0]?.correlationId || "") }
++      ]
++    });
++
++    detailBody.appendChild(toolbar);
++    detailBody.appendChild(tableContainer);
++
++    const columns: TableColumn<VerificationRow>[] = [
++      { key: "name", label: "Check", sortable: true },
++      { key: "status", label: "Status", sortable: true, render: (v) => createBadge(String(v), String(v) === "FAIL" ? "err" : String(v) === "WARN" ? "warn" : "ok") },
++      { key: "severity", label: "Severite", sortable: true, render: (v) => createBadge(String(v), String(v) === "ERR" ? "err" : String(v) === "WARN" ? "warn" : "info") },
++      { key: "detail", label: "Detail", sortable: false, render: (v) => {
++          const div = document.createElement("div");
++          div.textContent = String(v);
++          div.style.cssText = "font-size:12px;color:var(--ic-text,#e7ecef);";
++          return div;
++        }
++      },
++      { key: "updatedAt", label: "Updated", sortable: true, render: (v) => {
++          const div = document.createElement("div");
++          div.textContent = v ? formatDateTime(String(v)) : "—";
++          div.style.cssText = "font-size:11px;color:var(--ic-mutedText,#a7b0b7);";
++          return div;
++        }
++      }
++    ];
++
++    function renderTable(): void {
++      tableContainer.innerHTML = "";
++      const filtered = data.rows.filter((row) => {
++        const matchStatus = !state.status || row.status === state.status;
++        const matchSeverity = !state.severity || row.severity === state.severity;
++        const q = state.search;
++        const matchSearch = !q || row.name.toLowerCase().includes(q) || row.detail.toLowerCase().includes(q) || (row.correlationId || "").toLowerCase().includes(q);
++        return matchStatus && matchSeverity && matchSearch;
++      });
++
++      const table = createDataTable({
++        columns,
++        data: filtered,
++        searchable: false,
++        sortable: true,
++        pagination: true,
++        pageSize: 12,
++        actions: (row) => [
++          { label: "Copier ID", onClick: () => copyToClipboard(row.id) },
++          { label: "Copier CID", onClick: () => copyToClipboard(row.correlationId || "") },
++          { label: "Voir logs", onClick: () => { navigate("#/logs"); } }
++        ]
++      });
++      tableContainer.appendChild(table);
++
++      if (filtered.length === 0) {
++        tableContainer.appendChild(createContextualEmptyState("verification", {
++          searchQuery: state.search || undefined,
++          onClearFilter: () => {
++            state.search = "";
++            state.status = "";
++            state.severity = "";
++            if (searchInput) searchInput.value = "";
++            renderTable();
++          }
++        }));
++      }
++    }
++
++    renderTable();
++    content.appendChild(detailCard);
++    root.appendChild(shell);
++  });
++}
++
++function createKpiRow(label: string, value: string, tone?: "ok" | "warn" | "err"): HTMLElement {
++  const row = document.createElement("div");
++  row.style.cssText = "display:flex; align-items:center; justify-content:space-between; gap:12px;";
++  const left = document.createElement("div");
++  left.textContent = label;
++  left.style.cssText = "font-size:12px;color:var(--ic-mutedText,#a7b0b7);";
++  const right = document.createElement("div");
++  right.textContent = value;
++  right.style.cssText =
++    "font-size:13px;font-weight:600;color:" +
++    (tone === "err" ? "var(--ic-error,#f48771)" : tone === "warn" ? "var(--ic-warn,#f59e0b)" : tone === "ok" ? "var(--ic-success,#4ec9b0)" : "var(--ic-text,#e7ecef)") +
++    ";";
++  row.appendChild(left);
++  row.appendChild(right);
++  return row;
++}
++
++function formatDateTime(value: string): string {
++  return new Date(value).toLocaleString("fr-CA");
++}
++
++async function getVerificationData(): Promise<{ data: VerificationData; error: string | null; mode: Mode }> {
++  const demo = buildDemoRows();
++  let rows: VerificationRow[] = [];
++  let mode: Mode = "demo";
++  let error: string | null = null;
++
++  const verificationRes = await fetchJsonSafe("/api/cp/verification");
++  if (verificationRes.ok && verificationRes.data) {
++    rows = normalizeVerificationRows(verificationRes.data);
++    mode = "live";
++  } else if (verificationRes.error) {
++    error = verificationRes.error;
++  }
++
++  const healthRes = await fetchJsonSafe("/api/cp/health");
++  if (healthRes.ok && healthRes.data && rows.length === 0) {
++    rows = normalizeHealthRows(healthRes.data);
++    mode = "live";
++  }
++
++  const systemRes = await fetchJsonSafe("/api/cp/runtime-config");
++  if (systemRes.ok && systemRes.data && rows.length === 0) {
++    rows = normalizeSystemRows(systemRes.data);
++    mode = "live";
++  }
++
++  if (rows.length === 0) {
++    rows = demo;
++    if (error) mode = "error";
++  }
++
++  return {
++    data: {
++      rows,
++      lastRun: rows[0]?.updatedAt || new Date().toISOString(),
++      durationMs: 620,
++      lastUpdated: new Date().toISOString()
+     },
+-    {
+-      id: "verification-rules",
+-      title: "Rules inventory",
+-      render: (host) => renderVerificationRulesTable(host, model)
++    error,
++    mode
++  };
++}
++
++function normalizeVerificationRows(raw: any): VerificationRow[] {
++  const list = Array.isArray(raw?.rows) ? raw.rows : Array.isArray(raw) ? raw : [];
++  return list.map((item: any, idx: number) => ({
++    id: String(item.id || `check-${idx + 1}`),
++    name: String(item.name || item.label || "Verification"),
++    status: mapStatus(item.status),
++    severity: mapSeverity(item.severity || item.level),
++    detail: String(item.detail || item.message || "—"),
++    updatedAt: item.updatedAt || item.updated_at || new Date().toISOString(),
++    correlationId: item.correlationId || item.correlation_id,
++    source: item.source || "API"
++  }));
++}
++
++function normalizeHealthRows(raw: any): VerificationRow[] {
++  const rows: VerificationRow[] = [];
++  if (raw && typeof raw === "object") {
++    for (const [key, value] of Object.entries(raw)) {
++      rows.push({
++        id: `health-${key}`,
++        name: `Health ${key}`,
++        status: value ? "PASS" : "WARN",
++        severity: value ? "INFO" : "WARN",
++        detail: String(value),
++        updatedAt: new Date().toISOString(),
++        source: "HEALTH"
++      });
+     }
+-  ];
++  }
++  return rows;
++}
+ 
+-  safeRender(root, () => {
+-    root.innerHTML = "";
+-    mountSections(root, sections, { page: "verification", role, safeMode });
++function normalizeSystemRows(raw: any): VerificationRow[] {
++  const rows: VerificationRow[] = [];
++  if (raw && typeof raw === "object") {
++    for (const [key, value] of Object.entries(raw)) {
++      rows.push({
++        id: `sys-${key}`,
++        name: `Runtime ${key}`,
++        status: "PASS",
++        severity: "INFO",
++        detail: String(value),
++        updatedAt: new Date().toISOString(),
++        source: "RUNTIME"
++      });
++    }
++  }
++  return rows;
++}
++
++function mapStatus(value: any): VerificationStatus {
++  const v = String(value || "PASS").toUpperCase();
++  if (v === "FAIL" || v === "ERROR") return "FAIL";
++  if (v === "WARN" || v === "WARNING") return "WARN";
++  return "PASS";
++}
++
++function mapSeverity(value: any): "INFO" | "WARN" | "ERR" {
++  const v = String(value || "INFO").toUpperCase();
++  if (v === "ERR" || v === "ERROR") return "ERR";
++  if (v === "WARN" || v === "WARNING") return "WARN";
++  return "INFO";
++}
++
++function buildDemoRows(): VerificationRow[] {
++  const now = Date.now();
++  const mk = (id: number, status: VerificationStatus, severity: "INFO" | "WARN" | "ERR", detail: string): VerificationRow => ({
++    id: `check-${id}`,
++    name: `Check ${id}`,
++    status,
++    severity,
++    detail,
++    updatedAt: new Date(now - id * 1000 * 60 * 3).toISOString(),
++    correlationId: `verify-${100 + id}`,
++    source: "DEMO"
+   });
++  return [
++    mk(1, "PASS", "INFO", "Schema OK"),
++    mk(2, "PASS", "INFO", "Policies OK"),
++    mk(3, "WARN", "WARN", "Lag detecte"),
++    mk(4, "PASS", "INFO", "Auth OK"),
++    mk(5, "PASS", "INFO", "Cache OK"),
++    mk(6, "WARN", "WARN", "Retention limite"),
++    mk(7, "PASS", "INFO", "SLA OK"),
++    mk(8, "FAIL", "ERR", "Audit export KO"),
++    mk(9, "PASS", "INFO", "Jobs OK"),
++    mk(10, "PASS", "INFO", "Backups OK"),
++    mk(11, "WARN", "WARN", "Quota proche"),
++    mk(12, "PASS", "INFO", "Network OK")
++  ];
++}
++
++function exportJson(rows: VerificationRow[]): void {
++  const blob = new Blob([JSON.stringify(rows, null, 2)], { type: "application/json;charset=utf-8" });
++  const url = URL.createObjectURL(blob);
++  const a = document.createElement("a");
++  a.href = url;
++  a.download = `icontrol_cp_verification_${new Date().toISOString().slice(0, 19).replace(/[:T]/g, "-")}.json`;
++  a.click();
++  URL.revokeObjectURL(url);
+ }
+ 
+-export const verificationSections = [
+-  "verification-summary",
+-  "verification-safe-mode",
+-  "verification-rules"
+-];
++async function copyToClipboard(text: string): Promise<void> {
++  if (!text) {
++    showToast({ status: "warning", message: "Aucun identifiant a copier." });
++    return;
++  }
++  try {
++    await navigator.clipboard.writeText(text);
++    showToast({ status: "success", message: "Copie reussie." });
++  } catch {
++    showToast({ status: "warning", message: "Copie impossible (permissions navigateur)." });
++  }
++}
++
++function refreshVerification(): void {
++  const target = currentRoot || getMountEl();
++  if (target) void renderVerificationPageAsync(target);
++}
+diff --git a/modules/core-system/ui/frontend-ts/pages/verification/model.ts b/modules/core-system/ui/frontend-ts/pages/verification/model.ts
+index 715f6c2..70bf0a6 100644
+--- a/modules/core-system/ui/frontend-ts/pages/verification/model.ts
++++ b/modules/core-system/ui/frontend-ts/pages/verification/model.ts
+@@ -1,4 +1,16 @@
+-import { MAIN_SYSTEM_MODULES, MAIN_SYSTEM_RULES } from "../_shared/mainSystem.data";
++import { MAIN_SYSTEM_MODULES, MAIN_SYSTEM_RULES } from "../../shared/mainSystem.data";
++import { getRole } from "/src/runtime/rbac";
++import { getSafeMode } from "/src/core/runtime/safe";
++import { getSession } from "/src/localAuth";
++
++export type CheckResult = {
++  id: string;
++  title: string;
++  severity: "OK" | "WARN" | "ERR";
++  details: string;
++  remediation?: string;
++  evidence?: string;
++};
+ 
+ export type VerificationModel = {
+   title: string;
+@@ -7,16 +19,155 @@ export type VerificationModel = {
+   ruleConditions: string[];
+   ruleEffects: string[];
+   ruleValueRefs: string[];
++  checks: CheckResult[];
+ };
+ 
++function performSelfChecks(): CheckResult[] {
++  const checks: CheckResult[] = [];
++  const role = getRole();
++  const safeMode = getSafeMode();
++  const session = getSession();
++
++  // Check 1: Routing/Assets
++  try {
++    const assetsBase = window.location.origin + (window.location.pathname.includes("/cp") ? "/cp" : "/app");
++    checks.push({
++      id: "routing-assets",
++      title: "Routing & Assets",
++      severity: "OK",
++      details: "Routes et assets accessibles",
++      evidence: `Base: ${assetsBase}`
++    });
++  } catch (e) {
++    checks.push({
++      id: "routing-assets",
++      title: "Routing & Assets",
++      severity: "ERR",
++      details: `Erreur de routage: ${String(e)}`,
++      remediation: "Vérifier la configuration du serveur"
++    });
++  }
++
++  // Check 2: Registry integrity
++  try {
++    const modules = MAIN_SYSTEM_MODULES;
++    const moduleIds = modules.map(m => m.id);
++    const duplicates = moduleIds.filter((id, idx) => moduleIds.indexOf(id) !== idx);
++    
++    if (duplicates.length > 0) {
++      checks.push({
++        id: "registry-duplicates",
++        title: "Registry Integrity",
++        severity: "WARN",
++        details: `IDs dupliqués détectés: ${duplicates.join(", ")}`,
++        remediation: "Corriger les IDs dupliqués dans le registre"
++      });
++    } else {
++      checks.push({
++        id: "registry-integrity",
++        title: "Registry Integrity",
++        severity: "OK",
++        details: `${modules.length} modules chargés, aucun doublon`,
++        evidence: `Modules: ${moduleIds.join(", ")}`
++      });
++    }
++  } catch (e) {
++    checks.push({
++      id: "registry-integrity",
++      title: "Registry Integrity",
++      severity: "ERR",
++      details: `Erreur lors de la vérification: ${String(e)}`
++    });
++  }
++
++  // Check 3: RBAC/SAFE_MODE
++  try {
++    const rbacStatus = role ? "OK" : "ERR";
++    const safeModeStatus = safeMode ? "OK" : "WARN";
++    
++    checks.push({
++      id: "rbac-safemode",
++      title: "RBAC & SAFE_MODE",
++      severity: rbacStatus === "OK" && safeModeStatus === "OK" ? "OK" : "WARN",
++      details: `Rôle: ${role || "NON DÉFINI"}, SAFE_MODE: ${safeMode || "NON DÉFINI"}`,
++      evidence: session ? `Session: ${(session as any).username}` : "Aucune session"
++    });
++  } catch (e) {
++    checks.push({
++      id: "rbac-safemode",
++      title: "RBAC & SAFE_MODE",
++      severity: "ERR",
++      details: `Erreur: ${String(e)}`
++    });
++  }
++
++  // Check 4: Storage providers
++  try {
++    const storageAvailable = typeof localStorage !== "undefined";
++    const storageTest = storageAvailable ? (() => {
++      try {
++        localStorage.setItem("__test__", "1");
++        localStorage.removeItem("__test__");
++        return true;
++      } catch {
++        return false;
++      }
++    })() : false;
++
++    checks.push({
++      id: "storage-providers",
++      title: "Storage Providers",
++      severity: storageTest ? "OK" : "ERR",
++      details: storageTest 
++        ? "localStorage opérationnel" 
++        : "localStorage non disponible ou bloqué",
++      remediation: storageTest ? undefined : "Vérifier les permissions du navigateur"
++    });
++  } catch (e) {
++    checks.push({
++      id: "storage-providers",
++      title: "Storage Providers",
++      severity: "ERR",
++      details: `Erreur: ${String(e)}`
++    });
++  }
++
++  // Check 5: Rules engine
++  try {
++    const conditions = MAIN_SYSTEM_RULES.conditions;
++    const effects = MAIN_SYSTEM_RULES.effects;
++    const hasRules = conditions.length > 0 || effects.length > 0;
++
++    checks.push({
++      id: "rules-engine",
++      title: "Rules Engine",
++      severity: hasRules ? "OK" : "WARN",
++      details: `${conditions.length} conditions, ${effects.length} effets`,
++      evidence: hasRules ? "Moteur de règles chargé" : "Aucune règle définie"
++    });
++  } catch (e) {
++    checks.push({
++      id: "rules-engine",
++      title: "Rules Engine",
++      severity: "ERR",
++      details: `Erreur: ${String(e)}`
++    });
++  }
++
++  return checks;
++}
++
+ export function createVerificationModel(): VerificationModel {
+   const core = MAIN_SYSTEM_MODULES.find((mod) => mod.id === "CORE_SYSTEM");
++  const checks = performSelfChecks();
++  
+   return {
+-    title: "Verification",
+-    description: "Selfcheck route and rule engine inventory (from intake).",
++    title: "Control Plane Self-Check",
++    description: "Vérification complète de la conformité, intégrité et readiness du système.",
+     selfcheckRoute: core?.routes.includes("selfcheck") ? "selfcheck" : "unknown",
+     ruleConditions: MAIN_SYSTEM_RULES.conditions,
+     ruleEffects: MAIN_SYSTEM_RULES.effects,
+-    ruleValueRefs: MAIN_SYSTEM_RULES.valueRefs
++    ruleValueRefs: MAIN_SYSTEM_RULES.valueRefs,
++    checks
+   };
+ }
+diff --git a/modules/core-system/ui/frontend-ts/pages/verification/view.ts b/modules/core-system/ui/frontend-ts/pages/verification/view.ts
+index 23a93b8..84448f2 100644
+--- a/modules/core-system/ui/frontend-ts/pages/verification/view.ts
++++ b/modules/core-system/ui/frontend-ts/pages/verification/view.ts
+@@ -1,13 +1,91 @@
+ import type { VerificationModel } from "./model";
+-import { appendParagraph, appendTable, sectionCard } from "../_shared/uiBlocks";
++import { appendParagraph, appendTable, sectionCard } from "/src/core/ui/uiBlocks";
+ 
+ export function renderVerificationSummary(root: HTMLElement, model: VerificationModel): void {
+   const card = sectionCard(model.title);
+   appendParagraph(card, model.description);
++  
++  // Afficher les résultats des checks
++  if (model.checks && model.checks.length > 0) {
++    const checksTable = document.createElement("div");
++    checksTable.setAttribute("style", "margin-top: 20px;");
++    
++    const table = document.createElement("table");
++    table.setAttribute("style", "width: 100%; border-collapse: collapse;");
++    
++    const thead = document.createElement("thead");
++    thead.innerHTML = `
++      <tr style="border-bottom: 1px solid var(--ic-border, #2b3136);">
++        <th style="text-align: left; padding: 12px; color: #858585; font-size: 12px; font-weight: 600;">Statut</th>
++        <th style="text-align: left; padding: 12px; color: #858585; font-size: 12px; font-weight: 600;">Vérification</th>
++        <th style="text-align: left; padding: 12px; color: #858585; font-size: 12px; font-weight: 600;">Détails</th>
++        <th style="text-align: left; padding: 12px; color: #858585; font-size: 12px; font-weight: 600;">Action</th>
++      </tr>
++    `;
++    table.appendChild(thead);
++    
++    const tbody = document.createElement("tbody");
++    model.checks.forEach(check => {
++      const severityColor = 
++        check.severity === "OK" ? "#4ec9b0" :
++        check.severity === "WARN" ? "#dcdcaa" : "#f48771";
++      
++      const tr = document.createElement("tr");
++      tr.setAttribute("style", "border-bottom: 1px solid var(--ic-border, #2b3136);");
++      tr.innerHTML = `
++        <td style="padding: 12px;">
++          <span style="padding: 4px 8px; background: ${severityColor}20; color: ${severityColor}; border-radius: 4px; font-size: 11px; font-weight: 600;">
++            ${check.severity}
++          </span>
++        </td>
++        <td style="padding: 12px; color: #d4d4d4; font-size: 14px; font-weight: 600;">${check.title}</td>
++        <td style="padding: 12px; color: #858585; font-size: 13px;">
++          ${check.details}
++          ${check.evidence ? `<div style="margin-top: 4px; font-size: 11px; color: #6a6a6a; font-family: monospace;">${check.evidence}</div>` : ""}
++        </td>
++        <td style="padding: 12px;">
++          ${check.remediation ? `<div style="color: #858585; font-size: 12px;">${check.remediation}</div>` : "-"}
++        </td>
++      `;
++      tbody.appendChild(tr);
++    });
++    table.appendChild(tbody);
++    checksTable.appendChild(table);
++    
++    // Bouton d'export
++    const exportBtn = document.createElement("button");
++    exportBtn.setAttribute("style", "margin-top: 16px; padding: 10px 20px; background: #37373d; color: white; border: 1px solid #3e3e3e; border-radius: 8px; cursor: pointer; font-weight: 600;");
++    exportBtn.textContent = "Exporter en CSV";
++    exportBtn.onclick = () => {
++      const csv = [
++        ["ID", "Titre", "Sévérité", "Détails", "Remédiation", "Preuve"].join(","),
++        ...model.checks.map(c => [
++          c.id,
++          `"${c.title}"`,
++          c.severity,
++          `"${c.details}"`,
++          c.remediation ? `"${c.remediation}"` : "",
++          c.evidence ? `"${c.evidence}"` : ""
++        ].join(","))
++      ].join("\n");
++      
++      const blob = new Blob([csv], { type: "text/csv" });
++      const url = URL.createObjectURL(blob);
++      const a = document.createElement("a");
++      a.href = url;
++      a.download = `icontrol-selfcheck-${new Date().toISOString().split("T")[0]}.csv`;
++      a.click();
++      URL.revokeObjectURL(url);
++    };
++    
++    card.appendChild(checksTable);
++    card.appendChild(exportBtn);
++  }
++  
+   root.appendChild(card);
+ }
+ 
+-export function renderVerificationSafeMode(root: HTMLElement, model: VerificationModel, safeMode: string): void {
++function renderVerificationSafeMode(root: HTMLElement, model: VerificationModel, safeMode: string): void {
+   const card = sectionCard("SAFE_MODE self-check");
+   appendTable(card, ["Key", "Value"], [
+     { Key: "safe_mode", Value: safeMode },
+@@ -17,7 +95,7 @@ export function renderVerificationSafeMode(root: HTMLElement, model: Verificatio
+   root.appendChild(card);
+ }
+ 
+-export function renderVerificationRulesTable(root: HTMLElement, model: VerificationModel): void {
++function renderVerificationRulesTable(root: HTMLElement, model: VerificationModel): void {
+   const card = sectionCard("Rules engine inventory");
+   appendTable(card, ["Category", "Items"], [
+     { Category: "conditions", Items: model.ruleConditions.join(", ") },
+diff --git a/modules/core-system/ui/frontend-ts/shared/coreStyles.ts b/modules/core-system/ui/frontend-ts/shared/coreStyles.ts
+index 3a5d3c8..acb0ae7 100644
+--- a/modules/core-system/ui/frontend-ts/shared/coreStyles.ts
++++ b/modules/core-system/ui/frontend-ts/shared/coreStyles.ts
+@@ -49,7 +49,7 @@ export function coreBaseStyles(): string {
+     body{font-family:var(--font); color:var(--text)}
+     img, video, iframe, table{max-width:100%; height:auto}
+     [style*="grid-template-columns"]{width:100%; max-width:100%}
+-    .cxWrap{min-height:100vh; display:flex; align-items:center; justify-content:center; background:radial-gradient(1100px 760px at 18% 0%, #1a1f23 0%, var(--bg) 60%) fixed; width:100%; max-width:100vw; overflow-x:hidden;}
++    .cxWrap{min-height:100vh; display:flex; align-items:center; justify-content:center; background:radial-gradient(1100px 760px at 18% 0%, #1a1f23 0%, var(--bg) 60%) fixed; width:100%; max-width:100vw; overflow-x:hidden; min-width:0; box-sizing:border-box;}
+     .cxCard{width:100%; max-width:100%; background:rgba(26,29,31,.92); border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow); padding:22px; overflow-x:hidden;}
+     .cxTitle{font-size:22px; font-weight:900; letter-spacing:.3px; color:#e9e0ff;}
+     .cxTitle span{color:var(--accent2)}

@@ -1,8 +1,8 @@
-import { safeRender } from "../_shared/mainSystem.shared";
+import { safeRender } from "/src/core/runtime/safe";
 import { getRole } from "/src/runtime/rbac";
-import { getSafeMode } from "../_shared/safeMode";
+import { getSafeMode } from "/src/core/runtime/safe";
 import { canAccess } from "../account/contract";
-import * as EntitlementsFacade from "../_shared/entitlements";
+import * as EntitlementsFacade from "../../shared/entitlements";
 
 /**
  * ICONTROL_SUBSCRIPTION_HUB_V1

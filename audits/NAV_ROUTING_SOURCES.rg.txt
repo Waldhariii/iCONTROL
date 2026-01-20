@@ -1,0 +1,96 @@
+app/src/pages/cp/system.ts:296:            onClick: () => { window.location.hash = "#/logs"; }
+app/src/pages/cp/dashboard.ts:112:          { label: "Logs", icon: "📋", onClick: () => { window.location.hash = "#/logs"; } }
+app/src/pages/cp/dashboard.ts:332:      { label: "Voir logs", onClick: () => { window.location.hash = "#/logs"; } }
+modules/core-system/ui/frontend-ts/pages/developer/entitlements.tsx:257:        { label: "Aller a Developer", onClick: () => { window.location.hash = "#/developer"; } }
+modules/core-system/ui/frontend-ts/pages/developer/entitlements.tsx:303:          { label: "Voir logs", onClick: () => { window.location.hash = "#/logs"; } }
+app/src/pages/cp/api.ts:324:            onClick: () => { window.location.hash = "#/logs"; }
+modules/core-system/ui/frontend-ts/pages/dossiers/sections/list.ts:110:        window.location.hash = `#/dossiers/${d.id}`;
+app/src/pages/cp/network.ts:285:            onClick: () => { window.location.hash = "#/logs"; }
+app/src/main.ts:6:import { createCPToolboxShell, CPNavTab, CPSidebarSection } from "./core/layout/cpToolboxShell";
+app/src/main.ts:14:import "./core/layout/cpToolboxShell.css";
+app/src/main.ts:33:import { initializeCommandPalette } from "./core/ui/commandPalette";
+app/src/main.ts:73:    const hash = window.location.hash || "";
+modules/core-system/ui/frontend-ts/pages/verification/index.ts:242:          { label: "Voir logs", onClick: () => { window.location.hash = "#/logs"; } }
+app/src/pages/cp/management.ts:81:  const hash = window.location.hash;
+app/src/pages/cp/management.ts:115:      window.location.hash = `#/management${tab.id !== "overview" ? `?tab=${tab.id}` : ""}`;
+app/src/pages/cp/management.ts:350:    const hash = window.location.hash;
+app/src/router.ts:7: * router.ts — minimal hash router with RBAC guard
+app/src/pages/cp/subscription.ts:506:  window.location.hash = `#/subscription?tab=${tab}`;
+app/src/pages/cp/subscription.ts:510:  const hash = window.location.hash || "";
+app/src/core/pageEditor/pageModificationManager.ts:279:    const pageId = window.location.hash || window.location.pathname;
+app/src/pages/cp/organization.ts:232:  const hash = window.location.hash;
+app/src/pages/cp/organization.ts:239:  const hash = window.location.hash;
+app/src/pages/cp/organization.ts:469:      window.location.hash = `#/organization?id=${org.id}`;
+app/src/pages/cp/organization.ts:493:      window.location.hash = `#/organization?id=${org.id}`;
+app/src/pages/cp/organization.ts:502:      window.location.hash = `#/organization?id=${org.id}`;
+app/src/pages/cp/organization.ts:804:  const hash = window.location.hash;
+app/src/pages/cp/organization.ts:943:        window.location.hash = `#/organization?id=${orgIdFromHash}&tab=users&userId=${user.id}`;
+app/src/pages/cp/organization.ts:1163:        window.location.hash = `#/organization?id=${orgId}&tab=users`;
+app/src/pages/cp/organization.ts:1192:    window.location.hash = `#/organization?id=${orgId}&tab=users`;
+app/src/pages/cp/organization.ts:1265:      window.location.hash = `#/organization?id=${orgId}&tab=users`;
+app/src/pages/cp/organization.ts:1287:        window.location.hash = `#/organization?id=${orgId}&tab=users`;
+app/src/pages/cp/organization.ts:1767:        window.location.hash = "#/organization";
+app/src/pages/cp/organization.ts:1809:    window.location.hash = "#/organization";
+app/src/pages/cp/organization.ts:1926:      window.location.hash = `#/organization?id=${orgId}&tab=${tab.id}`;
+modules/core-system/ui/frontend-ts/pages/developer/index.tsx:146:    actionsBody.appendChild(createActionButton("Ouvrir entitlements", false, () => { window.location.hash = "#/developer/entitlements"; }));
+modules/core-system/ui/frontend-ts/pages/developer/index.tsx:269:          { label: "Voir logs", onClick: () => { window.location.hash = "#/logs"; } }
+modules/core-system/ui/frontend-ts/pages/logs/index.ts:262:            onClick: () => { window.location.hash = "#/dashboard"; }
+app/src/core/editor/visualEditor.ts:937:  const pageId = window.location.hash || window.location.pathname;
+app/src/__tests__/router-system-logs.test.ts:8:    (globalThis as any).location = { hash: "#/system" };
+app/src/__tests__/router-system-logs.test.ts:13:    (globalThis as any).location = { hash: "#/logs" };
+app/src/__tests__/no-import-sideeffects-critical.contract.test.ts:20:// Some modules might import navigate from app/src/runtime/router.ts via relative paths.
+app/src/core/ui/toast.ts:69:          <a href="#/management" onclick="window.location.hash='#/logs'" style="color: ${colors.border}; text-decoration: none; font-size: 12px; margin-top: 8px; display: inline-block;">
+app/src/core/layout/cpToolboxShell.ts:16:import "./cpToolboxShell.css";
+app/src/core/layout/cpToolboxShell.ts:366:        <button onclick="window.location.hash='#/verification'" style="margin-top: 8px; padding: 8px 12px; background: ${statusConfig.bg}; color: ${statusConfig.color}; border: 1px solid ${statusConfig.border}; border-radius: 4px; cursor: pointer; font-size: 11px; font-weight: 600; transition: all 0.2s;" onmouseenter="this.style.background='${statusConfig.hoverBg}';this.style.transform='scale(1.02)'" onmouseleave="this.style.background='${statusConfig.bg}';this.style.transform=''">
+app/src/core/layout/cpToolboxShell.ts:397:    { id: "dashboard", label: "Dashboard", hash: "#/dashboard" },
+app/src/core/layout/cpToolboxShell.ts:398:    { id: "users", label: "Utilisateurs", hash: "#/users" },
+app/src/core/layout/cpToolboxShell.ts:399:    { id: "management", label: "Management", hash: "#/management" },
+app/src/core/layout/cpToolboxShell.ts:400:    { id: "system", label: "Système", hash: "#/system" },
+app/src/core/layout/cpToolboxShell.ts:401:    { id: "subscription", label: "Abonnement", hash: "#/subscription" },
+app/src/core/layout/cpToolboxShell.ts:402:    { id: "organization", label: "Organisation", hash: "#/organization" },
+app/src/core/layout/cpToolboxShell.ts:405:  const currentHash = window.location.hash || "#/dashboard";
+app/src/core/layout/cpToolboxShell.ts:540:    window.location.hash = "#/login";
+app/src/core/ui/pageState.ts:115:        <button onclick="window.location.hash='#/management'" style="padding: 10px 20px; background: transparent; color: #858585; border: 1px solid #3e3e3e; border-radius: 8px; cursor: pointer;">
+app/src/core/errors/errorBoundary.ts:204:  homeBtn.onclick = () => { window.location.hash = "#/dashboard"; };
+app/src/__tests__/app-cp-guard.cp-blocks-app.contract.test.ts:13:      hash: "#/app/dashboard",
+app/src/__tests__/cp-login.session-scope.contract.test.ts:20:      hash: "#/login",
+app/src/core/ui/commandPalette.ts:269:const commandPalette = new CommandPalette();
+app/src/core/ui/commandPalette.ts:279:      commandPalette.open();
+app/src/core/ui/commandPalette.ts:293:        window.location.hash = "#/dashboard";
+app/src/core/ui/commandPalette.ts:304:        window.location.hash = "#/users";
+app/src/core/ui/commandPalette.ts:315:        window.location.hash = "#/organization";
+app/src/core/ui/commandPalette.ts:326:        window.location.hash = "#/developer";
+app/src/core/ui/commandPalette.ts:337:        window.location.hash = "#/developer/entitlements";
+app/src/core/ui/commandPalette.ts:349:        window.location.hash = "#/system";
+app/src/core/ui/commandPalette.ts:360:        window.location.hash = "#/subscription";
+app/src/core/ui/commandPalette.ts:371:        window.location.hash = "#/api";
+app/src/core/ui/commandPalette.ts:382:        window.location.hash = "#/network";
+app/src/core/ui/commandPalette.ts:393:        window.location.hash = "#/logs";
+app/src/core/ui/commandPalette.ts:404:        window.location.hash = "#/settings";
+app/src/core/ui/commandPalette.ts:415:        window.location.hash = "#/verification";
+app/src/core/ui/commandPalette.ts:421:  defaultCommands.forEach(cmd => commandPalette.register(cmd));
+app/src/core/ui/commandPalette.ts:425:  commandPalette.register(command);
+app/src/core/ui/commandPalette.ts:429:  commandPalette.unregister(id);
+app/src/__tests__/app-login.session-scope.contract.test.ts:20:      hash: "#/login",
+app/src/moduleLoader.ts:47:    if ((rid as any) === "runtime_smoke") {
+app/src/moduleLoader.ts:64:    if ((rid as any) === "users") {
+app/src/moduleLoader.ts:77:    if ((rid as any) === "account") {
+app/src/moduleLoader.ts:91:    if ((rid as any) === "dossiers") {
+app/src/moduleLoader.ts:109:    if ((rid as any) === "developer") {
+app/src/moduleLoader.ts:127:    if ((rid as any) === "developer_entitlements") {
+app/src/moduleLoader.ts:145:    if ((rid as any) === "access_denied") {
+app/src/moduleLoader.ts:169:    if ((rid as any) === "verification") {
+app/src/moduleLoader.ts:187:    if ((rid as any) === "system") {
+app/src/moduleLoader.ts:196:    if ((rid as any) === "logs") {
+app/src/moduleLoader.ts:214:    if ((rid as any) === "api") {
+app/src/moduleLoader.ts:224:    if ((rid as any) === "network") {
+app/src/__tests__/router-dossiers.test.ts:6:    (globalThis as any).location = { hash: "#/dossiers" };
+app/src/__tests__/toolbox.test.ts:39:    window.location.hash = "#/toolbox";
+app/src/__tests__/login-entrypoint.ssot.contract.test.ts:42:    const ml = read("src/moduleLoader.ts");
+app/src/__tests__/no-direct-location-hash.contract.test.ts:13:      "app/src/runtime/router.ts",
+app/src/__tests__/no-direct-location-hash.contract.test.ts:14:      "app/src/router.ts",
+app/src/__tests__/no-direct-location-hash.contract.test.ts:25:      if (src.includes("location.hash =") || src.includes("window.location.hash =")) {
+app/src/__tests__/app-cp-guard.app-blocks-cp.contract.test.ts:13:      hash: "#/cp/system",
+app/src/__tests__/safe-mode.enforcement-wiring.contract.test.ts:19:  router.register(ds);
+app/src/__tests__/safe-mode.enforcement-wiring.contract.test.ts:28:    expect(() => router.write("mem", "k1", "v1")).toThrowError(
+app/src/__tests__/safe-mode.enforcement-wiring.contract.test.ts:36:    expect(() => router.write("mem", "k1", "v1")).not.toThrow();

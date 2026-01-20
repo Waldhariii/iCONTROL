@@ -1,0 +1,44 @@
+{
+  "id": "scan-manager",
+  "name": "Scan Manager",
+  "type": "complementary",
+  "version": "0.1.0",
+  "description": "Système de gestion de scan avec socle 100% gratuit + modules premium optionnels",
+  "routes": [
+    { "id": "scan_inbox", "path": "/scan/inbox", "roles": ["ADMIN","SYSADMIN","DEVELOPER","USER"] },
+    { "id": "scan_triage", "path": "/scan/triage", "roles": ["ADMIN","SYSADMIN","DEVELOPER","USER"] },
+    { "id": "scan_destinations", "path": "/scan/destinations", "roles": ["ADMIN","SYSADMIN","DEVELOPER"] }
+  ],
+  "permissions": ["rbac:scan", "scan:ingest", "scan:route", "scan:export"],
+  "storageScopes": ["scan:*"],
+  "capabilities": {
+    "free": [
+      "scan.ingest.mobile",
+      "scan.ingest.upload",
+      "scan.ingest.folder_watch",
+      "scan.inbox.triage_manual",
+      "scan.route.static_rules",
+      "scan.store.vfs",
+      "scan.export.local_download",
+      "scan.audit.basic"
+    ],
+    "premium": [
+      "scan.ocr.cloud",
+      "scan.classify.ai",
+      "scan.route.ai",
+      "scan.split.auto",
+      "scan.connectors.onedrive",
+      "scan.connectors.gdrive",
+      "scan.connectors.sharepoint",
+      "scan.desktop_connector.twain_wia",
+      "scan.audit.compliance"
+    ]
+  },
+  "endpoints": [
+    "/api/scan/ingest",
+    "/api/scan/inbox",
+    "/api/scan/triage",
+    "/api/scan/destinations"
+  ],
+  "flags": ["SCAN_ENABLED", "SCAN_OCR_ENABLED", "SCAN_AI_ENABLED"]
+}

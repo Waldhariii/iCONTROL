@@ -1,0 +1,329 @@
+[
+  {
+    "file": "app/src/pages/cp/account.ts",
+    "type": "PAGE_TO_PAGE_IMPORT",
+    "spec": "../../../../modules/core-system/ui/frontend-ts/pages/_shared/mainSystem.shared"
+  },
+  {
+    "file": "app/src/pages/cp/account.ts",
+    "type": "PAGE_TO_PAGE_IMPORT",
+    "spec": "../../../../modules/core-system/ui/frontend-ts/pages/_shared/audit"
+  },
+  {
+    "file": "app/src/pages/cp/account.ts",
+    "type": "PAGE_TO_PAGE_IMPORT",
+    "spec": "../../../../modules/core-system/ui/frontend-ts/pages/_shared/obsCodes"
+  },
+  {
+    "file": "app/src/pages/cp/account.ts",
+    "type": "PAGE_TO_PAGE_IMPORT",
+    "spec": "../../../../modules/core-system/ui/frontend-ts/pages/_shared/safeMode"
+  },
+  {
+    "file": "app/src/pages/cp/account.ts",
+    "type": "PAGE_TO_PAGE_IMPORT",
+    "spec": "../../../../modules/core-system/ui/frontend-ts/pages/_shared/renderAccessDenied"
+  },
+  {
+    "file": "app/src/pages/cp/management.ts",
+    "type": "PAGE_TO_PAGE_IMPORT",
+    "spec": "../../../../modules/core-system/ui/frontend-ts/pages/_shared/safeMode"
+  },
+  {
+    "file": "app/src/pages/cp/management.ts",
+    "type": "PAGE_TO_PAGE_IMPORT",
+    "spec": "../../../../modules/core-system/ui/frontend-ts/pages/developer/index"
+  },
+  {
+    "file": "app/src/pages/cp/network.ts",
+    "type": "PAGE_TO_PAGE_IMPORT",
+    "spec": "../../../../modules/core-system/ui/frontend-ts/pages/_shared/mainSystem.shared"
+  },
+  {
+    "file": "app/src/pages/cp/network.ts",
+    "type": "PAGE_TO_PAGE_IMPORT",
+    "spec": "../../../../modules/core-system/ui/frontend-ts/pages/_shared/audit"
+  },
+  {
+    "file": "app/src/pages/cp/network.ts",
+    "type": "PAGE_TO_PAGE_IMPORT",
+    "spec": "../../../../modules/core-system/ui/frontend-ts/pages/_shared/obsCodes"
+  },
+  {
+    "file": "app/src/pages/cp/network.ts",
+    "type": "PAGE_TO_PAGE_IMPORT",
+    "spec": "../../../../modules/core-system/ui/frontend-ts/pages/_shared/safeMode"
+  },
+  {
+    "file": "app/src/pages/cp/network.ts",
+    "type": "PAGE_TO_PAGE_IMPORT",
+    "spec": "../../../../modules/core-system/ui/frontend-ts/pages/_shared/renderAccessDenied"
+  },
+  {
+    "file": "app/src/pages/cp/api.ts",
+    "type": "PAGE_TO_PAGE_IMPORT",
+    "spec": "../../../../modules/core-system/ui/frontend-ts/pages/_shared/mainSystem.shared"
+  },
+  {
+    "file": "app/src/pages/cp/api.ts",
+    "type": "PAGE_TO_PAGE_IMPORT",
+    "spec": "../../../../modules/core-system/ui/frontend-ts/pages/_shared/audit"
+  },
+  {
+    "file": "app/src/pages/cp/api.ts",
+    "type": "PAGE_TO_PAGE_IMPORT",
+    "spec": "../../../../modules/core-system/ui/frontend-ts/pages/_shared/obsCodes"
+  },
+  {
+    "file": "app/src/pages/cp/api.ts",
+    "type": "PAGE_TO_PAGE_IMPORT",
+    "spec": "../../../../modules/core-system/ui/frontend-ts/pages/_shared/safeMode"
+  },
+  {
+    "file": "app/src/pages/cp/api.ts",
+    "type": "PAGE_TO_PAGE_IMPORT",
+    "spec": "../../../../modules/core-system/ui/frontend-ts/pages/_shared/renderAccessDenied"
+  },
+  {
+    "file": "app/src/pages/cp/dashboard.ts",
+    "type": "POTENTIAL_RECURSION",
+    "fn": "renderDashboard"
+  },
+  {
+    "file": "app/src/pages/cp/dashboard.ts",
+    "type": "PAGE_TO_PAGE_IMPORT",
+    "spec": "../../../../modules/core-system/ui/frontend-ts/pages/_shared/mainSystem.shared"
+  },
+  {
+    "file": "app/src/pages/cp/dashboard.ts",
+    "type": "PAGE_TO_PAGE_IMPORT",
+    "spec": "../../../../modules/core-system/ui/frontend-ts/pages/_shared/safeMode"
+  },
+  {
+    "file": "app/src/pages/cp/twoFactor.ts",
+    "type": "PAGE_TO_PAGE_IMPORT",
+    "spec": "../../../../modules/core-system/ui/frontend-ts/pages/_shared/safeMode"
+  },
+  {
+    "file": "app/src/pages/cp/organization.ts",
+    "type": "PAGE_TO_PAGE_IMPORT",
+    "spec": "../../../../modules/core-system/ui/frontend-ts/pages/_shared/safeMode"
+  },
+  {
+    "file": "app/src/pages/cp/users.ts",
+    "type": "PAGE_TO_PAGE_IMPORT",
+    "spec": "../../../../modules/core-system/ui/frontend-ts/pages/_shared/safeMode"
+  },
+  {
+    "file": "app/src/pages/cp/users.ts",
+    "type": "PAGE_TO_PAGE_IMPORT",
+    "spec": "../../../../modules/core-system/ui/frontend-ts/pages/_shared/mainSystem.shared"
+  },
+  {
+    "file": "app/src/pages/cp/users.ts",
+    "type": "PAGE_TO_PAGE_IMPORT",
+    "spec": "../../../../modules/core-system/ui/frontend-ts/pages/users/contract"
+  },
+  {
+    "file": "app/src/pages/cp/subscription.ts",
+    "type": "PAGE_TO_PAGE_IMPORT",
+    "spec": "../../../../modules/core-system/ui/frontend-ts/pages/_shared/safeMode"
+  },
+  {
+    "file": "app/src/pages/cp/backup.ts",
+    "type": "PAGE_TO_PAGE_IMPORT",
+    "spec": "../../../../modules/core-system/ui/frontend-ts/pages/_shared/safeMode"
+  },
+  {
+    "file": "app/src/pages/cp/system.ts",
+    "type": "PAGE_TO_PAGE_IMPORT",
+    "spec": "../../../../modules/core-system/ui/frontend-ts/pages/_shared/mainSystem.shared"
+  },
+  {
+    "file": "app/src/pages/cp/system.ts",
+    "type": "PAGE_TO_PAGE_IMPORT",
+    "spec": "../../../../modules/core-system/ui/frontend-ts/pages/_shared/audit"
+  },
+  {
+    "file": "app/src/pages/cp/system.ts",
+    "type": "PAGE_TO_PAGE_IMPORT",
+    "spec": "../../../../modules/core-system/ui/frontend-ts/pages/_shared/obsCodes"
+  },
+  {
+    "file": "app/src/pages/cp/system.ts",
+    "type": "PAGE_TO_PAGE_IMPORT",
+    "spec": "../../../../modules/core-system/ui/frontend-ts/pages/_shared/safeMode"
+  },
+  {
+    "file": "app/src/pages/cp/system.ts",
+    "type": "PAGE_TO_PAGE_IMPORT",
+    "spec": "../../../../modules/core-system/ui/frontend-ts/pages/_shared/renderAccessDenied"
+  },
+  {
+    "file": "app/src/pages/cp/system.ts",
+    "type": "PAGE_TO_PAGE_IMPORT",
+    "spec": "../../../../modules/core-system/ui/frontend-ts/pages/system/contract"
+  },
+  {
+    "file": "app/src/pages/cp/sessions.ts",
+    "type": "PAGE_TO_PAGE_IMPORT",
+    "spec": "../../../../modules/core-system/ui/frontend-ts/pages/_shared/safeMode"
+  },
+  {
+    "file": "app/src/pages/cp/views/account.ts",
+    "type": "MULTI_PUBLIC_ENTRYPOINTS",
+    "exports": [
+      "renderAccountSummaryCp",
+      "renderAccountSettingsKeysCp",
+      "renderAccountStorageAllowCp",
+      "renderAccountStorageUsageCp"
+    ]
+  },
+  {
+    "file": "app/src/pages/cp/views/account.ts",
+    "type": "PAGE_TO_PAGE_IMPORT",
+    "spec": "../../../../../modules/core-system/ui/frontend-ts/pages/_shared/uiBlocks"
+  },
+  {
+    "file": "app/src/pages/cp/views/users.ts",
+    "type": "MULTI_PUBLIC_ENTRYPOINTS",
+    "exports": [
+      "renderUsersOverviewCp",
+      "renderUsersListCp",
+      "renderUsersRolesCp",
+      "renderUsersPermissionsCp",
+      "renderUsersMenuAccessCp"
+    ]
+  },
+  {
+    "file": "app/src/pages/cp/views/users.ts",
+    "type": "PAGE_TO_PAGE_IMPORT",
+    "spec": "../../../../../modules/core-system/ui/frontend-ts/pages/_shared/uiBlocks"
+  },
+  {
+    "file": "app/src/pages/cp/views/users.ts",
+    "type": "PAGE_TO_PAGE_IMPORT",
+    "spec": "../../../../../modules/core-system/ui/frontend-ts/pages/_shared/safeMode"
+  },
+  {
+    "file": "app/src/pages/cp/views/system.ts",
+    "type": "MULTI_PUBLIC_ENTRYPOINTS",
+    "exports": [
+      "renderSystemSafeModeCp",
+      "renderSystemFlagsCp",
+      "renderSystemLayoutCp",
+      "renderSystemCacheAuditCp",
+      "renderSystemFlagsActionsCp",
+      "renderSystemSafeModeActionsCp"
+    ]
+  },
+  {
+    "file": "app/src/pages/cp/views/system.ts",
+    "type": "PAGE_TO_PAGE_IMPORT",
+    "spec": "../../../../../modules/core-system/ui/frontend-ts/pages/_shared/uiBlocks"
+  },
+  {
+    "file": "app/src/pages/cp/views/system.ts",
+    "type": "PAGE_TO_PAGE_IMPORT",
+    "spec": "../../../../../modules/core-system/ui/frontend-ts/pages/_shared/safeMode"
+  },
+  {
+    "file": "app/src/pages/cp/views/system.ts",
+    "type": "PAGE_TO_PAGE_IMPORT",
+    "spec": "../../../../../modules/core-system/ui/frontend-ts/pages/_shared/audit"
+  },
+  {
+    "file": "app/src/pages/cp/views/system.ts",
+    "type": "PAGE_TO_PAGE_IMPORT",
+    "spec": "../../../../../modules/core-system/ui/frontend-ts/pages/_shared/obsCodes"
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/developer/index.tsx",
+    "type": "MULTI_PUBLIC_ENTRYPOINTS",
+    "exports": [
+      "renderDeveloper",
+      "renderDeveloperPage"
+    ]
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/developer/index.tsx",
+    "type": "POTENTIAL_RECURSION",
+    "fn": "renderDeveloper"
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/developer/entitlements.tsx",
+    "type": "MULTI_PUBLIC_ENTRYPOINTS",
+    "exports": [
+      "renderDeveloperEntitlements",
+      "renderDeveloperEntitlementsPage"
+    ]
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/developer/entitlements.tsx",
+    "type": "POTENTIAL_RECURSION",
+    "fn": "renderDeveloperEntitlements"
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/developer/view.ts",
+    "type": "MULTI_PUBLIC_ENTRYPOINTS",
+    "exports": [
+      "renderDeveloperOverview",
+      "renderDeveloperToolbox",
+      "renderDeveloperTableContract",
+      "renderDeveloperFormContract",
+      "renderDeveloperDatasources"
+    ]
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/verification/view.ts",
+    "type": "MULTI_PUBLIC_ENTRYPOINTS",
+    "exports": [
+      "renderVerificationSummary",
+      "renderVerificationSafeMode",
+      "renderVerificationRulesTable"
+    ]
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/verification/index.ts",
+    "type": "MULTI_PUBLIC_ENTRYPOINTS",
+    "exports": [
+      "renderVerification",
+      "renderVerificationPage"
+    ]
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/verification/index.ts",
+    "type": "POTENTIAL_RECURSION",
+    "fn": "renderVerification"
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/system/index.ts",
+    "type": "POTENTIAL_RECURSION",
+    "fn": "renderSystemPage"
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/users/view.ts",
+    "type": "MULTI_PUBLIC_ENTRYPOINTS",
+    "exports": [
+      "renderUsersOverview",
+      "renderUsersRoles",
+      "renderUsersPermissions",
+      "renderUsersMenuAccess"
+    ]
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/dossiers/index.ts",
+    "type": "POTENTIAL_RECURSION",
+    "fn": "renderDossiersPage"
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/account/view.ts",
+    "type": "MULTI_PUBLIC_ENTRYPOINTS",
+    "exports": [
+      "renderAccountSummary",
+      "renderAccountSettingsKeys",
+      "renderAccountStorageAllow",
+      "renderAccountStorageUsage"
+    ]
+  }
+]

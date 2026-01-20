@@ -1,8 +1,8 @@
 import type { Role } from "/src/runtime/rbac";
-import { sectionCard } from "../../_shared/uiBlocks";
-import { getSafeMode } from "../../_shared/safeMode";
-import { MAIN_SYSTEM_THEME } from "../../_shared/mainSystem.data";
-import { isWriteAllowed } from "../../_shared/rolePolicy";
+import { sectionCard } from "../../../shared/uiBlocks";
+import { getSafeMode } from "/src/core/runtime/safe";
+import { MAIN_SYSTEM_THEME } from "../../../shared/mainSystem.data";
+import { isWriteAllowed } from "../../../shared/rolePolicy";
 import { createDossier } from "../model";
 import { canWrite } from "../contract";
 

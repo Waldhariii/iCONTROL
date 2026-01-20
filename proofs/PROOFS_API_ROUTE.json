@@ -1,0 +1,13 @@
+{
+  "page": "api",
+  "hash": "#/api",
+  "api_file": "./app/src/pages/cp/api.ts",
+  "module_loader_file": "./app/src/moduleLoader.ts",
+  "cp_shell_file": "./app/src/core/ui/commandPalette.ts",
+  "anchors": {
+    "api_version": "ICONTROL_CP_API_V2",
+    "api_export": "export function renderApiPage(",
+    "dispatch_rid": "if ((rid as any) === \"api\")",
+    "cp_nav_hash": "hash: \"#/api\""
+  }
+}

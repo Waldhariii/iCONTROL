@@ -1,7 +1,8 @@
 import { getRole } from "/src/runtime/rbac";
-import { getSafeMode } from "../_shared/safeMode";
-import { renderAccessDenied, safeRender } from "../_shared/mainSystem.shared";
-import { mountSections, type SectionSpec } from "../_shared/sections";
+import { getSafeMode } from "/src/core/runtime/safe";
+import { safeRender } from "/src/core/runtime/safe";
+import { renderAccessDenied } from "/src/core/runtime/accessDenied";
+import { mountSections, type SectionSpec } from "../../shared/sections";
 import { canAccess } from "./contract";
 import { createUsersModel } from "./model";
 import {
@@ -10,7 +11,7 @@ import {
   renderUsersPermissions,
   renderUsersRoles
 } from "./view";
-import * as EntitlementsFacade from "../_shared/entitlements";
+import * as EntitlementsFacade from "../../shared/entitlements";
 
 export function renderUsers(root: HTMLElement): void {
   // ICONTROL_ENTITLEMENTS_WIRING_USERS_V1

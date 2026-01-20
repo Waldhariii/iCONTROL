@@ -1,8 +1,9 @@
 import { getRole, canAccessToolbox } from "/src/runtime/rbac";
-import { getSafeMode } from "./_shared/safeMode";
+import { getSafeMode } from "/src/core/runtime/safe";
 import { getSession } from "/src/localAuth";
-import { renderAccessDenied, safeRender } from "./_shared/mainSystem.shared";
-import { mountSections, type SectionSpec } from "./_shared/sections";
+import { safeRender } from "/src/core/runtime/safe";
+import { renderAccessDenied } from "/src/core/runtime/accessDenied";
+import { mountSections, type SectionSpec } from "./shared/sections";
 import type { ToolboxCtx } from "./toolbox/contracts";
 import { TOOLBOX_SECTIONS } from "./toolbox/sections";
 

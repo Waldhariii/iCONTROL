@@ -4,7 +4,7 @@
  * Complètement indépendant de APP
  */
 import type { UsersModelCp } from "../models/users";
-import { appendList, appendTable, sectionCard } from "../../../../../modules/core-system/ui/frontend-ts/pages/_shared/uiBlocks";
+import { appendList, appendTable, sectionCard } from "/src/core/ui/uiBlocks";
 import { getUserPermissions, setUserPermissions, canManagePermissions, type PageId } from "../../../core/permissions/userPermissions";
 import { requireSession } from "../../../localAuth";
 import { getRole } from "../../../runtime/rbac";
@@ -15,7 +15,7 @@ import { addTooltipToElement } from "../../../core/ui/tooltip";
 import { createToolbar } from "../../../core/ui/toolbar";
 import { createContextualEmptyState } from "../../../core/ui/emptyState";
 import { createRoleBadge } from "../../../core/ui/badge";
-import { getSafeMode } from "../../../../../modules/core-system/ui/frontend-ts/pages/_shared/safeMode";
+import { getSafeMode } from "/src/core/runtime/safe";
 
 // Type pour un utilisateur système
 type SystemUser = {
@@ -74,7 +74,7 @@ function deleteSystemUser(userId: string): void {
   saveSystemUsers(filtered);
 }
 
-export function renderUsersOverviewCp(root: HTMLElement, model: UsersModelCp): void {
+function renderUsersOverviewCp(root: HTMLElement, model: UsersModelCp): void {
   const card = sectionCard(model.title);
   appendList(card, [
     "Gestion complète des utilisateurs du système.",
@@ -128,6 +128,8 @@ export function renderUsersListCp(root: HTMLElement, model: UsersModelCp): void 
       sortable: true,
       render: (value, row) => {
         const div = document.createElement("div");
+  div.style.minWidth = "0";
+  div.style.boxSizing = "border-box";
         div.style.cssText = "display: flex; align-items: center; gap: 8px;";
         const name = document.createElement("span");
         name.style.cssText = "font-weight: 600; color: var(--ic-text, #e7ecef);";
@@ -429,7 +431,7 @@ export function renderUsersListCp(root: HTMLElement, model: UsersModelCp): void 
   };
 }
 
-export function renderUsersRolesCp(root: HTMLElement, model: UsersModelCp): void {
+function renderUsersRolesCp(root: HTMLElement, model: UsersModelCp): void {
   const card = sectionCard("Roles catalog - Administration");
   appendTable(
     card,
@@ -439,7 +441,7 @@ export function renderUsersRolesCp(root: HTMLElement, model: UsersModelCp): void
   root.appendChild(card);
 }
 
-export function renderUsersPermissionsCp(root: HTMLElement, model: UsersModelCp): void {
+function renderUsersPermissionsCp(root: HTMLElement, model: UsersModelCp): void {
   const card = sectionCard("Role permissions - Administration");
   appendTable(
     card,
@@ -453,7 +455,7 @@ export function renderUsersPermissionsCp(root: HTMLElement, model: UsersModelCp)
   root.appendChild(card);
 }
 
-export function renderUsersMenuAccessCp(root: HTMLElement, model: UsersModelCp): void {
+function renderUsersMenuAccessCp(root: HTMLElement, model: UsersModelCp): void {
   const card = sectionCard("Menu access - Administration (roles)");
   appendTable(
     card,

@@ -12,6 +12,8 @@ export interface ErrorStateOptions {
 
 export function createErrorState(options: ErrorStateOptions): HTMLElement {
   const container = document.createElement("div");
+  container.style.minWidth = "0";
+  container.style.boxSizing = "border-box";
   container.style.cssText = `
     padding: 24px;
     border: 1px solid rgba(244,135,113,0.4);

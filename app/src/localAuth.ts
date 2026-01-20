@@ -1,10 +1,14 @@
 import { navigate } from "./runtime/navigate";
+import { checkRateLimit, recordFailedAttempt, resetRateLimit } from "./core/security/rateLimiter";
+import { sessionManager } from "./core/session/sessionManager";
+import { isSecureUser, verifySecureUserPassword, getSecureUserData, updateSecureUserData } from "./core/security/userData";
 /**
  * localAuth.ts — bootstrap auth for dev/local use
  * - No network
  * - Minimal surface: getSession / setSession / clearSession / isLoggedIn
+ * - ICONTROL_SECURE_AUTH_V1: Intégration de la sécurité renforcée pour utilisateurs critiques
  */
-export type Role = "USER" | "ADMIN" | "SYSADMIN" | "DEVELOPER";
+export type Role = "USER" | "ADMIN" | "SYSADMIN" | "DEVELOPER" | "MASTER";
 
 export type Session = {
   username: string;
@@ -124,38 +128,195 @@ export function isLoggedIn(scope: AuthScope = resolveAuthScope()): boolean {
 /**
  * Local bootstrap users (temporary).
  * Replace later with platform-services/security/auth.
+ * ICONTROL_USERS_V1: Utilisateurs système
+ * - Administration (CP): Master, Developpeur, WaldHari (sécurisé)
+ * - Client (APP): SYSAdmin, Admin, Utilisateur
+ * 
+ * NOTE: Les utilisateurs critiques (WaldHari, Master) utilisent le système de hachage sécurisé
+ * et sont gérés via userData.ts. Les autres utilisateurs utilisent des mots de passe simples
+ * pour le développement.
  */
 const BOOTSTRAP_USERS: Record<string, { password: string; role: Role }> = {
-  sysadmin: { password: "sysadmin", role: "SYSADMIN" },
-  developer: { password: "developer", role: "DEVELOPER" },
-  admin: { password: "admin", role: "ADMIN" },
-  Waldhari: { password: "Dany123456@", role: "DEVELOPER" },
+  // Utilisateurs Administration (CP)
+  Master: { password: "1234", role: "MASTER" },
+  Developpeur: { password: "1234", role: "DEVELOPER" },
+  // WaldHari est géré via userData.ts avec sécurité renforcée
+  // Utilisateurs Client (APP)
+  SYSAdmin: { password: "1234", role: "SYSADMIN" },
+  Admin: { password: "1234", role: "ADMIN" },
+  Utilisateur: { password: "1234", role: "USER" },
 };
 
-export function authenticate(
+// ICONTROL_USER_INDEX_V1: Index optimisé pour recherche rapide (insensible à la casse)
+// Inclut les utilisateurs sécurisés (WaldHari, etc.)
+const USER_INDEX: Map<string, string> = (() => {
+  const index = new Map<string, string>();
+  for (const key of Object.keys(BOOTSTRAP_USERS)) {
+    index.set(key.toLowerCase(), key);
+  }
+  // Ajouter les utilisateurs sécurisés
+  if (isSecureUser("WaldHari")) {
+    index.set("waldhari", "WaldHari");
+  }
+  return index;
+})();
+
+/**
+ * Vérifie si on est en mode développement
+ */
+function isDevMode(): boolean {
+  try {
+    if (typeof import.meta !== "undefined" && (import.meta as any).env?.DEV) {
+      return true;
+    }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    if (typeof (globalThis as any).process !== "undefined" && (globalThis as any).process?.env?.NODE_ENV !== "production") {
+      return true;
+    }
+    return false;
+  } catch {
+    return false;
+  }
+}
+
+export async function authenticate(
   username: string,
   password: string,
   scope: AuthScope = resolveAuthScope(),
-): { ok: true; session: Session } | { ok: false; error: string } {
+): Promise<{ ok: true; session: Session } | { ok: false; error: string }> {
   const u = (username || "").trim();
-  const p = (password || "").toString();
+  const p = (password || "").toString().trim();
   if (!u || !p) return { ok: false, error: "Identifiants requis." };
 
-  const hit = BOOTSTRAP_USERS[u];
-  if (!hit || hit.password !== p)
-    return { ok: false, error: "Identifiant invalide." };
+  // ICONTROL_RATE_LIMITING_V1: Vérifier le rate limiting avant l'authentification
+  const rateLimitCheck = checkRateLimit(u);
+  if (!rateLimitCheck.allowed) {
+    return { ok: false, error: rateLimitCheck.error || "Trop de tentatives. Veuillez réessayer plus tard." };
+  }
 
+  // ICONTROL_CASE_INSENSITIVE_USERNAME_V1: Username insensible à la casse
+  // ICONTROL_USER_INDEX_V1: Utiliser l'index pour recherche O(1) au lieu de O(n)
+  const uLower = u.toLowerCase();
+  const matchingKey = USER_INDEX.get(uLower);
+  
+  if (!matchingKey) {
+    // ICONTROL_SECURE_ERROR_MESSAGE_V1: Message d'erreur générique en production
+    const devMode = isDevMode();
+    const errorMsg = devMode
+      ? `Identifiant invalide. Utilisateurs disponibles: ${Array.from(USER_INDEX.values()).join(", ")}`
+      : "Identifiant ou mot de passe incorrect.";
+    recordFailedAttempt(u); // Enregistrer la tentative échouée
+    return { ok: false, error: errorMsg };
+  }
+
+  // ICONTROL_SECURE_USER_AUTH_V1: Vérification pour utilisateurs sécurisés (WaldHari, etc.)
+  if (isSecureUser(matchingKey)) {
+    const isValid = await verifySecureUserPassword(matchingKey, p);
+    if (!isValid) {
+      recordFailedAttempt(matchingKey);
+      const userData = getSecureUserData(matchingKey);
+      if (userData) {
+        userData.failedLoginAttempts += 1;
+        updateSecureUserData(matchingKey, userData);
+      }
+      return { ok: false, error: "Identifiant ou mot de passe incorrect." };
+    }
+
+    // Connexion réussie pour utilisateur sécurisé
+    resetRateLimit(matchingKey);
+    const userData = getSecureUserData(matchingKey);
+    if (userData) {
+      userData.failedLoginAttempts = 0;
+      userData.lastLogin = new Date().toISOString();
+      updateSecureUserData(matchingKey, userData);
+    }
+
+    // ICONTROL_CP_RESTRICTED_ROLES_V1: Vérifier l'accès CP
+    if (scope === "CP") {
+      const cpAllowedUsers = ["Master", "Developpeur", "WaldHari"];
+      if (!cpAllowedUsers.includes(matchingKey)) {
+        return { ok: false, error: "Seuls les rôles Master et Developpeur peuvent accéder à l'administration." };
+      }
+    }
+
+    const session: Session = {
+      username: matchingKey,
+      role: userData?.role || "MASTER",
+      issuedAt: Date.now(),
+    };
+    setSession(session, scope);
+    // Créer une session active pour le session manager
+    sessionManager.createSession(matchingKey, {
+      ip: (window as any).clientIP || "unknown",
+      userAgent: navigator.userAgent
+    });
+    return { ok: true, session };
+  }
+
+  // Authentification pour utilisateurs bootstrap (non sécurisés)
+  const hit = BOOTSTRAP_USERS[matchingKey];
+  if (!hit) {
+    recordFailedAttempt(matchingKey);
+    return { ok: false, error: "Erreur: utilisateur trouvé mais données manquantes." };
+  }
+  
+  if (hit.password !== p) {
+    recordFailedAttempt(matchingKey);
+    // ICONTROL_SECURE_ERROR_MESSAGE_V1: Message générique même en dev pour mot de passe
+    return { ok: false, error: "Identifiant ou mot de passe incorrect." };
+  }
+
+  // Connexion réussie pour utilisateur bootstrap
+  resetRateLimit(matchingKey);
+
+  // ICONTROL_CP_RESTRICTED_ROLES_V1: Restriction CP aux rôles Master, Developpeur et WaldHari
+  if (scope === "CP") {
+    const cpAllowedUsers = ["Master", "Developpeur", "WaldHari"];
+    if (!cpAllowedUsers.includes(matchingKey)) {
+      return { ok: false, error: "Seuls les rôles Master et Developpeur peuvent accéder à l'administration." };
+    }
+  }
+
+  // ICONTROL_MASTER_ROLE_MAPPING_V1: Mapper MASTER à SYSADMIN pour compatibilité interne
+  // mais garder la trace que c'est Master via le username
+  let sessionRole: Role = hit.role;
+  if (matchingKey === "Master" && hit.role === "MASTER") {
+    sessionRole = "SYSADMIN" as Role; // Mapper à SYSADMIN pour compatibilité
+  }
+  
+  // ICONTROL_MASTER_ROLE_V1: Master garde son rôle MASTER dans la session
+  // mais on le mappe à SYSADMIN pour compatibilité avec le système existant
+  let finalRole: Role = sessionRole;
+  if (matchingKey === "Master" && hit.role === "MASTER") {
+    // Garder MASTER dans la session pour identification, mais utiliser SYSADMIN pour compatibilité
+    finalRole = "SYSADMIN" as Role;
+  }
+  
+  // Utiliser le username original (avec la casse de la base de données)
   const session: Session = {
-    username: u,
-    role: hit.role,
+    username: matchingKey,
+    role: finalRole,
     issuedAt: Date.now(),
   };
   setSession(session, scope);
+  // Créer une session active pour le session manager
+  sessionManager.createSession(matchingKey, {
+    ip: (window as any).clientIP || "unknown",
+    userAgent: navigator.userAgent
+  });
   return { ok: true, session };
 }
 
 export function logout(scope: AuthScope = resolveAuthScope()): void {
   clearSession(scope);
+}
+
+export function requireSession(scope: AuthScope = resolveAuthScope()): Session {
+  const s = getSession(scope);
+  if (!s) {
+    throw new Error("Session requise mais non disponible");
+  }
+  return s;
 }
 
 export function getManagementSession(): Session | null {
@@ -174,10 +335,10 @@ export function isManagementLoggedIn(): boolean {
   return isLoggedIn("CP");
 }
 
-export function authenticateManagement(
+export async function authenticateManagement(
   username: string,
   password: string,
-): { ok: true; session: Session } | { ok: false; error: string } {
+): Promise<{ ok: true; session: Session } | { ok: false; error: string }> {
   return authenticate(username, password, "CP");
 }
 

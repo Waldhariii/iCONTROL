@@ -1,4 +1,4 @@
-import { MAIN_SYSTEM_RULES } from "../_shared/mainSystem.data";
+import { MAIN_SYSTEM_RULES } from "../../shared/mainSystem.data";
 
 export type AccountModel = {
   title: string;

@@ -49,7 +49,7 @@ export function coreBaseStyles(): string {
     body{font-family:var(--font); color:var(--text)}
     img, video, iframe, table{max-width:100%; height:auto}
     [style*="grid-template-columns"]{width:100%; max-width:100%}
-    .cxWrap{min-height:100vh; display:flex; align-items:center; justify-content:center; background:radial-gradient(1100px 760px at 18% 0%, #1a1f23 0%, var(--bg) 60%) fixed; width:100%; max-width:100vw; overflow-x:hidden;}
+    .cxWrap{min-height:100vh; display:flex; align-items:center; justify-content:center; background:radial-gradient(1100px 760px at 18% 0%, #1a1f23 0%, var(--bg) 60%) fixed; width:100%; max-width:100vw; overflow-x:hidden; min-width:0; box-sizing:border-box;}
     .cxCard{width:100%; max-width:100%; background:rgba(26,29,31,.92); border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow); padding:22px; overflow-x:hidden;}
     .cxTitle{font-size:22px; font-weight:900; letter-spacing:.3px; color:#e9e0ff;}
     .cxTitle span{color:var(--accent2)}

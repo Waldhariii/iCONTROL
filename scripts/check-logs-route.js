@@ -16,7 +16,7 @@ const checks = [
   {
     id: "dashboard-cta",
     file: "app/src/pages/cp/dashboard.ts",
-    must: ["window.location.hash = \"#/logs\""]
+    must: ["navigate(\"#/logs\")"]
   },
   {
     id: "logs-export",

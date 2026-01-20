@@ -1,5 +1,5 @@
 import type { AccountModel } from "./model";
-import { appendParagraph, appendTable, sectionCard } from "../_shared/uiBlocks";
+import { appendParagraph, appendTable, sectionCard } from "/src/core/ui/uiBlocks";
 
 export function renderAccountSummary(root: HTMLElement, model: AccountModel): void {
   const card = sectionCard(model.title);
@@ -7,7 +7,7 @@ export function renderAccountSummary(root: HTMLElement, model: AccountModel): vo
   root.appendChild(card);
 }
 
-export function renderAccountSettingsKeys(root: HTMLElement, model: AccountModel): void {
+function renderAccountSettingsKeys(root: HTMLElement, model: AccountModel): void {
   const card = sectionCard("Settings keys (rules.ts)");
   appendTable(
     card,
@@ -20,7 +20,7 @@ export function renderAccountSettingsKeys(root: HTMLElement, model: AccountModel
   root.appendChild(card);
 }
 
-export function renderAccountStorageAllow(root: HTMLElement, model: AccountModel): void {
+function renderAccountStorageAllow(root: HTMLElement, model: AccountModel): void {
   const card = sectionCard("Storage allow list");
   appendTable(
     card,
@@ -37,7 +37,7 @@ export function renderAccountStorageAllow(root: HTMLElement, model: AccountModel
   root.appendChild(card);
 }
 
-export function renderAccountStorageUsage(root: HTMLElement, model: AccountModel): void {
+function renderAccountStorageUsage(root: HTMLElement, model: AccountModel): void {
   const card = sectionCard("Storage usage (read-only)");
   const rows = model.storageUsageKeys.map((key) => {
     const hasValue = typeof localStorage !== "undefined" && localStorage.getItem(key) !== null;

@@ -22,8 +22,17 @@ jobs:
       - name: Install
         run: npm ci
 
-      - name: Proofs: Logs route non-regression
-        run: npm run proofs:logs
+      - name: Proofs: CP routes
+        run: |
+          npm run proofs:logs
+          npm run proofs:system
+          npm run proofs:api
+          npm run proofs:network
+          npm run proofs:account
+          npm run proofs:developer
+          npm run proofs:developer:entitlements
+          npm run proofs:verification
+          npm run proofs:dashboard
 
       - name: Build CP
         run: npm run build:cp

@@ -49,8 +49,8 @@ describe("CP login session scope (contract)", () => {
     }
   });
 
-  it("writes only CP session key and Path=/cp cookie", () => {
-    const res = authenticateManagement("admin", "admin");
+  it("writes only CP session key and Path=/cp cookie", async () => {
+    const res = await authenticateManagement("admin", "admin");
     expect(res.ok).toBe(true);
 
     expect(localStorage.getItem("icontrol_mgmt_session_v1")).toBeTruthy();

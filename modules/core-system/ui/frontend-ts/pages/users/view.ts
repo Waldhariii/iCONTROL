@@ -1,5 +1,5 @@
 import type { UsersModel } from "./model";
-import { appendList, appendTable, sectionCard } from "../_shared/uiBlocks";
+import { appendList, appendTable, sectionCard } from "/src/core/ui/uiBlocks";
 
 export function renderUsersOverview(root: HTMLElement, model: UsersModel): void {
   const card = sectionCard(model.title);
@@ -11,7 +11,7 @@ export function renderUsersOverview(root: HTMLElement, model: UsersModel): void 
   root.appendChild(card);
 }
 
-export function renderUsersRoles(root: HTMLElement, model: UsersModel): void {
+function renderUsersRoles(root: HTMLElement, model: UsersModel): void {
   const card = sectionCard("Roles catalog");
   appendTable(
     card,
@@ -21,7 +21,7 @@ export function renderUsersRoles(root: HTMLElement, model: UsersModel): void {
   root.appendChild(card);
 }
 
-export function renderUsersPermissions(root: HTMLElement, model: UsersModel): void {
+function renderUsersPermissions(root: HTMLElement, model: UsersModel): void {
   const card = sectionCard("Role permissions (modules)");
   appendTable(
     card,
@@ -35,7 +35,7 @@ export function renderUsersPermissions(root: HTMLElement, model: UsersModel): vo
   root.appendChild(card);
 }
 
-export function renderUsersMenuAccess(root: HTMLElement, model: UsersModel): void {
+function renderUsersMenuAccess(root: HTMLElement, model: UsersModel): void {
   const card = sectionCard("Menu access (roles)");
   appendTable(
     card,

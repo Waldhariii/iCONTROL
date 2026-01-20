@@ -1,8 +1,7 @@
 import { getRole } from "/src/runtime/rbac";
-import { safeRender } from "../_shared/mainSystem.shared";
-import { mountSections, type SectionSpec } from "../_shared/sections";
-import { getSafeMode } from "../_shared/safeMode";
-import { renderAccessDenied } from "../_shared/renderAccessDenied";
+import { safeRender, getSafeMode } from "/src/core/runtime/safe";
+import { renderAccessDenied } from "/src/core/runtime/accessDenied";
+import { mountSections, type SectionSpec } from "../../shared/sections";
 import { canAccess } from "./contract";
 import { renderDossiersList } from "./sections/list";
 import { renderDossiersCreate } from "./sections/create";
@@ -23,6 +22,10 @@ function getDossierIdFromHash(): string | null {
 }
 
 export function renderDossiersPage(root: HTMLElement): void {
+  renderDossiersPageInternal(root);
+}
+
+function renderDossiersPageInternal(root: HTMLElement): void {
   const role = getRole();
   const safeMode = getSafeMode();
   if (!canAccess(role, safeMode)) {
@@ -30,7 +33,7 @@ export function renderDossiersPage(root: HTMLElement): void {
     return;
   }
   const dossierId = getDossierIdFromHash();
-  const refresh = () => renderDossiersPage(root);
+  const refresh = () => renderDossiersPageInternal(root);
 
   const sections: SectionSpec[] = [
     { id: "dossiers-safe-mode", title: "SAFE_MODE", render: (host) => renderDossiersSafeMode(host) },

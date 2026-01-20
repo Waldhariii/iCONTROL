@@ -1,7 +1,7 @@
 import type { Role } from "/src/runtime/rbac";
-import { getAuditLog } from "../../_shared/audit";
-import { blockActionBar } from "../../_shared/uiBlocks";
-import { getSafeMode } from "../../_shared/safeMode";
+import { getAuditLog } from "/src/core/runtime/audit";
+import { blockActionBar } from "../../../shared/uiBlocks";
+import { getSafeMode } from "/src/core/runtime/safe";
 
 export function renderLogsExport(host: HTMLElement, role: Role): void {
   const rows = getAuditLog().map((e) => ({

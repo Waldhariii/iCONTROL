@@ -1,7 +1,7 @@
-import { recordObs } from "../../_shared/audit";
-import { OBS } from "../../_shared/obsCodes";
-import { blockActionBar, blockToast } from "../../_shared/uiBlocks";
-import { getSafeMode } from "../../_shared/safeMode";
+import { recordObs } from "/src/core/runtime/audit";
+import { OBS } from "/src/core/runtime/obs";
+import { blockActionBar, blockToast } from "../../../shared/uiBlocks";
+import { getSafeMode } from "/src/core/runtime/safe";
 
 export function renderSystemSafeModeActions(host: HTMLElement, role: string): void {
   const safeMode = getSafeMode();

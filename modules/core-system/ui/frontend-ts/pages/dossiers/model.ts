@@ -1,8 +1,8 @@
 import type { Role } from "/src/runtime/rbac";
-import { getSafeMode } from "../_shared/safeMode";
-import { recordObs } from "../_shared/audit";
-import { OBS } from "../_shared/obsCodes";
-import { isWriteAllowed } from "../_shared/rolePolicy";
+import { getSafeMode } from "/src/core/runtime/safe";
+import { recordObs } from "/src/core/runtime/audit";
+import { OBS } from "/src/core/runtime/obs";
+import { isWriteAllowed } from "../../shared/rolePolicy";
 import { canWrite } from "./contract";
 
 export type DossierState = "OPEN" | "IN_PROGRESS" | "WAITING" | "CLOSED";

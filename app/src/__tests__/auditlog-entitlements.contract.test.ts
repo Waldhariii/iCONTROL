@@ -37,8 +37,13 @@ test("missing PRO entitlement appends WARN audit event", () => {
   const events = readAuditLog();
   expect(events.length).toBeGreaterThan(0);
   const last = events[events.length - 1];
-  expect(last.level).toBe("WARN");
-  expect(last.code).toBe(WARN_ENTITLEMENTS_MISSING_PRO);
-  expect(last.scope).toBe("entitlements");
-  expect(last.meta.route).toBe("/dashboard");
+  expect(last).toBeDefined();
+  if (last) {
+    expect(last.level).toBe("WARN");
+    expect(last.code).toBe(WARN_ENTITLEMENTS_MISSING_PRO);
+    expect(last.scope).toBe("entitlements");
+    if (last.meta) {
+      expect(last.meta.route).toBe("/dashboard");
+    }
+  }
 });

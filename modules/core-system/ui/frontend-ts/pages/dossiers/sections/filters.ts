@@ -1,4 +1,4 @@
-import { blockFilterInput, sectionCard } from "../../_shared/uiBlocks";
+import { blockFilterInput, sectionCard } from "../../../shared/uiBlocks";
 
 export type DossiersFilter = {
   query: string;

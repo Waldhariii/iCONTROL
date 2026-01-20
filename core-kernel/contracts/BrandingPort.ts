@@ -10,6 +10,8 @@ export type Brand = {
   ACCENT_COLOR: string;
   LOGO_PRIMARY?: string;
   LOGO_COMPACT?: string;
+  LOGO_LIGHT?: string;
+  LOGO_DARK?: string;
 };
 
 export type BrandSource = "override" | "env" | "default" | "fallback";

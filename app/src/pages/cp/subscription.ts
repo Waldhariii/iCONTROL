@@ -3,7 +3,6 @@
  * SSOT Abonnements — PageShell + Tabs + KPI + listes + analyse
  */
 import { coreBaseStyles } from "../../../../modules/core-system/ui/frontend-ts/shared/coreStyles";
-import { getSafeMode } from "../../../../modules/core-system/ui/frontend-ts/pages/_shared/safeMode";
 import { createPageShell } from "/src/core/ui/pageShell";
 import { createSectionCard } from "/src/core/ui/sectionCard";
 import { createToolbar } from "/src/core/ui/toolbar";
@@ -21,6 +20,8 @@ import {
   deactivateSubscription,
   isSubscriptionActive
 } from "/src/core/subscriptions/subscriptionManager";
+import { navigate, getCurrentHash } from "/src/runtime/navigate";
+import { safeRender, fetchJsonSafe, mapSafeMode, getSafeMode } from "/src/core/runtime/safe";
 
 type SubTab = "freemium" | "subscriptions" | "analysis";
 
@@ -64,40 +65,35 @@ type SubscriptionData = {
   lastUpdated: string;
 };
 
-export async function renderSubscription(root: HTMLElement): Promise<void> {
+export function renderSubscriptionPage(root: HTMLElement): void {
+  void renderSubscriptionPageAsync(root);
+}
+
+async function renderSubscriptionPageAsync(root: HTMLElement): Promise<void> {
   currentRoot = root;
-  const renderLoading = () => {
-    root.innerHTML = coreBaseStyles();
-    const safeModeValue = mapSafeMode(getSafeMode());
-    const { shell, content } = createPageShell({
-      title: "Abonnements",
-      subtitle: "Gestion freemium et modules optionnels (sans interruption du core gratuit)",
-      safeMode: safeModeValue,
-      statusBadge: { label: "FREEMIUM: ACTIF", tone: "ok" }
-    });
+  root.innerHTML = coreBaseStyles();
+  const safeModeValue = mapSafeMode(getSafeMode());
+  const { shell, content } = createPageShell({
+    title: "Abonnements",
+    subtitle: "Gestion freemium et modules optionnels (sans interruption du core gratuit)",
+    safeMode: safeModeValue,
+    statusBadge: { label: "FREEMIUM: ACTIF", tone: "ok" }
+  });
 
-    const grid = document.createElement("div");
-    grid.style.cssText = `
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 16px;
-      width: 100%;
-    `;
-    for (let i = 0; i < 4; i += 1) {
-      const skeleton = document.createElement("div");
-      skeleton.style.cssText = `
-        height: 120px;
-        border: 1px solid var(--ic-border, #2b3136);
-        background: rgba(255,255,255,0.03);
-        border-radius: 10px;
-      `;
-      grid.appendChild(skeleton);
-    }
-    content.appendChild(grid);
-    root.appendChild(shell);
-  };
-
-  renderLoading();
+  const grid = document.createElement("div");
+  grid.style.cssText =
+    "display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));" +
+    "gap:16px;width:100%;min-width:0;box-sizing:border-box;";
+  for (let i = 0; i < 4; i += 1) {
+    const skeleton = document.createElement("div");
+    skeleton.style.cssText =
+      "height:120px;border:1px solid var(--ic-border,#2b3136);" +
+      "background:rgba(255,255,255,0.03);border-radius:10px;" +
+      "min-width:0;box-sizing:border-box;";
+    grid.appendChild(skeleton);
+  }
+  content.appendChild(grid);
+  root.appendChild(shell);
 
   const { data, errors } = await getSubscriptionData();
   const currentTab = getCurrentTab();
@@ -110,15 +106,16 @@ function renderData(
   errors: { data?: string; analytics?: string },
   tab: SubTab
 ): void {
-  root.innerHTML = coreBaseStyles();
-  const safeModeValue = mapSafeMode(getSafeMode());
-  const canManage = canManageSubscriptions(getRole());
-  const { shell, content } = createPageShell({
-    title: "Abonnements",
-    subtitle: "Gestion freemium et modules optionnels (sans interruption du core gratuit)",
-    safeMode: safeModeValue,
-    statusBadge: { label: "FREEMIUM: ACTIF", tone: "ok" }
-  });
+  safeRender(root, () => {
+    root.innerHTML = coreBaseStyles();
+    const safeModeValue = mapSafeMode(getSafeMode());
+    const canManage = canManageSubscriptions(getRole());
+    const { shell, content } = createPageShell({
+      title: "Abonnements",
+      subtitle: "Gestion freemium et modules optionnels (sans interruption du core gratuit)",
+      safeMode: safeModeValue,
+      statusBadge: { label: "FREEMIUM: ACTIF", tone: "ok" }
+    });
 
   const tabs = createTabs(tab);
   content.appendChild(tabs);
@@ -131,7 +128,8 @@ function renderData(
     renderAnalysisTab(content, data, errors);
   }
 
-  root.appendChild(shell);
+    root.appendChild(shell);
+  });
 }
 
 function renderFreemiumTab(content: HTMLElement, data: SubscriptionData, safeMode: "OFF" | "COMPAT" | "STRICT"): void {
@@ -191,12 +189,9 @@ function renderSubscriptionsTab(
   canManage: boolean
 ): void {
   const kpiGrid = document.createElement("div");
-  kpiGrid.style.cssText = `
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 16px;
-    width: 100%;
-  `;
+  kpiGrid.style.cssText =
+    "display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));" +
+    "gap:16px;width:100%;min-width:0;box-sizing:border-box;";
 
   const { card: kpiActive, body: kpiActiveBody } = createSectionCard({
     title: "Actifs",
@@ -460,7 +455,7 @@ function renderAnalysisTab(content: HTMLElement, data: SubscriptionData, errors:
   table.style.cssText = "display:flex; flex-direction:column; gap:8px;";
   data.analytics.topCategories.forEach((entry) => {
     const row = document.createElement("div");
-    row.style.cssText = "display:grid; grid-template-columns: 160px 80px 100px 1fr; gap: 12px; align-items:center; padding: 8px; border: 1px solid var(--ic-border, #2b3136); border-radius: 8px;";
+    row.style.cssText = "display:grid; grid-template-columns: 160px 80px 100px 1fr; gap: 12px; align-items:center; padding: 8px; border: 1px solid var(--ic-border, #2b3136); border-radius: 8px; min-width:0; box-sizing:border-box;";
     row.innerHTML = `
       <div style="font-size:12px;color:var(--ic-text,#e7ecef);">${entry.category}</div>
       <div style="font-size:12px;color:var(--ic-text,#e7ecef);">${entry.active}</div>
@@ -475,7 +470,7 @@ function renderAnalysisTab(content: HTMLElement, data: SubscriptionData, errors:
 
 function createTabs(active: SubTab): HTMLElement {
   const container = document.createElement("div");
-  container.style.cssText = "display:flex; gap:8px; flex-wrap:wrap;";
+  container.style.cssText = "display:flex; gap:8px; flex-wrap:wrap; min-width:0; box-sizing:border-box;";
   const tabs: Array<{ id: SubTab; label: string }> = [
     { id: "freemium", label: "Freemium" },
     { id: "subscriptions", label: "Abonnements" },
@@ -503,11 +498,11 @@ function createTabs(active: SubTab): HTMLElement {
 }
 
 function setTab(tab: SubTab): void {
-  window.location.hash = `#/subscription?tab=${tab}`;
+  navigate(`#/subscription?tab=${tab}`);
 }
 
 function getCurrentTab(): SubTab {
-  const hash = window.location.hash || "";
+  const hash = getCurrentHash() || "";
   const query = hash.split("?")[1] || "";
   const search = new URLSearchParams(query);
   const tab = search.get("tab") as SubTab | null;
@@ -517,11 +512,7 @@ function getCurrentTab(): SubTab {
   return "freemium";
 }
 
-function mapSafeMode(value: string): "OFF" | "COMPAT" | "STRICT" {
-  if (value === "STRICT") return "STRICT";
-  if (value === "COMPAT") return "COMPAT";
-  return "OFF";
-}
+
 
 function formatNumber(value: number): string {
   return new Intl.NumberFormat("fr-CA").format(value);
@@ -626,19 +617,6 @@ function buildDemoSubscriptionData(): SubscriptionData {
     },
     lastUpdated: new Date().toISOString()
   };
-}
-
-async function fetchJsonSafe<T = any>(url: string): Promise<{ ok: boolean; status: number; data?: T; error?: string }> {
-  try {
-    const res = await fetch(url, { headers: { "accept": "application/json" } });
-    if (!res.ok) {
-      return { ok: false, status: res.status, error: `HTTP ${res.status}` };
-    }
-    const data = await res.json();
-    return { ok: true, status: res.status, data };
-  } catch (error) {
-    return { ok: false, status: 0, error: String(error) };
-  }
 }
 
 async function getSubscriptionData(): Promise<{ data: SubscriptionData; errors: { data?: string; analytics?: string } }> {
@@ -811,6 +789,6 @@ function getRenderRoot(): HTMLElement {
 function refreshSubscription(): void {
   const target = getRenderRoot();
   if (target) {
-    void renderSubscription(target);
+    void renderSubscriptionPageAsync(target);
   }
 }

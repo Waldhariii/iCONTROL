@@ -1,4 +1,4 @@
-import { blockKeyValueTable } from "../../_shared/uiBlocks";
+import { blockKeyValueTable } from "../../../shared/uiBlocks";
 import { createDossiersModel } from "../model";
 
 export function renderDossiersStorage(root: HTMLElement): void {

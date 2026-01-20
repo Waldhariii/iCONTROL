@@ -1,5 +1,5 @@
-import { OBS } from "../../_shared/obsCodes";
-import { recordObs } from "../../_shared/audit";
+import { OBS } from "/src/core/runtime/obs";
+import { recordObs } from "/src/core/runtime/audit";
 
 function __redactAudit(input: any): any {
   // Policy: allowlist only schema/version/toggles/timestamp (future-proof, JSON-safe)

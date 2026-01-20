@@ -37,6 +37,7 @@ export function createToolbar(options: ToolbarOptions): {
     border: 1px solid var(--ic-border, #2b3136);
     border-radius: 10px;
     background: var(--ic-panel, #1a1d1f);
+    min-width: 0;
   `;
 
   let searchInput: HTMLInputElement | undefined;

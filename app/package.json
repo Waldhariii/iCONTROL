@@ -11,12 +11,14 @@
     "lint": "eslint .",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@icontrol/design-system": "file:../shared/design-system"
   },
   "devDependencies": {
+    "@types/node": "^20.0.0",
     "eslint": "^8.56.0",
     "jsdom": "^27.4.0",
     "typescript": "^5.3.0",

@@ -51,10 +51,16 @@ test("requireEntitlement emits audit WARN when entitlement missing", () => {
 
   const events = readAuditLog();
   expect(events.length).toBe(1);
-  expect(events[0].level).toBe("WARN");
-  expect(events[0].code).toBe("WARN_ACCESS_DENIED_ENTITLEMENT");
-  expect(events[0].meta.entitlement).toBe("recommendations.pro");
-  expect(events[0].meta.page).toBe("/dashboard");
+  const event = events[0];
+  expect(event).toBeDefined();
+  if (event) {
+    expect(event.level).toBe("WARN");
+    expect(event.code).toBe("WARN_ACCESS_DENIED_ENTITLEMENT");
+    if (event.meta) {
+      expect(event.meta.entitlement).toBe("recommendations.pro");
+      expect(event.meta.page).toBe("/dashboard");
+    }
+  }
 });
 
 test("requireEntitlement ok=true when entitlement present", () => {

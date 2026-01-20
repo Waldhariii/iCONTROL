@@ -1,7 +1,7 @@
-import { recordObs } from "../../_shared/audit";
-import { OBS } from "../../_shared/obsCodes";
-import { blockActionBar, blockToast } from "../../_shared/uiBlocks";
-import { getSafeMode } from "../../_shared/safeMode";
+import { recordObs } from "/src/core/runtime/audit";
+import { OBS } from "/src/core/runtime/obs";
+import { blockActionBar, blockToast } from "../../../shared/uiBlocks";
+import { getSafeMode } from "/src/core/runtime/safe";
 import { resetFlags, setAllFlags } from "../model";
 
 export function renderSystemFlagsActions(host: HTMLElement, role: string, onRefresh: () => void): void {

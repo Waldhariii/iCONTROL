@@ -1,10 +1,13 @@
-import { MAIN_SYSTEM_RULES } from "../../_shared/mainSystem.data";
-import { appendTable, sectionCard } from "../../_shared/uiBlocks";
+import { MAIN_SYSTEM_RULES } from "../../../shared/mainSystem.data";
+import { appendTable } from "../../../shared/uiBlocks";
+import { createToolboxCard } from "../../../shared/toolboxCard";
 
 export function render_rules_viewer(host: HTMLElement): void {
-  const card = sectionCard("Rules engine inventory");
+  const card = createToolboxCard("Rules engine inventory", "Inventaire des règles du moteur de règles");
+  const content = (card as any).content;
+  
   appendTable(
-    card,
+    content,
     ["category", "items"],
     [
       { category: "value_refs", items: MAIN_SYSTEM_RULES.valueRefs.join(" ") },

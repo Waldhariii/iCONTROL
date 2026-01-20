@@ -28,8 +28,8 @@ describe("auth cookies use SameSite=Strict and are scoped by Path", () => {
     });
   });
 
-  it("APP writes cookie with Path=/app and SameSite=Strict", () => {
-    const res = authenticate("admin", "admin", "APP");
+  it("APP writes cookie with Path=/app and SameSite=Strict", async () => {
+    const res = await authenticate("admin", "admin", "APP");
     expect(res.ok).toBe(true);
     expect(document.cookie).toContain("icontrol_session_v1=1");
     expect(document.cookie).toContain("Path=/app");
@@ -40,8 +40,8 @@ describe("auth cookies use SameSite=Strict and are scoped by Path", () => {
     logout("APP");
   });
 
-  it("CP writes cookie with Path=/cp and SameSite=Strict (management key)", () => {
-    const res = authenticateManagement("admin", "admin");
+  it("CP writes cookie with Path=/cp and SameSite=Strict (management key)", async () => {
+    const res = await authenticateManagement("admin", "admin");
     expect(res.ok).toBe(true);
     expect(document.cookie).toContain("icontrol_mgmt_session_v1=1");
     expect(document.cookie).toContain("Path=/cp");

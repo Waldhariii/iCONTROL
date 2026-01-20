@@ -1,6 +1,6 @@
-import { blockKeyValueTable } from "../../_shared/uiBlocks";
-import { renderRecommendations } from "../../_shared/recommendations";
-import { getRole, getSafeMode } from "../../_shared/recommendations.ctx";
+import { blockKeyValueTable } from "../../../shared/uiBlocks";
+import { renderRecommendations } from "../../../shared/recommendations";
+import { getRole, getSafeMode } from "../../../shared/recommendations.ctx";
 import { getDossier } from "../model";
 
 export function renderDossiersDetail(root: HTMLElement, dossierId: string | null): void {

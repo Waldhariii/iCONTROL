@@ -1,4 +1,22 @@
-#!/bin/zsh
+#!/usr/bin/env bash
 set -euo pipefail
-./scripts/audit/audit-no-leaks.zsh >/dev/null
-echo "OK: audit-no-leaks PASS"
+
+# Lightweight staged diff scan (fast). Prevents committing obvious credentials.
+PATTERNS=(
+  'BOOTSTRAP_USERS'
+  'password[:=]'
+  'BEGIN PRIVATE KEY'
+  'sk-[A-Za-z0-9]{10,}'
+  'ghp_[A-Za-z0-9]{20,}'
+)
+
+DIFF="$(git diff --cached -U0 || true)"
+for p in "${PATTERNS[@]}"; do
+  if echo "$DIFF" | LC_ALL=C grep -nE "$p" >/dev/null 2>&1; then
+    echo "[BLOCK] pre-commit detected pattern '$p' in staged diff."
+    echo "        Remove hardcoded credentials or move to env/runtime config."
+    exit 1
+  fi
+done
+
+exit 0

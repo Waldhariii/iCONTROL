@@ -1,0 +1,5 @@
+{
+  "proof": "runtime-config",
+  "kind": "ICONTROL_RUNTIME_CONFIG_V1",
+  "endpoint": "/api/runtime/config"
+}

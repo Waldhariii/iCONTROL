@@ -52,9 +52,11 @@ retry_expect_oneof() {
   return 1
 }
 
-# Surfaces (no trailing slash): allow redirect or ok
-retry_expect_oneof "$BASE/app" 200 302
-retry_expect_oneof "$BASE/cp" 200 302
+# Surfaces: no slash must redirect; slash must return 200
+retry_expect_oneof "$BASE/app" 302
+retry_expect_oneof "$BASE/app/" 200
+retry_expect_oneof "$BASE/cp" 302
+retry_expect_oneof "$BASE/cp/" 200
 
 # APIs must be 200
 retry_expect_oneof "$BASE/app/api/runtime-config" 200

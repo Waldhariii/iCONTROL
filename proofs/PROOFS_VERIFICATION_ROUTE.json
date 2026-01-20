@@ -1,0 +1,13 @@
+{
+  "page": "verification",
+  "hash": "#/verification",
+  "verification_entry": "./modules/core-system/ui/frontend-ts/pages/verification/index.ts",
+  "module_loader_file": "./app/src/moduleLoader.ts",
+  "nav_file": "./app/src/core/ui/commandPalette.ts",
+  "anchors": {
+    "verification_version": "ICONTROL_CP_VERIFICATION_V2",
+    "verification_export": "renderVerificationPage",
+    "dispatch_rid": "rid as any) === \"verification\"",
+    "nav_hash": "hash: \"#/verification\""
+  }
+}

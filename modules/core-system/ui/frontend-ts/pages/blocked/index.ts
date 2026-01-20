@@ -1,4 +1,4 @@
-import { escapeHtml } from "../../../../../../app/src/runtime/safeRender";
+import { escapeHtml } from "/src/core/runtime/safe";
 
 export default function blockedPage(): string {
   const w = globalThis as any;

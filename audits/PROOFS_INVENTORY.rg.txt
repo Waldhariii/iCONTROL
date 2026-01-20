@@ -1,0 +1,39 @@
+package.json:39:    "proofs:logs": "node scripts/check-logs-route.js",
+package.json:40:    "proofs:system": "node scripts/check-system-route.js",
+package.json:41:    "proofs:api": "node scripts/check-api-route.js",
+package.json:42:    "proofs:network": "node scripts/check-network-route.js",
+package.json:43:    "proofs:account": "node scripts/check-account-route.js",
+package.json:44:    "proofs:developer": "node scripts/check-developer-route.js",
+package.json:45:    "proofs:developer:entitlements": "node scripts/check-developer-entitlements-route.js",
+package.json:46:    "proofs:verification": "node scripts/check-verification-route.js",
+package.json:47:    "proofs:dashboard": "node scripts/check-dashboard-route.js"
+.github/workflows/cp-dashboard-proofs.yml:9:  cp-dashboard-proofs:
+.github/workflows/cp-dashboard-proofs.yml:22:        run: npm run proofs:dashboard
+.github/workflows/cp-account-proofs.yml:9:  cp-account-proofs:
+.github/workflows/cp-account-proofs.yml:25:        run: npm run proofs:account
+.github/workflows/cp-verification-proofs.yml:9:  cp-verification-proofs:
+.github/workflows/cp-verification-proofs.yml:18:      - run: npm run proofs:verification
+scripts/check-account-route.js:33:  const proofPath = path.join("proofs", "PROOFS_ACCOUNT_ROUTE.json");
+scripts/check-account-route.js:34:  mustExist(proofPath, "proofs/PROOFS_ACCOUNT_ROUTE.json");
+scripts/check-network-route.js:36:  const proofPath = path.join("proofs", "PROOFS_NETWORK_ROUTE.json");
+scripts/check-network-route.js:37:  mustExist(proofPath, "proofs/PROOFS_NETWORK_ROUTE.json");
+scripts/check-system-route.js:44:  const proofPath = path.join("proofs", "PROOFS_SYSTEM_ROUTE.json");
+scripts/check-system-route.js:45:  mustExist(proofPath, "proofs/PROOFS_SYSTEM_ROUTE.json");
+.github/workflows/cp-api-proofs.yml:7:  cp-api-proofs:
+.github/workflows/cp-api-proofs.yml:20:        run: npm run proofs:api
+scripts/check-api-route.js:36:  const proofPath = path.join("proofs", "PROOFS_API_ROUTE.json");
+scripts/check-api-route.js:37:  mustExist(proofPath, "proofs/PROOFS_API_ROUTE.json");
+scripts/check-developer-entitlements-route.js:11:  const proofPath = path.join("proofs", "PROOFS_DEVELOPER_ENTITLEMENTS_ROUTE.json");
+scripts/check-verification-route.js:11:  const proofPath = path.join("proofs", "PROOFS_VERIFICATION_ROUTE.json");
+scripts/check-dashboard-route.js:22:  const proofPath = path.join("proofs", "PROOFS_DASHBOARD_ROUTE.json");
+scripts/check-dashboard-route.js:23:  mustExist(proofPath, "proofs/PROOFS_DASHBOARD_ROUTE.json");
+.github/workflows/cp-proofs.yml:10:  cp_proofs:
+.github/workflows/cp-proofs.yml:26:        run: npm run proofs:logs
+.github/workflows/cp-developer-proofs.yml:9:  cp-developer-proofs:
+.github/workflows/cp-developer-proofs.yml:22:        run: npm run proofs:developer
+scripts/check-developer-route.js:17:  const proofPath = path.join("proofs", "PROOFS_DEVELOPER_ROUTE.json");
+scripts/check-developer-route.js:18:  mustExist(proofPath, "proofs/PROOFS_DEVELOPER_ROUTE.json");
+.github/workflows/cp-network-proofs.yml:7:  cp-network-proofs:
+.github/workflows/cp-network-proofs.yml:20:        run: npm run proofs:network
+.github/workflows/cp-system-proofs.yml:9:  cp-system-proofs:
+.github/workflows/cp-system-proofs.yml:25:        run: npm run proofs:system

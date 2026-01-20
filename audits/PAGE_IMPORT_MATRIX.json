@@ -1,0 +1,1461 @@
+[
+  {
+    "file": "app/src/pages/cp/account.ts",
+    "imports": [
+      "../../../../modules/core-system/ui/frontend-ts/pages/_shared/audit",
+      "../../../../modules/core-system/ui/frontend-ts/pages/_shared/mainSystem.shared",
+      "../../../../modules/core-system/ui/frontend-ts/pages/_shared/obsCodes",
+      "../../../../modules/core-system/ui/frontend-ts/pages/_shared/renderAccessDenied",
+      "../../../../modules/core-system/ui/frontend-ts/pages/_shared/safeMode",
+      "../../../../modules/core-system/ui/frontend-ts/shared/coreStyles",
+      "/src/core/security/userData",
+      "/src/core/ui/badge",
+      "/src/core/ui/dataTable",
+      "/src/core/ui/emptyState",
+      "/src/core/ui/errorState",
+      "/src/core/ui/pageShell",
+      "/src/core/ui/sectionCard",
+      "/src/core/ui/skeletonLoader",
+      "/src/core/ui/toast",
+      "/src/core/ui/toolbar",
+      "/src/core/user/avatarManager",
+      "/src/localAuth",
+      "/src/router",
+      "/src/runtime/rbac"
+    ],
+    "exports_render": true,
+    "has_v2_anchor": true
+  },
+  {
+    "file": "app/src/pages/cp/login.ts",
+    "imports": [
+      "../../../../modules/core-system/ui/frontend-ts/shared/coreStyles",
+      "../_shared/loginHelpers",
+      "/src/core/utils/logger",
+      "/src/localAuth"
+    ],
+    "exports_render": true,
+    "has_v2_anchor": false
+  },
+  {
+    "file": "app/src/pages/cp/management.ts",
+    "imports": [
+      "../../../../modules/core-system/ui/frontend-ts/pages/_shared/safeMode",
+      "../../../../modules/core-system/ui/frontend-ts/pages/developer/index",
+      "../../../../modules/core-system/ui/frontend-ts/shared/coreStyles",
+      "/src/core/ui/dataTable",
+      "/src/core/ui/exportUtils",
+      "/src/core/ui/toolboxPanel",
+      "/src/localAuth",
+      "/src/runtime/rbac"
+    ],
+    "exports_render": true,
+    "has_v2_anchor": false
+  },
+  {
+    "file": "app/src/pages/cp/network.ts",
+    "imports": [
+      "../../../../modules/core-system/ui/frontend-ts/pages/_shared/audit",
+      "../../../../modules/core-system/ui/frontend-ts/pages/_shared/mainSystem.shared",
+      "../../../../modules/core-system/ui/frontend-ts/pages/_shared/obsCodes",
+      "../../../../modules/core-system/ui/frontend-ts/pages/_shared/renderAccessDenied",
+      "../../../../modules/core-system/ui/frontend-ts/pages/_shared/safeMode",
+      "../../../../modules/core-system/ui/frontend-ts/shared/coreStyles",
+      "/src/core/ui/badge",
+      "/src/core/ui/dataTable",
+      "/src/core/ui/emptyState",
+      "/src/core/ui/errorState",
+      "/src/core/ui/pageShell",
+      "/src/core/ui/sectionCard",
+      "/src/core/ui/skeletonLoader",
+      "/src/core/ui/toast",
+      "/src/core/ui/toolbar",
+      "/src/router",
+      "/src/runtime/rbac"
+    ],
+    "exports_render": true,
+    "has_v2_anchor": true
+  },
+  {
+    "file": "app/src/pages/cp/settings.ts",
+    "imports": [
+      "../../../../core-kernel/contracts/BrandingPort",
+      "../../../../modules/core-system/ui/frontend-ts/shared/coreStyles",
+      "../../../../platform-services/branding/brandService",
+      "../../core/branding/logoManager",
+      "/src/core/ui/toolboxPanel"
+    ],
+    "exports_render": true,
+    "has_v2_anchor": false
+  },
+  {
+    "file": "app/src/pages/cp/featureFlags.ts",
+    "imports": [
+      "../../../../modules/core-system/ui/frontend-ts/shared/coreStyles",
+      "/src/core/features/featureFlags",
+      "/src/core/ui/confirmDialog",
+      "/src/core/ui/dataTable",
+      "/src/core/ui/formField",
+      "/src/core/ui/notificationCenter",
+      "/src/core/ui/toolboxPanel",
+      "/src/localAuth"
+    ],
+    "exports_render": true,
+    "has_v2_anchor": false
+  },
+  {
+    "file": "app/src/pages/cp/api.ts",
+    "imports": [
+      "../../../../modules/core-system/ui/frontend-ts/pages/_shared/audit",
+      "../../../../modules/core-system/ui/frontend-ts/pages/_shared/mainSystem.shared",
+      "../../../../modules/core-system/ui/frontend-ts/pages/_shared/obsCodes",
+      "../../../../modules/core-system/ui/frontend-ts/pages/_shared/renderAccessDenied",
+      "../../../../modules/core-system/ui/frontend-ts/pages/_shared/safeMode",
+      "../../../../modules/core-system/ui/frontend-ts/shared/coreStyles",
+      "/src/core/ui/badge",
+      "/src/core/ui/dataTable",
+      "/src/core/ui/emptyState",
+      "/src/core/ui/errorState",
+      "/src/core/ui/pageShell",
+      "/src/core/ui/sectionCard",
+      "/src/core/ui/skeletonLoader",
+      "/src/core/ui/toast",
+      "/src/core/ui/toolbar",
+      "/src/router",
+      "/src/runtime/rbac"
+    ],
+    "exports_render": true,
+    "has_v2_anchor": true
+  },
+  {
+    "file": "app/src/pages/cp/dashboard.ts",
+    "imports": [
+      "../../../../modules/core-system/ui/frontend-ts/pages/_shared/mainSystem.shared",
+      "../../../../modules/core-system/ui/frontend-ts/pages/_shared/safeMode",
+      "../../../../modules/core-system/ui/frontend-ts/shared/coreStyles",
+      "/src/core/ui/badge",
+      "/src/core/ui/charts/donutGauge",
+      "/src/core/ui/charts/lineChart",
+      "/src/core/ui/charts/miniBars",
+      "/src/core/ui/dataTable",
+      "/src/core/ui/emptyState",
+      "/src/core/ui/pageShell",
+      "/src/core/ui/sectionCard",
+      "/src/core/ui/skeletonLoader",
+      "/src/core/ui/toolbar"
+    ],
+    "exports_render": true,
+    "has_v2_anchor": false
+  },
+  {
+    "file": "app/src/pages/cp/twoFactor.ts",
+    "imports": [
+      "../../../../modules/core-system/ui/frontend-ts/pages/_shared/safeMode",
+      "../../../../modules/core-system/ui/frontend-ts/shared/coreStyles",
+      "/src/core/security/twoFactorAuth",
+      "/src/core/ui/alert",
+      "/src/core/ui/confirmDialog",
+      "/src/core/ui/notificationCenter",
+      "/src/core/ui/toolboxPanel",
+      "/src/localAuth",
+      "/src/runtime/rbac"
+    ],
+    "exports_render": true,
+    "has_v2_anchor": false
+  },
+  {
+    "file": "app/src/pages/cp/organization.ts",
+    "imports": [
+      "../../../../modules/core-system/ui/frontend-ts/pages/_shared/safeMode",
+      "../../../../modules/core-system/ui/frontend-ts/shared/coreStyles",
+      "/src/core/subscriptions/subscriptionManager",
+      "/src/core/subscriptions/subscriptionTypes",
+      "/src/core/ui/confirmDialog",
+      "/src/core/ui/toolboxPanel",
+      "/src/localAuth",
+      "/src/runtime/rbac"
+    ],
+    "exports_render": true,
+    "has_v2_anchor": false
+  },
+  {
+    "file": "app/src/pages/cp/users.ts",
+    "imports": [
+      "../../../../modules/core-system/ui/frontend-ts/pages/_shared/mainSystem.shared",
+      "../../../../modules/core-system/ui/frontend-ts/pages/_shared/safeMode",
+      "../../../../modules/core-system/ui/frontend-ts/pages/users/contract",
+      "../../../../modules/core-system/ui/frontend-ts/shared/coreStyles",
+      "./models/users",
+      "./views/users",
+      "/src/core/ui/pageShell",
+      "/src/core/ui/sectionCard",
+      "/src/localAuth",
+      "/src/runtime/rbac"
+    ],
+    "exports_render": true,
+    "has_v2_anchor": false
+  },
+  {
+    "file": "app/src/pages/cp/subscription.ts",
+    "imports": [
+      "../../../../modules/core-system/ui/frontend-ts/pages/_shared/safeMode",
+      "../../../../modules/core-system/ui/frontend-ts/shared/coreStyles",
+      "/src/core/subscriptions/subscriptionTypes",
+      "/src/core/ui/badge",
+      "/src/core/ui/dataTable",
+      "/src/core/ui/emptyState",
+      "/src/core/ui/errorState",
+      "/src/core/ui/pageShell",
+      "/src/core/ui/sectionCard",
+      "/src/core/ui/toast",
+      "/src/core/ui/toolbar",
+      "/src/router",
+      "/src/runtime/rbac"
+    ],
+    "exports_render": false,
+    "has_v2_anchor": true
+  },
+  {
+    "file": "app/src/pages/cp/backup.ts",
+    "imports": [
+      "../../../../modules/core-system/ui/frontend-ts/pages/_shared/safeMode",
+      "../../../../modules/core-system/ui/frontend-ts/shared/coreStyles",
+      "/src/core/backup/backupManager",
+      "/src/core/ui/confirmDialog",
+      "/src/core/ui/dataTable",
+      "/src/core/ui/exportUtils",
+      "/src/core/ui/notificationCenter",
+      "/src/core/ui/toolboxPanel",
+      "/src/localAuth",
+      "/src/runtime/rbac"
+    ],
+    "exports_render": true,
+    "has_v2_anchor": false
+  },
+  {
+    "file": "app/src/pages/cp/system.ts",
+    "imports": [
+      "../../../../modules/core-system/ui/frontend-ts/pages/_shared/audit",
+      "../../../../modules/core-system/ui/frontend-ts/pages/_shared/mainSystem.shared",
+      "../../../../modules/core-system/ui/frontend-ts/pages/_shared/obsCodes",
+      "../../../../modules/core-system/ui/frontend-ts/pages/_shared/renderAccessDenied",
+      "../../../../modules/core-system/ui/frontend-ts/pages/_shared/safeMode",
+      "../../../../modules/core-system/ui/frontend-ts/pages/system/contract",
+      "../../../../modules/core-system/ui/frontend-ts/shared/coreStyles",
+      "/src/core/ui/badge",
+      "/src/core/ui/dataTable",
+      "/src/core/ui/emptyState",
+      "/src/core/ui/errorState",
+      "/src/core/ui/pageShell",
+      "/src/core/ui/sectionCard",
+      "/src/core/ui/toast",
+      "/src/core/ui/toolbar",
+      "/src/router",
+      "/src/runtime/rbac"
+    ],
+    "exports_render": true,
+    "has_v2_anchor": true
+  },
+  {
+    "file": "app/src/pages/cp/sessions.ts",
+    "imports": [
+      "../../../../modules/core-system/ui/frontend-ts/pages/_shared/safeMode",
+      "../../../../modules/core-system/ui/frontend-ts/shared/coreStyles",
+      "/src/core/session/sessionManager",
+      "/src/core/ui/confirmDialog",
+      "/src/core/ui/dataTable",
+      "/src/core/ui/notificationCenter",
+      "/src/core/ui/toolboxPanel",
+      "/src/localAuth",
+      "/src/router",
+      "/src/runtime/rbac"
+    ],
+    "exports_render": true,
+    "has_v2_anchor": false
+  },
+  {
+    "file": "app/src/pages/cp/models/account.ts",
+    "imports": [],
+    "exports_render": false,
+    "has_v2_anchor": false
+  },
+  {
+    "file": "app/src/pages/cp/models/users.ts",
+    "imports": [],
+    "exports_render": false,
+    "has_v2_anchor": false
+  },
+  {
+    "file": "app/src/pages/cp/models/system.ts",
+    "imports": [],
+    "exports_render": false,
+    "has_v2_anchor": false
+  },
+  {
+    "file": "app/src/pages/cp/views/account.ts",
+    "imports": [
+      "../../../../../modules/core-system/ui/frontend-ts/pages/_shared/uiBlocks",
+      "../models/account",
+      "/src/localAuth"
+    ],
+    "exports_render": true,
+    "has_v2_anchor": true
+  },
+  {
+    "file": "app/src/pages/cp/views/users.ts",
+    "imports": [
+      "../../../../../modules/core-system/ui/frontend-ts/pages/_shared/safeMode",
+      "../../../../../modules/core-system/ui/frontend-ts/pages/_shared/uiBlocks",
+      "../../../core/permissions/userPermissions",
+      "../../../core/ui/badge",
+      "../../../core/ui/confirmDialog",
+      "../../../core/ui/dataTable",
+      "../../../core/ui/emptyState",
+      "../../../core/ui/toast",
+      "../../../core/ui/toolbar",
+      "../../../core/ui/tooltip",
+      "../../../localAuth",
+      "../../../runtime/rbac",
+      "../models/users"
+    ],
+    "exports_render": true,
+    "has_v2_anchor": true
+  },
+  {
+    "file": "app/src/pages/cp/views/system.ts",
+    "imports": [
+      "../../../../../modules/core-system/ui/frontend-ts/pages/_shared/audit",
+      "../../../../../modules/core-system/ui/frontend-ts/pages/_shared/obsCodes",
+      "../../../../../modules/core-system/ui/frontend-ts/pages/_shared/safeMode",
+      "../../../../../modules/core-system/ui/frontend-ts/pages/_shared/uiBlocks",
+      "../models/system"
+    ],
+    "exports_render": true,
+    "has_v2_anchor": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/login.ts",
+    "imports": [
+      "/src/localAuth",
+      "/src/router"
+    ],
+    "exports_render": true,
+    "has_v2_anchor": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/dashboard.ts",
+    "imports": [
+      "../shared/coreStyles",
+      "./_shared/entitlements",
+      "./_shared/mainSystem.data",
+      "./_shared/mainSystem.shared",
+      "./_shared/sections",
+      "./_shared/uiBlocks",
+      "/src/core/access",
+      "/src/localAuth",
+      "/src/runtime/navigate"
+    ],
+    "exports_render": true,
+    "has_v2_anchor": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/toolbox.ts",
+    "imports": [
+      "./_shared/mainSystem.shared",
+      "./_shared/safeMode",
+      "./_shared/sections",
+      "./toolbox/contracts",
+      "./toolbox/sections",
+      "/src/localAuth",
+      "/src/runtime/rbac"
+    ],
+    "exports_render": true,
+    "has_v2_anchor": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/settings/index.test.ts",
+    "imports": [
+      "./index",
+      "vitest"
+    ],
+    "exports_render": false,
+    "has_v2_anchor": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/settings/subscriptionHub.ts",
+    "imports": [
+      "../_shared/entitlements",
+      "../_shared/mainSystem.shared",
+      "../_shared/safeMode",
+      "../account/contract",
+      "/src/runtime/rbac"
+    ],
+    "exports_render": false,
+    "has_v2_anchor": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/settings/branding.test.ts",
+    "imports": [
+      "/src/localAuth",
+      "vitest"
+    ],
+    "exports_render": false,
+    "has_v2_anchor": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/settings/index.ts",
+    "imports": [
+      "../_shared/mainSystem.shared",
+      "../_shared/recommendations",
+      "../_shared/recommendations.ctx",
+      "../_shared/renderAccessDenied",
+      "../_shared/rolePolicy",
+      "../_shared/sections"
+    ],
+    "exports_render": true,
+    "has_v2_anchor": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/settings/branding.ts",
+    "imports": [
+      "../../../../../../platform-services/branding/brandService",
+      "../_shared/mainSystem.data",
+      "../_shared/mainSystem.shared",
+      "/src/localAuth",
+      "/src/router",
+      "/src/runtime/rbac"
+    ],
+    "exports_render": true,
+    "has_v2_anchor": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/developer/index.tsx",
+    "imports": [
+      "../../shared/coreStyles",
+      "../_shared/audit",
+      "../_shared/mainSystem.shared",
+      "../_shared/obsCodes",
+      "../_shared/renderAccessDenied",
+      "../_shared/safeMode",
+      "./contract",
+      "/src/core/ui/badge",
+      "/src/core/ui/dataTable",
+      "/src/core/ui/emptyState",
+      "/src/core/ui/errorState",
+      "/src/core/ui/pageShell",
+      "/src/core/ui/sectionCard",
+      "/src/core/ui/skeletonLoader",
+      "/src/core/ui/toast",
+      "/src/core/ui/toolbar",
+      "/src/router",
+      "/src/runtime/rbac"
+    ],
+    "exports_render": true,
+    "has_v2_anchor": true
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/developer/contract.ts",
+    "imports": [
+      "../_shared/safeMode",
+      "/src/runtime/rbac"
+    ],
+    "exports_render": false,
+    "has_v2_anchor": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/developer/index.test.ts",
+    "imports": [
+      "../_shared/localAuth",
+      "./index",
+      "vitest"
+    ],
+    "exports_render": false,
+    "has_v2_anchor": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/developer/entitlements.tsx",
+    "imports": [
+      "../../shared/coreStyles",
+      "../_shared/audit",
+      "../_shared/mainSystem.shared",
+      "../_shared/obsCodes",
+      "../_shared/renderAccessDenied",
+      "../_shared/safeMode",
+      "./contract",
+      "/src/core/entitlements",
+      "/src/core/ui/badge",
+      "/src/core/ui/dataTable",
+      "/src/core/ui/emptyState",
+      "/src/core/ui/errorState",
+      "/src/core/ui/pageShell",
+      "/src/core/ui/sectionCard",
+      "/src/core/ui/skeletonLoader",
+      "/src/core/ui/toast",
+      "/src/core/ui/toolbar",
+      "/src/router",
+      "/src/runtime/rbac"
+    ],
+    "exports_render": true,
+    "has_v2_anchor": true
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/developer/view.ts",
+    "imports": [
+      "../_shared/uiBlocks",
+      "./model"
+    ],
+    "exports_render": true,
+    "has_v2_anchor": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/developer/model.ts",
+    "imports": [],
+    "exports_render": false,
+    "has_v2_anchor": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/activation/index.tsx",
+    "imports": [
+      "/src/core/entitlements",
+      "/src/runtime/navigate"
+    ],
+    "exports_render": true,
+    "has_v2_anchor": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/dashboard/index.test.ts",
+    "imports": [
+      "../dashboard",
+      "/src/localAuth",
+      "vitest"
+    ],
+    "exports_render": false,
+    "has_v2_anchor": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/verification/contract.ts",
+    "imports": [
+      "../_shared/safeMode",
+      "/src/runtime/rbac"
+    ],
+    "exports_render": false,
+    "has_v2_anchor": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/verification/index.test.ts",
+    "imports": [
+      "./index",
+      "/src/localAuth",
+      "vitest"
+    ],
+    "exports_render": false,
+    "has_v2_anchor": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/verification/view.ts",
+    "imports": [
+      "../_shared/uiBlocks",
+      "./model"
+    ],
+    "exports_render": true,
+    "has_v2_anchor": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/verification/model.ts",
+    "imports": [
+      "../_shared/mainSystem.data",
+      "../_shared/safeMode",
+      "/src/localAuth",
+      "/src/runtime/rbac"
+    ],
+    "exports_render": false,
+    "has_v2_anchor": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/verification/index.ts",
+    "imports": [
+      "../../shared/coreStyles",
+      "../_shared/audit",
+      "../_shared/mainSystem.shared",
+      "../_shared/obsCodes",
+      "../_shared/renderAccessDenied",
+      "../_shared/safeMode",
+      "./contract",
+      "/src/core/ui/badge",
+      "/src/core/ui/dataTable",
+      "/src/core/ui/emptyState",
+      "/src/core/ui/errorState",
+      "/src/core/ui/pageShell",
+      "/src/core/ui/sectionCard",
+      "/src/core/ui/skeletonLoader",
+      "/src/core/ui/toast",
+      "/src/core/ui/toolbar",
+      "/src/router",
+      "/src/runtime/rbac"
+    ],
+    "exports_render": true,
+    "has_v2_anchor": true
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/system/contract.ts",
+    "imports": [
+      "../_shared/safeMode",
+      "/src/runtime/rbac"
+    ],
+    "exports_render": false,
+    "has_v2_anchor": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/system/index.test.ts",
+    "imports": [
+      "./index",
+      "/src/localAuth",
+      "vitest"
+    ],
+    "exports_render": false,
+    "has_v2_anchor": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/system/model.ts",
+    "imports": [
+      "../../shared/featureFlags",
+      "../_shared/mainSystem.data",
+      "../_shared/safeMode"
+    ],
+    "exports_render": false,
+    "has_v2_anchor": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/system/index.ts",
+    "imports": [
+      "../_shared/audit",
+      "../_shared/mainSystem.shared",
+      "../_shared/obsCodes",
+      "../_shared/renderAccessDenied",
+      "../_shared/safeMode",
+      "../_shared/sections",
+      "./contract",
+      "./model",
+      "./sections/cache-audit",
+      "./sections/flags",
+      "./sections/flags-actions",
+      "./sections/layout",
+      "./sections/safe-mode",
+      "./sections/safe-mode-actions",
+      "/src/runtime/rbac"
+    ],
+    "exports_render": true,
+    "has_v2_anchor": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/logs/contract.ts",
+    "imports": [
+      "../_shared/safeMode",
+      "/src/runtime/rbac"
+    ],
+    "exports_render": false,
+    "has_v2_anchor": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/logs/index.test.ts",
+    "imports": [
+      "../_shared/audit",
+      "../_shared/obsCodes",
+      "./index",
+      "/src/localAuth",
+      "vitest"
+    ],
+    "exports_render": false,
+    "has_v2_anchor": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/logs/index.ts",
+    "imports": [
+      "../../shared/coreStyles",
+      "../_shared/audit",
+      "../_shared/mainSystem.shared",
+      "../_shared/obsCodes",
+      "../_shared/renderAccessDenied",
+      "../_shared/safeMode",
+      "./contract",
+      "/src/core/ui/badge",
+      "/src/core/ui/dataTable",
+      "/src/core/ui/emptyState",
+      "/src/core/ui/errorState",
+      "/src/core/ui/pageShell",
+      "/src/core/ui/sectionCard",
+      "/src/core/ui/toast",
+      "/src/core/ui/toolbar",
+      "/src/router",
+      "/src/runtime/rbac"
+    ],
+    "exports_render": true,
+    "has_v2_anchor": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/access-denied/index.tsx",
+    "imports": [],
+    "exports_render": true,
+    "has_v2_anchor": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/toolbox/contracts.ts",
+    "imports": [],
+    "exports_render": false,
+    "has_v2_anchor": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/toolbox/ui.ts",
+    "imports": [],
+    "exports_render": false,
+    "has_v2_anchor": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/users/contract.ts",
+    "imports": [
+      "../_shared/safeMode",
+      "/src/runtime/rbac"
+    ],
+    "exports_render": false,
+    "has_v2_anchor": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/users/index.test.ts",
+    "imports": [
+      "./index",
+      "/src/localAuth",
+      "vitest"
+    ],
+    "exports_render": false,
+    "has_v2_anchor": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/users/view.ts",
+    "imports": [
+      "../_shared/uiBlocks",
+      "./model"
+    ],
+    "exports_render": true,
+    "has_v2_anchor": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/users/model.ts",
+    "imports": [
+      "../_shared/mainSystem.data"
+    ],
+    "exports_render": false,
+    "has_v2_anchor": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/users/index.ts",
+    "imports": [
+      "../_shared/entitlements",
+      "../_shared/mainSystem.shared",
+      "../_shared/safeMode",
+      "../_shared/sections",
+      "./contract",
+      "./model",
+      "/src/runtime/rbac"
+    ],
+    "exports_render": true,
+    "has_v2_anchor": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/dossiers/contract.ts",
+    "imports": [
+      "../_shared/safeMode",
+      "/src/runtime/rbac"
+    ],
+    "exports_render": false,
+    "has_v2_anchor": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/dossiers/index.test.ts",
+    "imports": [
+      "../_shared/audit",
+      "../_shared/obsCodes",
+      "./index",
+      "./model",
+      "/src/localAuth",
+      "vitest"
+    ],
+    "exports_render": false,
+    "has_v2_anchor": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/dossiers/model.ts",
+    "imports": [
+      "../_shared/audit",
+      "../_shared/obsCodes",
+      "../_shared/rolePolicy",
+      "../_shared/safeMode",
+      "./contract",
+      "/src/runtime/rbac"
+    ],
+    "exports_render": false,
+    "has_v2_anchor": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/dossiers/index.ts",
+    "imports": [
+      "../_shared/mainSystem.shared",
+      "../_shared/renderAccessDenied",
+      "../_shared/safeMode",
+      "../_shared/sections",
+      "./contract",
+      "./sections/actions",
+      "./sections/bulk",
+      "./sections/create",
+      "./sections/detail",
+      "./sections/filters",
+      "./sections/history",
+      "./sections/list",
+      "./sections/rules",
+      "./sections/safe-mode",
+      "./sections/storage",
+      "/src/runtime/rbac"
+    ],
+    "exports_render": true,
+    "has_v2_anchor": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/_shared/uiBlocks.test.ts",
+    "imports": [
+      "./audit",
+      "./obsCodes",
+      "./uiBlocks",
+      "vitest"
+    ],
+    "exports_render": false,
+    "has_v2_anchor": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/_shared/localAuth.ts",
+    "imports": [],
+    "exports_render": false,
+    "has_v2_anchor": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/_shared/recommendations.test.ts",
+    "imports": [
+      "./recommendations",
+      "vitest"
+    ],
+    "exports_render": false,
+    "has_v2_anchor": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/_shared/safe-mode-write.test.ts",
+    "imports": [
+      "../_shared/audit",
+      "../_shared/obsCodes",
+      "../dossiers/model",
+      "vitest"
+    ],
+    "exports_render": false,
+    "has_v2_anchor": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/_shared/renderAccessDenied.ts",
+    "imports": [
+      "./audit",
+      "./mainSystem.data",
+      "./obsCodes"
+    ],
+    "exports_render": true,
+    "has_v2_anchor": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/_shared/recommendations.ctx.test.ts",
+    "imports": [
+      "./recommendations.ctx",
+      "vitest"
+    ],
+    "exports_render": false,
+    "has_v2_anchor": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/_shared/toolboxCard.ts",
+    "imports": [],
+    "exports_render": false,
+    "has_v2_anchor": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/_shared/regression-wall.test.ts",
+    "imports": [
+      "../account",
+      "../users",
+      "../verification",
+      "./localAuth",
+      "vitest"
+    ],
+    "exports_render": false,
+    "has_v2_anchor": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/_shared/themeCssVars.ts",
+    "imports": [
+      "./mainSystem.data"
+    ],
+    "exports_render": false,
+    "has_v2_anchor": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/_shared/storage.ts",
+    "imports": [],
+    "exports_render": false,
+    "has_v2_anchor": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/_shared/mainSystem.shared.ts",
+    "imports": [],
+    "exports_render": true,
+    "has_v2_anchor": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/_shared/entitlements.ts",
+    "imports": [
+      "/src/core/subscription/entitlementsApi"
+    ],
+    "exports_render": false,
+    "has_v2_anchor": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/_shared/recommendations.contract.test.ts",
+    "imports": [
+      "./audit",
+      "./obsCodes",
+      "./recommendations",
+      "vitest"
+    ],
+    "exports_render": false,
+    "has_v2_anchor": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/_shared/recommendations.ts",
+    "imports": [
+      "./audit",
+      "./obsCodes"
+    ],
+    "exports_render": true,
+    "has_v2_anchor": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/_shared/mainSystem.ui.ts",
+    "imports": [],
+    "exports_render": false,
+    "has_v2_anchor": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/_shared/role-policy.test.ts",
+    "imports": [
+      "node:fs",
+      "node:path",
+      "vitest"
+    ],
+    "exports_render": false,
+    "has_v2_anchor": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/_shared/mainSystem.data.ts",
+    "imports": [],
+    "exports_render": false,
+    "has_v2_anchor": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/_shared/uiBlocks.ts",
+    "imports": [
+      "./audit",
+      "./obsCodes",
+      "/src/runtime/navigate"
+    ],
+    "exports_render": false,
+    "has_v2_anchor": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/_shared/safeMode.ts",
+    "imports": [],
+    "exports_render": false,
+    "has_v2_anchor": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/_shared/recommendations.ctx.ts",
+    "imports": [
+      "./localAuth",
+      "./safeMode",
+      "./storage"
+    ],
+    "exports_render": false,
+    "has_v2_anchor": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/_shared/sections.ts",
+    "imports": [
+      "./audit",
+      "./obsCodes"
+    ],
+    "exports_render": true,
+    "has_v2_anchor": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/_shared/rolePolicy.ts",
+    "imports": [],
+    "exports_render": false,
+    "has_v2_anchor": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/_shared/audit.ts",
+    "imports": [],
+    "exports_render": false,
+    "has_v2_anchor": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/_shared/obsCodes.ts",
+    "imports": [],
+    "exports_render": false,
+    "has_v2_anchor": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/account/contract.ts",
+    "imports": [
+      "../_shared/safeMode",
+      "/src/runtime/rbac"
+    ],
+    "exports_render": false,
+    "has_v2_anchor": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/account/index.test.ts",
+    "imports": [
+      "./index",
+      "/src/localAuth",
+      "vitest"
+    ],
+    "exports_render": false,
+    "has_v2_anchor": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/account/view.ts",
+    "imports": [
+      "../_shared/uiBlocks",
+      "./model"
+    ],
+    "exports_render": true,
+    "has_v2_anchor": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/account/model.ts",
+    "imports": [
+      "../_shared/mainSystem.data"
+    ],
+    "exports_render": false,
+    "has_v2_anchor": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/account/index.ts",
+    "imports": [
+      "../_shared/entitlements",
+      "../_shared/mainSystem.shared",
+      "../_shared/safeMode",
+      "../_shared/sections",
+      "./contract",
+      "./model",
+      "/src/runtime/rbac"
+    ],
+    "exports_render": true,
+    "has_v2_anchor": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/blocked/index.test.ts",
+    "imports": [
+      "vitest"
+    ],
+    "exports_render": false,
+    "has_v2_anchor": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/blocked/index.ts",
+    "imports": [
+      "../../../../../../app/src/runtime/safeRender"
+    ],
+    "exports_render": false,
+    "has_v2_anchor": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/dossiers/sections/history.ts",
+    "imports": [
+      "../../_shared/uiBlocks",
+      "../model"
+    ],
+    "exports_render": true,
+    "has_v2_anchor": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/dossiers/sections/filters.ts",
+    "imports": [
+      "../../_shared/uiBlocks"
+    ],
+    "exports_render": true,
+    "has_v2_anchor": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/dossiers/sections/safe-mode.ts",
+    "imports": [
+      "../../_shared/safeMode",
+      "../../_shared/uiBlocks"
+    ],
+    "exports_render": true,
+    "has_v2_anchor": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/dossiers/sections/storage.ts",
+    "imports": [
+      "../../_shared/uiBlocks",
+      "../model"
+    ],
+    "exports_render": true,
+    "has_v2_anchor": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/dossiers/sections/detail.ts",
+    "imports": [
+      "../../_shared/recommendations",
+      "../../_shared/recommendations.ctx",
+      "../../_shared/uiBlocks",
+      "../model"
+    ],
+    "exports_render": true,
+    "has_v2_anchor": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/dossiers/sections/rules.ts",
+    "imports": [
+      "../../_shared/recommendations",
+      "../../_shared/recommendations.ctx",
+      "../../_shared/uiBlocks"
+    ],
+    "exports_render": true,
+    "has_v2_anchor": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/dossiers/sections/actions.ts",
+    "imports": [
+      "../../_shared/audit",
+      "../../_shared/obsCodes",
+      "../../_shared/rolePolicy",
+      "../../_shared/safeMode",
+      "../../_shared/uiBlocks",
+      "../contract",
+      "../model",
+      "./list",
+      "/src/runtime/rbac"
+    ],
+    "exports_render": true,
+    "has_v2_anchor": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/dossiers/sections/bulk.ts",
+    "imports": [
+      "../../_shared/audit",
+      "../../_shared/obsCodes",
+      "../../_shared/rolePolicy",
+      "../../_shared/safeMode",
+      "../../_shared/uiBlocks",
+      "../contract",
+      "../model",
+      "./list",
+      "/src/runtime/rbac"
+    ],
+    "exports_render": true,
+    "has_v2_anchor": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/dossiers/sections/create.ts",
+    "imports": [
+      "../../_shared/mainSystem.data",
+      "../../_shared/rolePolicy",
+      "../../_shared/safeMode",
+      "../../_shared/uiBlocks",
+      "../contract",
+      "../model",
+      "/src/runtime/rbac"
+    ],
+    "exports_render": true,
+    "has_v2_anchor": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/dossiers/sections/list.ts",
+    "imports": [
+      "../../_shared/audit",
+      "../../_shared/mainSystem.data",
+      "../../_shared/obsCodes",
+      "../../_shared/recommendations",
+      "../../_shared/recommendations.ctx",
+      "../../_shared/rolePolicy",
+      "../../_shared/uiBlocks",
+      "../contract",
+      "../model",
+      "./filters",
+      "/src/runtime/rbac"
+    ],
+    "exports_render": true,
+    "has_v2_anchor": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/toolbox/sections/webhooks.ts",
+    "imports": [
+      "../contracts",
+      "../ui"
+    ],
+    "exports_render": false,
+    "has_v2_anchor": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/toolbox/sections/api-tools.ts",
+    "imports": [
+      "../contracts",
+      "../ui"
+    ],
+    "exports_render": false,
+    "has_v2_anchor": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/toolbox/sections/pipeline.ts",
+    "imports": [
+      "../contracts",
+      "../ui"
+    ],
+    "exports_render": false,
+    "has_v2_anchor": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/toolbox/sections/logs.ts",
+    "imports": [
+      "../contracts",
+      "../ui"
+    ],
+    "exports_render": false,
+    "has_v2_anchor": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/toolbox/sections/tokens.ts",
+    "imports": [
+      "../contracts",
+      "../ui"
+    ],
+    "exports_render": false,
+    "has_v2_anchor": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/toolbox/sections/policy.ts",
+    "imports": [
+      "../contracts",
+      "../ui"
+    ],
+    "exports_render": false,
+    "has_v2_anchor": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/toolbox/sections/diagnostics.ts",
+    "imports": [
+      "../contracts",
+      "../ui"
+    ],
+    "exports_render": false,
+    "has_v2_anchor": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/toolbox/sections/index.ts",
+    "imports": [
+      "../contracts",
+      "./api-tools",
+      "./diagnostics",
+      "./logs",
+      "./pipeline",
+      "./tokens",
+      "./webhooks"
+    ],
+    "exports_render": false,
+    "has_v2_anchor": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/logs/sections/filters.ts",
+    "imports": [
+      "../../_shared/uiBlocks"
+    ],
+    "exports_render": true,
+    "has_v2_anchor": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/logs/sections/local-audit.ts",
+    "imports": [
+      "../../_shared/uiBlocks",
+      "/src/core/audit/auditLog"
+    ],
+    "exports_render": true,
+    "has_v2_anchor": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/logs/sections/retention.ts",
+    "imports": [
+      "../../_shared/audit",
+      "../../_shared/obsCodes",
+      "../../_shared/safeMode",
+      "../../_shared/uiBlocks",
+      "/src/runtime/rbac"
+    ],
+    "exports_render": true,
+    "has_v2_anchor": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/logs/sections/export.ts",
+    "imports": [
+      "../../_shared/audit",
+      "../../_shared/safeMode",
+      "../../_shared/uiBlocks",
+      "/src/runtime/rbac"
+    ],
+    "exports_render": true,
+    "has_v2_anchor": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/logs/sections/audit-log.ts",
+    "imports": [
+      "../../_shared/audit",
+      "../../_shared/uiBlocks",
+      "./filters"
+    ],
+    "exports_render": true,
+    "has_v2_anchor": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/system/sections/safe-mode.ts",
+    "imports": [
+      "../../_shared/safeMode",
+      "../../_shared/uiBlocks",
+      "../model",
+      "/src/core/ui/tooltip"
+    ],
+    "exports_render": true,
+    "has_v2_anchor": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/system/sections/cache-audit.ts",
+    "imports": [
+      "../../_shared/audit",
+      "../../_shared/obsCodes"
+    ],
+    "exports_render": true,
+    "has_v2_anchor": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/system/sections/cache-audit.ui.test.ts",
+    "imports": [
+      "./cache-audit",
+      "vitest"
+    ],
+    "exports_render": false,
+    "has_v2_anchor": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/system/sections/safe-mode-actions.ts",
+    "imports": [
+      "../../_shared/audit",
+      "../../_shared/obsCodes",
+      "../../_shared/safeMode",
+      "../../_shared/uiBlocks"
+    ],
+    "exports_render": true,
+    "has_v2_anchor": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/system/sections/layout.ts",
+    "imports": [
+      "../../_shared/uiBlocks",
+      "../model"
+    ],
+    "exports_render": true,
+    "has_v2_anchor": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/system/sections/flags.ts",
+    "imports": [
+      "../../_shared/uiBlocks",
+      "../model"
+    ],
+    "exports_render": true,
+    "has_v2_anchor": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/system/sections/flags-actions.ts",
+    "imports": [
+      "../../_shared/audit",
+      "../../_shared/obsCodes",
+      "../../_shared/safeMode",
+      "../../_shared/uiBlocks",
+      "../model"
+    ],
+    "exports_render": true,
+    "has_v2_anchor": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/developer/sections/contracts-table.ts",
+    "imports": [
+      "../../_shared/mainSystem.data",
+      "../../_shared/toolboxCard",
+      "../../_shared/uiBlocks"
+    ],
+    "exports_render": true,
+    "has_v2_anchor": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/developer/sections/registry-viewer.ts",
+    "imports": [
+      "../../_shared/mainSystem.data",
+      "../../_shared/toolboxCard",
+      "../../_shared/uiBlocks"
+    ],
+    "exports_render": true,
+    "has_v2_anchor": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/developer/sections/contracts-form.ts",
+    "imports": [
+      "../../_shared/mainSystem.data",
+      "../../_shared/toolboxCard",
+      "../../_shared/uiBlocks"
+    ],
+    "exports_render": true,
+    "has_v2_anchor": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/developer/sections/audit-log.ts",
+    "imports": [
+      "../../_shared/audit",
+      "../../_shared/toolboxCard",
+      "../../_shared/uiBlocks"
+    ],
+    "exports_render": true,
+    "has_v2_anchor": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/developer/sections/rules-viewer.ts",
+    "imports": [
+      "../../_shared/mainSystem.data",
+      "../../_shared/toolboxCard",
+      "../../_shared/uiBlocks"
+    ],
+    "exports_render": true,
+    "has_v2_anchor": false
+  },
+  {
+    "file": "modules/core-system/ui/frontend-ts/pages/developer/sections/datasources-viewer.ts",
+    "imports": [
+      "../../_shared/mainSystem.data",
+      "../../_shared/toolboxCard",
+      "../../_shared/uiBlocks"
+    ],
+    "exports_render": true,
+    "has_v2_anchor": false
+  }
+]

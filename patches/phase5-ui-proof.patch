@@ -1,0 +1,98 @@
+diff --git app/src/pages/cp/system.ts app/src/pages/cp/system.ts
+index e1a0c9a..d572c78 100644
+--- app/src/pages/cp/system.ts
++++ app/src/pages/cp/system.ts
+@@ -3,12 +3,10 @@
+  * SSOT System/SAFE_MODE page (CP)
+  */
+ import { getRole } from "/src/runtime/rbac";
+-import { safeRender } from "../../../../modules/core-system/ui/frontend-ts/pages/_shared/mainSystem.shared";
+-import { recordObs } from "../../../../modules/core-system/ui/frontend-ts/pages/_shared/audit";
+-import { OBS } from "../../../../modules/core-system/ui/frontend-ts/pages/_shared/obsCodes";
+-import { getSafeMode } from "../../../../modules/core-system/ui/frontend-ts/pages/_shared/safeMode";
+-import { renderAccessDenied } from "../../../../modules/core-system/ui/frontend-ts/pages/_shared/renderAccessDenied";
+-import { canAccess } from "../../../../modules/core-system/ui/frontend-ts/pages/system/contract";
++import { renderAccessDenied } from "/src/core/runtime/accessDenied";
++import { OBS } from "/src/core/runtime/obs";
++import { recordObs } from "/src/core/runtime/audit";
++import { canAccess } from "/src/core/runtime/contracts/system";
+ import { coreBaseStyles } from "../../../../modules/core-system/ui/frontend-ts/shared/coreStyles";
+ import { createPageShell } from "/src/core/ui/pageShell";
+ import { createSectionCard } from "/src/core/ui/sectionCard";
+@@ -19,6 +17,8 @@ import { createContextualEmptyState } from "/src/core/ui/emptyState";
+ import { createDataTable, type TableColumn } from "/src/core/ui/dataTable";
+ import { showToast } from "/src/core/ui/toast";
+ import { getMountEl } from "/src/router";
++import { navigate } from "/src/runtime/navigate";
++import { safeRender, fetchJsonSafe, mapSafeMode, getSafeMode } from "/src/core/runtime/safe";
+ 
+ type SystemDomain = "safeMode" | "rbac" | "runtime" | "featureFlags" | "security" | "demo";
+ type SystemSource = "CP" | "SYSTEM" | "DEMO";
+@@ -71,6 +71,8 @@ async function renderSystemPageAsync(root: HTMLElement): Promise<void> {
+       });
+ 
+       const grid = document.createElement("div");
++  grid.style.minWidth = "0";
++  grid.style.boxSizing = "border-box";
+       grid.style.cssText = `
+         display: grid;
+         grid-template-columns: repeat(2, minmax(0, 1fr));
+@@ -293,7 +295,7 @@ function renderData(
+           },
+           {
+             label: "Voir logs",
+-            onClick: () => { window.location.hash = "#/logs"; }
++            onClick: () => { navigate("#/logs"); }
+           }
+         ]
+       });
+@@ -319,11 +321,7 @@ function renderData(
+   });
+ }
+ 
+-function mapSafeMode(value: string): "OFF" | "COMPAT" | "STRICT" {
+-  if (value === "STRICT") return "STRICT";
+-  if (value === "COMPAT") return "COMPAT";
+-  return "OFF";
+-}
++
+ 
+ function formatNumber(value: number): string {
+   return new Intl.NumberFormat("fr-CA").format(value);
+@@ -347,17 +345,6 @@ function createKpiRow(label: string, value: string, tone?: "ok" | "warn" | "err"
+   return row;
+ }
+ 
+-async function fetchJsonSafe<T = any>(url: string): Promise<{ ok: boolean; status: number; data?: T; error?: string }> {
+-  try {
+-    const res = await fetch(url, { headers: { "accept": "application/json" } });
+-    if (!res.ok) return { ok: false, status: res.status, error: `HTTP ${res.status}` };
+-    const data = await res.json();
+-    return { ok: true, status: res.status, data };
+-  } catch (error) {
+-    return { ok: false, status: 0, error: String(error) };
+-  }
+-}
+-
+ async function getSystemData(defaultSafeMode: "OFF" | "COMPAT" | "STRICT"): Promise<{ data: SystemData; errors: { data?: string }; mode: SystemMode }> {
+   const demo = buildDemoSystemData(defaultSafeMode);
+   const errors: { data?: string } = {};
+@@ -489,3 +476,18 @@ function refreshSystem(): void {
+   const target = currentRoot || getMountEl();
+   if (target) void renderSystemPageAsync(target);
+ }
++
++// ---- Option B proof: Runtime Config card (ADMIN -> CLIENT) ----
++function __runtimeConfigProofCard(): HTMLElement {
++  const card = document.createElement("div");
++  card.style.cssText = "border:1px solid var(--ic-border,#2b3136);border-radius:12px;padding:12px;min-width:0;box-sizing:border-box;";
++  const title = document.createElement("div");
++  title.textContent = "Runtime Config";
++  title.style.cssText = "font-weight:700;margin-bottom:6px;";
++  const body = document.createElement("div");
++  body.style.cssText = "opacity:0.9;font-size:13px;line-height:1.35;";
++  body.textContent = "ADMIN pilote CLIENT via /api/runtime/config. Valider côté APP: window.__runtimeConfig.";
++  card.appendChild(title);
++  card.appendChild(body);
++  return card;
++}

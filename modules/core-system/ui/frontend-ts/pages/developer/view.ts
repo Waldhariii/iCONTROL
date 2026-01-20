@@ -1,5 +1,5 @@
 import type { DeveloperModel } from "./model";
-import { appendList, appendParagraph, appendPillRow, appendTable, sectionCard } from "../_shared/uiBlocks";
+import { appendList, appendParagraph, appendPillRow, appendTable, sectionCard } from "/src/core/ui/uiBlocks";
 
 export function renderDeveloperOverview(root: HTMLElement, model: DeveloperModel): void {
   const card = sectionCard(model.title);
@@ -8,7 +8,7 @@ export function renderDeveloperOverview(root: HTMLElement, model: DeveloperModel
   root.appendChild(card);
 }
 
-export function renderDeveloperToolbox(root: HTMLElement): void {
+function renderDeveloperToolbox(root: HTMLElement): void {
   const card = sectionCard("Toolbox");
   const link = document.createElement("a");
   link.href = "#/toolbox";
@@ -18,7 +18,7 @@ export function renderDeveloperToolbox(root: HTMLElement): void {
   root.appendChild(card);
 }
 
-export function renderDeveloperTableContract(root: HTMLElement, model: DeveloperModel): void {
+function renderDeveloperTableContract(root: HTMLElement, model: DeveloperModel): void {
   const card = sectionCard("Table contract");
   appendTable(
     card,
@@ -32,14 +32,14 @@ export function renderDeveloperTableContract(root: HTMLElement, model: Developer
   root.appendChild(card);
 }
 
-export function renderDeveloperFormContract(root: HTMLElement, model: DeveloperModel): void {
+function renderDeveloperFormContract(root: HTMLElement, model: DeveloperModel): void {
   const card = sectionCard("Form contract");
   appendPillRow(card, model.formContract.fieldTypes);
   appendParagraph(card, `Validation: ${model.formContract.validation.join(", ")}`);
   root.appendChild(card);
 }
 
-export function renderDeveloperDatasources(root: HTMLElement, model: DeveloperModel): void {
+function renderDeveloperDatasources(root: HTMLElement, model: DeveloperModel): void {
   const card = sectionCard("Datasource types");
   appendPillRow(card, model.datasource.types);
   appendParagraph(card, `Query ops: ${model.datasource.queryOps.join(", ")}`);

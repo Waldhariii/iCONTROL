@@ -1,0 +1,38 @@
+diff --git app/src/core/runtime/contracts/runtimeConfig.ts app/src/core/runtime/contracts/runtimeConfig.ts
+new file mode 100644
+index 0000000..9d617f0
+--- /dev/null
++++ app/src/core/runtime/contracts/runtimeConfig.ts
+@@ -0,0 +1,21 @@
++export const ICONTROL_RUNTIME_CONFIG_KIND = "ICONTROL_RUNTIME_CONFIG_V1" as const;
++
++export type RuntimeConfigV1 = {
++  kind: typeof ICONTROL_RUNTIME_CONFIG_KIND;
++  version: 1;
++  issuedAt: string;
++  safeMode?: boolean;
++  featureFlags?: Record<string, boolean>;
++  modules?: Record<string, { enabled: boolean; tier?: "free" | "pro" | "enterprise" }>;
++};
++
++export function makeDefaultRuntimeConfig(): RuntimeConfigV1 {
++  return {
++    kind: ICONTROL_RUNTIME_CONFIG_KIND,
++    version: 1,
++    issuedAt: new Date().toISOString(),
++    safeMode: false,
++    featureFlags: {},
++    modules: {},
++  };
++}
+diff --git app/src/core/runtime/contracts/runtimeConfigPort.ts app/src/core/runtime/contracts/runtimeConfigPort.ts
+new file mode 100644
+index 0000000..c8e8993
+--- /dev/null
++++ app/src/core/runtime/contracts/runtimeConfigPort.ts
+@@ -0,0 +1,5 @@
++import type { RuntimeConfigV1 } from "./runtimeConfig";
++
++export interface RuntimeConfigPort {
++  getRuntimeConfig(): Promise<RuntimeConfigV1>;
++}
