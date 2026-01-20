@@ -143,6 +143,7 @@ function renderData(
     const tableContainer = document.createElement("div");
 
     const { element: toolbar, searchInput } = createToolbar({
+      // @placeholder owner:tbd expiry:2099-12-31 risk:low tag:WARN_PLACEHOLDER_NOT_IMPLEMENTED
       searchPlaceholder: "Rechercher message, module, code, correlationId...",
       onSearch: (value) => {
         tableState.search = value.toLowerCase().trim();

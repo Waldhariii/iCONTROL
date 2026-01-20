@@ -1,3 +1,19 @@
+/**
+ // @placeholder owner:tbd expiry:2099-12-31 risk:low tag:WARN_PLACEHOLDER_NOT_IMPLEMENTED
+ * PLACEHOLDER GOVERNANCE
+ * @placeholder
+ * code: WARN_PLACEHOLDER_NOT_IMPLEMENTED
+ * owner: core-platform
+ * expiry: TBD
+ * risk: LOW
+ * file: modules/core-system/ui/frontend-ts/pages/login/loginPage.ts
+ * created_at: 2026-01-20T01:13:27.385Z
+ *
+ * Rationale:
+ * - Stub de compilation pour unblock bundling/tests.
+ * - À remplacer par une implémentation réelle avant prod.
+ */
+
 /* ICONTROL_LEGACY_LOGINPAGE_V1: not routed by moduleLoader/router; keep for reference only */
 import { coreBaseStyles } from "../../shared/coreStyles";
 import {
