@@ -1,4 +1,20 @@
 /**
+ // @placeholder owner:tbd expiry:2099-12-31 risk:low tag:WARN_PLACEHOLDER_NOT_IMPLEMENTED
+ * PLACEHOLDER GOVERNANCE
+ * @placeholder
+ * code: WARN_PLACEHOLDER_NOT_IMPLEMENTED
+ * owner: core-platform
+ * expiry: TBD
+ * risk: LOW
+ * file: app/src/core/ui/toolbar.ts
+ * created_at: 2026-01-20T01:13:27.385Z
+ *
+ * Rationale:
+ * - Stub de compilation pour unblock bundling/tests.
+ * - À remplacer par une implémentation réelle avant prod.
+ */
+
+/**
  * ICONTROL_TOOLBAR_V1
  * Toolbar standardisée avec recherche, filtres et actions
  */

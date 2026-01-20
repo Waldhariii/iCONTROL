@@ -235,6 +235,7 @@ function renderSubscriptionsTab(
   };
 
   const { element: toolbar, searchInput } = createToolbar({
+    // @placeholder owner:tbd expiry:2099-12-31 risk:low tag:WARN_PLACEHOLDER_NOT_IMPLEMENTED
     searchPlaceholder: "Rechercher un module...",
     onSearch: (value) => {
       toolbarState.search = value.toLowerCase().trim();
