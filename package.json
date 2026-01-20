@@ -46,7 +46,7 @@
     "proofs:runtime:config": "node scripts/check-runtime-config.js",
     "check:created-at": "node scripts/check-created-at-governance.js",
     "prove:plugins": "bash scripts/prove-plugins-governance.sh",
-    "check:paid-killswitch": "node scripts/check-paid-killswitch.js"
+    "check:paid-killswitch": "node scripts/check-paid-killswitch.cjs"
   },
   "devDependencies": {
     "esbuild": "^0.21.5",
