@@ -26,7 +26,7 @@ const SECURE_USERS: Record<string, SecureUserData> = {
     username: "WaldHari",
     fullName: "Dany Gaudreault",
     email: "dany@exterminationinnovex.com",
-    // Hash généré avec: password = "6q1WX&YBj0bL#&LiCEcQxebmt$cw"
+    // Hash generated with an internal test vector (redacted)
     // Format: hash|salt|iterations
     passwordHash: "QUsgz75rA+76bChIrHRxHiIeyeYswYS4wos9/NUV2WA=|a+Tqx/a2KiHDJyNU/Yq46A==|100000",
     role: "MASTER",

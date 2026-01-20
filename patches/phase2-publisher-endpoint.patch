@@ -1,8 +1,8 @@
-diff --git app/src/core/runtime/runtimeConfig/publisher.ts app/src/core/runtime/runtimeConfig/publisher.ts
+diff --git a/app/src/core/runtime/runtimeConfig/publisher.ts b/app/src/core/runtime/runtimeConfig/publisher.ts
 new file mode 100644
 index 0000000..c8d5d6f
 --- /dev/null
-+++ app/src/core/runtime/runtimeConfig/publisher.ts
++++ b/app/src/core/runtime/runtimeConfig/publisher.ts
 @@ -0,0 +1,11 @@
 +import { makeDefaultRuntimeConfig } from "../contracts/runtimeConfig";
 +
@@ -15,10 +15,10 @@ index 0000000..c8d5d6f
 +export function getRuntimeConfigSnapshot(): typeof _runtimeConfig {
 +  return _runtimeConfig;
 +}
-diff --git server/runtime-config-server.js server/runtime-config-server.js
+diff --git a/server/runtime-config-server.js b/server/runtime-config-server.js
 index bb6ebe8..2fe1c42 100755
---- server/runtime-config-server.js
-+++ server/runtime-config-server.js
+--- a/server/runtime-config-server.js
++++ b/server/runtime-config-server.js
 @@ -7,9 +7,16 @@ const HOST = process.env.ICONTROL_LOCAL_HOST || "127.0.0.1";
  const PORT = Number(process.env.ICONTROL_LOCAL_PORT || "4176");
  

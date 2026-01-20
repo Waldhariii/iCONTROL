@@ -1,7 +1,7 @@
-diff --git app/src/pages/cp/system.ts app/src/pages/cp/system.ts
+diff --git a/app/src/pages/cp/system.ts b/app/src/pages/cp/system.ts
 index e1a0c9a..d572c78 100644
---- app/src/pages/cp/system.ts
-+++ app/src/pages/cp/system.ts
+--- a/app/src/pages/cp/system.ts
++++ b/app/src/pages/cp/system.ts
 @@ -3,12 +3,10 @@
   * SSOT System/SAFE_MODE page (CP)
   */

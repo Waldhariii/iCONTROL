@@ -1,8 +1,8 @@
-diff --git app/src/core/runtime/runtimeConfig/loader.ts app/src/core/runtime/runtimeConfig/loader.ts
+diff --git a/app/src/core/runtime/runtimeConfig/loader.ts b/app/src/core/runtime/runtimeConfig/loader.ts
 new file mode 100644
 index 0000000..7719276
 --- /dev/null
-+++ app/src/core/runtime/runtimeConfig/loader.ts
++++ b/app/src/core/runtime/runtimeConfig/loader.ts
 @@ -0,0 +1,23 @@
 +import type { RuntimeConfigV1 } from "../contracts/runtimeConfig";
 +import { makeDefaultRuntimeConfig } from "../contracts/runtimeConfig";
@@ -27,10 +27,10 @@ index 0000000..7719276
 +export function applyRuntimeConfigToWindow(cfg: RuntimeConfigV1): void {
 +  window.__runtimeConfig = cfg;
 +}
-diff --git app/src/main.ts app/src/main.ts
+diff --git a/app/src/main.ts b/app/src/main.ts
 index de943de..7413a9b 100644
---- app/src/main.ts
-+++ app/src/main.ts
+--- a/app/src/main.ts
++++ b/app/src/main.ts
 @@ -1,10 +1,36 @@
  import { getBrandResolved } from "../../platform-services/branding/brandService";
 -import {

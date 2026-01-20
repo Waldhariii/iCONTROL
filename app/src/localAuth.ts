@@ -136,16 +136,25 @@ export function isLoggedIn(scope: AuthScope = resolveAuthScope()): boolean {
  * et sont gérés via userData.ts. Les autres utilisateurs utilisent des mots de passe simples
  * pour le développement.
  */
-const BOOTSTRAP_USERS: Record<string, { password: string; role: Role }> = {
-  // Utilisateurs Administration (CP)
-  Master: { password: "1234", role: "MASTER" },
-  Developpeur: { password: "1234", role: "DEVELOPER" },
-  // WaldHari est géré via userData.ts avec sécurité renforcée
-  // Utilisateurs Client (APP)
-  SYSAdmin: { password: "1234", role: "SYSADMIN" },
-  Admin: { password: "1234", role: "ADMIN" },
-  Utilisateur: { password: "1234", role: "USER" },
-};
+// SECURITY: Bootstrap users are DEV-only and must be injected, never hardcoded.
+// Provide JSON via VITE_ICONTROL_DEV_BOOTSTRAP_USERS (or runtime-config) when needed.
+// Example (DEV only):
+// {"Admin":{"password":"<one-time>","role":"ADMIN"}}
+const BOOTSTRAP_USERS: Record<string, { password: string; role: Role }> = (() => {
+  try {
+    const isDev = (import.meta as any)?.env?.DEV === true;
+    if (!isDev) return {};
+    const raw =
+      (import.meta as any)?.env?.VITE_ICONTROL_DEV_BOOTSTRAP_USERS ||
+      (globalThis as any)?.__ICONTROL_DEV_BOOTSTRAP_USERS__;
+    if (!raw || typeof raw !== "string") return {};
+    const parsed = JSON.parse(raw);
+    if (!parsed || typeof parsed !== "object") return {};
+    return parsed as Record<string, { password: string; role: Role }>;
+  } catch {
+    return {};
+  }
+})();
 
 // ICONTROL_USER_INDEX_V1: Index optimisé pour recherche rapide (insensible à la casse)
 // Inclut les utilisateurs sécurisés (WaldHari, etc.)

@@ -1,7 +1,7 @@
-diff --git package.json package.json
+diff --git a/package.json b/package.json
 index aab98b2..aafa7ef 100644
---- package.json
-+++ package.json
+--- a/package.json
++++ b/package.json
 @@ -36,7 +36,17 @@
      "local:web:serve": "bash -lc 'node ./server/runtime-config-server.js --host ${ICONTROL_LOCAL_HOST:-127.0.0.1} --port ${ICONTROL_LOCAL_PORT:-4176} --dist ./dist'",
      "start": "bash scripts/rebuild-and-serve.sh",
@@ -21,32 +21,32 @@ index aab98b2..aafa7ef 100644
    },
    "devDependencies": {
      "esbuild": "^0.21.5",
-diff --git proofs/PROOFS_RUNTIME_CONFIG.json proofs/PROOFS_RUNTIME_CONFIG.json
+diff --git a/proofs/PROOFS_RUNTIME_CONFIG.json b/proofs/PROOFS_RUNTIME_CONFIG.json
 new file mode 100644
 index 0000000..2e0b04a
 --- /dev/null
-+++ proofs/PROOFS_RUNTIME_CONFIG.json
++++ b/proofs/PROOFS_RUNTIME_CONFIG.json
 @@ -0,0 +1,5 @@
 +{
 +  "proof": "runtime-config",
 +  "kind": "ICONTROL_RUNTIME_CONFIG_V1",
 +  "endpoint": "/api/runtime/config"
 +}
-diff --git proofs/PROOFS_RUNTIME_CONFIG.md proofs/PROOFS_RUNTIME_CONFIG.md
+diff --git a/proofs/PROOFS_RUNTIME_CONFIG.md b/proofs/PROOFS_RUNTIME_CONFIG.md
 new file mode 100644
 index 0000000..b949b43
 --- /dev/null
-+++ proofs/PROOFS_RUNTIME_CONFIG.md
++++ b/proofs/PROOFS_RUNTIME_CONFIG.md
 @@ -0,0 +1,4 @@
 +# Proof: Runtime Config Option B
 +- Contract: ICONTROL_RUNTIME_CONFIG_V1
 +- Endpoint: GET /api/runtime/config (runtime-config-server)
 +- Loader: APP boot loads config and sets window.__runtimeConfig
-diff --git scripts/check-runtime-config.js scripts/check-runtime-config.js
+diff --git a/scripts/check-runtime-config.js b/scripts/check-runtime-config.js
 new file mode 100644
 index 0000000..66ab7ce
 --- /dev/null
-+++ scripts/check-runtime-config.js
++++ b/scripts/check-runtime-config.js
 @@ -0,0 +1,8 @@
 +const fs = require("fs");
 +function must(cond, msg) { if (!cond) { console.error("FAIL:", msg); process.exit(1); } }

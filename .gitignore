@@ -75,3 +75,53 @@ app/src/policies/*.BAK_*
 app-desktop-*/dist/
 app-desktop-*/src-tauri/target/
 app-desktop-*/src-tauri/gen/
+
+# --- Security / Build artifacts (must not be tracked) ---
+dist/
+**/dist/
+build/
+**/build/
+target/
+**/target/
+.vite/
+**/.vite/
+.cache/
+**/.cache/
+
+# --- Local bundles / packs / audits (ephemeral) ---
+_pr_pack/
+_pr_pack_final/
+_gov_pack/
+_gov_pack_final/
+_audit_system_innovex_clean/
+_audit_*/
+_security_inventory_*/
+_report_*/
+_reports_*/
+_wt-*/
+_wt-*/
+
+# --- WIP / backups (must never be committed) ---
+._WIP_BACKUPS/
+**/._WIP_BACKUPS/
+
+# --- macOS noise ---
+.DS_Store
+._*
+
+# --- SECURITY / HYGIENE ---
+# Build artifacts must never be tracked
+dist/
+**/dist/
+build/
+**/build/
+target/
+**/target/
+
+# Local WIP backups / inventories must never be tracked
+._WIP_BACKUPS/
+_security_inventory_*/
+_audit_system_innovex_clean/
+_pr_pack*/
+_gov_pack*/
+
