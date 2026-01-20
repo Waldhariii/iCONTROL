@@ -65,3 +65,26 @@ Choisir et appliquer uniformément:
   - Never required for correctness.
   - Must be disable-able instantly (kill-switch).
 
+
+## SAFE_MODE — Runtime Invariants
+
+- Le système DOIT rester fonctionnel sans aucun abonnement payant
+- Tout provider payant est OPTIONNEL et remplaçable
+- SAFE_MODE force exclusivement le socle gratuit
+- Aucun module payant ne peut être critique
+- Toute écriture passe par le Write Gateway
+- Toute violation déclenche un audit, jamais un crash
+
+
+## Runtime-config invariants (governance)
+
+- runtime-config MUST be loadable without side effects
+- SAFE_MODE MUST:
+  - be read-only at runtime
+  - disable all mutating operations
+  - never depend on network availability
+- All runtime-config flags MUST declare:
+  - scope (core | module | ui)
+  - mutability (static | dynamic)
+  - enforcement (WARN_ONLY | FAIL)
+
