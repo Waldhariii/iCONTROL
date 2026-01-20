@@ -75,3 +75,8 @@ app/src/policies/*.BAK_*
 app-desktop-*/dist/
 app-desktop-*/src-tauri/target/
 app-desktop-*/src-tauri/gen/
+
+# --- Local-only / security / inventories (never commit) ---
+._WIP_BACKUPS/
+_security_inventory_*/
+_audit_system_innovex_clean/
