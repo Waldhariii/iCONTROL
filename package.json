@@ -42,8 +42,9 @@
     "proofs:developer:entitlements": "node scripts/check-developer-entitlements-route.js",
     "proofs:verification": "node scripts/check-verification-route.js",
     "proofs:dashboard": "node scripts/check-dashboard-route.js",
-    "proofs:all": "npm run -s proofs:logs && npm run -s proofs:system && npm run -s proofs:api && npm run -s proofs:network && npm run -s proofs:account && npm run -s proofs:developer && npm run -s proofs:developer:entitlements && npm run -s proofs:verification && npm run -s proofs:dashboard",
-    "proofs:runtime:config": "node scripts/check-runtime-config.js"
+    "proofs:all": "npm run -s proofs:logs && npm run -s proofs:system && npm run -s proofs:api && npm run -s proofs:network && npm run -s proofs:account && npm run -s proofs:developer && npm run -s proofs:developer:entitlements && npm run -s proofs:verification && npm run -s proofs:dashboard && npm run -s check:created-at",
+    "proofs:runtime:config": "node scripts/check-runtime-config.js",
+    "check:created-at": "node scripts/check-created-at-governance.js"
   },
   "devDependencies": {
     "esbuild": "^0.21.5",
