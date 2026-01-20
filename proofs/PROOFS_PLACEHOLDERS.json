@@ -1,997 +1,898 @@
 {
   "kind": "ICONTROL_PLACEHOLDER_INVENTORY_PROOF_V1",
-  "ts": "2026-01-20T16:14:17.208Z",
+  "ts": "DETERMINISTIC",
   "count": 99,
   "items": [
     {
-      "file": "./app/src/core/branding/logoManager.ts",
+      "rel": "./11:app/src/core/runtime/accessDenied.ts",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "first_line": "",
+      "has_export_default": false,
+      "has_named_exports": false,
+      "placeholder_hit": false
+    },
+    {
+      "rel": "./12:app/src/core/runtime/audit.ts",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "first_line": "",
+      "has_export_default": false,
+      "has_named_exports": false,
+      "placeholder_hit": false
+    },
+    {
+      "rel": "./14:app/src/core/runtime/obs.ts",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "first_line": "",
+      "has_export_default": false,
+      "has_named_exports": false,
+      "placeholder_hit": false
+    },
+    {
+      "rel": "./16:app/src/core/runtime/safe.ts",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "first_line": "",
+      "has_export_default": false,
+      "has_named_exports": false,
+      "placeholder_hit": false
+    },
+    {
+      "rel": "./17:app/src/core/studio/blueprints/blueprint.presentation.json.ts",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "first_line": "",
+      "has_export_default": false,
+      "has_named_exports": false,
+      "placeholder_hit": false
+    },
+    {
+      "rel": "./18:app/src/core/studio/blueprints/blueprint.structure.json.ts",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "first_line": "",
+      "has_export_default": false,
+      "has_named_exports": false,
+      "placeholder_hit": false
+    },
+    {
+      "rel": "./19:app/src/core/studio/blueprints/schemas/presentation.schema.json.ts",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "first_line": "",
+      "has_export_default": false,
+      "has_named_exports": false,
+      "placeholder_hit": false
+    },
+    {
+      "rel": "./20:app/src/core/studio/blueprints/schemas/structure.schema.json.ts",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "first_line": "",
+      "has_export_default": false,
+      "has_named_exports": false,
+      "placeholder_hit": false
+    },
+    {
+      "rel": "./22:app/src/core/studio/runtime/internal/datasources.ts",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "first_line": "",
+      "has_export_default": false,
+      "has_named_exports": false,
+      "placeholder_hit": false
+    },
+    {
+      "rel": "./25:app/src/core/ui/accessibility.ts",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "first_line": "",
+      "has_export_default": false,
+      "has_named_exports": false,
+      "placeholder_hit": false
+    },
+    {
+      "rel": "./26:app/src/core/ui/commandPalette.ts",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "first_line": "",
+      "has_export_default": false,
+      "has_named_exports": false,
+      "placeholder_hit": false
+    },
+    {
+      "rel": "./27:app/src/core/ui/confirmDialog.ts",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "first_line": "",
+      "has_export_default": false,
+      "has_named_exports": false,
+      "placeholder_hit": false
+    },
+    {
+      "rel": "./28:app/src/core/ui/dataTable.ts",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "first_line": "",
+      "has_export_default": false,
+      "has_named_exports": false,
+      "placeholder_hit": false
+    },
+    {
+      "rel": "./29:app/src/core/ui/emptyState.ts",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "first_line": "",
+      "has_export_default": false,
+      "has_named_exports": false,
+      "placeholder_hit": false
+    },
+    {
+      "rel": "./3:app/src/core/errors/errorTracker.ts",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "first_line": "",
+      "has_export_default": false,
+      "has_named_exports": false,
+      "placeholder_hit": false
+    },
+    {
+      "rel": "./30:app/src/core/ui/keyboardShortcuts.ts",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "first_line": "",
+      "has_export_default": false,
+      "has_named_exports": false,
+      "placeholder_hit": false
+    },
+    {
+      "rel": "./31:app/src/core/ui/onboarding.ts",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "first_line": "",
+      "has_export_default": false,
+      "has_named_exports": false,
+      "placeholder_hit": false
+    },
+    {
+      "rel": "./32:app/src/core/ui/skeletonLoader.ts",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "first_line": "",
+      "has_export_default": false,
+      "has_named_exports": false,
+      "placeholder_hit": false
+    },
+    {
+      "rel": "./33:app/src/core/ui/toast.ts",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "first_line": "",
+      "has_export_default": false,
+      "has_named_exports": false,
+      "placeholder_hit": false
+    },
+    {
+      "rel": "./34:app/src/core/ui/tooltip.ts",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "first_line": "",
+      "has_export_default": false,
+      "has_named_exports": false,
+      "placeholder_hit": false
+    },
+    {
+      "rel": "./35:app/src/core/ui/updateModal.ts",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "first_line": "",
+      "has_export_default": false,
+      "has_named_exports": false,
+      "placeholder_hit": false
+    },
+    {
       "rel": "./app/src/core/branding/logoManager.ts",
       "sha256": "a208cf0aeac1078478205f3c1c00627964a558f9d922f2638211e405f65d7eb9",
+      "size_bytes": 848,
       "first_line": "/**",
       "has_export_default": false,
       "has_named_exports": true,
-      "placeholder_hit": false,
-      "size_bytes": 848
+      "placeholder_hit": false
     },
     {
-      "file": "./app/src/core/degradation/gracefulDegradation.ts",
       "rel": "./app/src/core/degradation/gracefulDegradation.ts",
       "sha256": "6933560c119de1b3af9d444a55a45d1bc179beb7f9efb080c69c56c7b492a4fd",
+      "size_bytes": 188,
       "first_line": "// build-unblock stub (auto-generated)",
       "has_export_default": false,
       "has_named_exports": true,
-      "placeholder_hit": false,
-      "size_bytes": 188
+      "placeholder_hit": false
     },
     {
-      "file": "./app/src/core/errors/errorTracker.ts",
       "rel": "./app/src/core/errors/errorTracker.ts",
       "sha256": "d6ccb523655be62cb35cff868851bd52abb857ff5974c998b33035295dae478c",
+      "size_bytes": 181,
       "first_line": "// build-unblock stub (auto-generated)",
       "has_export_default": false,
       "has_named_exports": true,
-      "placeholder_hit": false,
-      "size_bytes": 181
+      "placeholder_hit": false
     },
     {
-      "file": "./app/src/core/layout/cpToolboxShell.css",
       "rel": "./app/src/core/layout/cpToolboxShell.css",
       "sha256": "9b4a92ea8d25bb6f20f5716662c4baaf5d77a93b122ff197b4b27c92fc4f9d77",
+      "size_bytes": 38,
       "first_line": "/* CP Toolbox Shell (minimal stub) */",
       "has_export_default": false,
       "has_named_exports": false,
-      "placeholder_hit": false,
-      "size_bytes": 38
+      "placeholder_hit": false
     },
     {
-      "file": "./app/src/core/layout/cpToolboxShell.ts",
       "rel": "./app/src/core/layout/cpToolboxShell.ts",
       "sha256": "e3459353a173c5cfb87784bf69ae931d477b515ea9e3ebad3929ed696534ac26",
+      "size_bytes": 768,
       "first_line": "/**",
       "has_export_default": false,
       "has_named_exports": true,
-      "placeholder_hit": true,
-      "size_bytes": 768
+      "placeholder_hit": true
     },
     {
-      "file": "./app/src/core/monitoring/systemMetrics.ts",
       "rel": "./app/src/core/monitoring/systemMetrics.ts",
       "sha256": "0c7963cf3da9818accafeddb3c37abdb314104997bad9728f8cbf21a1d2a6d8f",
+      "size_bytes": 182,
       "first_line": "// build-unblock stub (auto-generated)",
       "has_export_default": false,
       "has_named_exports": true,
-      "placeholder_hit": false,
-      "size_bytes": 182
+      "placeholder_hit": false
     },
     {
-      "file": "./app/src/core/pageEditor/pageModificationManager.ts",
       "rel": "./app/src/core/pageEditor/pageModificationManager.ts",
       "sha256": "79fc074a198e7f8dc027e8d61a99f50fc3b738bab0e7c1c1a3eabe47309b9bfb",
+      "size_bytes": 69,
       "first_line": "// build-unblock stub (auto-generated)",
       "has_export_default": false,
       "has_named_exports": true,
-      "placeholder_hit": false,
-      "size_bytes": 69
+      "placeholder_hit": false
     },
     {
-      "file": "./app/src/core/performance/performanceBudget.ts",
       "rel": "./app/src/core/performance/performanceBudget.ts",
       "sha256": "8f209ef814e9f5a5bdc8877e59ecfeca2f609fa3ab90b86e081683fcc2f25ef1",
+      "size_bytes": 193,
       "first_line": "// build-unblock stub (auto-generated)",
       "has_export_default": false,
       "has_named_exports": true,
-      "placeholder_hit": false,
-      "size_bytes": 193
+      "placeholder_hit": false
     },
     {
-      "file": "./app/src/core/permissions/userPermissions.ts",
       "rel": "./app/src/core/permissions/userPermissions.ts",
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
       "first_line": "",
       "has_export_default": false,
       "has_named_exports": false,
-      "placeholder_hit": false,
-      "size_bytes": 0
+      "placeholder_hit": false
     },
     {
-      "file": "./app/src/core/release/versionGate.ts",
       "rel": "./app/src/core/release/versionGate.ts",
       "sha256": "712782abd4eb6b5c83d08121f9e6c072052a0659311e16d11e8b984bfc4a9449",
+      "size_bytes": 736,
       "first_line": "/**",
       "has_export_default": false,
       "has_named_exports": true,
-      "placeholder_hit": false,
-      "size_bytes": 736
+      "placeholder_hit": false
     },
     {
-      "file": "./app/src/core/responsive/responsive.css",
       "rel": "./app/src/core/responsive/responsive.css",
       "sha256": "275e77c47a735a16918fcc9b8a54fd78b8bf4c50e9676c43799ecdc60bc01561",
+      "size_bytes": 93,
       "first_line": "/* ICONTROL_RESPONSIVE_CSS_STUB_V1",
       "has_export_default": false,
       "has_named_exports": false,
-      "placeholder_hit": false,
-      "size_bytes": 93
+      "placeholder_hit": false
     },
     {
-      "file": "./app/src/core/runtime/accessDenied.ts",
       "rel": "./app/src/core/runtime/accessDenied.ts",
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
       "first_line": "",
       "has_export_default": false,
       "has_named_exports": false,
-      "placeholder_hit": false,
-      "size_bytes": 0
+      "placeholder_hit": false
     },
     {
-      "file": "./app/src/core/runtime/audit.ts",
       "rel": "./app/src/core/runtime/audit.ts",
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
       "first_line": "",
       "has_export_default": false,
       "has_named_exports": false,
-      "placeholder_hit": false,
-      "size_bytes": 0
+      "placeholder_hit": false
     },
     {
-      "file": "./app/src/core/runtime/contracts/runtimeConfig.ts",
       "rel": "./app/src/core/runtime/contracts/runtimeConfig.ts",
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
       "first_line": "",
       "has_export_default": false,
       "has_named_exports": false,
-      "placeholder_hit": false,
-      "size_bytes": 0
+      "placeholder_hit": false
     },
     {
-      "file": "./app/src/core/runtime/contracts/system.ts",
       "rel": "./app/src/core/runtime/contracts/system.ts",
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
       "first_line": "",
       "has_export_default": false,
       "has_named_exports": false,
-      "placeholder_hit": false,
-      "size_bytes": 0
+      "placeholder_hit": false
     },
     {
-      "file": "./app/src/core/runtime/obs.ts",
       "rel": "./app/src/core/runtime/obs.ts",
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
       "first_line": "",
       "has_export_default": false,
       "has_named_exports": false,
-      "placeholder_hit": false,
-      "size_bytes": 0
+      "placeholder_hit": false
     },
     {
-      "file": "./app/src/core/runtime/safe.ts",
       "rel": "./app/src/core/runtime/safe.ts",
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
       "first_line": "",
       "has_export_default": false,
       "has_named_exports": false,
-      "placeholder_hit": false,
-      "size_bytes": 0
+      "placeholder_hit": false
     },
     {
-      "file": "./app/src/core/studio/blueprints/blueprint.presentation.json.ts",
       "rel": "./app/src/core/studio/blueprints/blueprint.presentation.json.ts",
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
       "first_line": "",
       "has_export_default": false,
       "has_named_exports": false,
-      "placeholder_hit": false,
-      "size_bytes": 0
+      "placeholder_hit": false
     },
     {
-      "file": "./app/src/core/studio/blueprints/blueprint.structure.json.ts",
       "rel": "./app/src/core/studio/blueprints/blueprint.structure.json.ts",
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
       "first_line": "",
       "has_export_default": false,
       "has_named_exports": false,
-      "placeholder_hit": false,
-      "size_bytes": 0
+      "placeholder_hit": false
     },
     {
-      "file": "./app/src/core/studio/blueprints/schemas/presentation.schema.json.ts",
       "rel": "./app/src/core/studio/blueprints/schemas/presentation.schema.json.ts",
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
       "first_line": "",
       "has_export_default": false,
       "has_named_exports": false,
-      "placeholder_hit": false,
-      "size_bytes": 0
+      "placeholder_hit": false
     },
     {
-      "file": "./app/src/core/studio/blueprints/schemas/structure.schema.json.ts",
       "rel": "./app/src/core/studio/blueprints/schemas/structure.schema.json.ts",
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
       "first_line": "",
       "has_export_default": false,
       "has_named_exports": false,
-      "placeholder_hit": false,
-      "size_bytes": 0
+      "placeholder_hit": false
     },
     {
-      "file": "./app/src/core/studio/registry/internal/components/Form.ts",
       "rel": "./app/src/core/studio/registry/internal/components/Form.ts",
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
       "first_line": "",
       "has_export_default": false,
       "has_named_exports": false,
-      "placeholder_hit": false,
-      "size_bytes": 0
+      "placeholder_hit": false
     },
     {
-      "file": "./app/src/core/studio/registry/internal/components/Table.ts",
       "rel": "./app/src/core/studio/registry/internal/components/Table.ts",
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
       "first_line": "",
       "has_export_default": false,
       "has_named_exports": false,
-      "placeholder_hit": false,
-      "size_bytes": 0
+      "placeholder_hit": false
     },
     {
-      "file": "./app/src/core/studio/runtime/internal/datasources.ts",
       "rel": "./app/src/core/studio/runtime/internal/datasources.ts",
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
       "first_line": "",
       "has_export_default": false,
       "has_named_exports": false,
-      "placeholder_hit": false,
-      "size_bytes": 0
+      "placeholder_hit": false
     },
     {
-      "file": "./app/src/core/studio/runtime/render.ts",
       "rel": "./app/src/core/studio/runtime/render.ts",
       "sha256": "f0cd2ca2d5ef20bfa5962bdaac55e354ca4c9f72b7832bae0448dc935bcdc37b",
+      "size_bytes": 2103,
       "first_line": "/**",
       "has_export_default": false,
       "has_named_exports": true,
-      "placeholder_hit": true,
-      "size_bytes": 2103
+      "placeholder_hit": true
     },
     {
-      "file": "./app/src/core/subscriptions/subscriptionTypes.ts",
       "rel": "./app/src/core/subscriptions/subscriptionTypes.ts",
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
       "first_line": "",
       "has_export_default": false,
       "has_named_exports": false,
-      "placeholder_hit": false,
-      "size_bytes": 0
+      "placeholder_hit": false
     },
     {
-      "file": "./app/src/core/themes/themeManager.ts",
       "rel": "./app/src/core/themes/themeManager.ts",
       "sha256": "8b8880a01adac03e13eb08164916aa47bde25bebf4dc3853cb05d20dedb2eed1",
+      "size_bytes": 655,
       "first_line": "/**",
       "has_export_default": false,
       "has_named_exports": true,
-      "placeholder_hit": false,
-      "size_bytes": 655
+      "placeholder_hit": false
     },
     {
-      "file": "./app/src/core/ui/accessibility.ts",
       "rel": "./app/src/core/ui/accessibility.ts",
       "sha256": "d7e20fa6c6fc01e5ff512a803c8c292406d9e8811d3f6b2d759969feed5365f0",
+      "size_bytes": 186,
       "first_line": "// build-unblock stub (auto-generated)",
       "has_export_default": false,
       "has_named_exports": true,
-      "placeholder_hit": false,
-      "size_bytes": 186
+      "placeholder_hit": false
     },
     {
-      "file": "./app/src/core/ui/commandPalette.ts",
       "rel": "./app/src/core/ui/commandPalette.ts",
       "sha256": "2970e5be615243c574977de3e2ad6a5be41682334290d784f31da27f6a08af1e",
+      "size_bytes": 193,
       "first_line": "// build-unblock stub (auto-generated)",
       "has_export_default": false,
       "has_named_exports": true,
-      "placeholder_hit": false,
-      "size_bytes": 193
+      "placeholder_hit": false
     },
     {
-      "file": "./app/src/core/ui/confirmDialog.ts",
       "rel": "./app/src/core/ui/confirmDialog.ts",
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
       "first_line": "",
       "has_export_default": false,
       "has_named_exports": false,
-      "placeholder_hit": false,
-      "size_bytes": 0
+      "placeholder_hit": false
     },
     {
-      "file": "./app/src/core/ui/dataTable.ts",
       "rel": "./app/src/core/ui/dataTable.ts",
       "sha256": "313782a07443d2b396e73b9ceafdc7175ed152c44eba19d5d68380e0d9962099",
+      "size_bytes": 184,
       "first_line": "// build-unblock stub (auto-generated)",
       "has_export_default": false,
       "has_named_exports": true,
-      "placeholder_hit": false,
-      "size_bytes": 184
+      "placeholder_hit": false
     },
     {
-      "file": "./app/src/core/ui/emptyState.ts",
       "rel": "./app/src/core/ui/emptyState.ts",
       "sha256": "ac73b76d4fdd0b3e5e40758496e9470409f66f0e8f7a34629252eb2d1335161d",
+      "size_bytes": 195,
       "first_line": "// build-unblock stub (auto-generated)",
       "has_export_default": false,
       "has_named_exports": true,
-      "placeholder_hit": false,
-      "size_bytes": 195
+      "placeholder_hit": false
     },
     {
-      "file": "./app/src/core/ui/keyboardShortcuts.ts",
       "rel": "./app/src/core/ui/keyboardShortcuts.ts",
       "sha256": "ebef4d4b07c0a69cc5e4a6ce0149766f70d8c23666caf18c76456dbd6c9e201e",
+      "size_bytes": 546,
       "first_line": "/**",
       "has_export_default": false,
       "has_named_exports": true,
-      "placeholder_hit": false,
-      "size_bytes": 546
+      "placeholder_hit": false
     },
     {
-      "file": "./app/src/core/ui/onboarding.ts",
       "rel": "./app/src/core/ui/onboarding.ts",
       "sha256": "99326f4282c34f8b00e4a3f9732782653fa2103e1304ec111958773995b09925",
+      "size_bytes": 186,
       "first_line": "// build-unblock stub (auto-generated)",
       "has_export_default": false,
       "has_named_exports": true,
-      "placeholder_hit": false,
-      "size_bytes": 186
+      "placeholder_hit": false
     },
     {
-      "file": "./app/src/core/ui/skeletonLoader.ts",
       "rel": "./app/src/core/ui/skeletonLoader.ts",
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
       "first_line": "",
       "has_export_default": false,
       "has_named_exports": false,
-      "placeholder_hit": false,
-      "size_bytes": 0
+      "placeholder_hit": false
     },
     {
-      "file": "./app/src/core/ui/toast.ts",
       "rel": "./app/src/core/ui/toast.ts",
       "sha256": "77916beb8ade1fd516766e640a5ca8d0ba528716fbbba7c5133712317ee3ccef",
+      "size_bytes": 178,
       "first_line": "// build-unblock stub (auto-generated)",
       "has_export_default": false,
       "has_named_exports": true,
-      "placeholder_hit": false,
-      "size_bytes": 178
+      "placeholder_hit": false
     },
     {
-      "file": "./app/src/core/ui/toolbar.ts",
       "rel": "./app/src/core/ui/toolbar.ts",
       "sha256": "d90b24848ecaa5d02f195101be5505a35eb7b55319ea994f95746414a89af7ab",
+      "size_bytes": 3926,
       "first_line": "/**",
       "has_export_default": false,
       "has_named_exports": true,
-      "placeholder_hit": true,
-      "size_bytes": 3926
+      "placeholder_hit": true
     },
     {
-      "file": "./app/src/core/ui/tooltip.ts",
       "rel": "./app/src/core/ui/tooltip.ts",
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
       "first_line": "",
       "has_export_default": false,
       "has_named_exports": false,
-      "placeholder_hit": false,
-      "size_bytes": 0
+      "placeholder_hit": false
     },
     {
-      "file": "./app/src/core/ui/updateModal.ts",
       "rel": "./app/src/core/ui/updateModal.ts",
       "sha256": "72aa289358e29acc7da561f59776b11f4491ad38fe9acc2c9e1dbe4b019319bf",
+      "size_bytes": 448,
       "first_line": "/**",
       "has_export_default": false,
       "has_named_exports": true,
-      "placeholder_hit": false,
-      "size_bytes": 448
+      "placeholder_hit": false
     },
     {
-      "file": "./app/src/core/utils/logger.ts",
       "rel": "./app/src/core/utils/logger.ts",
       "sha256": "3307b2172534c6781b7a370c61c38b2278d48dde76da19e9f9a342dc212ffc8d",
+      "size_bytes": 1275,
       "first_line": "/**",
       "has_export_default": false,
       "has_named_exports": true,
-      "placeholder_hit": false,
-      "size_bytes": 1275
+      "placeholder_hit": false
     },
     {
-      "file": "./app/src/pages/appContext.ts",
       "rel": "./app/src/pages/appContext.ts",
       "sha256": "08f02e94638ce0e7a3eaa2167b9f05e2b2f1ef7bb47f4144e3b04bd9cd85939c",
+      "size_bytes": 566,
       "first_line": "/**",
       "has_export_default": false,
       "has_named_exports": true,
-      "placeholder_hit": true,
-      "size_bytes": 566
+      "placeholder_hit": true
     },
     {
-      "file": "./app/src/pages/cp/models/users.ts",
       "rel": "./app/src/pages/cp/models/users.ts",
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
       "first_line": "",
       "has_export_default": false,
       "has_named_exports": false,
-      "placeholder_hit": false,
-      "size_bytes": 0
+      "placeholder_hit": false
     },
     {
-      "file": "./app/src/pages/cp/views/users.ts",
       "rel": "./app/src/pages/cp/views/users.ts",
       "sha256": "832a2a194ca550fac99ffba0e25320ddd526d6f9d11fd61e9c637df1155ce561",
+      "size_bytes": 22030,
       "first_line": "/**",
       "has_export_default": false,
       "has_named_exports": true,
-      "placeholder_hit": true,
-      "size_bytes": 22030
+      "placeholder_hit": true
     },
     {
-      "file": "./app/src/pages/dashboard.ts.disabled",
       "rel": "./app/src/pages/dashboard.ts.disabled",
       "sha256": "92b479b4938ca697342d11cb855e97282757b7f6e34fe12b99392f542de8b872",
+      "size_bytes": 1738,
       "first_line": "/**",
       "has_export_default": false,
       "has_named_exports": true,
-      "placeholder_hit": true,
-      "size_bytes": 1738
+      "placeholder_hit": true
     },
     {
-      "file": "./app/src/pages/login.ts.disabled",
       "rel": "./app/src/pages/login.ts.disabled",
       "sha256": "f508739e0deb65cad73c38a150df4bb82a28940faedad8528fad34f123b67c28",
+      "size_bytes": 2701,
       "first_line": "/**",
       "has_export_default": false,
       "has_named_exports": true,
-      "placeholder_hit": true,
-      "size_bytes": 2701
+      "placeholder_hit": true
     },
     {
-      "file": "./app/src/policies/feature_flags.default.json.ts",
       "rel": "./app/src/policies/feature_flags.default.json.ts",
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
       "first_line": "",
       "has_export_default": false,
       "has_named_exports": false,
-      "placeholder_hit": false,
-      "size_bytes": 0
+      "placeholder_hit": false
     },
     {
-      "file": "./app/src/policies/version_policy.default.json.ts",
       "rel": "./app/src/policies/version_policy.default.json.ts",
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
       "first_line": "",
       "has_export_default": false,
       "has_named_exports": false,
-      "placeholder_hit": false,
-      "size_bytes": 0
+      "placeholder_hit": false
     },
     {
-      "file": "./docs/contracts/runtime.md",
       "rel": "./docs/contracts/runtime.md",
       "sha256": "959b7bb0892c1073685d9462721a9fbe5c76cb7bf412728d1a83f3a2012445e2",
+      "size_bytes": 1642,
       "first_line": "/**",
       "has_export_default": false,
       "has_named_exports": false,
-      "placeholder_hit": true,
-      "size_bytes": 1642
+      "placeholder_hit": true
     },
     {
-      "file": "./modules/core-system/ui/frontend-ts/pages/_shared/uiBlocks.ts",
       "rel": "./modules/core-system/ui/frontend-ts/pages/_shared/uiBlocks.ts",
       "sha256": "c8d40afe96574b5ac2d36fe28246fbfc77db0d3959461d3cd27dec0719f51f73",
+      "size_bytes": 14180,
       "first_line": "/**",
       "has_export_default": false,
       "has_named_exports": true,
-      "placeholder_hit": true,
-      "size_bytes": 14180
+      "placeholder_hit": true
     },
     {
-      "file": "./modules/core-system/ui/frontend-ts/pages/activation/index.tsx",
       "rel": "./modules/core-system/ui/frontend-ts/pages/activation/index.tsx",
       "sha256": "782a4718c6a9c3879fffd7f6b5aaf872bb6ff488724bc6dd09d39b748bc5d5dc",
+      "size_bytes": 6475,
       "first_line": "/**",
       "has_export_default": false,
       "has_named_exports": true,
-      "placeholder_hit": true,
-      "size_bytes": 6475
+      "placeholder_hit": true
     },
     {
-      "file": "./modules/core-system/ui/frontend-ts/pages/developer/entitlements.tsx",
       "rel": "./modules/core-system/ui/frontend-ts/pages/developer/entitlements.tsx",
       "sha256": "8c12555af9fe77367c1737f3c1680cd0921df59841837464889f1218e6e5cae3",
+      "size_bytes": 5792,
       "first_line": "/**",
       "has_export_default": true,
       "has_named_exports": true,
-      "placeholder_hit": true,
-      "size_bytes": 5792
+      "placeholder_hit": true
     },
     {
-      "file": "./modules/core-system/ui/frontend-ts/pages/dossiers/sections/create.ts",
       "rel": "./modules/core-system/ui/frontend-ts/pages/dossiers/sections/create.ts",
       "sha256": "ee6657811e7b48700ff7e8a0ba6726696df7f575674df6b495a936556c2092af",
+      "size_bytes": 3388,
       "first_line": "/**",
       "has_export_default": false,
       "has_named_exports": true,
-      "placeholder_hit": true,
-      "size_bytes": 3388
+      "placeholder_hit": true
     },
     {
-      "file": "./modules/core-system/ui/frontend-ts/pages/dossiers/sections/filters.ts",
       "rel": "./modules/core-system/ui/frontend-ts/pages/dossiers/sections/filters.ts",
       "sha256": "84bd528a90f7566059d94164cbce6044dfe6a952e77c9bfe498df0575a400d3c",
+      "size_bytes": 1875,
       "first_line": "/**",
       "has_export_default": false,
       "has_named_exports": true,
-      "placeholder_hit": true,
-      "size_bytes": 1875
+      "placeholder_hit": true
     },
     {
-      "file": "./modules/core-system/ui/frontend-ts/pages/login.ts",
       "rel": "./modules/core-system/ui/frontend-ts/pages/login.ts",
       "sha256": "824f7e83c840fe69f38fe75781578637abf7bde8b6648d3e15083b376e246bdb",
+      "size_bytes": 3196,
       "first_line": "/**",
       "has_export_default": false,
       "has_named_exports": true,
-      "placeholder_hit": true,
-      "size_bytes": 3196
+      "placeholder_hit": true
     },
     {
-      "file": "./modules/core-system/ui/frontend-ts/pages/login/loginPage.ts",
       "rel": "./modules/core-system/ui/frontend-ts/pages/login/loginPage.ts",
       "sha256": "f5b7cf459dff3e8352993d97012bf66a8344861dd2a34b9bd2d0ca538410b65a",
+      "size_bytes": 3337,
       "first_line": "/**",
       "has_export_default": false,
       "has_named_exports": true,
-      "placeholder_hit": true,
-      "size_bytes": 3337
+      "placeholder_hit": true
     },
     {
-      "file": "./modules/core-system/ui/frontend-ts/pages/logs/sections/filters.ts",
       "rel": "./modules/core-system/ui/frontend-ts/pages/logs/sections/filters.ts",
       "sha256": "98def6f33cd8353ba782267ab07c6414f70c20aa9a87bec7e3f622de8024c2a7",
+      "size_bytes": 1789,
       "first_line": "/**",
       "has_export_default": false,
       "has_named_exports": true,
-      "placeholder_hit": true,
-      "size_bytes": 1789
+      "placeholder_hit": true
     },
     {
-      "file": "./modules/core-system/ui/frontend-ts/pages/settings/branding.ts",
       "rel": "./modules/core-system/ui/frontend-ts/pages/settings/branding.ts",
       "sha256": "63dc706cbd81b550587776a287bad15773033947f41b902b98cf619f27da8929",
+      "size_bytes": 6707,
       "first_line": "/**",
       "has_export_default": false,
       "has_named_exports": true,
-      "placeholder_hit": true,
-      "size_bytes": 6707
+      "placeholder_hit": true
     },
     {
-      "file": "./package.json",
       "rel": "./package.json",
       "sha256": "72d9e20e64fb8a8acb5ed1d0a8f53cbbcb12f514663443f192ad6c43e82fda0c",
+      "size_bytes": 4192,
       "first_line": "{",
       "has_export_default": false,
       "has_named_exports": false,
-      "placeholder_hit": true,
-      "size_bytes": 4192
+      "placeholder_hit": true
     },
     {
-      "file": "./patches/phase2-entrypoints.patch",
       "rel": "./patches/phase2-entrypoints.patch",
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
       "first_line": "",
       "has_export_default": false,
       "has_named_exports": false,
-      "placeholder_hit": false,
-      "size_bytes": 0
+      "placeholder_hit": false
     },
     {
-      "file": "./patches/phase4-helpers.patch",
       "rel": "./patches/phase4-helpers.patch",
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
       "first_line": "",
       "has_export_default": false,
       "has_named_exports": false,
-      "placeholder_hit": false,
-      "size_bytes": 0
+      "placeholder_hit": false
     },
     {
-      "file": "./proofs/PROOFS_ACCOUNT_ROUTE.json",
       "rel": "./proofs/PROOFS_ACCOUNT_ROUTE.json",
       "sha256": "a10d02d0532f69a9fb43286a587807a76e9d36626fdde51dcaeb019460e62812",
+      "size_bytes": 657,
       "first_line": "/**",
       "has_export_default": false,
       "has_named_exports": false,
-      "placeholder_hit": true,
-      "size_bytes": 657
+      "placeholder_hit": true
     },
     {
-      "file": "./proofs/PROOFS_API_ROUTE.json",
       "rel": "./proofs/PROOFS_API_ROUTE.json",
       "sha256": "248499d0145d7f593e80e490e88ae7da82173b9c8f4660aa104fcd08fa39b2d1",
+      "size_bytes": 649,
       "first_line": "/**",
       "has_export_default": false,
       "has_named_exports": false,
-      "placeholder_hit": true,
-      "size_bytes": 649
+      "placeholder_hit": true
     },
     {
-      "file": "./proofs/PROOFS_DASHBOARD_ROUTE.json",
       "rel": "./proofs/PROOFS_DASHBOARD_ROUTE.json",
       "sha256": "3ae6f247d839e53d6e1b6780f1f5ac3e6a8e332f49072ab08986b225024f07df",
+      "size_bytes": 661,
       "first_line": "/**",
       "has_export_default": false,
       "has_named_exports": false,
-      "placeholder_hit": true,
-      "size_bytes": 661
+      "placeholder_hit": true
     },
     {
-      "file": "./proofs/PROOFS_DEVELOPER_ENTITLEMENTS_ROUTE.json",
       "rel": "./proofs/PROOFS_DEVELOPER_ENTITLEMENTS_ROUTE.json",
       "sha256": "1f489e92f73f6ebe08bb00a9c10379c98b11439ea377992203a60a83fe5a9db9",
+      "size_bytes": 687,
       "first_line": "/**",
       "has_export_default": false,
       "has_named_exports": false,
-      "placeholder_hit": true,
-      "size_bytes": 687
+      "placeholder_hit": true
     },
     {
-      "file": "./proofs/PROOFS_DEVELOPER_ROUTE.json",
       "rel": "./proofs/PROOFS_DEVELOPER_ROUTE.json",
       "sha256": "5e41e3deaf779d71065174b9765915f1477545bd7f69e8df4a4ba6584ec0a35f",
+      "size_bytes": 661,
       "first_line": "/**",
       "has_export_default": false,
       "has_named_exports": false,
-      "placeholder_hit": true,
-      "size_bytes": 661
+      "placeholder_hit": true
     },
     {
-      "file": "./proofs/PROOFS_NETWORK_ROUTE.json",
       "rel": "./proofs/PROOFS_NETWORK_ROUTE.json",
       "sha256": "62c68517503cee3d5281e50a6c9d56d7357958dff24ac7df3d06733e732453e2",
+      "size_bytes": 657,
       "first_line": "/**",
       "has_export_default": false,
       "has_named_exports": false,
-      "placeholder_hit": true,
-      "size_bytes": 657
+      "placeholder_hit": true
     },
     {
-      "file": "./proofs/PROOFS_SYSTEM_ROUTE.json",
       "rel": "./proofs/PROOFS_SYSTEM_ROUTE.json",
       "sha256": "a72397b49dc74ec6887f50897e3709ef433c3fa6e10e22b2b1a698f957ab2138",
+      "size_bytes": 655,
       "first_line": "/**",
       "has_export_default": false,
       "has_named_exports": false,
-      "placeholder_hit": true,
-      "size_bytes": 655
+      "placeholder_hit": true
     },
     {
-      "file": "./proofs/PROOFS_VERIFICATION_ROUTE.json",
       "rel": "./proofs/PROOFS_VERIFICATION_ROUTE.json",
       "sha256": "cee3ade285d54d5fbe94748334e275fb203a3c37007a7e1725a3c94a7690b523",
+      "size_bytes": 667,
       "first_line": "/**",
       "has_export_default": false,
       "has_named_exports": false,
-      "placeholder_hit": true,
-      "size_bytes": 667
+      "placeholder_hit": true
     },
     {
-      "file": "./scripts/check-account-route.js",
       "rel": "./scripts/check-account-route.js",
       "sha256": "7e2720c7f045668d4ca7e6b81901a70ea20cca1fc637a49974a96d5965bbd887",
+      "size_bytes": 724,
       "first_line": "/**",
       "has_export_default": false,
       "has_named_exports": false,
-      "placeholder_hit": true,
-      "size_bytes": 724
+      "placeholder_hit": true
     },
     {
-      "file": "./scripts/check-api-route.js",
       "rel": "./scripts/check-api-route.js",
       "sha256": "e51f9276b741e5cfe0bc4b57370aa06f862fb780da6f0a968a338ca4bb1ff905",
+      "size_bytes": 720,
       "first_line": "/**",
       "has_export_default": false,
       "has_named_exports": false,
-      "placeholder_hit": true,
-      "size_bytes": 720
+      "placeholder_hit": true
     },
     {
-      "file": "./scripts/check-dashboard-route.js",
       "rel": "./scripts/check-dashboard-route.js",
       "sha256": "fd4b73d2aa57b0378c01748861e7f7cb331e69ec447a02968d18d0e2e9baaa80",
+      "size_bytes": 726,
       "first_line": "/**",
       "has_export_default": false,
       "has_named_exports": false,
-      "placeholder_hit": true,
-      "size_bytes": 726
+      "placeholder_hit": true
     },
     {
-      "file": "./scripts/check-developer-entitlements-route.js",
       "rel": "./scripts/check-developer-entitlements-route.js",
       "sha256": "01bfbf233d32859f634a79eefb9cada6bf07089eff5c37850271aa6b2721f740",
+      "size_bytes": 739,
       "first_line": "/**",
       "has_export_default": false,
       "has_named_exports": false,
-      "placeholder_hit": true,
-      "size_bytes": 739
+      "placeholder_hit": true
     },
     {
-      "file": "./scripts/check-developer-route.js",
       "rel": "./scripts/check-developer-route.js",
       "sha256": "df40c45f52a71587b67fdca6c0431501c84555e1cf8865387c1f6ceb51272e9f",
+      "size_bytes": 726,
       "first_line": "/**",
       "has_export_default": false,
       "has_named_exports": false,
-      "placeholder_hit": true,
-      "size_bytes": 726
+      "placeholder_hit": true
     },
     {
-      "file": "./scripts/check-network-route.js",
       "rel": "./scripts/check-network-route.js",
       "sha256": "caea8db6bd4d800a004d0283ed00a04a0bc683536c41473879105d30b746dc4a",
+      "size_bytes": 724,
       "first_line": "/**",
       "has_export_default": false,
       "has_named_exports": false,
-      "placeholder_hit": true,
-      "size_bytes": 724
+      "placeholder_hit": true
     },
     {
-      "file": "./scripts/check-system-route.js",
       "rel": "./scripts/check-system-route.js",
       "sha256": "5aa1e93224c0b450a70e1fef65bbdf01a1da9f4e17668ab64f9ac6e5dc106864",
+      "size_bytes": 723,
       "first_line": "/**",
       "has_export_default": false,
       "has_named_exports": false,
-      "placeholder_hit": true,
-      "size_bytes": 723
+      "placeholder_hit": true
     },
     {
-      "file": "./scripts/check-verification-route.js",
       "rel": "./scripts/check-verification-route.js",
       "sha256": "2299579673d7a988c4ca574a5f1efa1df2cc6fc43dc1fdba8f72732b77004890",
+      "size_bytes": 729,
       "first_line": "/**",
       "has_export_default": false,
       "has_named_exports": false,
-      "placeholder_hit": true,
-      "size_bytes": 729
+      "placeholder_hit": true
     },
     {
-      "file": "./scripts/inventory-placeholders.sh",
       "rel": "./scripts/inventory-placeholders.sh",
       "sha256": "b0f2dfd98e12abeea083d9f6f8680cdf19ba3565c0c11134cb2d71a3297c9ac0",
+      "size_bytes": 2992,
       "first_line": "/**",
       "has_export_default": false,
       "has_named_exports": false,
-      "placeholder_hit": true,
-      "size_bytes": 2992
+      "placeholder_hit": true
     },
     {
-      "file": "./scripts/release/publish.zsh",
       "rel": "./scripts/release/publish.zsh",
       "sha256": "d28b2e6d4434eb3034c4614b6bf1b5c6950732b2987a0f3636b18c05686e7137",
+      "size_bytes": 12745,
       "first_line": "/**",
       "has_export_default": false,
       "has_named_exports": false,
-      "placeholder_hit": true,
-      "size_bytes": 12745
-    },
-    {
-      "file": "11:app/src/core/runtime/accessDenied.ts",
-      "rel": "11:app/src/core/runtime/accessDenied.ts",
-      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "first_line": "",
-      "has_export_default": false,
-      "has_named_exports": false,
-      "placeholder_hit": false,
-      "size_bytes": 0
-    },
-    {
-      "file": "12:app/src/core/runtime/audit.ts",
-      "rel": "12:app/src/core/runtime/audit.ts",
-      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "first_line": "",
-      "has_export_default": false,
-      "has_named_exports": false,
-      "placeholder_hit": false,
-      "size_bytes": 0
-    },
-    {
-      "file": "14:app/src/core/runtime/obs.ts",
-      "rel": "14:app/src/core/runtime/obs.ts",
-      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "first_line": "",
-      "has_export_default": false,
-      "has_named_exports": false,
-      "placeholder_hit": false,
-      "size_bytes": 0
-    },
-    {
-      "file": "16:app/src/core/runtime/safe.ts",
-      "rel": "16:app/src/core/runtime/safe.ts",
-      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "first_line": "",
-      "has_export_default": false,
-      "has_named_exports": false,
-      "placeholder_hit": false,
-      "size_bytes": 0
-    },
-    {
-      "file": "17:app/src/core/studio/blueprints/blueprint.presentation.json.ts",
-      "rel": "17:app/src/core/studio/blueprints/blueprint.presentation.json.ts",
-      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "first_line": "",
-      "has_export_default": false,
-      "has_named_exports": false,
-      "placeholder_hit": false,
-      "size_bytes": 0
-    },
-    {
-      "file": "18:app/src/core/studio/blueprints/blueprint.structure.json.ts",
-      "rel": "18:app/src/core/studio/blueprints/blueprint.structure.json.ts",
-      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "first_line": "",
-      "has_export_default": false,
-      "has_named_exports": false,
-      "placeholder_hit": false,
-      "size_bytes": 0
-    },
-    {
-      "file": "19:app/src/core/studio/blueprints/schemas/presentation.schema.json.ts",
-      "rel": "19:app/src/core/studio/blueprints/schemas/presentation.schema.json.ts",
-      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "first_line": "",
-      "has_export_default": false,
-      "has_named_exports": false,
-      "placeholder_hit": false,
-      "size_bytes": 0
-    },
-    {
-      "file": "20:app/src/core/studio/blueprints/schemas/structure.schema.json.ts",
-      "rel": "20:app/src/core/studio/blueprints/schemas/structure.schema.json.ts",
-      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "first_line": "",
-      "has_export_default": false,
-      "has_named_exports": false,
-      "placeholder_hit": false,
-      "size_bytes": 0
-    },
-    {
-      "file": "22:app/src/core/studio/runtime/internal/datasources.ts",
-      "rel": "22:app/src/core/studio/runtime/internal/datasources.ts",
-      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "first_line": "",
-      "has_export_default": false,
-      "has_named_exports": false,
-      "placeholder_hit": false,
-      "size_bytes": 0
-    },
-    {
-      "file": "25:app/src/core/ui/accessibility.ts",
-      "rel": "25:app/src/core/ui/accessibility.ts",
-      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "first_line": "",
-      "has_export_default": false,
-      "has_named_exports": false,
-      "placeholder_hit": false,
-      "size_bytes": 0
-    },
-    {
-      "file": "26:app/src/core/ui/commandPalette.ts",
-      "rel": "26:app/src/core/ui/commandPalette.ts",
-      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "first_line": "",
-      "has_export_default": false,
-      "has_named_exports": false,
-      "placeholder_hit": false,
-      "size_bytes": 0
-    },
-    {
-      "file": "27:app/src/core/ui/confirmDialog.ts",
-      "rel": "27:app/src/core/ui/confirmDialog.ts",
-      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "first_line": "",
-      "has_export_default": false,
-      "has_named_exports": false,
-      "placeholder_hit": false,
-      "size_bytes": 0
-    },
-    {
-      "file": "28:app/src/core/ui/dataTable.ts",
-      "rel": "28:app/src/core/ui/dataTable.ts",
-      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "first_line": "",
-      "has_export_default": false,
-      "has_named_exports": false,
-      "placeholder_hit": false,
-      "size_bytes": 0
-    },
-    {
-      "file": "29:app/src/core/ui/emptyState.ts",
-      "rel": "29:app/src/core/ui/emptyState.ts",
-      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "first_line": "",
-      "has_export_default": false,
-      "has_named_exports": false,
-      "placeholder_hit": false,
-      "size_bytes": 0
-    },
-    {
-      "file": "3:app/src/core/errors/errorTracker.ts",
-      "rel": "3:app/src/core/errors/errorTracker.ts",
-      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "first_line": "",
-      "has_export_default": false,
-      "has_named_exports": false,
-      "placeholder_hit": false,
-      "size_bytes": 0
-    },
-    {
-      "file": "30:app/src/core/ui/keyboardShortcuts.ts",
-      "rel": "30:app/src/core/ui/keyboardShortcuts.ts",
-      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "first_line": "",
-      "has_export_default": false,
-      "has_named_exports": false,
-      "placeholder_hit": false,
-      "size_bytes": 0
-    },
-    {
-      "file": "31:app/src/core/ui/onboarding.ts",
-      "rel": "31:app/src/core/ui/onboarding.ts",
-      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "first_line": "",
-      "has_export_default": false,
-      "has_named_exports": false,
-      "placeholder_hit": false,
-      "size_bytes": 0
-    },
-    {
-      "file": "32:app/src/core/ui/skeletonLoader.ts",
-      "rel": "32:app/src/core/ui/skeletonLoader.ts",
-      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "first_line": "",
-      "has_export_default": false,
-      "has_named_exports": false,
-      "placeholder_hit": false,
-      "size_bytes": 0
-    },
-    {
-      "file": "33:app/src/core/ui/toast.ts",
-      "rel": "33:app/src/core/ui/toast.ts",
-      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "first_line": "",
-      "has_export_default": false,
-      "has_named_exports": false,
-      "placeholder_hit": false,
-      "size_bytes": 0
-    },
-    {
-      "file": "34:app/src/core/ui/tooltip.ts",
-      "rel": "34:app/src/core/ui/tooltip.ts",
-      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "first_line": "",
-      "has_export_default": false,
-      "has_named_exports": false,
-      "placeholder_hit": false,
-      "size_bytes": 0
-    },
-    {
-      "file": "35:app/src/core/ui/updateModal.ts",
-      "rel": "35:app/src/core/ui/updateModal.ts",
-      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "first_line": "",
-      "has_export_default": false,
-      "has_named_exports": false,
-      "placeholder_hit": false,
-      "size_bytes": 0
+      "placeholder_hit": true
     }
   ]
 }
