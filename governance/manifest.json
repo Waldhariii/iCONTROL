@@ -1,0 +1,9 @@
+{
+  "layer": "governance",
+  "intrusive": false,
+  "core_dependency": false,
+  "safe_mode": true,
+  "audit": true,
+  "activation": "dormant_ready",
+  "notes": "This layer is designed to be present in-repo but non-intrusive until explicitly activated."
+}

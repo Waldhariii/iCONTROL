@@ -1,0 +1,167 @@
+# SYSTEM_CONFIGURATION
+VERSION: 1.0
+MODE: PROVIDER_READY
+SCOPE: CORE_FREE_COMPATIBLE
+
+## 1. POSITIONNEMENT DU SYSTÈME
+SYSTEM_ROLE = "APPLICATION_PROVIDER_PLATFORM"
+BUSINESS_MODEL = "CORE_FREE + OPTIONAL_PAID_MODULES"
+TARGET_MARKET = "PME / Multi-tenant / Offline-first"
+DESIGN_GOALS = [
+  "High performance local execution",
+  "Low cloud operational cost",
+  "Strict tenant isolation",
+  "Progressive monetization without refactor",
+  "Governance-first architecture"
+]
+
+## 2. ARCHITECTURE GLOBALE (PRINCIPE)
+ARCHITECTURE_PATTERN = "OFFLINE_FIRST + CLOUD_AUTHORITATIVE"
+
+SOURCE_OF_TRUTH = {
+  LOCAL: "Execution source (temporary authority)",
+  CLOUD: "Shared authoritative source (final authority)"
+}
+
+DATA_FLOW = [
+  "Local write -> Outbox",
+  "Outbox -> Cloud (idempotent)",
+  "Cloud -> Local (delta sync)",
+  "Conflict resolution via policy"
+]
+
+## 3. MULTI-TENANT – RÈGLES STRUCTURELLES
+TENANT_MODEL = "STRICT_ISOLATION"
+
+LOCAL_STORAGE = {
+  MODE = "ONE_DATABASE_PER_TENANT",
+  NAMING = "tenant_<TENANT_ID>.db",
+  ENCRYPTION = "PER_TENANT_KEY",
+  FILE_STORAGE = "storage/tenant_<TENANT_ID>/"
+}
+
+TENANT_CONTEXT_REQUIRED = [
+  "tenant_id",
+  "user_id",
+  "role",
+  "permissions"
+]
+
+RULE = "NO_OPERATION_ALLOWED_WITHOUT_EXPLICIT_TENANT_CONTEXT"
+
+## 4. STOCKAGE LOCAL – CONTRAT
+LOCAL_DATABASE_ENGINE = "SQLITE_COMPATIBLE"
+ACID_REQUIRED = true
+MIGRATIONS_REQUIRED = true
+
+MANDATORY_TABLES = [
+  "domain_tables",
+  "outbox",
+  "sync_cursor",
+  "local_audit",
+  "conflicts (optional)"
+]
+
+OUTBOX_RULES = {
+  OPERATION_ID = "UUID",
+  IDEMPOTENT = true,
+  RETRY_SAFE = true,
+  TENANT_SCOPED = true
+}
+
+## 5. SYNCHRONISATION CLOUD – CONTRAT
+SYNC_MODE = "DELTA_ONLY"
+
+SYNC_REQUIREMENTS = [
+  "changed_since_cursor",
+  "server_side_validation",
+  "optimistic_locking",
+  "conflict_policy_by_domain"
+]
+
+CONFLICT_POLICIES = {
+  NON_CRITICAL = "LAST_WRITE_WINS",
+  CRITICAL = "OPTIMISTIC_LOCK + USER_OR_RULE_RESOLUTION"
+}
+
+## 6. SÉCURITÉ & GOUVERNANCE
+SECURITY_MODEL = "ZERO_TRUST"
+
+MANDATORY = [
+  "RBAC server-side",
+  "Tenant isolation enforced server-side",
+  "TLS in transit",
+  "Encrypted local storage",
+  "Audit logging"
+]
+
+AUDIT_LOG = {
+  LEVEL = "WRITE_ACTIONS_MINIMUM",
+  IMMUTABLE = true,
+  TENANT_SCOPED = true
+}
+
+## 7. MODULES & EXTENSIBILITÉ
+MODULE_SYSTEM = {
+  MODE = "PLUGGABLE",
+  DEFAULT_STATE = "DISABLED",
+  ACTIVATION = "FEATURE_FLAG"
+}
+
+MODULE_TYPES = [
+  "OCR",
+  "ADVANCED_STORAGE",
+  "FINANCIAL_ANALYTICS",
+  "AUTOMATION",
+  "SLA_SUPPORT"
+]
+
+RULE = "PAID_MODULES MAY ENHANCE BUT NEVER BREAK CORE"
+
+## 8. MONÉTISATION (DORMANT READY)
+BILLING_STATUS = "DORMANT"
+BILLING_PROVIDER = "EXTERNAL (ex: Stripe)"
+PRICING_MODEL = [
+  "PER_TENANT_SUBSCRIPTION",
+  "OPTIONAL_MODULE_ADDONS"
+]
+
+ENFORCEMENT_POLICY = {
+  OVER_QUOTA = "WARN_ONLY",
+  NON_PAYMENT = "FEATURE_LIMITATION_ONLY",
+  DATA_DELETION = "NEVER_AUTOMATIC"
+}
+
+## 9. OPÉRATIONS & FIABILITÉ
+BACKUP_POLICY = {
+  CLOUD = "AUTOMATED",
+  LOCAL = "BEST_EFFORT"
+}
+
+OBSERVABILITY = [
+  "sync_latency",
+  "outbox_backlog",
+  "conflict_rate",
+  "tenant_storage_usage"
+]
+
+FAILURE_POLICY = "DEGRADE_GRACEFULLY_NOT_BLOCK"
+
+## 10. ÉVOLUTION & COMPATIBILITÉ
+API_POLICY = "BACKWARD_COMPATIBLE"
+FEATURE_FLAGS = "MANDATORY_FOR_NEW_FEATURES"
+
+UPGRADE_STRATEGY = [
+  "SOFT_ROLLOUT",
+  "ROLLBACK_CAPABLE",
+  "NO_FORCED_UPGRADE"
+]
+
+## 11. RÈGLES D’OR (NON NÉGOCIABLES)
+RULES = [
+  "NO_CROSS_TENANT_ACCESS",
+  "NO_HARD_DEPENDENCY_ON_PAID_FEATURES",
+  "NO_DIRECT_DB_WRITE_BYPASSING_GATEWAY",
+  "CLOUD_NEVER_TRUSTS_CLIENT",
+  "LOCAL_NEVER_TRUSTS_NETWORK"
+]
