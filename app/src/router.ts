@@ -2,24 +2,29 @@ import { getSession, isLoggedIn, logout } from "./localAuth";
 import { canAccessSettings } from "./runtime/rbac";
 import { navigate as coreNavigate } from "./runtime/navigate";
 import { applyVersionPolicyBootGuards } from "./policies/version_policy.runtime";
+import { getGlobalWindow, type WindowWithIControl } from "./core/utils/types";
 /**
  * router.ts — minimal hash router with RBAC guard
  * Public:  #/login
  * Private: #/dashboard (and everything else by default)
  */
 export type RouteId = "login" | "dashboard" | "settings" | "settings_branding" | "blocked" | "notfound"
-  | "runtime_smoke" | "users" | "account" | "developer" | "developer_entitlements" | "access_denied" | "verification" | "toolbox"
-  | "system" | "logs" | "dossiers";
+  | "runtime_smoke" | "users" | "account" | "developer" | "developer_entitlements" | "access_denied" | "verification" | "toolbox" | "ui_catalog"
+  | "system" | "logs" | "dossiers"
+  | "tenants" | "entitlements" | "pages" | "feature-flags" | "publish" | "audit" | "subscription"; // Routes CP
 export function getRouteId(): RouteId {
   const h = (location.hash || "").replace(/^#\/?/, "");
   const seg = (h.split("?")[0] || "").trim();
   if (!seg || seg === "login") return "login";
   if (seg === "dashboard") return "dashboard";
+  
+  // Routes APP (Client)
   if (seg === "users") return "users";
   if (seg === "account") return "account";
   if (seg === "developer/entitlements" || seg === "dev/entitlements") return "developer_entitlements";
   if (seg === "developer" || seg === "dev") return "developer";
   if (seg === "access-denied") return "access_denied";
+  if (seg === "__ui-catalog" || seg === "ui-catalog") return "ui_catalog";
   if (seg === "toolbox" || seg === "dev-tools" || seg === "devtools") return "toolbox";
   if (seg === "system") return "system";
   if (seg === "logs") return "logs";
@@ -27,6 +32,17 @@ export function getRouteId(): RouteId {
   if (seg === "verification" || seg === "verify") return "verification";
   if (seg === "settings") return canAccessSettings() ? "settings" : "dashboard";
   if (seg === "settings/branding") return canAccessSettings() ? "settings_branding" : "dashboard";
+  
+  // Routes CP (Control Plane) - peuvent coexister avec routes APP car registries différentes
+  if (seg === "tenants") return "tenants";
+  if (seg === "entitlements") return "entitlements";
+  if (seg === "pages") return "pages";
+  if (seg === "feature-flags") return "feature-flags";
+  if (seg === "publish") return "publish";
+  if (seg === "audit") return "audit";
+  if (seg === "subscription") return "subscription";
+  
+  // Routes communes
   if (seg === "runtime-smoke" || seg === "runtime_smoke") return "runtime_smoke";
   if (seg === "blocked") return "blocked";
   return "notfound";
@@ -63,7 +79,7 @@ export function doLogout(): void {
 
 export function bootRouter(onRoute: (rid: RouteId) => void): void {
   const tick = () => {
-    const w = window as any;
+    const w = getGlobalWindow();
     if (!w.__VP_GUARDS_APPLIED__) {
       w.__VP_GUARDS_APPLIED__ = true;
       try { applyVersionPolicyBootGuards(w); } catch {}
@@ -72,15 +88,15 @@ export function bootRouter(onRoute: (rid: RouteId) => void): void {
     // Observability: audit version policy outcomes (idempotent)
     try {
       if (!w.__VP_AUDITED__) w.__VP_AUDITED__ = { soft: false, block: false };
-      const emit = (w as any)?.audit?.emit || (w as any)?.audit?.log || (w as any)?.auditLog?.append || (w as any)?.core?.audit?.emit;
+      const emit = w.audit?.emit || w.audit?.log || w.auditLog?.append || w.core?.audit?.emit;
       if (typeof emit === "function") {
-        if ((w as any).__bootBanner && !(w as any).__VP_AUDITED__.soft) {
-          (w as any).__VP_AUDITED__.soft = true;
-          emit.call(w, "WARN", (w as any).__bootBanner.code || "WARN_VERSION_SOFT_BLOCK", (w as any).__bootBanner.message || "Soft block: update recommended", { source: "version_policy" });
+        if (w.__bootBanner && !w.__VP_AUDITED__.soft) {
+          w.__VP_AUDITED__.soft = true;
+          emit.call(w, "WARN", w.__bootBanner.code || "WARN_VERSION_SOFT_BLOCK", w.__bootBanner.message || "Soft block: update recommended", { source: "version_policy" });
         }
-        if ((w as any).__bootBlock && !(w as any).__VP_AUDITED__.block) {
-          (w as any).__VP_AUDITED__.block = true;
-          emit.call(w, "ERR", (w as any).__bootBlock.code || "ERR_VERSION_BLOCKED", (w as any).__bootBlock.message || "Blocked by version policy", { source: "version_policy" });
+        if (w.__bootBlock && !w.__VP_AUDITED__.block) {
+          w.__VP_AUDITED__.block = true;
+          emit.call(w, "ERR", w.__bootBlock.code || "ERR_VERSION_BLOCKED", w.__bootBlock.message || "Blocked by version policy", { source: "version_policy" });
         }
       }
     } catch {}
@@ -94,8 +110,25 @@ export function bootRouter(onRoute: (rid: RouteId) => void): void {
       return;
     }
 /* ICONTROL_ROUTER_TRACE_V1 */
-    console.info("ROUTER_TICK", { hash: h, rid, authed });
+    // Router trace logging removed - use logger if needed
     if (!authed) return;
+    
+    // ICONTROL_PAGE_ACCESS_GUARD_V1: Check page access policy
+    try {
+      const { guardRouteAccess } = await import("./core/control-plane/guards/pageAccessGuard");
+      const accessCheck = await guardRouteAccess(h);
+      if (!accessCheck.allowed) {
+        logger.warn("ROUTE_ACCESS_DENIED", { route: h, reason: accessCheck.reason });
+        try { coreNavigate("#/access-denied"); } catch (e) {
+          logger.error("ACCESS_DENIED_REDIRECT_FAILED", String(e));
+        }
+        return;
+      }
+    } catch (e) {
+      // If guard fails, allow access (fail open)
+      logger.warn("PAGE_ACCESS_GUARD_FAILED", String(e));
+    }
+    
     onRoute(rid);
   };
   window.addEventListener("hashchange", tick);

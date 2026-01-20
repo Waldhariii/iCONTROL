@@ -1,0 +1,224 @@
+import { listCatalogEntries, type CatalogState, type CatalogSurface } from "./registry";
+import { registerDefaultCatalogEntries } from "./defaults";
+
+const THEME_TOKENS = {
+  dark: {
+    bg: "#0f1112",
+    panel: "#1a1d1f",
+    card: "#161a1d",
+    border: "#2b3136",
+    text: "#e7ecef",
+    mutedText: "#a7b0b7",
+  },
+  light: {
+    bg: "#ffffff",
+    panel: "#f5f5f5",
+    card: "#ffffff",
+    border: "#e0e0e0",
+    text: "#1a1a1a",
+    mutedText: "#666666",
+  },
+};
+
+const STATES: CatalogState[] = [
+  "default",
+  "loading",
+  "empty",
+  "error",
+  "accessDenied",
+  "safeMode",
+  "readOnly",
+];
+
+function applyTheme(mode: "light" | "dark"): void {
+  const tokens = THEME_TOKENS[mode];
+  const root = document.documentElement;
+  root.style.setProperty("--ic-bg", tokens.bg);
+  root.style.setProperty("--ic-panel", tokens.panel);
+  root.style.setProperty("--ic-card", tokens.card);
+  root.style.setProperty("--ic-border", tokens.border);
+  root.style.setProperty("--ic-text", tokens.text);
+  root.style.setProperty("--ic-mutedText", tokens.mutedText);
+  try {
+    localStorage.setItem("controlx_settings_v1.theme", mode);
+  } catch {}
+}
+
+function buildSelect(options: string[], value: string): HTMLSelectElement {
+  const select = document.createElement("select");
+  select.style.cssText = `
+    padding: 6px 10px;
+    border-radius: 8px;
+    border: 1px solid var(--ic-border, #2b3136);
+    background: var(--ic-card, #1a1d1f);
+    color: var(--ic-text, #e7ecef);
+    font-size: 12px;
+  `;
+  options.forEach((opt) => {
+    const option = document.createElement("option");
+    option.value = opt;
+    option.textContent = opt;
+    if (opt === value) option.selected = true;
+    select.appendChild(option);
+  });
+  return select;
+}
+
+export function renderCatalog(root: HTMLElement, surface: CatalogSurface): void {
+  registerDefaultCatalogEntries();
+  root.innerHTML = "";
+
+  const entries = listCatalogEntries(surface);
+  const wrapper = document.createElement("div");
+  wrapper.style.cssText = `
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    color: var(--ic-text, #e7ecef);
+  `;
+
+  const header = document.createElement("div");
+  header.style.cssText = `
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 16px;
+    border: 1px solid var(--ic-border, #2b3136);
+    background: var(--ic-card, #1a1d1f);
+    border-radius: 12px;
+  `;
+
+  const title = document.createElement("div");
+  title.textContent = `${surface.toUpperCase()} UI Catalog`;
+  title.style.cssText = "font-size: 20px; font-weight: 700;";
+  header.appendChild(title);
+
+  const controls = document.createElement("div");
+  controls.style.cssText = "display:flex; flex-wrap:wrap; gap:12px; align-items:center;";
+
+  const themeSelect = buildSelect(["dark", "light"], "dark");
+  themeSelect.id = "ui-catalog-theme";
+  const stateSelect = buildSelect(STATES, "default");
+  stateSelect.id = "ui-catalog-state";
+  const searchInput = document.createElement("input");
+  searchInput.type = "text";
+  searchInput.placeholder = "Filter components";
+  searchInput.style.cssText = `
+    padding: 6px 10px;
+    border-radius: 8px;
+    border: 1px solid var(--ic-border, #2b3136);
+    background: var(--ic-card, #1a1d1f);
+    color: var(--ic-text, #e7ecef);
+    font-size: 12px;
+    min-width: 200px;
+  `;
+
+  const themeLabel = document.createElement("label");
+  themeLabel.textContent = "Theme";
+  themeLabel.style.cssText = "display:flex; gap:6px; align-items:center; font-size:12px;";
+  themeLabel.appendChild(themeSelect);
+
+  const stateLabel = document.createElement("label");
+  stateLabel.textContent = "State";
+  stateLabel.style.cssText = "display:flex; gap:6px; align-items:center; font-size:12px;";
+  stateLabel.appendChild(stateSelect);
+
+  controls.appendChild(themeLabel);
+  controls.appendChild(stateLabel);
+  controls.appendChild(searchInput);
+  header.appendChild(controls);
+
+  const catalog = document.createElement("div");
+  catalog.style.cssText = "display:flex; flex-direction:column; gap:16px;";
+
+  function renderEntries(): void {
+    const filter = searchInput.value.trim().toLowerCase();
+    catalog.innerHTML = "";
+    const grouped = new Map<string, typeof entries>();
+
+    entries.forEach((entry) => {
+      if (filter && !entry.name.toLowerCase().includes(filter) && !entry.kind.includes(filter)) return;
+      const bucket = grouped.get(entry.kind) || [];
+      bucket.push(entry);
+      grouped.set(entry.kind, bucket);
+    });
+
+    for (const [kind, items] of grouped.entries()) {
+      const section = document.createElement("section");
+      section.dataset.catalogSection = kind;
+      section.style.cssText = "display:flex; flex-direction:column; gap:12px;";
+
+      const heading = document.createElement("div");
+      heading.textContent = kind.toUpperCase();
+      heading.style.cssText = "font-size: 14px; font-weight: 700; letter-spacing: 0.4px;";
+      section.appendChild(heading);
+
+      const grid = document.createElement("div");
+      grid.style.cssText = `
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+        gap: 12px;
+      `;
+
+      items.forEach((entry) => {
+        const card = document.createElement("div");
+        card.dataset.catalogCard = entry.id;
+        card.style.cssText = `
+          border: 1px solid var(--ic-border, #2b3136);
+          background: var(--ic-card, #1a1d1f);
+          border-radius: 12px;
+          padding: 12px;
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+        `;
+
+        const meta = document.createElement("div");
+        meta.style.cssText = "display:flex; justify-content:space-between; gap:8px; align-items:center;";
+        const name = document.createElement("div");
+        name.textContent = entry.name;
+        name.style.cssText = "font-size: 13px; font-weight: 600;";
+        const badge = document.createElement("div");
+        badge.textContent = entry.kind;
+        badge.style.cssText = `
+          font-size: 10px;
+          text-transform: uppercase;
+          letter-spacing: 0.4px;
+          padding: 2px 6px;
+          border-radius: 999px;
+          border: 1px solid var(--ic-border, #2b3136);
+          color: var(--ic-mutedText, #a7b0b7);
+        `;
+        meta.appendChild(name);
+        meta.appendChild(badge);
+        card.appendChild(meta);
+
+        const preview = document.createElement("div");
+        preview.style.cssText = "min-height: 60px;";
+        const selectedState = stateSelect.value as CatalogState;
+        const stateToUse = entry.supports?.includes(selectedState) ? selectedState : "default";
+        entry.render(preview, { state: stateToUse });
+        card.appendChild(preview);
+
+        grid.appendChild(card);
+      });
+
+      section.appendChild(grid);
+      catalog.appendChild(section);
+    }
+  }
+
+  themeSelect.addEventListener("change", () => {
+    applyTheme(themeSelect.value as "light" | "dark");
+  });
+  stateSelect.addEventListener("change", renderEntries);
+  searchInput.addEventListener("input", renderEntries);
+
+  applyTheme("dark");
+  renderEntries();
+
+  wrapper.appendChild(header);
+  wrapper.appendChild(catalog);
+  root.appendChild(wrapper);
+}
