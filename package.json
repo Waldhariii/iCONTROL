@@ -58,7 +58,9 @@
     "gov:activate": "node scripts/governance/activate.cjs",
     "gov:deactivate": "node scripts/governance/deactivate.cjs",
     "check:governance-state": "node scripts/governance/check-governance-state.cjs",
-    "check:governance-activation-gate": "node scripts/governance/check-governance-activation-gate.cjs"
+    "check:governance-activation-gate": "node scripts/governance/check-governance-activation-gate.cjs",
+    "proofs:strict": "node scripts/governance/run-strict.cjs proofs:all",
+    "check:governance-activation-gate:strict": "node scripts/governance/run-strict.cjs check:governance-activation-gate"
   },
   "devDependencies": {
     "esbuild": "^0.21.5",
