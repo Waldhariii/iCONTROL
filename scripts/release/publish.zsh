@@ -6,7 +6,6 @@
  * expiry: TBD
  * risk: LOW
  * file: scripts/release/publish.zsh
- * created_at: 2026-01-20T01:13:27.385Z
  *
  * Rationale:
  * - Stub de compilation pour unblock bundling/tests.
@@ -16,7 +15,6 @@
 #!/usr/bin/env zsh
 set -euo pipefail
 
-
 # --- helpers ---
 is_offline_gh() {
   # Offline governance: in CI or DRY_RUN, we do NOT call GitHub (gh).
@@ -24,7 +22,6 @@ is_offline_gh() {
   [[ "${DRY_RUN:-0}" == "1" ]] && return 0
   return 1
 }
-
 
 # Release publication uses a canonical notes render (tmp) to guarantee Commit pointer == tag commit.
 
@@ -101,12 +98,10 @@ validate_tag_format() {
   echo "OK: validate_tag_format PASS"
 }
 
-
 # Centralised gates are sourced to avoid drift and keep scripts readable.
 if [[ -f "scripts/_gates/gate_fs.zsh" ]]; then source "scripts/_gates/gate_fs.zsh"; fi
 if [[ -f "scripts/_gates/gate_git.zsh" ]]; then source "scripts/_gates/gate_git.zsh"; fi
 if [[ -f "scripts/_gates/gate_release.zsh" ]]; then source "scripts/_gates/gate_release.zsh"; fi
-
 
 run() {
   if (( DRY_RUN == 1 )); then
@@ -115,7 +110,6 @@ run() {
     eval "$@"
   fi
 }
-
 
 # [gates] preflight_git_writable() moved to scripts/_gates (sourced)
 # [gates] need_clean_tree() moved to scripts/_gates (sourced)
@@ -430,9 +424,6 @@ echo "OK: RETAG=$RETAG"
 echo "OK: SCOPE=$SCOPE"
 echo "OK: PWD=$(pwd)"
 echo "OK: CONTEXT_END"
-
-
-
 
 # CI_STRICT: en CI, on veut un pipeline non-intrusif (read-only).
 # - Par défaut: CI=1 => CI_STRICT=1

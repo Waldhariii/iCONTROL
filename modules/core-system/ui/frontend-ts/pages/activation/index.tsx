@@ -7,7 +7,6 @@
  * expiry: TBD
  * risk: LOW
  * file: modules/core-system/ui/frontend-ts/pages/activation/index.tsx
- * created_at: 2026-01-20T01:13:27.385Z
  *
  * Rationale:
  * - Stub de compilation pour unblock bundling/tests.
@@ -32,7 +31,6 @@ function auditWarnSafe(message: string, meta?: Record<string, any>) {
     console.warn(`[WARN] ${message}`, meta ?? {});
   } catch {}
 }
-
 
 type State = {
   key: string;

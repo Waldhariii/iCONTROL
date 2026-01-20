@@ -6,7 +6,6 @@
  * expiry: TBD
  * risk: LOW
  * file: scripts/inventory-placeholders.sh
- * created_at: 2026-01-20T01:13:27.385Z
  *
  * Rationale:
  * - Stub de compilation pour unblock bundling/tests.

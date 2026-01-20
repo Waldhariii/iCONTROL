@@ -7,7 +7,6 @@
  * expiry: TBD
  * risk: LOW
  * file: app/src/pages/cp/views/users.ts
- * created_at: 2026-01-20T01:13:27.385Z
  *
  * Rationale:
  * - Stub de compilation pour unblock bundling/tests.
