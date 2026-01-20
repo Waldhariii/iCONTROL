@@ -1,12 +1,12 @@
 {
   "kind": "ICONTROL_RUNTIME_CONFIG_HTTP_PROOF_V1",
-  "ts": "2026-01-20T01:26:09Z",
+  "ts": "2026-01-20T02:14:47Z",
   "endpoint": "/api/runtime/config",
   "status": 200,
   "headers": {
     "content-type": "application/json; charset=utf-8",
     "cache-control": "no-store"
   },
-  "body_sha256": "6358d0405d2132ff73942a10273d594fc75c58836d2a7d6b7919ec7bbc1e993f",
-  "body_sample_first_200": "{\"tenant_id\":\"local-dev\",\"app_base_path\":\"/app\",\"cp_base_path\":\"/cp\",\"api_base_url\":\"http://127.0.0.1:4182/api\",\"assets_base_url\":\"http://127.0.0.1:4182/assets\",\"requested_base\":\"/cp\",\"env\":\"local\",\"v"
+  "body_sha256": "4f175314b07d6704b213ae714361ee603ebf4438fa29e16574fea867eb9fa8ca",
+  "body_sample_first_200": "{\"tenant_id\":\"local-dev\",\"app_base_path\":\"/app\",\"cp_base_path\":\"/cp\",\"api_base_url\":\"http://127.0.0.1:4178/api\",\"assets_base_url\":\"http://127.0.0.1:4178/assets\",\"requested_base\":\"/cp\",\"env\":\"local\",\"v"
 }
