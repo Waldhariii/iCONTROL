@@ -52,3 +52,16 @@ Choisir et appliquer uniformément:
 - STRICT: `err("forbidden", ...)` (hard fail)
 - COMPAT: placeholder + WARN code stable (soft fail)
 
+
+### Invariants (governance)
+
+- **Required fields** must always be present: `version`, `safeMode`, `features`, `endpoints`.
+- **Defaults** apply when fields are absent (consumer-side): no side effects.
+- **Versioning**: backward compatible; additive only.
+- **SAFE_MODE**:
+  - When `safeMode=true`, consumers must not execute side effects.
+  - Absence of config MUST result in SAFE_MODE behavior.
+- **Paid extensions**:
+  - Never required for correctness.
+  - Must be disable-able instantly (kill-switch).
+
