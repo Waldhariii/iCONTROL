@@ -17,7 +17,7 @@ const path = require("path");
 function walk(dir, out) {
   const ents = fs.readdirSync(dir, { withFileTypes: true });
   for (const e of ents) {
-    if (e.name === "node_modules" || e.name === ".git" || e.name === "dist") continue;
+    if (e.name === "node_modules" || e.name === ".git" || e.name === "dist" || e.name === "_pr_pack" || e.name === "_local_quarantine") continue;
     const p = path.join(dir, e.name);
     if (e.isDirectory()) walk(p, out);
     else out.push(p);
