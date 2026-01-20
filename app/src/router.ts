@@ -78,7 +78,7 @@ export function doLogout(): void {
 }
 
 export function bootRouter(onRoute: (rid: RouteId) => void): void {
-  const tick = () => {
+  const tick = async () => {
     const w = getGlobalWindow();
     if (!w.__VP_GUARDS_APPLIED__) {
       w.__VP_GUARDS_APPLIED__ = true;
