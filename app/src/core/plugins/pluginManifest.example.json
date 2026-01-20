@@ -1,0 +1,11 @@
+{
+  "plugin_id": "ocr_cloud_x",
+  "version": "1.2.0",
+  "type": "paid_accelerator",
+  "capabilities": ["ocr", "layout_detection"],
+  "limits": { "max_qps": 20, "max_monthly_cost_usd": 200 },
+  "fallback": { "provider": "core_free_ocr", "data_loss": false },
+  "safety": { "writes_allowed": false, "pii_exposure": "redacted", "blast_radius": "per_tenant" },
+  "sla": { "max_latency_ms": 1200, "availability_pct": 99.5 },
+  "meta": { "vendor": "ExampleVendor", "notes": "accelerator only; must not break core" }
+}

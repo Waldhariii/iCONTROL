@@ -1,0 +1,11 @@
+{
+  "proof": "plugins_governance",
+  "rule": "Paid plugins are accelerators; core free must remain fully functional when all paid disabled.",
+  "invariants": [
+    "All plugins use standardized manifests (PCM).",
+    "Paid kill-switch exists and is instantaneous.",
+    "Shadow mode produces comparable metrics (latency/error/cost).",
+    "Decision engine computes trust score deterministically."
+  ],
+  "status": "OK"
+}
