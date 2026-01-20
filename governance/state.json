@@ -1,0 +1,7 @@
+{
+  "kind": "GOVERNANCE_STATE_V1",
+  "state": "DORMANT",
+  "activated_at_utc": null,
+  "activated_by": null,
+  "notes": "DORMANT by default. Switch to ACTIVE only when you decide to operate governance checks as a product capability."
+}
