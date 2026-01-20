@@ -39,7 +39,9 @@ for (const f of files) {
   if (!isTextFile(f)) continue;
   if (f.includes(`${path.sep}node_modules${path.sep}`)) continue;
   const rel = path.relative(root, f);
-  let s;
+  
+    if (rel === "scripts/check-created-at-governance.js") continue;
+let s;
   try { s = fs.readFileSync(f, "utf8"); } catch { continue; }
   if (!s.includes("created_at:")) continue;
 
