@@ -1,698 +1,995 @@
 {
   "kind": "ICONTROL_PLACEHOLDER_INVENTORY_PROOF_V1",
-  "ts": "2026-01-20T01:11:00Z",
+  "ts": "2026-01-20T16:14:17.208Z",
   "count": 99,
   "items": [
     {
       "file": "./app/src/core/branding/logoManager.ts",
-      "sha256": "425411cf7b2ccabded1a6c4b9a3dd96672931d37c2e1ea9f6526402623eb216c",
+      "rel": "./app/src/core/branding/logoManager.ts",
+      "sha256": "a208cf0aeac1078478205f3c1c00627964a558f9d922f2638211e405f65d7eb9",
       "first_line": "/**",
-      "placeholder_hit": true,
-      "size_bytes": 1448
+      "has_export_default": false,
+      "has_named_exports": true,
+      "placeholder_hit": false,
+      "size_bytes": 848
     },
     {
       "file": "./app/src/core/degradation/gracefulDegradation.ts",
-      "sha256": "63c91ec19d1c2b899a696265544ab88b21b6ac60479ad32d3a6eaa9ccbf4c468",
-      "first_line": "/**",
-      "placeholder_hit": true,
-      "size_bytes": 334
+      "rel": "./app/src/core/degradation/gracefulDegradation.ts",
+      "sha256": "6933560c119de1b3af9d444a55a45d1bc179beb7f9efb080c69c56c7b492a4fd",
+      "first_line": "// build-unblock stub (auto-generated)",
+      "has_export_default": false,
+      "has_named_exports": true,
+      "placeholder_hit": false,
+      "size_bytes": 188
     },
     {
       "file": "./app/src/core/errors/errorTracker.ts",
-      "sha256": "704751bb4f8fbd09d5bc6cedfd7bbaba8a9b545641b9a88ce9d2d4247b0536d7",
-      "first_line": "/**",
-      "placeholder_hit": true,
-      "size_bytes": 2317
+      "rel": "./app/src/core/errors/errorTracker.ts",
+      "sha256": "d6ccb523655be62cb35cff868851bd52abb857ff5974c998b33035295dae478c",
+      "first_line": "// build-unblock stub (auto-generated)",
+      "has_export_default": false,
+      "has_named_exports": true,
+      "placeholder_hit": false,
+      "size_bytes": 181
     },
     {
       "file": "./app/src/core/layout/cpToolboxShell.css",
-      "sha256": "157ec03d35898c9036a73cdcf128c1b6e84dc9830ea2ed6efd5b20be4dc2c0d9",
-      "first_line": "/* CP Toolbox Shell — placeholder (non-bloquant)",
-      "placeholder_hit": true,
-      "size_bytes": 182
+      "rel": "./app/src/core/layout/cpToolboxShell.css",
+      "sha256": "9b4a92ea8d25bb6f20f5716662c4baaf5d77a93b122ff197b4b27c92fc4f9d77",
+      "first_line": "/* CP Toolbox Shell (minimal stub) */",
+      "has_export_default": false,
+      "has_named_exports": false,
+      "placeholder_hit": false,
+      "size_bytes": 38
     },
     {
       "file": "./app/src/core/layout/cpToolboxShell.ts",
-      "sha256": "80f59a7b1c349ccc179e11d99b7c8b0e22c08be0d1cf866803841da784b04582",
+      "rel": "./app/src/core/layout/cpToolboxShell.ts",
+      "sha256": "e3459353a173c5cfb87784bf69ae931d477b515ea9e3ebad3929ed696534ac26",
       "first_line": "/**",
+      "has_export_default": false,
+      "has_named_exports": true,
       "placeholder_hit": true,
-      "size_bytes": 1025
+      "size_bytes": 768
     },
     {
       "file": "./app/src/core/monitoring/systemMetrics.ts",
-      "sha256": "ddd5653ce31701d4891d37cb6b94593f861702610c0271ccf361fc5bba0915ca",
-      "first_line": "/**",
-      "placeholder_hit": true,
-      "size_bytes": 1923
+      "rel": "./app/src/core/monitoring/systemMetrics.ts",
+      "sha256": "0c7963cf3da9818accafeddb3c37abdb314104997bad9728f8cbf21a1d2a6d8f",
+      "first_line": "// build-unblock stub (auto-generated)",
+      "has_export_default": false,
+      "has_named_exports": true,
+      "placeholder_hit": false,
+      "size_bytes": 182
     },
     {
       "file": "./app/src/core/pageEditor/pageModificationManager.ts",
-      "sha256": "13e708ddccb65cb5c9d24adda21c8260fdfa8e3c0f80ec07b6f01be82a7ca8fe",
-      "first_line": "/**",
-      "placeholder_hit": true,
-      "size_bytes": 274
+      "rel": "./app/src/core/pageEditor/pageModificationManager.ts",
+      "sha256": "79fc074a198e7f8dc027e8d61a99f50fc3b738bab0e7c1c1a3eabe47309b9bfb",
+      "first_line": "// build-unblock stub (auto-generated)",
+      "has_export_default": false,
+      "has_named_exports": true,
+      "placeholder_hit": false,
+      "size_bytes": 69
     },
     {
       "file": "./app/src/core/performance/performanceBudget.ts",
-      "sha256": "d02e341b9728b868cbb3cad25ebfbdc26f7dc79323f4244e413b624f07081cd9",
-      "first_line": "/**",
-      "placeholder_hit": true,
-      "size_bytes": 337
+      "rel": "./app/src/core/performance/performanceBudget.ts",
+      "sha256": "8f209ef814e9f5a5bdc8877e59ecfeca2f609fa3ab90b86e081683fcc2f25ef1",
+      "first_line": "// build-unblock stub (auto-generated)",
+      "has_export_default": false,
+      "has_named_exports": true,
+      "placeholder_hit": false,
+      "size_bytes": 193
     },
     {
       "file": "./app/src/core/permissions/userPermissions.ts",
-      "sha256": "794a7b0ab720c3459f6b9d635c1692856ea4390feefdac98a66e8c7409211912",
-      "first_line": "/**",
-      "placeholder_hit": true,
-      "size_bytes": 232
+      "rel": "./app/src/core/permissions/userPermissions.ts",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "first_line": "",
+      "has_export_default": false,
+      "has_named_exports": false,
+      "placeholder_hit": false,
+      "size_bytes": 0
     },
     {
       "file": "./app/src/core/release/versionGate.ts",
-      "sha256": "5064b625d02963ad048c62a048be278963bba9b487a58ec51be24a5456b38679",
+      "rel": "./app/src/core/release/versionGate.ts",
+      "sha256": "712782abd4eb6b5c83d08121f9e6c072052a0659311e16d11e8b984bfc4a9449",
       "first_line": "/**",
-      "placeholder_hit": true,
-      "size_bytes": 2100
+      "has_export_default": false,
+      "has_named_exports": true,
+      "placeholder_hit": false,
+      "size_bytes": 736
     },
     {
       "file": "./app/src/core/responsive/responsive.css",
-      "sha256": "eb24126be43e449ad90fb4a30018f87dc48ce87ac901a4979fcf605c3409ef6c",
-      "first_line": "/* Responsive — placeholder (non-bloquant)",
-      "placeholder_hit": true,
-      "size_bytes": 229
+      "rel": "./app/src/core/responsive/responsive.css",
+      "sha256": "275e77c47a735a16918fcc9b8a54fd78b8bf4c50e9676c43799ecdc60bc01561",
+      "first_line": "/* ICONTROL_RESPONSIVE_CSS_STUB_V1",
+      "has_export_default": false,
+      "has_named_exports": false,
+      "placeholder_hit": false,
+      "size_bytes": 93
     },
     {
       "file": "./app/src/core/runtime/accessDenied.ts",
-      "sha256": "cdc5cb5f559546524b28c5ce3dee5112c0ff2cd7dc1a13a6c1e28d83f1c4fce4",
-      "first_line": "/**",
-      "placeholder_hit": true,
-      "size_bytes": 229
+      "rel": "./app/src/core/runtime/accessDenied.ts",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "first_line": "",
+      "has_export_default": false,
+      "has_named_exports": false,
+      "placeholder_hit": false,
+      "size_bytes": 0
     },
     {
       "file": "./app/src/core/runtime/audit.ts",
-      "sha256": "0c4467f2ddeb69f0d843bb953ef5cfde1787ca08a53dc131c5d5ef85739df08a",
-      "first_line": "/**",
-      "placeholder_hit": true,
-      "size_bytes": 222
+      "rel": "./app/src/core/runtime/audit.ts",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "first_line": "",
+      "has_export_default": false,
+      "has_named_exports": false,
+      "placeholder_hit": false,
+      "size_bytes": 0
     },
     {
       "file": "./app/src/core/runtime/contracts/runtimeConfig.ts",
-      "sha256": "7b58d65e4b123e4d14b39ebf214c69f116f218257fcde177ac2e0d2e660ab720",
-      "first_line": "/**",
-      "placeholder_hit": true,
-      "size_bytes": 230
+      "rel": "./app/src/core/runtime/contracts/runtimeConfig.ts",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "first_line": "",
+      "has_export_default": false,
+      "has_named_exports": false,
+      "placeholder_hit": false,
+      "size_bytes": 0
     },
     {
       "file": "./app/src/core/runtime/contracts/system.ts",
-      "sha256": "8d6bc8c1a5bf9d9fb2bd5eef7927aef711f117cb0bce740b17460d1f3ab24b07",
-      "first_line": "/**",
-      "placeholder_hit": true,
-      "size_bytes": 223
+      "rel": "./app/src/core/runtime/contracts/system.ts",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "first_line": "",
+      "has_export_default": false,
+      "has_named_exports": false,
+      "placeholder_hit": false,
+      "size_bytes": 0
     },
     {
       "file": "./app/src/core/runtime/obs.ts",
-      "sha256": "0341d5a26082c89f0cc8b9552d2f58b27684616831fb8f4be47e28a9a30e3d82",
-      "first_line": "/**",
-      "placeholder_hit": true,
-      "size_bytes": 220
+      "rel": "./app/src/core/runtime/obs.ts",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "first_line": "",
+      "has_export_default": false,
+      "has_named_exports": false,
+      "placeholder_hit": false,
+      "size_bytes": 0
     },
     {
       "file": "./app/src/core/runtime/safe.ts",
-      "sha256": "1be53e4ad4083dec3102bd0cd3dade46bddcab6c3dcfe29f70df17e78e5300cd",
-      "first_line": "/**",
-      "placeholder_hit": true,
-      "size_bytes": 221
+      "rel": "./app/src/core/runtime/safe.ts",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "first_line": "",
+      "has_export_default": false,
+      "has_named_exports": false,
+      "placeholder_hit": false,
+      "size_bytes": 0
     },
     {
       "file": "./app/src/core/studio/blueprints/blueprint.presentation.json.ts",
-      "sha256": "76cea76ffc5a4c2462d5d8ed38c6fbcf23f8d8e41c5fcd07ddfac4fd2514b402",
-      "first_line": "/**",
-      "placeholder_hit": true,
-      "size_bytes": 244
+      "rel": "./app/src/core/studio/blueprints/blueprint.presentation.json.ts",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "first_line": "",
+      "has_export_default": false,
+      "has_named_exports": false,
+      "placeholder_hit": false,
+      "size_bytes": 0
     },
     {
       "file": "./app/src/core/studio/blueprints/blueprint.structure.json.ts",
-      "sha256": "e233c923c877fab75184534ae7a9214fe8ed8267208a8a162665333e5a3af1b6",
-      "first_line": "/**",
-      "placeholder_hit": true,
-      "size_bytes": 241
+      "rel": "./app/src/core/studio/blueprints/blueprint.structure.json.ts",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "first_line": "",
+      "has_export_default": false,
+      "has_named_exports": false,
+      "placeholder_hit": false,
+      "size_bytes": 0
     },
     {
       "file": "./app/src/core/studio/blueprints/schemas/presentation.schema.json.ts",
-      "sha256": "c47e230ce61f74ff4d18abdc778e487790aed217ea540cf6a01d30a726992434",
-      "first_line": "/**",
-      "placeholder_hit": true,
-      "size_bytes": 241
+      "rel": "./app/src/core/studio/blueprints/schemas/presentation.schema.json.ts",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "first_line": "",
+      "has_export_default": false,
+      "has_named_exports": false,
+      "placeholder_hit": false,
+      "size_bytes": 0
     },
     {
       "file": "./app/src/core/studio/blueprints/schemas/structure.schema.json.ts",
-      "sha256": "9c934d8aefd8f1fb810612cd967484c8cf987afbbe3702cd83bedb1438d45e04",
-      "first_line": "/**",
-      "placeholder_hit": true,
-      "size_bytes": 238
+      "rel": "./app/src/core/studio/blueprints/schemas/structure.schema.json.ts",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "first_line": "",
+      "has_export_default": false,
+      "has_named_exports": false,
+      "placeholder_hit": false,
+      "size_bytes": 0
     },
     {
       "file": "./app/src/core/studio/registry/internal/components/Form.ts",
-      "sha256": "5ed41c55298b562ec4de09865fc407586721d00b06736d766c2892250dbc0254",
-      "first_line": "/**",
-      "placeholder_hit": true,
-      "size_bytes": 221
+      "rel": "./app/src/core/studio/registry/internal/components/Form.ts",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "first_line": "",
+      "has_export_default": false,
+      "has_named_exports": false,
+      "placeholder_hit": false,
+      "size_bytes": 0
     },
     {
       "file": "./app/src/core/studio/registry/internal/components/Table.ts",
-      "sha256": "fa6a484625729449fbecba1cddf40f6f0ea1765486e8da8f72564355d007c75e",
-      "first_line": "/**",
-      "placeholder_hit": true,
-      "size_bytes": 222
+      "rel": "./app/src/core/studio/registry/internal/components/Table.ts",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "first_line": "",
+      "has_export_default": false,
+      "has_named_exports": false,
+      "placeholder_hit": false,
+      "size_bytes": 0
     },
     {
       "file": "./app/src/core/studio/runtime/internal/datasources.ts",
-      "sha256": "71ee9a700277df3c10b77905a67c284151cd6f7630ae02b6c91046b9c5b9dc3f",
-      "first_line": "/**",
-      "placeholder_hit": true,
-      "size_bytes": 228
+      "rel": "./app/src/core/studio/runtime/internal/datasources.ts",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "first_line": "",
+      "has_export_default": false,
+      "has_named_exports": false,
+      "placeholder_hit": false,
+      "size_bytes": 0
     },
     {
       "file": "./app/src/core/studio/runtime/render.ts",
-      "sha256": "028a8f619ec99adfece092d3a20f4742ef0691736198c121f06fd29531a8022b",
-      "first_line": "import type { RuntimeDeps, RenderRequest, Rendered } from \"./types\";",
+      "rel": "./app/src/core/studio/runtime/render.ts",
+      "sha256": "f0cd2ca2d5ef20bfa5962bdaac55e354ca4c9f72b7832bae0448dc935bcdc37b",
+      "first_line": "/**",
+      "has_export_default": false,
+      "has_named_exports": true,
       "placeholder_hit": true,
-      "size_bytes": 1687
+      "size_bytes": 2103
     },
     {
       "file": "./app/src/core/subscriptions/subscriptionTypes.ts",
-      "sha256": "7386148e9797da40399274e86f09a205d6e7b54c26bae4298ea536c084924a3c",
-      "first_line": "/**",
-      "placeholder_hit": true,
-      "size_bytes": 234
+      "rel": "./app/src/core/subscriptions/subscriptionTypes.ts",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "first_line": "",
+      "has_export_default": false,
+      "has_named_exports": false,
+      "placeholder_hit": false,
+      "size_bytes": 0
     },
     {
       "file": "./app/src/core/themes/themeManager.ts",
-      "sha256": "a806c75fb7794ef1c3e27f0300c6cea3f1e5c4fc4523823a15138c482a2884e9",
+      "rel": "./app/src/core/themes/themeManager.ts",
+      "sha256": "8b8880a01adac03e13eb08164916aa47bde25bebf4dc3853cb05d20dedb2eed1",
       "first_line": "/**",
-      "placeholder_hit": true,
-      "size_bytes": 3043
+      "has_export_default": false,
+      "has_named_exports": true,
+      "placeholder_hit": false,
+      "size_bytes": 655
     },
     {
       "file": "./app/src/core/ui/accessibility.ts",
-      "sha256": "0f7a348e593d85d367de7c11738164f928343c4a9e456ba6e9e2b3d2d7f04587",
-      "first_line": "/**",
-      "placeholder_hit": true,
-      "size_bytes": 1451
+      "rel": "./app/src/core/ui/accessibility.ts",
+      "sha256": "d7e20fa6c6fc01e5ff512a803c8c292406d9e8811d3f6b2d759969feed5365f0",
+      "first_line": "// build-unblock stub (auto-generated)",
+      "has_export_default": false,
+      "has_named_exports": true,
+      "placeholder_hit": false,
+      "size_bytes": 186
     },
     {
       "file": "./app/src/core/ui/commandPalette.ts",
-      "sha256": "053350fcc25e733bac044a193f955c032ea0ad916cd7ea8ce357cf8cd4aa6afa",
-      "first_line": "/**",
-      "placeholder_hit": true,
-      "size_bytes": 363
+      "rel": "./app/src/core/ui/commandPalette.ts",
+      "sha256": "2970e5be615243c574977de3e2ad6a5be41682334290d784f31da27f6a08af1e",
+      "first_line": "// build-unblock stub (auto-generated)",
+      "has_export_default": false,
+      "has_named_exports": true,
+      "placeholder_hit": false,
+      "size_bytes": 193
     },
     {
       "file": "./app/src/core/ui/confirmDialog.ts",
-      "sha256": "3edae1676a5ecb017dd0d0c0c17f785d1a20e519b72744d3a1d53c3c1d29e48a",
-      "first_line": "/**",
-      "placeholder_hit": true,
-      "size_bytes": 230
+      "rel": "./app/src/core/ui/confirmDialog.ts",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "first_line": "",
+      "has_export_default": false,
+      "has_named_exports": false,
+      "placeholder_hit": false,
+      "size_bytes": 0
     },
     {
       "file": "./app/src/core/ui/dataTable.ts",
-      "sha256": "92097e45c6981ed76b649f04f5641c774896544b7258b6c5c36335b9bf0124fd",
-      "first_line": "/**",
-      "placeholder_hit": true,
-      "size_bytes": 2379
+      "rel": "./app/src/core/ui/dataTable.ts",
+      "sha256": "313782a07443d2b396e73b9ceafdc7175ed152c44eba19d5d68380e0d9962099",
+      "first_line": "// build-unblock stub (auto-generated)",
+      "has_export_default": false,
+      "has_named_exports": true,
+      "placeholder_hit": false,
+      "size_bytes": 184
     },
     {
       "file": "./app/src/core/ui/emptyState.ts",
-      "sha256": "70f3c17e6a8faa9b4ac7d197d2b1aa4a31fdef17c5510dadec7bfe9a5d6e3f5e",
-      "first_line": "/**",
-      "placeholder_hit": true,
-      "size_bytes": 1444
+      "rel": "./app/src/core/ui/emptyState.ts",
+      "sha256": "ac73b76d4fdd0b3e5e40758496e9470409f66f0e8f7a34629252eb2d1335161d",
+      "first_line": "// build-unblock stub (auto-generated)",
+      "has_export_default": false,
+      "has_named_exports": true,
+      "placeholder_hit": false,
+      "size_bytes": 195
     },
     {
       "file": "./app/src/core/ui/keyboardShortcuts.ts",
-      "sha256": "483c716fe6eeeb4fbdae91b91b1c53a1cec699c387bf547627f558128c9f78e9",
+      "rel": "./app/src/core/ui/keyboardShortcuts.ts",
+      "sha256": "ebef4d4b07c0a69cc5e4a6ce0149766f70d8c23666caf18c76456dbd6c9e201e",
       "first_line": "/**",
-      "placeholder_hit": true,
-      "size_bytes": 2199
+      "has_export_default": false,
+      "has_named_exports": true,
+      "placeholder_hit": false,
+      "size_bytes": 546
     },
     {
       "file": "./app/src/core/ui/onboarding.ts",
-      "sha256": "8c293958bf2d950019d9734a6e6287ae4c0a2156fb789acfe646b9b122c65ef0",
-      "first_line": "/**",
-      "placeholder_hit": true,
-      "size_bytes": 323
+      "rel": "./app/src/core/ui/onboarding.ts",
+      "sha256": "99326f4282c34f8b00e4a3f9732782653fa2103e1304ec111958773995b09925",
+      "first_line": "// build-unblock stub (auto-generated)",
+      "has_export_default": false,
+      "has_named_exports": true,
+      "placeholder_hit": false,
+      "size_bytes": 186
     },
     {
       "file": "./app/src/core/ui/skeletonLoader.ts",
-      "sha256": "02eed78703c146a4c8d63fa12c7352ab3a43b5b2d20a06009a26802fed6085ce",
-      "first_line": "/**",
-      "placeholder_hit": true,
-      "size_bytes": 231
+      "rel": "./app/src/core/ui/skeletonLoader.ts",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "first_line": "",
+      "has_export_default": false,
+      "has_named_exports": false,
+      "placeholder_hit": false,
+      "size_bytes": 0
     },
     {
       "file": "./app/src/core/ui/toast.ts",
-      "sha256": "1f7427e1d8e53c842fcd14254a1d6c47c07562c78f7f04e22db32d1f1552e5dd",
-      "first_line": "/**",
-      "placeholder_hit": true,
-      "size_bytes": 1116
+      "rel": "./app/src/core/ui/toast.ts",
+      "sha256": "77916beb8ade1fd516766e640a5ca8d0ba528716fbbba7c5133712317ee3ccef",
+      "first_line": "// build-unblock stub (auto-generated)",
+      "has_export_default": false,
+      "has_named_exports": true,
+      "placeholder_hit": false,
+      "size_bytes": 178
     },
     {
       "file": "./app/src/core/ui/toolbar.ts",
-      "sha256": "de8820197c49af19b455ee12e21479e2e28571a3d2f835c891f0346bd8e10622",
+      "rel": "./app/src/core/ui/toolbar.ts",
+      "sha256": "d90b24848ecaa5d02f195101be5505a35eb7b55319ea994f95746414a89af7ab",
       "first_line": "/**",
+      "has_export_default": false,
+      "has_named_exports": true,
       "placeholder_hit": true,
-      "size_bytes": 3521
+      "size_bytes": 3926
     },
     {
       "file": "./app/src/core/ui/tooltip.ts",
-      "sha256": "20e232eb287e5244d46fd0ac4464bc771252f6caf8b34f496bf8f7f1bcce2d41",
-      "first_line": "/**",
-      "placeholder_hit": true,
-      "size_bytes": 224
+      "rel": "./app/src/core/ui/tooltip.ts",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "first_line": "",
+      "has_export_default": false,
+      "has_named_exports": false,
+      "placeholder_hit": false,
+      "size_bytes": 0
     },
     {
       "file": "./app/src/core/ui/updateModal.ts",
-      "sha256": "b53bec6ad49fed2f48a114a30014b9869814af2942d6c01ae3bf9dd6c5cb7208",
+      "rel": "./app/src/core/ui/updateModal.ts",
+      "sha256": "72aa289358e29acc7da561f59776b11f4491ad38fe9acc2c9e1dbe4b019319bf",
       "first_line": "/**",
-      "placeholder_hit": true,
-      "size_bytes": 1216
+      "has_export_default": false,
+      "has_named_exports": true,
+      "placeholder_hit": false,
+      "size_bytes": 448
     },
     {
       "file": "./app/src/core/utils/logger.ts",
-      "sha256": "ee1d1ca060784e464b186a1ebf515badd3806a1f5383a68632f4c18d64239671",
+      "rel": "./app/src/core/utils/logger.ts",
+      "sha256": "3307b2172534c6781b7a370c61c38b2278d48dde76da19e9f9a342dc212ffc8d",
       "first_line": "/**",
-      "placeholder_hit": true,
-      "size_bytes": 1413
+      "has_export_default": false,
+      "has_named_exports": true,
+      "placeholder_hit": false,
+      "size_bytes": 1275
     },
     {
       "file": "./app/src/pages/appContext.ts",
-      "sha256": "ad26edab46f418f01e232b6663e27ba88ec410df5923b2059f34127312546a6a",
+      "rel": "./app/src/pages/appContext.ts",
+      "sha256": "08f02e94638ce0e7a3eaa2167b9f05e2b2f1ef7bb47f4144e3b04bd9cd85939c",
       "first_line": "/**",
+      "has_export_default": false,
+      "has_named_exports": true,
       "placeholder_hit": true,
-      "size_bytes": 1126
+      "size_bytes": 566
     },
     {
       "file": "./app/src/pages/cp/models/users.ts",
-      "sha256": "9905d16b1743fdf59f49a4afca50b70ed1e1c1450b85738485881ec34858608b",
-      "first_line": "/**",
-      "placeholder_hit": true,
-      "size_bytes": 222
+      "rel": "./app/src/pages/cp/models/users.ts",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "first_line": "",
+      "has_export_default": false,
+      "has_named_exports": false,
+      "placeholder_hit": false,
+      "size_bytes": 0
     },
     {
       "file": "./app/src/pages/cp/views/users.ts",
-      "sha256": "be136fa7585ac1c0fb36223fef6704edbdfde6d8c239b371b07bcf66836ea067",
+      "rel": "./app/src/pages/cp/views/users.ts",
+      "sha256": "832a2a194ca550fac99ffba0e25320ddd526d6f9d11fd61e9c637df1155ce561",
       "first_line": "/**",
+      "has_export_default": false,
+      "has_named_exports": true,
       "placeholder_hit": true,
-      "size_bytes": 21620
+      "size_bytes": 22030
     },
     {
       "file": "./app/src/pages/dashboard.ts.disabled",
-      "sha256": "85d412624113d107a9a095947742c1aee9ca8038ef2a3f15500407d345798b99",
-      "first_line": "import { getUserLabel } from \"../router\";",
+      "rel": "./app/src/pages/dashboard.ts.disabled",
+      "sha256": "92b479b4938ca697342d11cb855e97282757b7f6e34fe12b99392f542de8b872",
+      "first_line": "/**",
+      "has_export_default": false,
+      "has_named_exports": true,
       "placeholder_hit": true,
-      "size_bytes": 1375
+      "size_bytes": 1738
     },
     {
       "file": "./app/src/pages/login.ts.disabled",
-      "sha256": "f4a3853b8423f662d4d770e404d9d2cf5d45ea68b799a10922aa0c1e638ea898",
-      "first_line": "import { authenticate } from \"../localAuth\";",
+      "rel": "./app/src/pages/login.ts.disabled",
+      "sha256": "f508739e0deb65cad73c38a150df4bb82a28940faedad8528fad34f123b67c28",
+      "first_line": "/**",
+      "has_export_default": false,
+      "has_named_exports": true,
       "placeholder_hit": true,
-      "size_bytes": 2342
+      "size_bytes": 2701
     },
     {
       "file": "./app/src/policies/feature_flags.default.json.ts",
-      "sha256": "88af99f3e3403213d2ed7aab68679d00a1ebea0ab182310fda74f79ea985ccc3",
-      "first_line": "/**",
-      "placeholder_hit": true,
-      "size_bytes": 243
+      "rel": "./app/src/policies/feature_flags.default.json.ts",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "first_line": "",
+      "has_export_default": false,
+      "has_named_exports": false,
+      "placeholder_hit": false,
+      "size_bytes": 0
     },
     {
       "file": "./app/src/policies/version_policy.default.json.ts",
-      "sha256": "6c716fccb2d47f1f01237a7d3b7b05c39904c7d10b3142039612d953ad4047b1",
-      "first_line": "/**",
-      "placeholder_hit": true,
-      "size_bytes": 244
+      "rel": "./app/src/policies/version_policy.default.json.ts",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "first_line": "",
+      "has_export_default": false,
+      "has_named_exports": false,
+      "placeholder_hit": false,
+      "size_bytes": 0
     },
     {
       "file": "./docs/contracts/runtime.md",
-      "sha256": "da28de19351339153feb52e589372051d1aa127466723d8d464708ce6c10677b",
-      "first_line": "# Runtime Contract (iCONTROL) — ICONTROL_RUNTIME_CONTRACT_V1",
+      "rel": "./docs/contracts/runtime.md",
+      "sha256": "959b7bb0892c1073685d9462721a9fbe5c76cb7bf412728d1a83f3a2012445e2",
+      "first_line": "/**",
+      "has_export_default": false,
+      "has_named_exports": false,
       "placeholder_hit": true,
-      "size_bytes": 1329
+      "size_bytes": 1642
     },
     {
       "file": "./modules/core-system/ui/frontend-ts/pages/_shared/uiBlocks.ts",
-      "sha256": "91644a05e83d3e6a39086c857b519d315bbab14f790d38fd6593574155f9c782",
-      "first_line": "import { recordObs } from \"./audit\";",
+      "rel": "./modules/core-system/ui/frontend-ts/pages/_shared/uiBlocks.ts",
+      "sha256": "c8d40afe96574b5ac2d36fe28246fbfc77db0d3959461d3cd27dec0719f51f73",
+      "first_line": "/**",
+      "has_export_default": false,
+      "has_named_exports": true,
       "placeholder_hit": true,
-      "size_bytes": 13741
+      "size_bytes": 14180
     },
     {
       "file": "./modules/core-system/ui/frontend-ts/pages/activation/index.tsx",
-      "sha256": "9c895f26af9835df7560c213afe5ffe79f9eb369d2e0ca288349b2d72cb0e628",
+      "rel": "./modules/core-system/ui/frontend-ts/pages/activation/index.tsx",
+      "sha256": "782a4718c6a9c3879fffd7f6b5aaf872bb6ff488724bc6dd09d39b748bc5d5dc",
       "first_line": "/**",
+      "has_export_default": false,
+      "has_named_exports": true,
       "placeholder_hit": true,
-      "size_bytes": 6036
+      "size_bytes": 6475
     },
     {
       "file": "./modules/core-system/ui/frontend-ts/pages/developer/entitlements.tsx",
-      "sha256": "84c4d59dc5ee4b88ea65e38c788a7ee85c7e04b5bfc114a92a16df9b5043b82e",
-      "first_line": "import { loadEntitlements, saveEntitlements, clearEntitlements, type Entitlements, DEFAULT_ENTITLEMENTS } from \"/src/core/entitlements\";",
+      "rel": "./modules/core-system/ui/frontend-ts/pages/developer/entitlements.tsx",
+      "sha256": "8c12555af9fe77367c1737f3c1680cd0921df59841837464889f1218e6e5cae3",
+      "first_line": "/**",
+      "has_export_default": true,
+      "has_named_exports": true,
       "placeholder_hit": true,
-      "size_bytes": 5346
+      "size_bytes": 5792
     },
     {
       "file": "./modules/core-system/ui/frontend-ts/pages/dossiers/sections/create.ts",
-      "sha256": "48aaab5fee549fa1da3fa409c05d44475582ec95f6687ff7b72fb00affe411ec",
-      "first_line": "import type { Role } from \"/src/runtime/rbac\";",
+      "rel": "./modules/core-system/ui/frontend-ts/pages/dossiers/sections/create.ts",
+      "sha256": "ee6657811e7b48700ff7e8a0ba6726696df7f575674df6b495a936556c2092af",
+      "first_line": "/**",
+      "has_export_default": false,
+      "has_named_exports": true,
       "placeholder_hit": true,
-      "size_bytes": 2941
+      "size_bytes": 3388
     },
     {
       "file": "./modules/core-system/ui/frontend-ts/pages/dossiers/sections/filters.ts",
-      "sha256": "50221e927cf23d1297f3762f05feb8c0ea51bbb02dcf54741c05abe5d73bc6b8",
-      "first_line": "import { blockFilterInput, sectionCard } from \"../../_shared/uiBlocks\";",
+      "rel": "./modules/core-system/ui/frontend-ts/pages/dossiers/sections/filters.ts",
+      "sha256": "84bd528a90f7566059d94164cbce6044dfe6a952e77c9bfe498df0575a400d3c",
+      "first_line": "/**",
+      "has_export_default": false,
+      "has_named_exports": true,
       "placeholder_hit": true,
-      "size_bytes": 1427
+      "size_bytes": 1875
     },
     {
       "file": "./modules/core-system/ui/frontend-ts/pages/login.ts",
-      "sha256": "1474bf8ff831cb925464a8745e7cacda1601de23e3ea5474d3a088f720251707",
-      "first_line": "import { authenticate, authenticateManagement } from \"/src/localAuth\";",
+      "rel": "./modules/core-system/ui/frontend-ts/pages/login.ts",
+      "sha256": "824f7e83c840fe69f38fe75781578637abf7bde8b6648d3e15083b376e246bdb",
+      "first_line": "/**",
+      "has_export_default": false,
+      "has_named_exports": true,
       "placeholder_hit": true,
-      "size_bytes": 2768
+      "size_bytes": 3196
     },
     {
       "file": "./modules/core-system/ui/frontend-ts/pages/login/loginPage.ts",
-      "sha256": "ebc5e4f8dada0e960cc8c13d5e0e5021504ae4986444b572451fafe4411d5209",
-      "first_line": "/* ICONTROL_LEGACY_LOGINPAGE_V1: not routed by moduleLoader/router; keep for reference only */",
+      "rel": "./modules/core-system/ui/frontend-ts/pages/login/loginPage.ts",
+      "sha256": "f5b7cf459dff3e8352993d97012bf66a8344861dd2a34b9bd2d0ca538410b65a",
+      "first_line": "/**",
+      "has_export_default": false,
+      "has_named_exports": true,
       "placeholder_hit": true,
-      "size_bytes": 2899
+      "size_bytes": 3337
     },
     {
       "file": "./modules/core-system/ui/frontend-ts/pages/logs/sections/filters.ts",
-      "sha256": "3b543efabdb588c0542c14cbc359ec4006211454a9ad77fc18724210e18e525c",
-      "first_line": "import { blockFilterInput, sectionCard } from \"../../_shared/uiBlocks\";",
+      "rel": "./modules/core-system/ui/frontend-ts/pages/logs/sections/filters.ts",
+      "sha256": "98def6f33cd8353ba782267ab07c6414f70c20aa9a87bec7e3f622de8024c2a7",
+      "first_line": "/**",
+      "has_export_default": false,
+      "has_named_exports": true,
       "placeholder_hit": true,
-      "size_bytes": 1345
+      "size_bytes": 1789
     },
     {
       "file": "./modules/core-system/ui/frontend-ts/pages/settings/branding.ts",
-      "sha256": "9eef973b2003b9d89694b554137289761a6d7d160ba10579b8e4dbe33fe3dbd9",
-      "first_line": "import { getSession } from \"/src/localAuth\";",
+      "rel": "./modules/core-system/ui/frontend-ts/pages/settings/branding.ts",
+      "sha256": "63dc706cbd81b550587776a287bad15773033947f41b902b98cf619f27da8929",
+      "first_line": "/**",
+      "has_export_default": false,
+      "has_named_exports": true,
       "placeholder_hit": true,
-      "size_bytes": 6267
+      "size_bytes": 6707
     },
     {
       "file": "./package.json",
-      "sha256": "9fdcef213fff8e3c91f698ab87b22e53128852bde209e094dbece53df33ce04f",
+      "rel": "./package.json",
+      "sha256": "72d9e20e64fb8a8acb5ed1d0a8f53cbbcb12f514663443f192ad6c43e82fda0c",
       "first_line": "{",
+      "has_export_default": false,
+      "has_named_exports": false,
       "placeholder_hit": true,
-      "size_bytes": 3953
+      "size_bytes": 4192
     },
     {
       "file": "./patches/phase2-entrypoints.patch",
-      "sha256": "d9cfac922dfaa54004596dce786349d016991b2d30c2a19de6a4091646065bff",
-      "first_line": "diff --git a/app/src/moduleLoader.ts b/app/src/moduleLoader.ts",
-      "placeholder_hit": true,
-      "size_bytes": 71702
+      "rel": "./patches/phase2-entrypoints.patch",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "first_line": "",
+      "has_export_default": false,
+      "has_named_exports": false,
+      "placeholder_hit": false,
+      "size_bytes": 0
     },
     {
       "file": "./patches/phase4-helpers.patch",
-      "sha256": "6184f67923f0e978073a6bef556792e2be6519b8648ce3956d3b8967f5ff6099",
-      "first_line": "diff --git a/modules/core-system/ui/frontend-ts/pages/_shared/mainSystem.shared.ts b/modules/core-system/ui/frontend-ts/pages/_shared/mainSystem.shared.ts",
-      "placeholder_hit": true,
-      "size_bytes": 184968
+      "rel": "./patches/phase4-helpers.patch",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "first_line": "",
+      "has_export_default": false,
+      "has_named_exports": false,
+      "placeholder_hit": false,
+      "size_bytes": 0
     },
     {
       "file": "./proofs/PROOFS_ACCOUNT_ROUTE.json",
-      "sha256": "1fbbc603a79332934ac2d14fcbcfaab905cadf0f605bde9e9291d3d15c722769",
-      "first_line": "{",
+      "rel": "./proofs/PROOFS_ACCOUNT_ROUTE.json",
+      "sha256": "a10d02d0532f69a9fb43286a587807a76e9d36626fdde51dcaeb019460e62812",
+      "first_line": "/**",
+      "has_export_default": false,
+      "has_named_exports": false,
       "placeholder_hit": true,
-      "size_bytes": 337
+      "size_bytes": 657
     },
     {
       "file": "./proofs/PROOFS_API_ROUTE.json",
-      "sha256": "0161a398bbbead42614626d801d506550754cd734a9518008d6101162203394e",
-      "first_line": "{",
+      "rel": "./proofs/PROOFS_API_ROUTE.json",
+      "sha256": "248499d0145d7f593e80e490e88ae7da82173b9c8f4660aa104fcd08fa39b2d1",
+      "first_line": "/**",
+      "has_export_default": false,
+      "has_named_exports": false,
       "placeholder_hit": true,
-      "size_bytes": 333
+      "size_bytes": 649
     },
     {
       "file": "./proofs/PROOFS_DASHBOARD_ROUTE.json",
-      "sha256": "5ca1fecd00a4f4cdc15a23622d9b1166fb44f1d666130c1c2d66197b4bca26df",
-      "first_line": "{",
+      "rel": "./proofs/PROOFS_DASHBOARD_ROUTE.json",
+      "sha256": "3ae6f247d839e53d6e1b6780f1f5ac3e6a8e332f49072ab08986b225024f07df",
+      "first_line": "/**",
+      "has_export_default": false,
+      "has_named_exports": false,
       "placeholder_hit": true,
-      "size_bytes": 339
+      "size_bytes": 661
     },
     {
       "file": "./proofs/PROOFS_DEVELOPER_ENTITLEMENTS_ROUTE.json",
-      "sha256": "fc9c23519298210aec388cba2f2fa5e3a42d2742556fd103aa11e346ec8474d4",
-      "first_line": "{",
+      "rel": "./proofs/PROOFS_DEVELOPER_ENTITLEMENTS_ROUTE.json",
+      "sha256": "1f489e92f73f6ebe08bb00a9c10379c98b11439ea377992203a60a83fe5a9db9",
+      "first_line": "/**",
+      "has_export_default": false,
+      "has_named_exports": false,
       "placeholder_hit": true,
-      "size_bytes": 352
+      "size_bytes": 687
     },
     {
       "file": "./proofs/PROOFS_DEVELOPER_ROUTE.json",
-      "sha256": "ff960e33471418aa80e407a1ee23351c367a5dd26d3dc7290dba80eb08705221",
-      "first_line": "{",
+      "rel": "./proofs/PROOFS_DEVELOPER_ROUTE.json",
+      "sha256": "5e41e3deaf779d71065174b9765915f1477545bd7f69e8df4a4ba6584ec0a35f",
+      "first_line": "/**",
+      "has_export_default": false,
+      "has_named_exports": false,
       "placeholder_hit": true,
-      "size_bytes": 339
+      "size_bytes": 661
     },
     {
       "file": "./proofs/PROOFS_NETWORK_ROUTE.json",
-      "sha256": "e4505ba4a4ae060b945f0f445c9840af7d43037fba98ceeb47b6311249f2c970",
-      "first_line": "{",
+      "rel": "./proofs/PROOFS_NETWORK_ROUTE.json",
+      "sha256": "62c68517503cee3d5281e50a6c9d56d7357958dff24ac7df3d06733e732453e2",
+      "first_line": "/**",
+      "has_export_default": false,
+      "has_named_exports": false,
       "placeholder_hit": true,
-      "size_bytes": 337
+      "size_bytes": 657
     },
     {
       "file": "./proofs/PROOFS_SYSTEM_ROUTE.json",
-      "sha256": "2d7bf41d8dc36e1a4a9008841e3573a0d7b01c6d91084c718a39a0c5a8fa1ad4",
-      "first_line": "{",
+      "rel": "./proofs/PROOFS_SYSTEM_ROUTE.json",
+      "sha256": "a72397b49dc74ec6887f50897e3709ef433c3fa6e10e22b2b1a698f957ab2138",
+      "first_line": "/**",
+      "has_export_default": false,
+      "has_named_exports": false,
       "placeholder_hit": true,
-      "size_bytes": 336
+      "size_bytes": 655
     },
     {
       "file": "./proofs/PROOFS_VERIFICATION_ROUTE.json",
-      "sha256": "e0bcf417c538f52cfc3bf0d0682ee2062d1e8389537d41d8241da272a2d22f14",
-      "first_line": "{",
+      "rel": "./proofs/PROOFS_VERIFICATION_ROUTE.json",
+      "sha256": "cee3ade285d54d5fbe94748334e275fb203a3c37007a7e1725a3c94a7690b523",
+      "first_line": "/**",
+      "has_export_default": false,
+      "has_named_exports": false,
       "placeholder_hit": true,
-      "size_bytes": 342
+      "size_bytes": 667
     },
     {
       "file": "./scripts/check-account-route.js",
-      "sha256": "78c66746de1e22bac1e7c71a732f70c1e938b7a1c60d15b13aa26c0f21ba81f6",
-      "first_line": "#!/usr/bin/env node",
+      "rel": "./scripts/check-account-route.js",
+      "sha256": "7e2720c7f045668d4ca7e6b81901a70ea20cca1fc637a49974a96d5965bbd887",
+      "first_line": "/**",
+      "has_export_default": false,
+      "has_named_exports": false,
       "placeholder_hit": true,
-      "size_bytes": 345
+      "size_bytes": 724
     },
     {
       "file": "./scripts/check-api-route.js",
-      "sha256": "78c66746de1e22bac1e7c71a732f70c1e938b7a1c60d15b13aa26c0f21ba81f6",
-      "first_line": "#!/usr/bin/env node",
+      "rel": "./scripts/check-api-route.js",
+      "sha256": "e51f9276b741e5cfe0bc4b57370aa06f862fb780da6f0a968a338ca4bb1ff905",
+      "first_line": "/**",
+      "has_export_default": false,
+      "has_named_exports": false,
       "placeholder_hit": true,
-      "size_bytes": 345
+      "size_bytes": 720
     },
     {
       "file": "./scripts/check-dashboard-route.js",
-      "sha256": "78c66746de1e22bac1e7c71a732f70c1e938b7a1c60d15b13aa26c0f21ba81f6",
-      "first_line": "#!/usr/bin/env node",
+      "rel": "./scripts/check-dashboard-route.js",
+      "sha256": "fd4b73d2aa57b0378c01748861e7f7cb331e69ec447a02968d18d0e2e9baaa80",
+      "first_line": "/**",
+      "has_export_default": false,
+      "has_named_exports": false,
       "placeholder_hit": true,
-      "size_bytes": 345
+      "size_bytes": 726
     },
     {
       "file": "./scripts/check-developer-entitlements-route.js",
-      "sha256": "78c66746de1e22bac1e7c71a732f70c1e938b7a1c60d15b13aa26c0f21ba81f6",
-      "first_line": "#!/usr/bin/env node",
+      "rel": "./scripts/check-developer-entitlements-route.js",
+      "sha256": "01bfbf233d32859f634a79eefb9cada6bf07089eff5c37850271aa6b2721f740",
+      "first_line": "/**",
+      "has_export_default": false,
+      "has_named_exports": false,
       "placeholder_hit": true,
-      "size_bytes": 345
+      "size_bytes": 739
     },
     {
       "file": "./scripts/check-developer-route.js",
-      "sha256": "78c66746de1e22bac1e7c71a732f70c1e938b7a1c60d15b13aa26c0f21ba81f6",
-      "first_line": "#!/usr/bin/env node",
+      "rel": "./scripts/check-developer-route.js",
+      "sha256": "df40c45f52a71587b67fdca6c0431501c84555e1cf8865387c1f6ceb51272e9f",
+      "first_line": "/**",
+      "has_export_default": false,
+      "has_named_exports": false,
       "placeholder_hit": true,
-      "size_bytes": 345
+      "size_bytes": 726
     },
     {
       "file": "./scripts/check-network-route.js",
-      "sha256": "78c66746de1e22bac1e7c71a732f70c1e938b7a1c60d15b13aa26c0f21ba81f6",
-      "first_line": "#!/usr/bin/env node",
+      "rel": "./scripts/check-network-route.js",
+      "sha256": "caea8db6bd4d800a004d0283ed00a04a0bc683536c41473879105d30b746dc4a",
+      "first_line": "/**",
+      "has_export_default": false,
+      "has_named_exports": false,
       "placeholder_hit": true,
-      "size_bytes": 345
+      "size_bytes": 724
     },
     {
       "file": "./scripts/check-system-route.js",
-      "sha256": "78c66746de1e22bac1e7c71a732f70c1e938b7a1c60d15b13aa26c0f21ba81f6",
-      "first_line": "#!/usr/bin/env node",
+      "rel": "./scripts/check-system-route.js",
+      "sha256": "5aa1e93224c0b450a70e1fef65bbdf01a1da9f4e17668ab64f9ac6e5dc106864",
+      "first_line": "/**",
+      "has_export_default": false,
+      "has_named_exports": false,
       "placeholder_hit": true,
-      "size_bytes": 345
+      "size_bytes": 723
     },
     {
       "file": "./scripts/check-verification-route.js",
-      "sha256": "78c66746de1e22bac1e7c71a732f70c1e938b7a1c60d15b13aa26c0f21ba81f6",
-      "first_line": "#!/usr/bin/env node",
+      "rel": "./scripts/check-verification-route.js",
+      "sha256": "2299579673d7a988c4ca574a5f1efa1df2cc6fc43dc1fdba8f72732b77004890",
+      "first_line": "/**",
+      "has_export_default": false,
+      "has_named_exports": false,
       "placeholder_hit": true,
-      "size_bytes": 345
+      "size_bytes": 729
     },
     {
       "file": "./scripts/inventory-placeholders.sh",
-      "sha256": "b103cf306722129a867309b711e035afc25654ee2c31e050434f5834c8dfbf76",
-      "first_line": "#!/usr/bin/env bash",
+      "rel": "./scripts/inventory-placeholders.sh",
+      "sha256": "b0f2dfd98e12abeea083d9f6f8680cdf19ba3565c0c11134cb2d71a3297c9ac0",
+      "first_line": "/**",
+      "has_export_default": false,
+      "has_named_exports": false,
       "placeholder_hit": true,
-      "size_bytes": 2671
+      "size_bytes": 2992
     },
     {
       "file": "./scripts/release/publish.zsh",
-      "sha256": "567e532e6d40513f837ebd8af9bb5608591a394c343e212f8bfaef58b931cf61",
-      "first_line": "#!/usr/bin/env zsh",
+      "rel": "./scripts/release/publish.zsh",
+      "sha256": "d28b2e6d4434eb3034c4614b6bf1b5c6950732b2987a0f3636b18c05686e7137",
+      "first_line": "/**",
+      "has_export_default": false,
+      "has_named_exports": false,
       "placeholder_hit": true,
-      "size_bytes": 12438
+      "size_bytes": 12745
     },
     {
       "file": "11:app/src/core/runtime/accessDenied.ts",
+      "rel": "11:app/src/core/runtime/accessDenied.ts",
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
       "first_line": "",
+      "has_export_default": false,
+      "has_named_exports": false,
       "placeholder_hit": false,
       "size_bytes": 0
     },
     {
       "file": "12:app/src/core/runtime/audit.ts",
+      "rel": "12:app/src/core/runtime/audit.ts",
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
       "first_line": "",
+      "has_export_default": false,
+      "has_named_exports": false,
       "placeholder_hit": false,
       "size_bytes": 0
     },
     {
       "file": "14:app/src/core/runtime/obs.ts",
+      "rel": "14:app/src/core/runtime/obs.ts",
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
       "first_line": "",
+      "has_export_default": false,
+      "has_named_exports": false,
       "placeholder_hit": false,
       "size_bytes": 0
     },
     {
       "file": "16:app/src/core/runtime/safe.ts",
+      "rel": "16:app/src/core/runtime/safe.ts",
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
       "first_line": "",
+      "has_export_default": false,
+      "has_named_exports": false,
       "placeholder_hit": false,
       "size_bytes": 0
     },
     {
       "file": "17:app/src/core/studio/blueprints/blueprint.presentation.json.ts",
+      "rel": "17:app/src/core/studio/blueprints/blueprint.presentation.json.ts",
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
       "first_line": "",
+      "has_export_default": false,
+      "has_named_exports": false,
       "placeholder_hit": false,
       "size_bytes": 0
     },
     {
       "file": "18:app/src/core/studio/blueprints/blueprint.structure.json.ts",
+      "rel": "18:app/src/core/studio/blueprints/blueprint.structure.json.ts",
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
       "first_line": "",
+      "has_export_default": false,
+      "has_named_exports": false,
       "placeholder_hit": false,
       "size_bytes": 0
     },
     {
       "file": "19:app/src/core/studio/blueprints/schemas/presentation.schema.json.ts",
+      "rel": "19:app/src/core/studio/blueprints/schemas/presentation.schema.json.ts",
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
       "first_line": "",
+      "has_export_default": false,
+      "has_named_exports": false,
       "placeholder_hit": false,
       "size_bytes": 0
     },
     {
       "file": "20:app/src/core/studio/blueprints/schemas/structure.schema.json.ts",
+      "rel": "20:app/src/core/studio/blueprints/schemas/structure.schema.json.ts",
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
       "first_line": "",
+      "has_export_default": false,
+      "has_named_exports": false,
       "placeholder_hit": false,
       "size_bytes": 0
     },
     {
       "file": "22:app/src/core/studio/runtime/internal/datasources.ts",
+      "rel": "22:app/src/core/studio/runtime/internal/datasources.ts",
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
       "first_line": "",
+      "has_export_default": false,
+      "has_named_exports": false,
       "placeholder_hit": false,
       "size_bytes": 0
     },
     {
       "file": "25:app/src/core/ui/accessibility.ts",
+      "rel": "25:app/src/core/ui/accessibility.ts",
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
       "first_line": "",
+      "has_export_default": false,
+      "has_named_exports": false,
       "placeholder_hit": false,
       "size_bytes": 0
     },
     {
       "file": "26:app/src/core/ui/commandPalette.ts",
+      "rel": "26:app/src/core/ui/commandPalette.ts",
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
       "first_line": "",
+      "has_export_default": false,
+      "has_named_exports": false,
       "placeholder_hit": false,
       "size_bytes": 0
     },
     {
       "file": "27:app/src/core/ui/confirmDialog.ts",
+      "rel": "27:app/src/core/ui/confirmDialog.ts",
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
       "first_line": "",
+      "has_export_default": false,
+      "has_named_exports": false,
       "placeholder_hit": false,
       "size_bytes": 0
     },
     {
       "file": "28:app/src/core/ui/dataTable.ts",
+      "rel": "28:app/src/core/ui/dataTable.ts",
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
       "first_line": "",
+      "has_export_default": false,
+      "has_named_exports": false,
       "placeholder_hit": false,
       "size_bytes": 0
     },
     {
       "file": "29:app/src/core/ui/emptyState.ts",
+      "rel": "29:app/src/core/ui/emptyState.ts",
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
       "first_line": "",
+      "has_export_default": false,
+      "has_named_exports": false,
       "placeholder_hit": false,
       "size_bytes": 0
     },
     {
       "file": "3:app/src/core/errors/errorTracker.ts",
+      "rel": "3:app/src/core/errors/errorTracker.ts",
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
       "first_line": "",
+      "has_export_default": false,
+      "has_named_exports": false,
       "placeholder_hit": false,
       "size_bytes": 0
     },
     {
       "file": "30:app/src/core/ui/keyboardShortcuts.ts",
+      "rel": "30:app/src/core/ui/keyboardShortcuts.ts",
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
       "first_line": "",
+      "has_export_default": false,
+      "has_named_exports": false,
       "placeholder_hit": false,
       "size_bytes": 0
     },
     {
       "file": "31:app/src/core/ui/onboarding.ts",
+      "rel": "31:app/src/core/ui/onboarding.ts",
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
       "first_line": "",
+      "has_export_default": false,
+      "has_named_exports": false,
       "placeholder_hit": false,
       "size_bytes": 0
     },
     {
       "file": "32:app/src/core/ui/skeletonLoader.ts",
+      "rel": "32:app/src/core/ui/skeletonLoader.ts",
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
       "first_line": "",
+      "has_export_default": false,
+      "has_named_exports": false,
       "placeholder_hit": false,
       "size_bytes": 0
     },
     {
       "file": "33:app/src/core/ui/toast.ts",
+      "rel": "33:app/src/core/ui/toast.ts",
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
       "first_line": "",
+      "has_export_default": false,
+      "has_named_exports": false,
       "placeholder_hit": false,
       "size_bytes": 0
     },
     {
       "file": "34:app/src/core/ui/tooltip.ts",
+      "rel": "34:app/src/core/ui/tooltip.ts",
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
       "first_line": "",
+      "has_export_default": false,
+      "has_named_exports": false,
       "placeholder_hit": false,
       "size_bytes": 0
     },
     {
       "file": "35:app/src/core/ui/updateModal.ts",
+      "rel": "35:app/src/core/ui/updateModal.ts",
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
       "first_line": "",
+      "has_export_default": false,
+      "has_named_exports": false,
       "placeholder_hit": false,
       "size_bytes": 0
     }
