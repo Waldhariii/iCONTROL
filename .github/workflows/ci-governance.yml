@@ -1,0 +1,80 @@
+name: CI (Governance + Proofs)
+
+on:
+  pull_request:
+  push:
+    branches:
+      - "**"
+    tags:
+      - "v*"
+  workflow_dispatch:
+  release:
+    types: [published, created]
+
+concurrency:
+  group: ci-governance-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  proofs_all:
+    name: Proofs (default lane)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install
+        run: npm ci
+
+      - name: Proofs (WARN_ONLY lane)
+        run: npm run -s proofs:all
+
+      - name: Build /app
+        run: npm -s --prefix app run build -- --base /app/ --outDir dist/app
+
+      - name: Build /cp
+        run: npm -s --prefix app run build -- --base /cp/ --outDir dist/cp
+
+  proofs_strict:
+    name: Proofs (STRICT lane / release gate)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: [proofs_all]
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      github.event_name == 'release' ||
+      startsWith(github.ref, 'refs/tags/v')
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install
+        run: npm ci
+
+      - name: Proofs (STRICT lane)
+        env:
+          SAFE_MODE_STRICT: "1"
+        run: npm run -s proofs:strict
+
+      - name: Build /app
+        env:
+          SAFE_MODE_STRICT: "1"
+        run: npm -s --prefix app run build -- --base /app/ --outDir dist/app
+
+      - name: Build /cp
+        env:
+          SAFE_MODE_STRICT: "1"
+        run: npm -s --prefix app run build -- --base /cp/ --outDir dist/cp
