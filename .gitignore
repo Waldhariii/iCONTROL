@@ -80,3 +80,10 @@ app-desktop-*/src-tauri/gen/
 ._WIP_BACKUPS/
 _security_inventory_*/
 _audit_system_innovex_clean/
+
+# ICONTROL_UI_BACKUPS (enterprise hygiene)
+**/.DS_Store
+**/*.bak.*
+**/*.backup.*
+**/icontrol_*.tmp
+/tmp/icontrol_*
