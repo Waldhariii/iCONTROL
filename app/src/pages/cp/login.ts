@@ -2,12 +2,8 @@ import "./login.css";
 import { authenticateManagement } from "/src/localAuth";
 import { navigate } from "/src/router";
 import { coreBaseStyles } from "../../../../modules/core-system/ui/frontend-ts/shared/coreStyles";
-import {
-  CP_LOGIN_THEMES,
-  DEFAULT_CP_LOGIN_PRESET,
-  getCpLoginPreset,
-  type CpLoginTheme
-} from "./ui/loginTheme/loginTheme";
+import { getCpLoginPreset, type CpLoginTheme } from "./ui/loginTheme/loginTheme";
+import { getEffectiveLoginTheme } from "./ui/loginTheme/loginTheme.override";
 
 const EMAIL_ICON = `<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18v12H3z"/><path d="M3 6l9 7 9-7"/></svg>`;
 const LOCK_ICON = `<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>`;
@@ -16,11 +12,11 @@ export function renderCpLogin(root: HTMLElement): void {
   root.innerHTML = coreBaseStyles();
 
   const preset = getCpLoginPreset();
-  const theme = CP_LOGIN_THEMES[preset] ?? CP_LOGIN_THEMES[DEFAULT_CP_LOGIN_PRESET];
+  const { theme, effects } = getEffectiveLoginTheme(preset);
 
   const wrapper = document.createElement("div");
   wrapper.dataset.scope = "cp-login";
-  applyThemeVars(wrapper, theme);
+  applyThemeVars(wrapper, theme, effects);
 
   const bg = document.createElement("div");
   bg.className = "cp-login-bg";
@@ -117,6 +113,13 @@ export function renderCpLogin(root: HTMLElement): void {
   wrapper.appendChild(noise);
   wrapper.appendChild(card);
   root.appendChild(wrapper);
+  if (typeof window !== "undefined") {
+    window.addEventListener("storage", (event) => {
+      if (event.key !== "icontrol.cp.loginTheme.override.v1") return;
+      const next = getEffectiveLoginTheme(getCpLoginPreset());
+      applyThemeVars(wrapper, next.theme, next.effects);
+    });
+  }
 
   const u = root.querySelector<HTMLInputElement>("#cp-login-email")!;
   const p = root.querySelector<HTMLInputElement>("#cp-login-password")!;
@@ -138,7 +141,15 @@ export function renderCpLogin(root: HTMLElement): void {
   });
 }
 
-function applyThemeVars(wrapper: HTMLElement, theme: CpLoginTheme): void {
+function applyThemeVars(
+  wrapper: HTMLElement,
+  theme: CpLoginTheme,
+  effects: { metallic: { enabled: boolean; intensity: number } }
+): void {
+  const intensity = Math.max(0, Math.min(1, effects.metallic.intensity));
+  const metallicOpacity = effects.metallic.enabled ? String(intensity) : "0";
+  const metallicHighlight = `rgba(255,255,255,${(0.35 * intensity).toFixed(2)})`;
+  const metallicSoft = `rgba(255,255,255,${(0.18 * intensity).toFixed(2)})`;
   const vars: Record<string, string> = {
     "--cp-login-bg-0": theme.bgGradient0,
     "--cp-login-bg-1": theme.bgGradient1,
@@ -210,7 +221,10 @@ function applyThemeVars(wrapper: HTMLElement, theme: CpLoginTheme): void {
     "--cp-login-footer-gap": theme.layout.footerGap,
     "--cp-login-footer-link-gap": theme.layout.footerLinkGap,
     "--cp-login-footer-checkbox-gap": theme.layout.footerCheckboxGap,
-    "--cp-login-error-min-height": theme.layout.errorMinHeight
+    "--cp-login-error-min-height": theme.layout.errorMinHeight,
+    "--cp-login-metallic-opacity": metallicOpacity,
+    "--cp-login-metallic-highlight": metallicHighlight,
+    "--cp-login-metallic-soft": metallicSoft
   };
 
   Object.entries(vars).forEach(([key, value]) => {

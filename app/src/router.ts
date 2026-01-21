@@ -11,7 +11,7 @@ import { getGlobalWindow, type WindowWithIControl } from "./core/utils/types";
 export type RouteId = "login" | "dashboard" | "settings" | "settings_branding" | "blocked" | "notfound"
   | "runtime_smoke" | "users" | "account" | "developer" | "developer_entitlements" | "access_denied" | "verification" | "toolbox" | "ui_catalog"
   | "system" | "logs" | "dossiers"
-  | "tenants" | "entitlements" | "pages" | "feature-flags" | "publish" | "audit" | "subscription"; // Routes CP
+  | "tenants" | "entitlements" | "pages" | "feature-flags" | "publish" | "audit" | "subscription" | "integrations" | "login-theme"; // Routes CP
 export function getRouteId(): RouteId {
   const h = (location.hash || "").replace(/^#\/?/, "");
   const seg = (h.split("?")[0] || "").trim();
@@ -41,6 +41,8 @@ export function getRouteId(): RouteId {
   if (seg === "publish") return "publish";
   if (seg === "audit") return "audit";
   if (seg === "subscription") return "subscription";
+  if (seg === "integrations") return "integrations";
+  if (seg === "login-theme" || seg === "theme-editor") return "login-theme";
   
   // Routes communes
   if (seg === "runtime-smoke" || seg === "runtime_smoke") return "runtime_smoke";

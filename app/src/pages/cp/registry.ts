@@ -115,6 +115,14 @@ export const CP_PAGES_REGISTRY: Record<string, PageRegistryEntry> = {
     },
     async: true,
   },
+  "login-theme": {
+    routeId: "login-theme" as RouteId,
+    render: async (root) => {
+      const m = await import("./login-theme");
+      m.renderLoginThemeEditor(root);
+    },
+    async: true,
+  },
   audit: {
     routeId: "audit" as RouteId,
     render: async (root) => {

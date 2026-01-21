@@ -42,7 +42,18 @@
   flex-direction: column;
   gap: var(--cp-login-card-gap);
   position: relative;
+  overflow: hidden;
   z-index: 2;
+}
+
+[data-scope="cp-login"] .cp-login-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(120deg, var(--cp-login-metallic-highlight) 0%, transparent 35%, var(--cp-login-metallic-soft) 60%, transparent 100%);
+  opacity: var(--cp-login-metallic-opacity);
+  mix-blend-mode: screen;
+  pointer-events: none;
 }
 
 [data-scope="cp-login"] .cp-login-header {
