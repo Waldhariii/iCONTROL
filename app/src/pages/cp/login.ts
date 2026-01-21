@@ -1,272 +1,126 @@
+import "./login.css";
 import { authenticateManagement } from "/src/localAuth";
 import { navigate } from "/src/router";
 import { coreBaseStyles } from "../../../../modules/core-system/ui/frontend-ts/shared/coreStyles";
-import { loadCpLoginLayout, loadCpLoginTheme } from "./ui/loginTheme/loader";
+import {
+  CP_LOGIN_THEMES,
+  DEFAULT_CP_LOGIN_PRESET,
+  getCpLoginPreset,
+  type CpLoginTheme
+} from "./ui/loginTheme/loginTheme";
 
 const EMAIL_ICON = `<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18v12H3z"/><path d="M3 6l9 7 9-7"/></svg>`;
 const LOCK_ICON = `<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>`;
 
 export function renderCpLogin(root: HTMLElement): void {
-  const theme = loadCpLoginTheme();
-  const layout = loadCpLoginLayout();
-
   root.innerHTML = coreBaseStyles();
 
-  const page = document.createElement("div");
-  page.style.cssText = `
-    min-height: ${layout.page.minHeight};
-    padding: ${layout.page.padding};
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: ${theme.background.gradient};
-    color: ${theme.text.primary};
-    font-family: ${theme.text.fontFamily};
-    position: relative;
-    overflow: hidden;
-  `;
+  const preset = getCpLoginPreset();
+  const theme = CP_LOGIN_THEMES[preset] ?? CP_LOGIN_THEMES[DEFAULT_CP_LOGIN_PRESET];
 
+  const wrapper = document.createElement("div");
+  wrapper.dataset.scope = "cp-login";
+  applyThemeVars(wrapper, theme);
+
+  const bg = document.createElement("div");
+  bg.className = "cp-login-bg";
   const vignette = document.createElement("div");
-  vignette.style.cssText = `
-    position: absolute;
-    inset: 0;
-    background: ${theme.background.vignette};
-    pointer-events: none;
-  `;
-
+  vignette.className = "cp-login-vignette";
   const noise = document.createElement("div");
-  noise.style.cssText = `
-    position: absolute;
-    inset: 0;
-    background-image: url("${theme.background.noise}");
-    opacity: ${theme.background.noiseOpacity};
-    mix-blend-mode: ${theme.background.noiseBlendMode};
-    pointer-events: none;
-  `;
+  noise.className = "cp-login-noise";
 
   const card = document.createElement("div");
-  card.style.cssText = `
-    width: ${layout.card.width};
-    padding: ${layout.card.padding};
-    border-radius: ${theme.card.radius};
-    background: ${theme.card.bg};
-    border: ${theme.card.border};
-    box-shadow: ${theme.card.shadow};
-    backdrop-filter: blur(${theme.card.blur});
-    display: flex;
-    flex-direction: column;
-    gap: ${layout.card.gap};
-    position: relative;
-    z-index: 2;
-  `;
-  card.style.boxShadow = `${theme.card.shadow}, ${theme.card.glow}`;
+  card.className = "cp-login-card";
 
   const header = document.createElement("div");
-  header.style.cssText = `
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: ${layout.header.gap};
-  `;
+  header.className = "cp-login-header";
 
   const logoWrap = document.createElement("div");
-  logoWrap.style.cssText = `display:flex; flex-direction:column; gap:${layout.header.stackGap};`;
+  logoWrap.className = "cp-login-logo";
+  const logoTitle = document.createElement("span");
+  logoTitle.className = "cp-logo-title";
+  logoTitle.textContent = "iCONTROL";
+  const logoAdmin = document.createElement("span");
+  logoAdmin.className = "cp-logo-admin";
+  logoAdmin.textContent = "ADMIN";
+  logoWrap.appendChild(logoTitle);
+  logoWrap.appendChild(logoAdmin);
 
-  const logo = document.createElement("div");
-  logo.textContent = theme.logo.text;
-  logo.style.cssText = `font-weight: ${theme.text.weightTitle}; font-size: ${layout.header.logoSize}; letter-spacing: ${theme.logo.letterSpacing}; color: ${theme.logo.color};`;
-
-  const admin = document.createElement("div");
-  admin.textContent = theme.admin.text;
-  admin.style.cssText = `font-size: ${layout.header.adminSize}; letter-spacing: ${theme.admin.letterSpacing}; color: ${theme.admin.color};`;
-
-  logoWrap.appendChild(logo);
-  logoWrap.appendChild(admin);
-
-  const switchWrap = document.createElement("div");
-  switchWrap.style.cssText = `
-    display: inline-flex;
-    align-items: center;
-    gap: ${layout.switch.gap};
-    padding: ${layout.switch.padding};
-    height: ${layout.switch.height};
-    border-radius: ${layout.switch.radius};
-    background: ${theme.switch.bg};
-    border: ${theme.switch.border};
-  `;
-
-  const mkLangButton = (label: string, active = false) => {
-    const btn = document.createElement("button");
-    btn.type = "button";
-    btn.textContent = label;
-    btn.style.cssText = `
-      border: none;
-      border-radius: ${layout.switch.buttonRadius};
-      padding: ${layout.switch.buttonPadding};
-      font-size: ${layout.switch.fontSize};
-      font-weight: ${theme.text.weightSwitch};
-      cursor: pointer;
-      background: ${active ? theme.switch.activeBg : "transparent"};
-      color: ${active ? theme.switch.activeText : theme.switch.text};
-    `;
-    btn.dataset.active = active ? "1" : "0";
-    btn.onclick = () => {
-      if (btn.dataset.active === "1") return;
-      Array.from(switchWrap.querySelectorAll("button")).forEach((el) => {
-        const element = el as HTMLButtonElement;
-        const isActive = element === btn;
-        element.dataset.active = isActive ? "1" : "0";
-        element.style.background = isActive ? theme.switch.activeBg : "transparent";
-        element.style.color = isActive ? theme.switch.activeText : theme.switch.text;
-      });
-    };
-    return btn;
-  };
-
-  switchWrap.appendChild(mkLangButton("FR", true));
-  switchWrap.appendChild(mkLangButton("EN", false));
+  const langSwitch = document.createElement("div");
+  langSwitch.className = "cp-login-lang";
+  const langFr = createLangButton("FR", true, langSwitch);
+  const langEn = createLangButton("EN", false, langSwitch);
+  langSwitch.appendChild(langFr);
+  langSwitch.appendChild(langEn);
 
   header.appendChild(logoWrap);
-  header.appendChild(switchWrap);
+  header.appendChild(langSwitch);
 
   const subtitle = document.createElement("div");
-  subtitle.textContent = theme.copy.subtitle;
-  subtitle.style.cssText = `font-size: ${theme.text.sizeSubtitle}; color: ${theme.text.muted};`;
+  subtitle.className = "cp-login-subtitle";
+  subtitle.textContent = "Connexion administrateur";
 
   const form = document.createElement("div");
-  form.style.cssText = `display:flex; flex-direction:column; gap: ${layout.input.gap};`;
+  form.className = "cp-login-form";
 
-  const buildInput = (id: string, type: string, placeholder: string, iconSvg: string) => {
-    const wrap = document.createElement("div");
-    wrap.style.cssText = `
-      display: flex;
-      align-items: center;
-      gap: ${layout.input.innerGap};
-      height: ${layout.input.height};
-      padding: ${layout.input.padding};
-      border-radius: ${layout.input.radius};
-      background: ${theme.input.bg};
-      border: ${theme.input.border};
-      transition: border-color 0.2s ease;
-    `;
-
-    const icon = document.createElement("span");
-    icon.innerHTML = iconSvg;
-    icon.style.cssText = `color: ${theme.input.icon}; display:flex; align-items:center; justify-content:center; width: ${layout.input.iconSize}; height: ${layout.input.iconSize};`;
-
-    const input = document.createElement("input");
-    input.id = id;
-    input.type = type;
-    input.placeholder = placeholder;
-    input.autocomplete = type === "password" ? "current-password" : "username";
-    input.style.cssText = `
-      flex: 1;
-      border: none;
-      outline: none;
-      background: transparent;
-      color: ${theme.text.primary};
-      font-size: ${theme.text.sizeBody};
-    `;
-    input.onfocus = () => {
-      wrap.style.border = theme.input.focusBorder;
-    };
-    input.onblur = () => {
-      wrap.style.border = theme.input.border;
-    };
-
-    const style = document.createElement("style");
-    style.textContent = `#${id}::placeholder { color: ${theme.input.placeholder}; }`;
-    wrap.appendChild(style);
-    wrap.appendChild(icon);
-    wrap.appendChild(input);
-    return wrap;
-  };
-
-  const emailInput = buildInput("cp-login-email", "email", theme.copy.emailPlaceholder, EMAIL_ICON);
-  const passInput = buildInput("cp-login-password", "password", theme.copy.passwordPlaceholder, LOCK_ICON);
+  const emailField = buildInput("cp-login-email", "email", "Email professionnel", EMAIL_ICON);
+  const passwordField = buildInput("cp-login-password", "password", "Mot de passe", LOCK_ICON);
 
   const error = document.createElement("div");
-  error.id = "cp-login-error";
-  error.style.cssText = `min-height: ${layout.form.errorMinHeight}; font-size: ${theme.text.sizeSmall}; color: ${theme.admin.color};`;
+  error.className = "cp-login-error";
 
   const button = document.createElement("button");
   button.type = "button";
-  button.textContent = theme.copy.button;
-  button.style.cssText = `
-    height: ${layout.button.height};
-    border-radius: ${layout.button.radius};
-    border: none;
-    cursor: pointer;
-    font-weight: ${theme.text.weightButton};
-    font-size: ${theme.text.sizeBody};
-    letter-spacing: ${theme.button.letterSpacing};
-    background: ${theme.button.gradient};
-    color: ${theme.button.text};
-    box-shadow: ${theme.button.glow};
-  `;
+  button.className = "cp-login-button";
+  button.textContent = "Connexion";
 
   const footer = document.createElement("div");
-  footer.style.cssText = `
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: ${layout.footer.gap};
-    flex-wrap: wrap;
-    font-size: ${theme.text.sizeSmall};
-    color: ${theme.text.muted};
-  `;
+  footer.className = "cp-login-footer";
 
   const remember = document.createElement("label");
-  remember.style.cssText = `display:flex; align-items:center; gap:${layout.footer.checkboxGap};`;
+  remember.className = "cp-login-remember";
   const rememberInput = document.createElement("input");
   rememberInput.type = "checkbox";
-  rememberInput.style.cssText = `accent-color: ${theme.checkbox.accent};`;
   const rememberText = document.createElement("span");
-  rememberText.textContent = theme.copy.remember;
+  rememberText.textContent = "Se souvenir de moi";
   remember.appendChild(rememberInput);
   remember.appendChild(rememberText);
 
   const links = document.createElement("div");
-  links.style.cssText = `display:flex; align-items:center; gap:${layout.footer.linkGap};`;
+  links.className = "cp-login-links";
   const forgot = document.createElement("a");
   forgot.href = "#/login";
-  forgot.textContent = theme.copy.forgot;
-  forgot.style.cssText = `color: ${theme.link.color}; text-decoration: none;`;
+  forgot.textContent = "Mot de passe oublié ?";
   const create = document.createElement("a");
   create.href = "#/login";
-  create.textContent = theme.copy.create;
-  create.style.cssText = `color: ${theme.link.color}; text-decoration: none;`;
+  create.textContent = "Créer un compte";
+  create.dataset.disabled = "true";
+  create.title = "Provisioning requis";
   links.appendChild(forgot);
   links.appendChild(create);
 
   footer.appendChild(remember);
   footer.appendChild(links);
 
-  form.appendChild(emailInput);
-  form.appendChild(passInput);
+  form.appendChild(emailField);
+  form.appendChild(passwordField);
   form.appendChild(error);
   form.appendChild(button);
 
-  const sectionMap: Record<string, HTMLElement> = {
-    header,
-    subtitle,
-    form,
-    footer
-  };
-  const order = Array.isArray(layout.order) ? layout.order : ["header", "subtitle", "form", "footer"];
-  order.forEach((key) => {
-    const section = sectionMap[key];
-    if (section) card.appendChild(section);
-  });
+  card.appendChild(header);
+  card.appendChild(subtitle);
+  card.appendChild(form);
+  card.appendChild(footer);
 
-  page.appendChild(vignette);
-  page.appendChild(noise);
-  page.appendChild(card);
-  root.appendChild(page);
+  wrapper.appendChild(bg);
+  wrapper.appendChild(vignette);
+  wrapper.appendChild(noise);
+  wrapper.appendChild(card);
+  root.appendChild(wrapper);
 
   const u = root.querySelector<HTMLInputElement>("#cp-login-email")!;
   const p = root.querySelector<HTMLInputElement>("#cp-login-password")!;
-  const err = root.querySelector<HTMLDivElement>("#cp-login-error")!;
+  const err = root.querySelector<HTMLDivElement>(".cp-login-error")!;
 
   const submit = () => {
     err.textContent = "";
@@ -282,4 +136,118 @@ export function renderCpLogin(root: HTMLElement): void {
   p.addEventListener("keydown", (e) => {
     if (e.key === "Enter") submit();
   });
+}
+
+function applyThemeVars(wrapper: HTMLElement, theme: CpLoginTheme): void {
+  const vars: Record<string, string> = {
+    "--cp-login-bg-0": theme.bgGradient0,
+    "--cp-login-bg-1": theme.bgGradient1,
+    "--cp-login-bg-2": theme.bgGradient2,
+    "--cp-login-noise": theme.noise,
+    "--cp-login-noise-opacity": theme.noiseOpacity,
+    "--cp-login-noise-blend": theme.noiseBlendMode,
+    "--cp-login-vignette-color": theme.vignetteColor,
+    "--cp-login-vignette-opacity": theme.vignetteOpacity,
+    "--cp-login-card-bg": theme.cardBg,
+    "--cp-login-card-border": theme.cardBorder,
+    "--cp-login-card-shadow": theme.cardShadow,
+    "--cp-login-card-glow": theme.cardGlow,
+    "--cp-login-card-blur": theme.cardBlur,
+    "--cp-login-card-radius": theme.cardRadius,
+    "--cp-login-font-family": theme.fontFamily,
+    "--cp-login-text-primary": theme.textPrimary,
+    "--cp-login-text-muted": theme.textMuted,
+    "--cp-login-text-label": theme.textLabel,
+    "--cp-login-text-size-body": theme.textSizeBody,
+    "--cp-login-text-size-small": theme.textSizeSmall,
+    "--cp-login-text-size-subtitle": theme.textSizeSubtitle,
+    "--cp-login-text-size-tiny": theme.textSizeTiny,
+    "--cp-login-text-weight-title": theme.textWeightTitle,
+    "--cp-login-text-weight-button": theme.textWeightButton,
+    "--cp-login-text-weight-switch": theme.textWeightSwitch,
+    "--cp-login-logo-letter-spacing": theme.logoLetterSpacing,
+    "--cp-login-admin-letter-spacing": theme.adminLetterSpacing,
+    "--cp-login-input-bg": theme.inputBg,
+    "--cp-login-input-border": theme.inputBorder,
+    "--cp-login-input-text": theme.inputText,
+    "--cp-login-input-placeholder": theme.inputPlaceholder,
+    "--cp-login-input-icon": theme.inputIcon,
+    "--cp-login-button-bg-0": theme.buttonBg0,
+    "--cp-login-button-bg-1": theme.buttonBg1,
+    "--cp-login-button-text": theme.buttonText,
+    "--cp-login-button-glow": theme.buttonGlow,
+    "--cp-login-button-letter-spacing": theme.buttonLetterSpacing,
+    "--cp-login-link-color": theme.linkColor,
+    "--cp-login-focus-ring": theme.focusRing,
+    "--cp-login-switch-bg": theme.switchBg,
+    "--cp-login-switch-border": theme.switchBorder,
+    "--cp-login-switch-text": theme.switchText,
+    "--cp-login-switch-active-bg": theme.switchActiveBg,
+    "--cp-login-switch-active-text": theme.switchActiveText,
+    "--cp-login-checkbox": theme.checkboxAccent,
+    "--cp-login-card-width": theme.layout.cardWidth,
+    "--cp-login-card-padding": theme.layout.cardPadding,
+    "--cp-login-card-gap": theme.layout.cardGap,
+    "--cp-login-header-gap": theme.layout.headerGap,
+    "--cp-login-header-stack-gap": theme.layout.headerStackGap,
+    "--cp-login-logo-size": theme.layout.logoSize,
+    "--cp-login-admin-size": theme.layout.adminSize,
+    "--cp-login-switch-height": theme.layout.switchHeight,
+    "--cp-login-switch-padding": theme.layout.switchPadding,
+    "--cp-login-switch-gap": theme.layout.switchGap,
+    "--cp-login-switch-font-size": theme.layout.switchFontSize,
+    "--cp-login-switch-button-padding": theme.layout.switchButtonPadding,
+    "--cp-login-switch-radius": theme.layout.switchRadius,
+    "--cp-login-switch-button-radius": theme.layout.switchButtonRadius,
+    "--cp-login-input-height": theme.layout.inputHeight,
+    "--cp-login-input-radius": theme.layout.inputRadius,
+    "--cp-login-input-gap": theme.layout.inputGap,
+    "--cp-login-input-inner-gap": theme.layout.inputInnerGap,
+    "--cp-login-input-icon-size": theme.layout.inputIconSize,
+    "--cp-login-input-padding": theme.layout.inputPadding,
+    "--cp-login-button-height": theme.layout.buttonHeight,
+    "--cp-login-button-radius": theme.layout.buttonRadius,
+    "--cp-login-footer-gap": theme.layout.footerGap,
+    "--cp-login-footer-link-gap": theme.layout.footerLinkGap,
+    "--cp-login-footer-checkbox-gap": theme.layout.footerCheckboxGap,
+    "--cp-login-error-min-height": theme.layout.errorMinHeight
+  };
+
+  Object.entries(vars).forEach(([key, value]) => {
+    wrapper.style.setProperty(key, value);
+  });
+}
+
+function buildInput(id: string, type: string, placeholder: string, icon: string): HTMLElement {
+  const wrap = document.createElement("div");
+  wrap.className = "cp-login-field";
+
+  const iconWrap = document.createElement("span");
+  iconWrap.innerHTML = icon;
+
+  const input = document.createElement("input");
+  input.id = id;
+  input.type = type;
+  input.placeholder = placeholder;
+  input.autocomplete = type === "password" ? "current-password" : "username";
+
+  wrap.appendChild(iconWrap);
+  wrap.appendChild(input);
+  return wrap;
+}
+
+function createLangButton(label: string, active: boolean, container: HTMLElement): HTMLButtonElement {
+  const button = document.createElement("button");
+  button.type = "button";
+  button.textContent = label;
+  button.dataset.active = active ? "true" : "false";
+  button.onclick = () => {
+    if (button.dataset.active === "true") return;
+    Array.from(container.querySelectorAll("button")).forEach((item) => {
+      const el = item as HTMLButtonElement;
+      const isActive = el === button;
+      el.dataset.active = isActive ? "true" : "false";
+    });
+  };
+  return button;
 }
