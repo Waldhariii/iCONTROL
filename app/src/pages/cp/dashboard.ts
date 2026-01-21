@@ -4,11 +4,15 @@
  */
 import { coreBaseStyles } from "../../../../modules/core-system/ui/frontend-ts/shared/coreStyles";
 import { getSafeMode } from "../../../../modules/core-system/ui/frontend-ts/pages/_shared/safeMode";
-import { createCardSkeleton } from "/src/core/ui/skeletonLoader";
 import { createPageShell } from "/src/core/ui/pageShell";
 import { createSectionCard } from "/src/core/ui/sectionCard";
 import { createBadge } from "/src/core/ui/badge";
 import { createErrorState } from "/src/core/ui/errorState";
+import { createCardSkeleton } from "/src/core/ui/skeletonLoader";
+import { createKpiStrip } from "/src/core/ui/kpi";
+import { createLineChart, createBarChart, createDonutChart } from "/src/core/ui/charts";
+import { createGovernanceFooter, createTwoColumnLayout } from "./_shared/cpLayout";
+import { demoSeries } from "./_shared/cpDemo";
 
 type DashboardStatus = "OPERATIONNEL" | "DEGRADE" | "INCIDENT";
 
@@ -50,6 +54,13 @@ export function renderDashboard(root: HTMLElement): void {
       safeMode: safeModeValue,
       statusBadge: { label: "CHARGEMENT", tone: "info" }
     });
+
+    const kpiRow = document.createElement("div");
+    kpiRow.style.cssText = "display:grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px;";
+    for (let i = 0; i < 4; i += 1) {
+      kpiRow.appendChild(createCardSkeleton(80));
+    }
+    content.appendChild(kpiRow);
 
     const grid = document.createElement("div");
     grid.style.cssText = `
@@ -140,7 +151,7 @@ export function renderDashboard(root: HTMLElement): void {
       actions: [
         {
           label: "Voir logs",
-          onClick: () => { window.location.hash = "#/logs"; }
+          onClick: () => { window.location.hash = "#/audit"; }
         }
       ]
     });
@@ -178,7 +189,44 @@ export function renderDashboard(root: HTMLElement): void {
     modulesBody.appendChild(createLastUpdatedRow(data.lastUpdated));
     grid.appendChild(modulesCard);
 
+    const kpis = createKpiStrip([
+      { label: "CPU", value: `${data.kpi.cpuPct}%`, tone: cpuTone },
+      { label: "Latence p95", value: `${data.kpi.latencyMs} ms`, tone: latencyTone },
+      { label: "Alertes (24h)", value: formatNumber(data.kpi.warn24h + data.kpi.err24h), tone: data.kpi.err24h > 0 ? "err" : data.kpi.warn24h > 0 ? "warn" : "ok" },
+      { label: "Modules actifs", value: formatNumber(data.kpi.modulesActive), tone: data.kpi.modulesActive > 0 ? "ok" : "warn" }
+    ]);
+    content.appendChild(kpis);
+
     content.appendChild(grid);
+
+    const chartsGrid = createTwoColumnLayout();
+
+    const { card: trafficCard, body: trafficBody } = createSectionCard({
+      title: "Trafic API",
+      description: "Volume de requêtes (lecture agrégée)"
+    });
+    trafficBody.appendChild(createLineChart(demoSeries(14, 120, 40)));
+    chartsGrid.appendChild(trafficCard);
+
+    const { card: perfCard, body: perfBody } = createSectionCard({
+      title: "Performance",
+      description: "Temps de réponse p95 (ms)"
+    });
+    perfBody.appendChild(createBarChart(demoSeries(10, 200, 80)));
+    chartsGrid.appendChild(perfCard);
+
+    content.appendChild(chartsGrid);
+
+    const { card: incidentsCard, body: incidentsBody } = createSectionCard({
+      title: "Incidents & Tickets",
+      description: "Distribution des incidents (24h)"
+    });
+    incidentsBody.appendChild(createDonutChart([
+      { label: "OK", value: 62, color: "#4ec9b0" },
+      { label: "WARN", value: 28, color: "#f59e0b" },
+      { label: "ERR", value: 10, color: "#f48771" }
+    ]));
+    content.appendChild(incidentsCard);
 
     const { card: eventsCard, body: eventsBody } = createSectionCard({
       title: "Événements récents",
@@ -199,6 +247,7 @@ export function renderDashboard(root: HTMLElement): void {
     eventsBody.appendChild(createEventsTable(data.recentEvents));
     content.appendChild(eventsCard);
 
+    content.appendChild(createGovernanceFooter());
     root.appendChild(shell);
   };
 
@@ -276,7 +325,9 @@ function buildDemoDashboardData(): DashboardData {
   };
 }
 
-async function fetchJsonSafe<T = any>(url: string): Promise<{ ok: boolean; status: number; data?: T; error?: string }> {
+import type { UnknownRecord } from "../../core/utils/types";
+
+async function fetchJsonSafe<T = UnknownRecord>(url: string): Promise<{ ok: boolean; status: number; data?: T; error?: string }> {
   try {
     const res = await fetch(url, { headers: { "accept": "application/json" } });
     if (!res.ok) {
@@ -293,7 +344,7 @@ async function getDashboardData(): Promise<{ data: DashboardData; errors: { metr
   const demo = buildDemoDashboardData();
   const errors: { metrics?: string; events?: string } = {};
 
-  const metricsRes = await fetchJsonSafe<any>("/api/cp/metrics");
+  const metricsRes = await fetchJsonSafe<UnknownRecord>("/api/cp/metrics");
   let kpi = demo.kpi;
   if (metricsRes.ok && metricsRes.data) {
     const raw = metricsRes.data;
@@ -315,12 +366,12 @@ async function getDashboardData(): Promise<{ data: DashboardData; errors: { metr
     errors.metrics = metricsRes.error || "Impossible de charger /api/cp/metrics";
   }
 
-  const auditRes = await fetchJsonSafe<any>("/api/cp/audit?limit=10");
-  const logsRes = await fetchJsonSafe<any>("/api/cp/logs?limit=10");
+  const auditRes = await fetchJsonSafe<UnknownRecord[]>("/api/cp/audit?limit=10");
+  const logsRes = await fetchJsonSafe<UnknownRecord[]>("/api/cp/logs?limit=10");
   let recentEvents: DashboardEvent[] = [];
 
   if (auditRes.ok && Array.isArray(auditRes.data)) {
-    recentEvents = recentEvents.concat(auditRes.data.map((item: any) => ({
+    recentEvents = recentEvents.concat(auditRes.data.map((item: UnknownRecord) => ({
       time: String(item.ts || item.time || item.timestamp || new Date().toISOString()),
       type: "AUDIT",
       label: String(item.label || item.message || item.code || "Audit"),
@@ -330,12 +381,12 @@ async function getDashboardData(): Promise<{ data: DashboardData; errors: { metr
   }
 
   if (logsRes.ok && Array.isArray(logsRes.data)) {
-    recentEvents = recentEvents.concat(logsRes.data.map((item: any) => ({
-      time: String(item.ts || item.time || item.timestamp || new Date().toISOString()),
+    recentEvents = recentEvents.concat(logsRes.data.map((item: UnknownRecord) => ({
+      time: String(item.time || item.timestamp || item.ts || new Date().toISOString()),
       type: "LOG",
-      label: String(item.label || item.message || item.code || "Log"),
-      tone: item.level === "ERR" ? "err" : item.level === "WARN" ? "warn" : "neutral",
-      correlationId: item.correlationId || item.correlation_id
+      label: String(item.message || item.label || item.level || "Log"),
+      tone: String(item.level || "info").toLowerCase() as "info" | "warn" | "error",
+      correlationId: typeof item.correlationId === "string" ? item.correlationId : undefined
     })));
   }
 

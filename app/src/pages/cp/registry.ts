@@ -65,19 +65,8 @@ export const CP_PAGES_REGISTRY: Record<string, PageRegistryEntry> = {
     routeId: "subscription" as RouteId,
     render: async (root) => {
       // Page CP subscription (gestion abonnements)
-      try {
-        const m = await import("./subscription");
-        // Vérifier si la fonction existe
-        if (typeof m.renderSubscription === "function") {
-          m.renderSubscription(root);
-        } else {
-          // Fallback si fonction non exportée
-          root.innerHTML = `<div style="max-width:980px;margin:40px auto;padding:0 16px;opacity:.8">Page Subscription (en cours d'implémentation).</div>`;
-        }
-      } catch (e) {
-        console.warn("WARN_SUBSCRIPTION_PAGE_IMPORT_FAILED", String(e));
-        root.innerHTML = `<div style="max-width:980px;margin:40px auto;padding:0 16px;opacity:.8">Page Subscription (erreur de chargement).</div>`;
-      }
+      const m = await import("./subscription");
+      m.renderSubscription(root);
     },
     async: true,
   },
@@ -85,7 +74,7 @@ export const CP_PAGES_REGISTRY: Record<string, PageRegistryEntry> = {
   tenants: {
     routeId: "tenants" as RouteId,
     render: async (root) => {
-      // Page CP Tenants (implémentée avec composants visuels APP)
+      // Page CP Tenants (composants visuels core)
       const m = await import("./tenants");
       await m.renderTenants(root);
     },
@@ -94,7 +83,7 @@ export const CP_PAGES_REGISTRY: Record<string, PageRegistryEntry> = {
   entitlements: {
     routeId: "entitlements" as RouteId,
     render: async (root) => {
-      // Page CP Entitlements (implémentée avec composants visuels APP)
+      // Page CP Entitlements (composants visuels core)
       const m = await import("./entitlements");
       await m.renderEntitlements(root);
     },
@@ -103,7 +92,7 @@ export const CP_PAGES_REGISTRY: Record<string, PageRegistryEntry> = {
   pages: {
     routeId: "pages" as RouteId,
     render: async (root) => {
-      // Page CP Pages Registry (implémentée avec composants visuels APP)
+      // Page CP Pages Registry (composants visuels core)
       const m = await import("./pages");
       await m.renderPages(root);
     },
@@ -112,7 +101,7 @@ export const CP_PAGES_REGISTRY: Record<string, PageRegistryEntry> = {
   "feature-flags": {
     routeId: "feature-flags" as RouteId,
     render: async (root) => {
-      // Page CP Feature Flags (implémentée avec composants visuels APP)
+      // Page CP Feature Flags (composants visuels core)
       const m = await import("./feature-flags");
       await m.renderFeatureFlags(root);
     },
@@ -121,7 +110,7 @@ export const CP_PAGES_REGISTRY: Record<string, PageRegistryEntry> = {
   publish: {
     routeId: "publish" as RouteId,
     render: async (root) => {
-      // Page CP Publish Center (implémentée avec composants visuels APP)
+      // Page CP Publish Center (composants visuels core)
       const m = await import("./publish");
       await m.renderPublish(root);
     },
@@ -130,45 +119,34 @@ export const CP_PAGES_REGISTRY: Record<string, PageRegistryEntry> = {
   audit: {
     routeId: "audit" as RouteId,
     render: async (root) => {
-      // TODO: Créer app/src/pages/cp/audit.ts
-      root.innerHTML = `<div style="max-width:980px;margin:40px auto;padding:0 16px;opacity:.8">Page Audit/Observability (à implémenter).</div>`;
+      const m = await import("./audit");
+      m.renderAudit(root);
     },
     async: true,
   },
   access_denied: {
     routeId: "access_denied",
     render: async (root) => {
-      const getEntitlementFromHash = (): string => {
-        const h = String(location.hash || "");
-        const idx = h.indexOf("?");
-        if (idx === -1) return "";
-        const qs = h.slice(idx + 1);
-        try {
-          return new URLSearchParams(qs).get("entitlement") || "";
-        } catch {
-          return "";
-        }
-      };
-      const m = await import("../../../modules/core-system/ui/frontend-ts/pages/access-denied");
-      m.renderAccessDeniedPage(root, {
-        entitlement: getEntitlementFromHash(),
-      });
+      const m = await import("./access-denied");
+      m.renderAccessDeniedCp(root);
     },
     async: true,
   },
   blocked: {
     routeId: "blocked",
     render: async (root) => {
-      const m = await import("../../../modules/core-system/ui/frontend-ts/pages/blocked");
-      m.renderBlockedPage(root);
+      const m = await import("./blocked");
+      m.renderBlockedCp(root);
     },
     async: true,
   },
   notfound: {
     routeId: "notfound",
-    render: (root) => {
-      root.innerHTML = `<div style="max-width:980px;margin:40px auto;padding:0 16px;opacity:.8">Page introuvable.</div>`;
+    render: async (root) => {
+      const m = await import("./notfound");
+      m.renderNotFoundCp(root);
     },
+    async: true,
   },
   ui_catalog: {
     routeId: "ui_catalog",
