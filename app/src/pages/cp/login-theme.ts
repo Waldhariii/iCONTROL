@@ -10,6 +10,7 @@ import {
   type CpLoginTheme,
   type CpLoginThemePresetName
 } from "./ui/loginTheme/loginTheme";
+import { LOGIN_THEME_TOKEN_MAP, type UiRole, type UiState, type UiTarget } from "./ui/loginTheme/loginTheme.map";
 import {
   getEffectiveLoginTheme,
   getLoginThemeOverride,
@@ -19,40 +20,15 @@ import {
   importLoginThemeOverride
 } from "./ui/loginTheme/loginTheme.override";
 
-const TOKEN_LIST: Array<{ key: keyof CpLoginTheme; label: string; type: "color" | "gradient" | "value" }> = [
-  { key: "bgGradient0", label: "Background Gradient A", type: "gradient" },
-  { key: "bgGradient1", label: "Background Gradient B", type: "gradient" },
-  { key: "bgGradient2", label: "Background Gradient Base", type: "gradient" },
-  { key: "vignetteColor", label: "Vignette Color (rgb)", type: "value" },
-  { key: "vignetteOpacity", label: "Vignette Opacity", type: "value" },
-  { key: "noiseOpacity", label: "Noise Opacity", type: "value" },
-  { key: "cardBg", label: "Card Background", type: "color" },
-  { key: "cardBorder", label: "Card Border", type: "value" },
-  { key: "cardShadow", label: "Card Shadow", type: "value" },
-  { key: "cardGlow", label: "Card Glow", type: "value" },
-  { key: "cardBlur", label: "Card Blur", type: "value" },
-  { key: "cardRadius", label: "Card Radius", type: "value" },
-  { key: "textPrimary", label: "Text Primary", type: "color" },
-  { key: "textMuted", label: "Text Muted", type: "color" },
-  { key: "textLabel", label: "Text Label", type: "color" },
-  { key: "inputBg", label: "Input Background", type: "color" },
-  { key: "inputBorder", label: "Input Border", type: "value" },
-  { key: "inputText", label: "Input Text", type: "color" },
-  { key: "inputPlaceholder", label: "Input Placeholder", type: "color" },
-  { key: "inputIcon", label: "Input Icon", type: "color" },
-  { key: "buttonBg0", label: "Button Gradient Start", type: "color" },
-  { key: "buttonBg1", label: "Button Gradient End", type: "color" },
-  { key: "buttonText", label: "Button Text", type: "color" },
-  { key: "buttonGlow", label: "Button Glow", type: "value" },
-  { key: "linkColor", label: "Link Color", type: "color" },
-  { key: "focusRing", label: "Focus Ring", type: "value" },
-  { key: "switchBg", label: "Language Switch BG", type: "color" },
-  { key: "switchBorder", label: "Language Switch Border", type: "value" },
-  { key: "switchText", label: "Language Switch Text", type: "color" },
-  { key: "switchActiveBg", label: "Language Switch Active BG", type: "color" },
-  { key: "switchActiveText", label: "Language Switch Active Text", type: "color" },
-  { key: "checkboxAccent", label: "Checkbox Accent", type: "color" }
-];
+type TokenRow = {
+  key: keyof CpLoginTheme;
+  label: string;
+  uiTarget: UiTarget | "unmapped";
+  role: UiRole | "unmapped";
+  state: UiState | "unmapped";
+  supportsMetallic: boolean;
+  type: "color" | "gradient" | "value";
+};
 
 export function renderLoginThemeEditor(root: HTMLElement): void {
   root.innerHTML = coreBaseStyles();
@@ -118,48 +94,143 @@ export function renderLoginThemeEditor(root: HTMLElement): void {
     description: "Cliquez un swatch pour éditer couleur, gradient ou effet metallic"
   });
 
-  const list = document.createElement("div");
-  list.style.cssText = "display:flex; flex-direction:column; gap:10px;";
-
   const themeState: Partial<CpLoginTheme> = {};
-  TOKEN_LIST.forEach((token) => {
-    themeState[token.key] = String((theme as any)[token.key]);
-  });
-
   const effectsState = { ...effects };
 
-  TOKEN_LIST.forEach((token) => {
-    const row = document.createElement("div");
-    row.style.cssText = "display:grid; grid-template-columns: 180px 1fr 44px; gap:12px; align-items:center;";
-
-    const label = document.createElement("div");
-    label.textContent = token.label;
-    label.style.cssText = "font-size:12px; color: var(--ic-mutedText, #a7b0b7);";
-
-    const input = document.createElement("input");
-    input.value = String(themeState[token.key] || "");
-    input.disabled = readOnly;
-    input.style.cssText = "padding:6px 10px; border-radius:8px; border:1px solid var(--ic-border, #2b3136); background: var(--ic-panel, #1a1d1f); color: var(--ic-text, #e7ecef); font-size:12px;";
-    input.onchange = () => {
-      themeState[token.key] = input.value as any;
-      swatch.style.background = input.value;
-    };
-
-    const swatch = document.createElement("button");
-    swatch.type = "button";
-    swatch.disabled = readOnly;
-    swatch.style.cssText = "width:38px; height:26px; border-radius:6px; border:1px solid var(--ic-border, #2b3136); background: transparent; cursor:pointer;";
-    swatch.style.background = String(themeState[token.key] || "");
-    swatch.onclick = () => openTokenEditor(token, input, swatch, themeState, effectsState);
-
-    row.appendChild(label);
-    row.appendChild(input);
-    row.appendChild(swatch);
-    list.appendChild(row);
+  const tokens = buildTokenRows(theme);
+  tokens.forEach((token) => {
+    if (typeof (theme as any)[token.key] === "string") {
+      themeState[token.key] = String((theme as any)[token.key]);
+    }
   });
+
+  const filterRow = document.createElement("div");
+  filterRow.style.cssText = "display:flex; flex-wrap:wrap; gap:8px; align-items:center;";
+  const textFilter = document.createElement("input");
+  textFilter.placeholder = "Rechercher un token...";
+  textFilter.style.cssText = "padding:6px 10px; border-radius:8px; border:1px solid var(--ic-border, #2b3136); background: var(--ic-panel, #1a1d1f); color: var(--ic-text, #e7ecef); font-size:12px;";
+  const targetFilter = buildSelect(["all", "background", "text", "button", "input", "link", "border", "icon", "shadow", "accent", "chart", "unmapped"]);
+  const roleFilter = buildSelect(["all", "primary", "secondary", "muted", "danger", "warning", "success", "info", "unmapped"]);
+  const stateFilter = buildSelect(["all", "default", "hover", "active", "focus", "disabled", "selected", "unmapped"]);
+  filterRow.appendChild(textFilter);
+  filterRow.appendChild(targetFilter);
+  filterRow.appendChild(roleFilter);
+  filterRow.appendChild(stateFilter);
+
+  const list = document.createElement("div");
+  list.style.cssText = "display:flex; flex-direction:column; gap:12px;";
+
+  const selected = { key: "" as string };
+
+  const renderList = () => {
+    list.innerHTML = "";
+    const filtered = tokens.filter((token) => {
+      const q = textFilter.value.toLowerCase().trim();
+      if (q && !token.label.toLowerCase().includes(q) && !String(token.key).toLowerCase().includes(q)) return false;
+      if (targetFilter.value !== "all" && token.uiTarget !== targetFilter.value) return false;
+      if (roleFilter.value !== "all" && token.role !== roleFilter.value) return false;
+      if (stateFilter.value !== "all" && token.state !== stateFilter.value) return false;
+      return true;
+    });
+
+    const grouped = groupBy(filtered, (token) => token.uiTarget);
+    Object.entries(grouped).forEach(([target, rows]) => {
+      const section = document.createElement("details");
+      section.open = true;
+      const summary = document.createElement("summary");
+      summary.textContent = sectionTitle(target);
+      summary.style.cssText = "cursor:pointer; font-weight:600; font-size:12px; color: var(--ic-text, #e7ecef); padding:4px 0;";
+      section.appendChild(summary);
+
+      const sectionBody = document.createElement("div");
+      sectionBody.style.cssText = "display:flex; flex-direction:column; gap:10px; padding:8px 0;";
+
+      rows.forEach((token) => {
+        const row = document.createElement("div");
+        row.style.cssText = "display:grid; grid-template-columns: 120px 120px 120px 1fr 1fr 44px 100px; gap:10px; align-items:center;";
+
+        const targetBadge = makeBadge(token.uiTarget.toUpperCase(), "info");
+        const roleBadge = makeBadge(token.role.toUpperCase(), "neutral");
+        const stateBadge = makeBadge(token.state.toUpperCase(), "warn");
+        const key = document.createElement("code");
+        key.textContent = `login.${token.uiTarget}.${token.role}.${token.state}`;
+        key.title = String(token.key);
+        key.style.cssText = "font-size:11px; color: var(--ic-mutedText, #a7b0b7);";
+        const value = document.createElement("input");
+        value.value = tokenValue(themeState, token.key);
+        value.disabled = readOnly || token.uiTarget === "unmapped";
+        value.style.cssText = "padding:6px 10px; border-radius:8px; border:1px solid var(--ic-border, #2b3136); background: var(--ic-panel, #1a1d1f); color: var(--ic-text, #e7ecef); font-size:12px;";
+        value.onchange = () => {
+          themeState[token.key] = value.value as any;
+          swatch.style.background = value.value;
+        };
+
+        const swatch = document.createElement("button");
+        swatch.type = "button";
+        swatch.disabled = readOnly || token.uiTarget === "unmapped";
+        swatch.style.cssText = "width:38px; height:26px; border-radius:6px; border:1px solid var(--ic-border, #2b3136); background: transparent; cursor:pointer;";
+        swatch.style.background = value.value;
+        swatch.onclick = () => {
+          selected.key = String(token.key);
+          renderPreview(previewBody, themeState, effectsState, selected.key);
+          openTokenEditor(token, value, swatch, themeState, effectsState);
+        };
+
+        const metallicWrap = document.createElement("div");
+        metallicWrap.style.cssText = "display:flex; align-items:center; gap:6px; font-size:11px; color: var(--ic-mutedText, #a7b0b7);";
+        const metallicToggle = document.createElement("input");
+        metallicToggle.type = "checkbox";
+        metallicToggle.disabled = readOnly || !token.supportsMetallic;
+        metallicToggle.checked = effectsState.metallic.enabled;
+        metallicToggle.onchange = () => {
+          effectsState.metallic.enabled = metallicToggle.checked;
+          renderPreview(previewBody, themeState, effectsState, selected.key);
+        };
+        const metallicIntensity = document.createElement("input");
+        metallicIntensity.type = "range";
+        metallicIntensity.min = "0";
+        metallicIntensity.max = "1";
+        metallicIntensity.step = "0.05";
+        metallicIntensity.value = String(effectsState.metallic.intensity);
+        metallicIntensity.disabled = readOnly || !token.supportsMetallic;
+        metallicIntensity.oninput = () => {
+          effectsState.metallic.intensity = Number(metallicIntensity.value);
+          renderPreview(previewBody, themeState, effectsState, selected.key);
+        };
+        const metallicLabel = document.createElement("span");
+        metallicLabel.textContent = "Metallic";
+        metallicWrap.appendChild(metallicToggle);
+        metallicWrap.appendChild(metallicLabel);
+        metallicWrap.appendChild(metallicIntensity);
+
+        row.appendChild(targetBadge);
+        row.appendChild(roleBadge);
+        row.appendChild(stateBadge);
+        row.appendChild(key);
+        row.appendChild(value);
+        row.appendChild(swatch);
+        row.appendChild(metallicWrap);
+        row.onclick = () => {
+          selected.key = String(token.key);
+          renderPreview(previewBody, themeState, effectsState, selected.key);
+        };
+
+        sectionBody.appendChild(row);
+      });
+
+      section.appendChild(sectionBody);
+      list.appendChild(section);
+    });
+  };
+
+  textFilter.oninput = renderList;
+  targetFilter.onchange = renderList;
+  roleFilter.onchange = renderList;
+  stateFilter.onchange = renderList;
 
   tokenBody.appendChild(controlRow);
   tokenBody.appendChild(actionsRow);
+  tokenBody.appendChild(filterRow);
   tokenBody.appendChild(list);
 
   const { card: effectsCard, body: effectsBody } = createSectionCard({
@@ -199,9 +270,18 @@ export function renderLoginThemeEditor(root: HTMLElement): void {
   metallicRow.appendChild(metallicIntensity);
   effectsBody.appendChild(metallicRow);
 
+  const { card: previewCard, body: previewBody } = createSectionCard({
+    title: "Impact Preview",
+    description: "Aperçu des éléments touchés par le token sélectionné"
+  });
+
   content.appendChild(tokenCard);
   content.appendChild(effectsCard);
+  content.appendChild(previewCard);
   root.appendChild(shell);
+
+  renderList();
+  renderPreview(previewBody, themeState, effectsState, "");
 }
 
 function handleSave(readOnly: boolean, tokens: Partial<CpLoginTheme>, effects: { metallic: { enabled: boolean; intensity: number } }) {
@@ -242,7 +322,7 @@ function openImportModal(readOnly: boolean) {
 }
 
 function openTokenEditor(
-  token: { key: string; label: string; type: "color" | "gradient" | "value" },
+  token: TokenRow,
   input: HTMLInputElement,
   swatch: HTMLButtonElement,
   tokens: Partial<CpLoginTheme>,
@@ -426,6 +506,136 @@ function splitGradientArgs(value: string): string[] {
 function guessHex(value: string): string {
   if (value.startsWith("#")) return value.slice(0, 7);
   return "#7c3aed";
+}
+
+function buildTokenRows(theme: CpLoginTheme): TokenRow[] {
+  const rows: TokenRow[] = [];
+  (Object.keys(theme) as Array<keyof CpLoginTheme>).forEach((key) => {
+    const meta = LOGIN_THEME_TOKEN_MAP[key];
+    if (!meta) {
+      rows.push({
+        key,
+        label: String(key),
+        uiTarget: "unmapped",
+        role: "unmapped",
+        state: "unmapped",
+        supportsMetallic: false,
+        type: "value"
+      });
+      return;
+    }
+    const value = (theme as any)[key];
+    const type = typeof value === "string" && value.includes("gradient(") ? "gradient" : "color";
+    rows.push({
+      key,
+      label: meta.label,
+      uiTarget: meta.uiTarget,
+      role: meta.role,
+      state: meta.state,
+      supportsMetallic: !!meta.supportsMetallic,
+      type
+    });
+  });
+  return rows;
+}
+
+function sectionTitle(target: string): string {
+  if (target === "background") return "Arrière-plan";
+  if (target === "text") return "Texte";
+  if (target === "button") return "Boutons";
+  if (target === "input") return "Inputs";
+  if (target === "link") return "Liens";
+  if (target === "border") return "Bordures";
+  if (target === "icon") return "Icônes";
+  if (target === "shadow") return "Ombres / Glow";
+  if (target === "accent") return "Accents";
+  if (target === "chart") return "Graphiques";
+  return "UNMAPPED";
+}
+
+function groupBy<T>(items: T[], fn: (item: T) => string): Record<string, T[]> {
+  return items.reduce<Record<string, T[]>>((acc, item) => {
+    const key = fn(item);
+    if (!acc[key]) acc[key] = [];
+    acc[key].push(item);
+    return acc;
+  }, {});
+}
+
+function makeBadge(text: string, tone: "info" | "neutral" | "warn"): HTMLElement {
+  const badge = document.createElement("span");
+  const color = tone === "info" ? "#7dd3fc" : tone === "warn" ? "#f59e0b" : "#94a3b8";
+  badge.textContent = text;
+  badge.style.cssText = `font-size:10px; font-weight:700; padding:3px 6px; border-radius:999px; border:1px solid #2b3136; color:${color};`;
+  return badge;
+}
+
+function tokenValue(state: Partial<CpLoginTheme>, key: keyof CpLoginTheme): string {
+  const value = state[key];
+  if (typeof value === "string") return value;
+  return "UNMAPPED";
+}
+
+function buildSelect(options: string[]): HTMLSelectElement {
+  const select = document.createElement("select");
+  select.style.cssText = "padding:6px 10px; border-radius:8px; border:1px solid var(--ic-border, #2b3136); background: var(--ic-panel, #1a1d1f); color: var(--ic-text, #e7ecef); font-size:12px;";
+  options.forEach((value) => {
+    const opt = document.createElement("option");
+    opt.value = value;
+    opt.textContent = value;
+    select.appendChild(opt);
+  });
+  return select;
+}
+
+function renderPreview(
+  container: HTMLElement,
+  tokens: Partial<CpLoginTheme>,
+  effects: { metallic: { enabled: boolean; intensity: number } },
+  selectedKey: string
+) {
+  container.innerHTML = "";
+  const preview = document.createElement("div");
+  preview.style.cssText = "display:grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap:12px;";
+
+  const background = document.createElement("div");
+  const bg = tokens.bgGradient2 || "#0b0f15";
+  background.style.cssText = `height:140px; border-radius:12px; border:1px solid #2b3136; background:${bg}; position:relative; overflow:hidden;`;
+  const bgLayer = document.createElement("div");
+  bgLayer.style.cssText = `position:absolute; inset:0; background:${tokens.bgGradient0 || \"\"}, ${tokens.bgGradient1 || \"\"}; opacity:0.85;`;
+  background.appendChild(bgLayer);
+
+  const card = document.createElement("div");
+  card.style.cssText = `height:140px; border-radius:${tokens.cardRadius || \"16px\"}; border:${tokens.cardBorder || \"1px solid #2b3136\"}; background:${tokens.cardBg || \"rgba(12,17,23,0.8)\"}; box-shadow:${tokens.cardShadow || \"0 12px 40px rgba(0,0,0,0.4)\"}; display:flex; flex-direction:column; gap:10px; padding:12px;`;
+  if (effects.metallic.enabled) {
+    const intensity = Math.max(0, Math.min(1, effects.metallic.intensity));
+    card.style.boxShadow = `${card.style.boxShadow}, 0 0 20px rgba(255,255,255,${0.2 * intensity})`;
+  }
+
+  const title = document.createElement("div");
+  title.textContent = "Admin Login";
+  title.style.cssText = `font-size:12px; color:${tokens.textPrimary || \"#e5e7eb\"};`;
+  const input = document.createElement("div");
+  input.textContent = "Email";
+  input.style.cssText = `padding:6px 10px; border-radius:${tokens.inputBorder ? \"8px\" : \"8px\"}; border:${tokens.inputBorder || \"1px solid #2b3136\"}; background:${tokens.inputBg || \"#11161d\"}; color:${tokens.inputText || \"#e5e7eb\"}; font-size:11px;`;
+  const button = document.createElement("div");
+  button.textContent = "Connexion";
+  button.style.cssText = `padding:6px 10px; border-radius:8px; background: linear-gradient(135deg, ${tokens.buttonBg0 || \"#4f46e5\"}, ${tokens.buttonBg1 || \"#7c3aed\"}); color:${tokens.buttonText || \"#f8fafc\"}; font-size:11px; text-align:center;`;
+
+  card.appendChild(title);
+  card.appendChild(input);
+  card.appendChild(button);
+
+  if (selectedKey) {
+    const badge = document.createElement("div");
+    badge.textContent = `Selected: ${selectedKey}`;
+    badge.style.cssText = "font-size:11px; color: var(--ic-mutedText, #a7b0b7); margin-top:8px;";
+    container.appendChild(badge);
+  }
+
+  preview.appendChild(background);
+  preview.appendChild(card);
+  container.appendChild(preview);
 }
 
 function makeButton(label: string, onClick: () => void): HTMLButtonElement {
