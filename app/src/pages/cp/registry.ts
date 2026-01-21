@@ -29,7 +29,7 @@ export const CP_PAGES_REGISTRY: Record<string, PageRegistryEntry> = {
     routeId: "login",
     render: async (root) => {
       // CP utilise le même login mais avec scope CP
-      const m = await import("../../../modules/core-system/ui/frontend-ts/pages/login");
+      const m = await import("../../../../modules/core-system/ui/frontend-ts/pages/login");
       m.renderLogin(root);
     },
     async: true,

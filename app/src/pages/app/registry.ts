@@ -9,10 +9,10 @@
 import type { RouteId } from "../../router";
 
 // Import des pages APP depuis modules/ (pages métier utilisateur)
-import { renderLogin } from "../../../modules/core-system/ui/frontend-ts/pages/login";
-import { renderDashboard } from "../../../modules/core-system/ui/frontend-ts/pages/dashboard";
-import { renderSettingsPage } from "../../../modules/core-system/ui/frontend-ts/pages/settings";
-import { renderBrandingSettings } from "../../../modules/core-system/ui/frontend-ts/pages/settings/branding";
+import { renderLogin } from "../../../../modules/core-system/ui/frontend-ts/pages/login";
+import { renderDashboard } from "../../../../modules/core-system/ui/frontend-ts/pages/dashboard";
+import { renderSettingsPage } from "../../../../modules/core-system/ui/frontend-ts/pages/settings";
+import { renderBrandingSettings } from "../../../../modules/core-system/ui/frontend-ts/pages/settings/branding";
 
 export type PageRenderer = (root: HTMLElement) => void | Promise<void>;
 
@@ -48,7 +48,7 @@ export const APP_PAGES_REGISTRY: Record<RouteId, PageRegistryEntry> = {
   users: {
     routeId: "users",
     render: async (root) => {
-      const m = await import("../../../modules/core-system/ui/frontend-ts/pages/users");
+      const m = await import("../../../../modules/core-system/ui/frontend-ts/pages/users");
       m.renderUsers(root);
     },
     async: true,
@@ -56,7 +56,7 @@ export const APP_PAGES_REGISTRY: Record<RouteId, PageRegistryEntry> = {
   account: {
     routeId: "account",
     render: async (root) => {
-      const m = await import("../../../modules/core-system/ui/frontend-ts/pages/account");
+      const m = await import("../../../../modules/core-system/ui/frontend-ts/pages/account");
       m.renderAccount(root);
     },
     async: true,
@@ -64,7 +64,7 @@ export const APP_PAGES_REGISTRY: Record<RouteId, PageRegistryEntry> = {
   dossiers: {
     routeId: "dossiers",
     render: async (root) => {
-      const m = await import("../../../modules/core-system/ui/frontend-ts/pages/dossiers");
+      const m = await import("../../../../modules/core-system/ui/frontend-ts/pages/dossiers");
       m.renderDossiersPage(root);
     },
     async: true,
@@ -72,7 +72,7 @@ export const APP_PAGES_REGISTRY: Record<RouteId, PageRegistryEntry> = {
   developer: {
     routeId: "developer",
     render: async (root) => {
-      const m = await import("../../../modules/core-system/ui/frontend-ts/pages/developer");
+      const m = await import("../../../../modules/core-system/ui/frontend-ts/pages/developer");
       m.renderDeveloper(root);
     },
     async: true,
@@ -80,7 +80,7 @@ export const APP_PAGES_REGISTRY: Record<RouteId, PageRegistryEntry> = {
   developer_entitlements: {
     routeId: "developer_entitlements",
     render: async (root) => {
-      const m = await import("../../../modules/core-system/ui/frontend-ts/pages/developer/entitlements");
+      const m = await import("../../../../modules/core-system/ui/frontend-ts/pages/developer/entitlements");
       m.renderDeveloperEntitlements(root);
     },
     async: true,
@@ -99,7 +99,7 @@ export const APP_PAGES_REGISTRY: Record<RouteId, PageRegistryEntry> = {
           return "";
         }
       };
-      const m = await import("../../../modules/core-system/ui/frontend-ts/pages/access-denied");
+      const m = await import("../../../../modules/core-system/ui/frontend-ts/pages/access-denied");
       m.renderAccessDeniedPage(root, {
         entitlement: getEntitlementFromHash(),
       });
@@ -109,7 +109,7 @@ export const APP_PAGES_REGISTRY: Record<RouteId, PageRegistryEntry> = {
   verification: {
     routeId: "verification",
     render: async (root) => {
-      const m = await import("../../../modules/core-system/ui/frontend-ts/pages/verification");
+      const m = await import("../../../../modules/core-system/ui/frontend-ts/pages/verification");
       m.renderVerification(root);
     },
     async: true,
@@ -117,7 +117,7 @@ export const APP_PAGES_REGISTRY: Record<RouteId, PageRegistryEntry> = {
   system: {
     routeId: "system",
     render: async (root) => {
-      const m = await import("../../../modules/core-system/ui/frontend-ts/pages/system");
+      const m = await import("../../../../modules/core-system/ui/frontend-ts/pages/system");
       m.renderSystemPage(root);
     },
     async: true,
@@ -125,7 +125,7 @@ export const APP_PAGES_REGISTRY: Record<RouteId, PageRegistryEntry> = {
   logs: {
     routeId: "logs",
     render: async (root) => {
-      const m = await import("../../../modules/core-system/ui/frontend-ts/pages/logs");
+      const m = await import("../../../../modules/core-system/ui/frontend-ts/pages/logs");
       m.renderLogsPage(root);
     },
     async: true,
@@ -139,7 +139,7 @@ export const APP_PAGES_REGISTRY: Record<RouteId, PageRegistryEntry> = {
           '<div style="padding:12px;opacity:0.9;"><h2 style="margin:0 0 8px 0;">Access denied</h2><div>Toolbox requires elevated role.</div></div>';
         return;
       }
-      const m = await import("../../../modules/core-system/ui/frontend-ts/pages/toolbox");
+      const m = await import("../../../../modules/core-system/ui/frontend-ts/pages/toolbox");
       m.renderToolbox(root);
     },
     async: true,
@@ -147,7 +147,7 @@ export const APP_PAGES_REGISTRY: Record<RouteId, PageRegistryEntry> = {
   blocked: {
     routeId: "blocked",
     render: async (root) => {
-      const m = await import("../../../modules/core-system/ui/frontend-ts/pages/blocked");
+      const m = await import("../../../../modules/core-system/ui/frontend-ts/pages/blocked");
       m.renderBlockedPage(root);
     },
     async: true,
