@@ -53,7 +53,9 @@
     "gate:check-tauri-config": "bash scripts/gates/check-tauri-config-shared.sh",
     "gate:all": "npm run gate:check-dist && npm run gate:check-versions && npm run gate:check-builds && npm run gate:check-duplication && npm run gate:check-manifest && npm run gate:check-tauri-config",
     "gate:pre-commit": "npm run gate:check-dist && npm run gate:check-versions && npm run gate:check-duplication",
-    "tauri:generate-configs": "node scripts/gates/generate-tauri-configs.js"
+    "tauri:generate-configs": "node scripts/gates/generate-tauri-configs.js",
+    "desktop:create-launchers": "bash scripts/mac/create-all-launchers.sh",
+    "desktop:create-launchers-web": "bash scripts/mac/create-web-launchers.sh"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^7.0.0",

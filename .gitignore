@@ -87,3 +87,37 @@ _audit_system_innovex_clean/
 **/*.backup.*
 **/icontrol_*.tmp
 /tmp/icontrol_*
+# ===== Option 1: Backups/Quarantaine hors Git =====
+/QUARANTAINE/**
+/**/QUARANTAINE/**
+/iCONTROL/QUARANTAINE/**
+/iCONTROL/_ARCHIVES/_TRASH_QUARANTINE/**
+/iCONTROL/_ARCHIVES/_BK_*/**
+# ===== Artefacts volumineux / binaires (ne jamais committer) =====
+*.tar.gz
+*.tgz
+*.zip
+*.7z
+*.rar
+*.dmg
+*.pkg
+*.exe
+*.bin
+*.pdf
+*.png
+*.jpg
+*.jpeg
+*.webp
+*.gif
+*.mp4
+*.mov
+*.avi
+# ===== Reports/logs/caches (hors Git) =====
+/iCONTROL/_REPORTS/**
+/_REPORTS/**
+**/.vite/**
+**/dist/**
+**/.cache/**
+**/node_modules/**
+**/*.log
+**/*.map

@@ -1,7 +1,7 @@
 # iCONTROL — System Analysis & SafeRender Hardening
 
 - Generated: `20260109_170342`
-- Root: `/Users/danygaudreault/System_Innovex_CLEAN/iCONTROL`
+- Root: `$ICONTROL`
 - Scope: SafeRender contract + anti-regression tests + local gates
 
 ## Executive Summary
