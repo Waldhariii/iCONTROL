@@ -35,6 +35,9 @@
     },
     "safemode_shadow": {
       "state": "OFF"
+    },
+    "ui_catalog_shadow": {
+      "state": "OFF"
     }
   }
 }

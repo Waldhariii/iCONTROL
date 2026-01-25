@@ -1,5 +1,12 @@
 import { listCatalogEntries, type CatalogState, type CatalogSurface } from "./registry";
 import { registerDefaultCatalogEntries } from "./defaults";
+import { isEnabled } from "../../../policies/feature_flags.enforce";
+import { createAuditHook } from "../../write-gateway/auditHook";
+import { createLegacyAdapter } from "../../write-gateway/adapters/legacyAdapter";
+import { createPolicyHook } from "../../write-gateway/policyHook";
+import { createCorrelationId, createWriteGateway } from "../../write-gateway/writeGateway";
+import { getLogger } from "../../utils/logger";
+import { getTenantId } from "../../runtime/tenant";
 
 const THEME_TOKENS = {
   dark: {
@@ -30,6 +37,37 @@ const STATES: CatalogState[] = [
   "readOnly",
 ];
 
+/** WRITE_GATEWAY_UI_CATALOG — shadow scaffold (legacy-first; NO-OP adapter). */
+const __wsLogger = getLogger("WRITE_GATEWAY_UI_CATALOG");
+let __wsGateway: ReturnType<typeof createWriteGateway> | null = null;
+
+function __resolveWsGateway() {
+  if (__wsGateway) return __wsGateway;
+  __wsGateway = createWriteGateway({
+    policy: createPolicyHook(),
+    audit: createAuditHook(),
+    adapter: createLegacyAdapter((cmd) => {
+      void cmd;
+      return { status: "SKIPPED", correlationId: cmd.correlationId };
+    }, "uiCatalogShadowNoop"),
+    safeMode: { enabled: true },
+  });
+  return __wsGateway;
+}
+
+const __isWsShadowEnabled = (): boolean => {
+  try {
+    const rt: any = globalThis as any;
+    const decisions = rt?.__FEATURE_DECISIONS__ || rt?.__featureFlags?.decisions;
+    if (Array.isArray(decisions)) return isEnabled(decisions, "ui_catalog_shadow");
+    const flags = rt?.__FEATURE_FLAGS__ || rt?.__featureFlags?.flags;
+    const state = flags?.["ui_catalog_shadow"]?.state;
+    return state === "ON" || state === "ROLLOUT";
+  } catch {
+    return false;
+  }
+};
+
 function applyTheme(mode: "light" | "dark"): void {
   const tokens = THEME_TOKENS[mode];
   const root = document.documentElement;
@@ -39,9 +77,46 @@ function applyTheme(mode: "light" | "dark"): void {
   root.style.setProperty("--ic-border", tokens.border);
   root.style.setProperty("--ic-text", tokens.text);
   root.style.setProperty("--ic-mutedText", tokens.mutedText);
+
+  if (typeof window === "undefined" || !window.localStorage) return;
+
+  let wrote = false;
   try {
-    localStorage.setItem("controlx_settings_v1.theme", mode);
+    window.localStorage.setItem("controlx_settings_v1.theme", mode);
+    wrote = true;
   } catch {}
+
+  // Shadow (NO-OP) — uniquement si flag ON/ROLLOUT
+  if (!wrote || !__isWsShadowEnabled()) return;
+
+  const tenantId = (typeof getTenantId === "function" ? getTenantId() : "public") || "public";
+  const correlationId = createCorrelationId("uiCatalog");
+  const cmd = {
+    kind: "UI_CATALOG_WRITE_SHADOW",
+    tenantId,
+    correlationId,
+    payload: { key: "controlx_settings_v1.theme", bytes: mode.length },
+    meta: { shadow: true, source: "ui/catalog" },
+  };
+
+  try {
+    const res = __resolveWsGateway().execute(cmd as any);
+    if (res.status !== "OK" && res.status !== "SKIPPED") {
+      __wsLogger.warn("WRITE_GATEWAY_UI_CATALOG_FALLBACK", {
+        kind: cmd.kind,
+        tenant_id: tenantId,
+        correlation_id: correlationId,
+        status: res.status,
+      });
+    }
+  } catch (err) {
+    __wsLogger.warn("WRITE_GATEWAY_UI_CATALOG_ERROR", {
+      kind: cmd.kind,
+      tenant_id: tenantId,
+      correlation_id: correlationId,
+      error: String(err),
+    });
+  }
 }
 
 function buildSelect(options: string[], value: string): HTMLSelectElement {
