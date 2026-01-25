@@ -59,13 +59,21 @@ export function isSafeMode(): boolean {
 
 /** Dev-only helper */
 export function setSafeMode(on: boolean) {
+  if (typeof window === "undefined" || !window.localStorage) return;
+
   try {
     const w: any = window as any;
     w.__ICONTROL_SAFE_MODE__ = on;
   } catch {
     // no-op
   }
-  localStorage.setItem(SAFE_KEY, on ? "1" : "0");
+
+  const value = on ? "1" : "0";
+  try {
+    window.localStorage.setItem(SAFE_KEY, value);
+  } catch {
+    return;
+  }
 
   // Shadow (NO-OP) — uniquement si flag ON/ROLLOUT
   if (!__isWsShadowEnabled()) return;
@@ -76,7 +84,7 @@ export function setSafeMode(on: boolean) {
     kind: "SAFEMODE_WRITE_SHADOW",
     tenantId,
     correlationId,
-    payload: { key: SAFE_KEY, bytes: String(on ? "1" : "0").length },
+    payload: { key: SAFE_KEY, bytes: value.length },
     meta: { shadow: true, source: "safeMode.ts" },
   };
 
