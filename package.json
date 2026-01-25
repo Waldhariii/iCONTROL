@@ -70,7 +70,8 @@
     "gate:ui-component-registry": "node scripts/gates/gate-ui-component-registry.mjs",
     "gate:ui-contracts": "node scripts/gates/gate-ui-contracts.mjs",
     "gate:write-gateway-coverage": "node scripts/gates/gate-write-gateway-coverage.mjs",
-    "gate:write-surface-map": "node scripts/gates/gate-write-surface-map.mjs"
+    "gate:write-surface-map": "node scripts/gates/gate-write-surface-map.mjs",
+    "gate:ssot:paths": "node ./scripts/gates/gate-ssot-paths.mjs"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^7.0.0",
