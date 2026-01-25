@@ -2,6 +2,7 @@
   "flags": {
     "write_gateway_shadow": { "state": "OFF" },
     "runtime_config_shadow": { "state": "OFF" },
-    "audit_shadow": { "state": "OFF" }
+    "audit_shadow": { "state": "OFF" },
+    "entitlements_storage_shadow": { "state": "OFF" }
   }
 }
