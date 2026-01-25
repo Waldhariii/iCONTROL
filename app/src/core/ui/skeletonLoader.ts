@@ -4,30 +4,17 @@
  */
 export function createCardSkeleton(height = 120): HTMLElement {
   const card = document.createElement("div");
-  card.style.cssText = `
-    border: 1px solid var(--ic-border, #2b3136);
-    background: var(--ic-card, #1a1d1f);
-    border-radius: 10px;
-    height: ${height}px;
-    overflow: hidden;
-    position: relative;
-  `;
+  card.className = "ic-skel";
+  card.style.height = `${height}px`;
 
   const shimmer = document.createElement("div");
-  shimmer.style.cssText = `
-    position: absolute;
-    top: 0;
-    left: -60%;
-    width: 60%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent);
-    animation: icSkeleton 1.4s infinite;
-  `;
+  shimmer.className = "ic-skel__shimmer";
   card.appendChild(shimmer);
 
   if (!document.getElementById("icontrol-skeleton-style")) {
     const style = document.createElement("style");
     style.id = "icontrol-skeleton-style";
+    style.setAttribute("data-icontrol-allow", "1");
     style.textContent = `
       @keyframes icSkeleton {
         0% { transform: translateX(0); }

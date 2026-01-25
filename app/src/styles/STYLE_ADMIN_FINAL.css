@@ -799,6 +799,45 @@
   color: var(--ic-text);
 }
 
+/* --- Skeleton Loader --- */
+[data-app-kind="control_plane"] .ic-skel {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  background-color: var(--bg-surface);
+  min-height: 60px;
+}
+[data-app-kind="control_plane"] .ic-skel__shimmer {
+  position: absolute;
+  top: 0;
+  left: -60%;
+  width: 60%;
+  height: 100%;
+  background-color: var(--ic-shimmer, rgba(90,143,255,0.18));
+  opacity: 0.7;
+  animation: icSkeleton 1.4s infinite;
+}
+
+[data-app-kind]:not([data-app-kind="control_plane"]) .ic-skel {
+  position: relative;
+  overflow: hidden;
+  border-radius: 12px;
+  background: var(--ic-card);
+  border: 1px solid var(--ic-border);
+  min-height: 60px;
+}
+[data-app-kind]:not([data-app-kind="control_plane"]) .ic-skel__shimmer {
+  position: absolute;
+  top: 0;
+  left: -60%;
+  width: 60%;
+  height: 100%;
+  background-color: var(--ic-shimmer, rgba(255,255,255,0.08));
+  opacity: 0.8;
+  animation: icSkeleton 1.4s infinite;
+}
+
 /* --- Modal --- */
 [data-app-kind="control_plane"] .ic-modal-overlay {
   position: fixed;

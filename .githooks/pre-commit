@@ -1,4 +1,13 @@
 #!/bin/zsh
 set -euo pipefail
 ./scripts/audit/audit-no-leaks.zsh >/dev/null
+npm -s run -S gate:ui-inline-drift
 echo "OK: audit-no-leaks PASS"
+npm run gate:route-catalog >/dev/null
+echo "OK: gate:route-catalog PASS"
+npm run gate:tenant-matrix >/dev/null
+echo "OK: gate:tenant-matrix PASS"
+npm run gate:design-tokens >/dev/null
+echo "OK: gate:design-tokens PASS"
+npm run gate:capability-status >/dev/null
+echo "OK: gate:capability-status PASS"
