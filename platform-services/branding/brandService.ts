@@ -25,7 +25,7 @@ function __resolveWsGateway() {
   return __wsGateway;
 }
 
-function __isWsShadowEnabled(): boolean {
+const __isWsShadowEnabled = (): boolean => {
   try {
     const rt: any = globalThis as any;
     const decisions = rt?.__FEATURE_DECISIONS__ || rt?.__featureFlags?.decisions;
@@ -36,7 +36,7 @@ function __isWsShadowEnabled(): boolean {
   } catch {
     return false;
   }
-}
+};
 
 const LS_KEY = "icontrol_brand_v1";
 
@@ -148,45 +148,51 @@ export function setBrandLocalOverride(patch: Partial<Brand>): BrandOverrideResul
   const v = validateBrand(mergeClean(FALLBACK, next));
   if (!v.ok) return { ok: false, warnings: v.warnings };
   const serialized = JSON.stringify(next);
+
+  // SSR guard explicite (comportement: OK)
   if (typeof window === "undefined" || !window.localStorage) {
     return { ok: true };
   }
 
+  // Legacy-first write (comportement: OK même si erreur)
   try {
     window.localStorage.setItem(LS_KEY, serialized);
   } catch {
     return { ok: true };
   }
 
-  if (__isWsShadowEnabled()) {
-    const tenantId = (typeof getTenantId === "function" ? getTenantId() : "public") || "public";
-    const correlationId = createCorrelationId("brand");
-    const cmd = {
-      kind: "BRANDSERVICE_WRITE_SHADOW",
-      tenantId,
-      correlationId,
-      payload: { key: LS_KEY, bytes: serialized.length },
-      meta: { shadow: true, source: "brandService.ts" },
-    };
+  // Shadow (NO-OP) — uniquement si flag ON/ROLLOUT
+  if (!__isWsShadowEnabled()) {
+    return { ok: true };
+  }
 
-    try {
-      const res = __resolveWsGateway().execute(cmd as any);
-      if (res.status !== "OK" && res.status !== "SKIPPED") {
-        __wsLogger.warn("WRITE_GATEWAY_WRITE_SURFACE_FALLBACK", {
-          kind: cmd.kind,
-          tenant_id: tenantId,
-          correlation_id: correlationId,
-          status: res.status,
-        });
-      }
-    } catch (err) {
-      __wsLogger.warn("WRITE_GATEWAY_WRITE_SURFACE_ERROR", {
+  const tenantId = (typeof getTenantId === "function" ? getTenantId() : "public") || "public";
+  const correlationId = createCorrelationId("brand");
+  const cmd = {
+    kind: "BRANDSERVICE_WRITE_SHADOW",
+    tenantId,
+    correlationId,
+    payload: { key: LS_KEY, bytes: serialized.length },
+    meta: { shadow: true, source: "brandService.ts" },
+  };
+
+  try {
+    const res = __resolveWsGateway().execute(cmd as any);
+    if (res.status !== "OK" && res.status !== "SKIPPED") {
+      __wsLogger.warn("WRITE_GATEWAY_WRITE_SURFACE_FALLBACK", {
         kind: cmd.kind,
         tenant_id: tenantId,
         correlation_id: correlationId,
-        error: String(err),
+        status: res.status,
       });
     }
+  } catch (err) {
+    __wsLogger.warn("WRITE_GATEWAY_WRITE_SURFACE_ERROR", {
+      kind: cmd.kind,
+      tenant_id: tenantId,
+      correlation_id: correlationId,
+      error: String(err),
+    });
   }
 
   return { ok: true };
