@@ -3,7 +3,7 @@
  * Gate (report-only): Write surface map for prioritization.
  * Scans for storage and write-like operations and ranks by file hit count.
  */
-import { execSync } from "node:child_process";
+import { execFileSync } from "node:child_process";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { resolve, relative } from "node:path";
 
@@ -13,29 +13,27 @@ const REPORT = resolve(ROOT, "docs/PHASE_1/APPENDIX_COMMAND_OUTPUTS/write_surfac
 const TARGETS = ["app/src", "modules", "platform-services", "server"]; // read-only scan
 const EXCLUDES = ["node_modules", "dist", "coverage"]; // coarse excludes
 
-const PATTERN = String.raw`
-  (?:\b(localStorage|sessionStorage)\.setItem\s*\(|
-     \bfs\.(?:writeFileSync|writeFile|appendFile|appendFileSync)\s*\(|
-     \b(fetch)\s*\(.*
-     (?:\{[^}]*\bmethod\s*:\s*"(?:POST|PUT|PATCH|DELETE)")|
-     \baxios\.(?:post|put|patch|delete)\s*\(|
-     \b(save|write|persist|upsert|insert|update|delete)[A-Za-z0-9_]*\s*\()
-`;
+const PATTERNS = [
+  String.raw`\b(localStorage|sessionStorage)\.setItem\s*\(`,
+  String.raw`\bfs\.(?:writeFileSync|writeFile|appendFile|appendFileSync)\s*\(`,
+  String.raw`\baxios\.(?:post|put|patch|delete)\s*\(`,
+  String.raw`\bfetch\s*\([^)]*\bmethod\s*:\s*"(?:POST|PUT|PATCH|DELETE)"`,
+  String.raw`\b(save|write|persist|upsert|insert|update|delete)[A-Za-z0-9_]*\s*\(`,
+];
 
 function runRg() {
   const args = [
     "-n",
-    "--multiline-dotall",
+    "--pcre2",
     "--no-heading",
     "--color",
     "never",
-    PATTERN.replace(/\n/g, ""),
+    ...PATTERNS.flatMap((p) => ["-e", p]),
     ...TARGETS,
     ...EXCLUDES.map((p) => `-g!${p}/**`),
   ];
-  const cmd = `rg ${args.map((a) => `"${a}"`).join(" ")}`;
   try {
-    return execSync(cmd, { cwd: ROOT, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
+    return execFileSync("rg", args, { cwd: ROOT, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
   } catch (e) {
     return (e.stdout || "").toString();
   }
@@ -62,7 +60,8 @@ const body = [
   `- Date: ${new Date().toISOString()}`,
   `- Targets: ${TARGETS.join(", ")}`,
   `- Excludes: ${EXCLUDES.join(", ")}`,
-  `- Pattern: ${PATTERN.replace(/\n/g, "").trim()}`,
+  `- Patterns:`,
+  ...PATTERNS.map((p) => `  - \`${p}\``),
   `- Total hits: ${lines.length}`,
   "",
   "## Top Offenders (by file hit count)",
