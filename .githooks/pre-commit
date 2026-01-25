@@ -11,3 +11,5 @@ npm run gate:design-tokens >/dev/null
 echo "OK: gate:design-tokens PASS"
 npm run gate:capability-status >/dev/null
 echo "OK: gate:capability-status PASS"
+# PHASE 6.1 (report-only)
+npm -s run -S gate:ui-component-registry || true
