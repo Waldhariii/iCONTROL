@@ -6,17 +6,18 @@
 /* CP scope unique: [data-app-kind="control_plane"] */
 [data-app-kind="control_plane"] {
   /* --- SSOT CP tokens (fond uni) --- */
-  --bg-app: #0c0f12;
-  --bg-surface: #12161b;
-  --bg-panel: #171c22;
-  --border-subtle: #262d35;
-  --text-primary: #e6e9ee;
-  --text-muted: #9aa3ad;
-  --accent-primary: #5a8fff;
-  --focus-ring: rgba(90,143,255,0.45);
-  --table-header: #151a1f;
-  --table-row-hover: #182028;
-  --table-separator: #262d35;
+  /* CP alias-only: no hardcoded colors and no self-references. */
+  --bg-app: var(--app-bg-primary);
+  --bg-surface: var(--app-bg-secondary);
+  --bg-panel: var(--app-bg-tertiary, var(--app-bg-primary));
+  --border-subtle: var(--surface-border);
+  --text-primary: var(--text-primary-strong, var(--text-primary));
+  --text-muted: var(--text-muted);
+  --accent-primary: var(--accent-primary);
+  --focus-ring: var(--accent-glow);
+  --table-header: var(--bg-panel);
+  --table-row-hover: var(--bg-surface);
+  --table-separator: var(--border-subtle);
   --radius-sm: 6px;
   --radius-md: 10px;
   --radius-lg: 12px;
@@ -24,7 +25,7 @@
   --space-sm: 8px;
   --space-md: 16px;
   --space-lg: 24px;
-  --shadow-min: 0 4px 14px rgba(0,0,0,.28);
+  --shadow-min: var(--shadow-md);
   --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 
   /* --- Compat: anciennes vars --- */
@@ -32,16 +33,16 @@
   --panel: var(--bg-panel);
   --panel2: var(--bg-surface);
   --line: var(--border-subtle);
-  --lineLight: #2d353d;
+  --lineLight: var(--border-subtle);
   --text: var(--text-primary);
   --muted: var(--text-muted);
   --accent: var(--accent-primary);
-  --accentHover: #74a3ff;
+  --accentHover: var(--accent-primary);
   --btn: var(--bg-panel);
-  --btn2: #1d232b;
+  --btn2: var(--bg-surface);
   --radius: var(--radius-md);
   --shadow: var(--shadow-min);
-  --shadowCard: 0 1px 4px rgba(0,0,0,.25);
+  --shadowCard: var(--shadow-min);
 
   /* --- Typo --- */
   --text-xs: 11px;
@@ -65,39 +66,40 @@
   --ic-text: var(--text-primary);
   --ic-mutedText: var(--text-muted);
   --ic-accent: var(--accent-primary);
-  --ic-accent2: #4aa3ff;
-  --ic-success: #22c55e;
-  --ic-warn: #eab308;
-  --ic-error: #ef4444;
-  --ic-info: #5a8fff;
-  --ic-inputBg: #101419;
-  --ic-bgHover: #1b232b;
-  --ic-highlight: #202832;
-  --ic-highlightSubtle: #171d24;
-  --ic-highlightMuted: #151a1f;
-  --ic-surfaceOverlay: #151b22;
-  --ic-surfaceOverlayStrong: #12171d;
+  --ic-accent2: var(--accent-primary);
+  --ic-success: var(--accent-primary);
+  --ic-warn: var(--accent-primary);
+  --ic-error: var(--accent-primary);
+  --ic-info: var(--accent-primary);
+  --ic-inputBg: var(--bg-surface);
+  --ic-bgHover: var(--bg-panel);
+  --ic-highlight: var(--bg-panel);
+  --ic-highlightSubtle: var(--bg-surface);
+  --ic-highlightMuted: var(--bg-surface);
+  --ic-surfaceOverlay: var(--bg-panel);
+  --ic-surfaceOverlayStrong: var(--bg-surface);
+  --ic-textOnAccent: var(--bg-app);
   --ic-shadowToast: var(--shadow-min);
   --ic-cardShadow: var(--shadowCard);
 
   /* --- Etats --- */
-  --ic-successBg: rgba(34,197,94,.12);
-  --ic-successBorder: rgba(34,197,94,.35);
-  --ic-warnBg: rgba(234,179,8,.12);
-  --ic-warnBorder: rgba(234,179,8,.35);
-  --ic-errorBg: rgba(239,68,68,.12);
-  --ic-errorBorder: rgba(239,68,68,.35);
-  --ic-infoBg: rgba(90,143,255,.12);
-  --ic-infoBorder: rgba(90,143,255,.35);
-  --ic-accentBg: rgba(90,143,255,.12);
-  --ic-accentBorder: rgba(90,143,255,.35);
+  --ic-successBg: var(--accent-glow);
+  --ic-successBorder: var(--accent-primary);
+  --ic-warnBg: var(--accent-glow);
+  --ic-warnBorder: var(--accent-primary);
+  --ic-errorBg: var(--accent-glow);
+  --ic-errorBorder: var(--accent-primary);
+  --ic-infoBg: var(--accent-glow);
+  --ic-infoBorder: var(--accent-primary);
+  --ic-accentBg: var(--accent-glow);
+  --ic-accentBorder: var(--accent-primary);
 
   /* --- Graphiques --- */
-  --ic-chartPrimary: #5a8fff;
-  --ic-chartSecondary: #22c55e;
-  --ic-chartTertiary: #eab308;
-  --ic-chartQuaternary: #a855f7;
-  --ic-chartArea: rgba(90,143,255,.2);
+  --ic-chartPrimary: var(--accent-primary);
+  --ic-chartSecondary: var(--accent-primary);
+  --ic-chartTertiary: var(--accent-primary);
+  --ic-chartQuaternary: var(--accent-primary);
+  --ic-chartArea: var(--accent-glow);
 }
 
 [data-app-kind="control_plane"] * { box-sizing: border-box; }
@@ -198,7 +200,7 @@
 [data-app-kind="control_plane"] button.primary {
   background-color: var(--accent);
   border-color: var(--accent);
-  color: #0b0d10;
+  color: var(--ic-textOnAccent);
 }
 
 [data-app-kind="control_plane"] .cxBtn.primary:hover,
@@ -271,7 +273,7 @@
 }
 
 [data-app-kind="control_plane"] .cxDrawerOverlay {
-  background-color: rgba(0,0,0,.55);
+  background-color: var(--ic-surfaceOverlay);
 }
 
 [data-app-kind="control_plane"] .cxNav a:hover {
@@ -307,7 +309,7 @@
 [data-app-kind="control_plane"] .ic-btn--primary {
   background-color: var(--accent);
   border-color: var(--accent);
-  color: #0b0d10;
+  color: var(--ic-textOnAccent);
 }
 
 [data-app-kind="control_plane"] .ic-btn--secondary {
@@ -814,7 +816,7 @@
   left: -60%;
   width: 60%;
   height: 100%;
-  background-color: var(--ic-shimmer, rgba(90,143,255,0.18));
+  background-color: var(--ic-shimmer, var(--ic-highlightMuted));
   opacity: 0.7;
   animation: icSkeleton 1.4s infinite;
 }
@@ -833,7 +835,7 @@
   left: -60%;
   width: 60%;
   height: 100%;
-  background-color: var(--ic-shimmer, rgba(255,255,255,0.08));
+  background-color: var(--ic-shimmer, var(--ic-highlightMuted));
   opacity: 0.8;
   animation: icSkeleton 1.4s infinite;
 }
@@ -843,7 +845,7 @@
   position: fixed;
   inset: 0;
   z-index: 10001;
-  background-color: rgba(0,0,0,0.5);
+  background-color: var(--ic-surfaceOverlay);
   display: flex;
   align-items: center;
   justify-content: center;
