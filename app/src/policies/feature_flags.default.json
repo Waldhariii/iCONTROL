@@ -32,6 +32,9 @@
     },
     "localauth_shadow": {
       "state": "OFF"
+    },
+    "safemode_shadow": {
+      "state": "OFF"
     }
   }
 }
