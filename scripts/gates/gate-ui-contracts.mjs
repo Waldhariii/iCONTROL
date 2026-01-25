@@ -48,8 +48,16 @@ const CP_HEX_ALLOWLIST = new Set([
 
 // Allowlist: create* exports not yet tracked in registry (phase-in)
 const REGISTRY_COVERAGE_ALLOWLIST = new Set([
-  // Phase-in escape hatch (keep empty; prefer fixing registry.ts)
+  // Intentionally empty: SSOT is registry.ts (UI_FACTORY_REGISTRY).
 ]);
+
+function extractFactoryExports(registryText) {
+  const out = [];
+  const re = /export:\s*"([^"]+)"/g;
+  let m;
+  while ((m = re.exec(registryText))) out.push(m[1]);
+  return new Set(out);
+}
 
 function rg(pattern, paths, extraArgs = "") {
   const quoted = pattern.replace(/"/g, '\\"');
@@ -182,6 +190,7 @@ let report = `# UI Contracts Report\n\nGenerated: ${new Date().toISOString()}\n\
   } else {
     const files = listTsFiles(UI_CORE_DIR).filter(f => !f.endsWith("registry.ts"));
     const reg = readFile(REGISTRY_TS);
+    const factoryExports = extractFactoryExports(reg);
     const missing = [];
 
     for (const f of files) {
@@ -191,7 +200,7 @@ let report = `# UI Contracts Report\n\nGenerated: ${new Date().toISOString()}\n\
       for (const fn of matches) {
         if (REGISTRY_COVERAGE_ALLOWLIST.has(fn)) continue;
         // Coverage if either file path or function name appears in registry.ts (choose both to be safe).
-        const ok = reg.includes(fn) || reg.includes(rel);
+        const ok = factoryExports.has(fn) || reg.includes(fn) || reg.includes(rel);
         if (!ok) missing.push(`${rel} -> ${fn}`);
       }
     }
