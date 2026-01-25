@@ -3,49 +3,93 @@
  * KPI cards and strips for CP visual pages.
  */
 type KpiTone = "ok" | "warn" | "err" | "info" | "neutral";
+type KpiTrend = "up" | "down" | "neutral";
 
-export function createKpiCard(label: string, value: string, tone: KpiTone = "neutral"): HTMLElement {
+export interface KpiCardOptions {
+  label: string;
+  value: string;
+  tone?: KpiTone;
+  trend?: KpiTrend;
+  unit?: string;
+  target?: string;
+  lastUpdated?: string;
+  /** Affichage type Enterprise: valeur en plus grand, carte légèrement plus marquée */
+  hero?: boolean;
+}
+
+export function createKpiCard(labelOrOpts: string | KpiCardOptions, value?: string, tone: KpiTone = "neutral"): HTMLElement {
+  const opts: KpiCardOptions = typeof labelOrOpts === "string"
+    ? { label: labelOrOpts, value: value ?? "", tone }
+    : { tone: "neutral", ...labelOrOpts };
+
   const card = document.createElement("div");
-  const toneColor =
-    tone === "ok"
-      ? "var(--ic-success, #4ec9b0)"
-      : tone === "warn"
-      ? "var(--ic-warn, #f59e0b)"
-      : tone === "err"
-      ? "var(--ic-error, #f48771)"
-      : tone === "info"
-      ? "var(--ic-accent, #7b2cff)"
-      : "var(--ic-mutedText, #a7b0b7)";
-  card.style.cssText = `
-    border: 1px solid var(--ic-border, #2b3136);
-    background: var(--ic-card, #1a1d1f);
-    border-radius: 12px;
-    padding: 14px;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-  `;
+  const isHero = !!opts.hero;
+  card.className = "ic-kpi";
+  card.dataset.hero = isHero ? "1" : "0";
+  if (opts.tone && opts.tone !== "neutral") {
+    card.dataset.tone = opts.tone;
+  } else if (opts.trend === "up") {
+    card.dataset.tone = "ok";
+  } else if (opts.trend === "down") {
+    card.dataset.tone = "err";
+  }
 
   const title = document.createElement("div");
-  title.textContent = label;
-  title.style.cssText = "font-size: 12px; color: var(--ic-mutedText, #a7b0b7);";
-  const val = document.createElement("div");
-  val.textContent = value;
-  val.style.cssText = `font-size: 18px; font-weight: 700; color: ${toneColor};`;
-
+  title.textContent = opts.label;
+  title.className = "ic-kpi__title";
   card.appendChild(title);
-  card.appendChild(val);
+
+  const valRow = document.createElement("div");
+  valRow.className = "ic-kpi__valrow";
+  const val = document.createElement("span");
+  const valueStr = opts.unit?.trim() ? `${opts.value} ${opts.unit.trim()}` : opts.value;
+  val.textContent = valueStr;
+  val.className = "ic-kpi__value";
+  valRow.appendChild(val);
+
+  if (opts.trend) {
+    const arrow = document.createElement("span");
+    arrow.setAttribute("aria-hidden", "true");
+    arrow.textContent = opts.trend === "up" ? "▲" : opts.trend === "down" ? "▼" : "−";
+    arrow.className = "ic-kpi__trend";
+    valRow.appendChild(arrow);
+  }
+
+  card.appendChild(valRow);
+  if (opts.target) {
+    const t = document.createElement("div");
+    t.textContent = `Cible: ${opts.target}`;
+    t.className = "ic-kpi__meta";
+    card.appendChild(t);
+  }
+  if (opts.lastUpdated) {
+    const u = document.createElement("div");
+    u.textContent = opts.lastUpdated;
+    u.className = "ic-kpi__meta";
+    card.appendChild(u);
+  }
+
+  if (opts.target) {
+    const valueNum = Number(String(opts.value).replace(/[^0-9.\-]/g, ""));
+    const targetNum = Number(String(opts.target).replace(/[^0-9.\-]/g, ""));
+    if (Number.isFinite(valueNum) && Number.isFinite(targetNum) && targetNum > 0) {
+      const strip = document.createElement("div");
+      strip.className = "ic-kpi__strip";
+      const fill = document.createElement("div");
+      fill.className = "ic-kpi__stripFill";
+      const pct = Math.max(0, Math.min(100, (valueNum / targetNum) * 100));
+      fill.style.width = `${pct}%`;
+      strip.appendChild(fill);
+      card.appendChild(strip);
+    }
+  }
+
   return card;
 }
 
-export function createKpiStrip(items: Array<{ label: string; value: string; tone?: KpiTone }>): HTMLElement {
+export function createKpiStrip(items: Array<{ label: string; value: string; tone?: KpiTone; trend?: KpiTrend; unit?: string; target?: string; lastUpdated?: string; hero?: boolean }>): HTMLElement {
   const strip = document.createElement("div");
-  strip.style.cssText = `
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-    gap: 12px;
-    width: 100%;
-  `;
-  items.forEach((item) => strip.appendChild(createKpiCard(item.label, item.value, item.tone)));
+  strip.className = "ic-kpi-strip";
+  items.forEach((item) => strip.appendChild(createKpiCard({ label: item.label, value: item.value, tone: item.tone, trend: item.trend, unit: item.unit, target: item.target, lastUpdated: item.lastUpdated, hero: item.hero })));
   return strip;
 }
