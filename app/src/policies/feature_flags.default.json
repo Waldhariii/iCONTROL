@@ -1,11 +1,28 @@
 {
   "flags": {
-    "write_gateway_shadow": { "state": "OFF" },
-    "runtime_config_shadow": { "state": "OFF" },
-    "audit_shadow": { "state": "OFF" },
-    "entitlements_storage_shadow": { "state": "OFF" },
-    "tenant_shadow": { "state": "OFF" },
-    "theme_shadow": { "state": "OFF" },
-    "cp_storage_shadow": { "state": "OFF" }
+    "write_gateway_shadow": {
+      "state": "OFF"
+    },
+    "runtime_config_shadow": {
+      "state": "OFF"
+    },
+    "audit_shadow": {
+      "state": "OFF"
+    },
+    "entitlements_storage_shadow": {
+      "state": "OFF"
+    },
+    "tenant_shadow": {
+      "state": "OFF"
+    },
+    "theme_shadow": {
+      "state": "OFF"
+    },
+    "cp_storage_shadow": {
+      "state": "OFF"
+    },
+    "logintheme_override_shadow": {
+      "state": "OFF"
+    }
   }
 }

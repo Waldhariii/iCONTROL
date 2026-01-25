@@ -7,6 +7,43 @@ import {
   type CpLoginTheme,
   type CpLoginThemePresetName
 } from "./loginTheme";
+import { getLogger } from "../../../../core/utils/logger";
+import { isEnabled } from "../../../../policies/feature_flags.enforce";
+import { createAuditHook } from "../../../../core/write-gateway/auditHook";
+import { createLegacyAdapter } from "../../../../core/write-gateway/adapters/legacyAdapter";
+import { createPolicyHook } from "../../../../core/write-gateway/policyHook";
+import { createCorrelationId, createWriteGateway } from "../../../../core/write-gateway/writeGateway";
+import { getTenantId } from "../../../../core/runtime/tenant";
+
+const __writeSurfaceLogger = getLogger("WRITE_GATEWAY_WRITE_SURFACE");
+let __writeSurfaceGateway: ReturnType<typeof createWriteGateway> | null = null;
+
+function resolveWriteSurfaceGateway() {
+  if (__writeSurfaceGateway) return __writeSurfaceGateway;
+  __writeSurfaceGateway = createWriteGateway({
+    policy: createPolicyHook(),
+    audit: createAuditHook(),
+    adapter: createLegacyAdapter((cmd) => {
+      void cmd;
+      return { status: "SKIPPED", correlationId: cmd.correlationId };
+    }, "writeSurfaceShadowNoop"),
+    safeMode: { enabled: true },
+  });
+  return __writeSurfaceGateway;
+}
+
+function isWriteSurfaceShadowEnabled(): boolean {
+  try {
+    const rt: any = globalThis as any;
+    const decisions = rt?.__FEATURE_DECISIONS__ || rt?.__featureFlags?.decisions;
+    if (Array.isArray(decisions)) return isEnabled(decisions, "logintheme_override_shadow");
+    const flags = rt?.__FEATURE_FLAGS__ || rt?.__featureFlags?.flags;
+    const state = flags?.["logintheme_override_shadow"]?.state;
+    return state === "ON" || state === "ROLLOUT";
+  } catch {
+    return false;
+  }
+}
 
 type MetallicEffect = {
   enabled: boolean;
@@ -97,6 +134,38 @@ export function saveLoginThemeOverride(next: CpLoginThemeOverride): { ok: boolea
   if (!canWrite()) return { ok: false, reason: "READ_ONLY" };
   try {
     localStorage.setItem(LS_KEY, JSON.stringify(next));
+
+    if (!isWriteSurfaceShadowEnabled()) return;
+
+    const __tenantId = (typeof getTenantId === "function" ? getTenantId() : "public") as any;
+    const __correlationId = createCorrelationId("write_surface");
+    const __cmd = {
+      kind: "LOGINTHEME_OVERRIDE_WRITE_SHADOW",
+      tenantId: String(__tenantId || "public"),
+      correlationId: __correlationId,
+      payload: { file: "loginTheme.override.ts" },
+      meta: { shadow: true, source: "loginTheme.override.ts" },
+    };
+
+    try {
+      const __res = resolveWriteSurfaceGateway().execute(__cmd as any);
+      if (__res.status !== "OK" && __res.status !== "SKIPPED") {
+        __writeSurfaceLogger.warn("WRITE_GATEWAY_WRITE_SURFACE_FALLBACK", {
+          kind: __cmd.kind,
+          tenant_id: __cmd.tenantId,
+          correlation_id: __correlationId,
+          status: __res.status,
+        });
+      }
+    } catch (err) {
+      __writeSurfaceLogger.warn("WRITE_GATEWAY_WRITE_SURFACE_ERROR", {
+        kind: __cmd.kind,
+        tenant_id: __cmd.tenantId,
+        correlation_id: __correlationId,
+        error: String(err),
+      });
+    }
+
     appendAuditEvent({
       level: "INFO",
       code: "CP_LOGIN_THEME_OVERRIDE_SAVED",
