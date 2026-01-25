@@ -121,3 +121,14 @@ _audit_system_innovex_clean/
 **/node_modules/**
 **/*.log
 **/*.map
+# --- Local audit / reports / artifacts (do not version) ---
+_AUDIT_WIP/
+RAPPORTS/
+reports/
+**/_AUDIT_WIP/
+**/RAPPORTS/
+**/reports/
+# --- Build outputs ---
+# --- Logs / caches ---
+# --- Backups / generated dumps ---
+*_backup*/
