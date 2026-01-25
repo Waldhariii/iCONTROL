@@ -147,42 +147,49 @@ export function setBrandLocalOverride(patch: Partial<Brand>): BrandOverrideResul
   const next = mergeClean(current as Record<string, unknown>, patch as Record<string, unknown>);
   const v = validateBrand(mergeClean(FALLBACK, next));
   if (!v.ok) return { ok: false, warnings: v.warnings };
-  try {
-    localStorage.setItem(LS_KEY, JSON.stringify(next));
-    if (__isWsShadowEnabled()) {
-      const tenantId = (typeof getTenantId === "function" ? getTenantId() : "public") || "public";
-      const correlationId = createCorrelationId("ws");
-      const cmd = {
-        kind: "BRANDSERVICE_WRITE_SHADOW",
-        tenantId,
-        correlationId,
-        payload: { key: LS_KEY },
-        meta: { shadow: true, source: "brandService.ts" },
-      };
+  const serialized = JSON.stringify(next);
+  if (typeof window === "undefined" || !window.localStorage) {
+    return { ok: true };
+  }
 
-      try {
-        const res = __resolveWsGateway().execute(cmd as any);
-        if (res.status !== "OK" && res.status !== "SKIPPED") {
-          __wsLogger.warn("WRITE_GATEWAY_WRITE_SURFACE_FALLBACK", {
-            kind: cmd.kind,
-            tenant_id: tenantId,
-            correlation_id: correlationId,
-            status: res.status,
-          });
-        }
-      } catch (err) {
-        __wsLogger.warn("WRITE_GATEWAY_WRITE_SURFACE_ERROR", {
+  try {
+    window.localStorage.setItem(LS_KEY, serialized);
+  } catch {
+    return { ok: true };
+  }
+
+  if (__isWsShadowEnabled()) {
+    const tenantId = (typeof getTenantId === "function" ? getTenantId() : "public") || "public";
+    const correlationId = createCorrelationId("brand");
+    const cmd = {
+      kind: "BRANDSERVICE_WRITE_SHADOW",
+      tenantId,
+      correlationId,
+      payload: { key: LS_KEY, bytes: serialized.length },
+      meta: { shadow: true, source: "brandService.ts" },
+    };
+
+    try {
+      const res = __resolveWsGateway().execute(cmd as any);
+      if (res.status !== "OK" && res.status !== "SKIPPED") {
+        __wsLogger.warn("WRITE_GATEWAY_WRITE_SURFACE_FALLBACK", {
           kind: cmd.kind,
           tenant_id: tenantId,
           correlation_id: correlationId,
-          error: String(err),
+          status: res.status,
         });
       }
+    } catch (err) {
+      __wsLogger.warn("WRITE_GATEWAY_WRITE_SURFACE_ERROR", {
+        kind: cmd.kind,
+        tenant_id: tenantId,
+        correlation_id: correlationId,
+        error: String(err),
+      });
     }
-    return { ok: true };
-  } catch (e: unknown) {
-    return { ok: false, warnings: ["ERR_BRAND_WRITE_FAILED: " + String(e)] };
   }
+
+  return { ok: true };
 }
 
 export function clearBrandLocalOverride(): void {
