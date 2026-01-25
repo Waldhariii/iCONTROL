@@ -1,3 +1,11 @@
+import { isEnabled } from "../../policies/feature_flags.enforce";
+import { createAuditHook } from "../write-gateway/auditHook";
+import { createLegacyAdapter } from "../write-gateway/adapters/legacyAdapter";
+import { createPolicyHook } from "../write-gateway/policyHook";
+import { createCorrelationId, createWriteGateway } from "../write-gateway/writeGateway";
+import { getLogger } from "../utils/logger";
+import { getTenantId } from "./tenant";
+
 export type RuntimeConfig = {
   tenant_id: string;
   app_base_path: string;
@@ -9,6 +17,35 @@ export type RuntimeConfig = {
 
 const LS_KEY = "icontrol.runtime.config.v1";
 let cached: RuntimeConfig | null = null;
+const logger = getLogger("WRITE_GATEWAY_RUNTIME_CONFIG");
+let runtimeCfgGateway: ReturnType<typeof createWriteGateway> | null = null;
+
+function resolveRuntimeCfgGateway() {
+  if (runtimeCfgGateway) return runtimeCfgGateway;
+  runtimeCfgGateway = createWriteGateway({
+    policy: createPolicyHook(),
+    audit: createAuditHook(),
+    adapter: createLegacyAdapter((cmd) => {
+      writeCachedLegacy(cmd.payload as RuntimeConfig);
+      return { status: "OK", correlationId: cmd.correlationId };
+    }, "legacyRuntimeConfig"),
+    safeMode: { enabled: true },
+  });
+  return runtimeCfgGateway;
+}
+
+function isRuntimeConfigShadowEnabled(): boolean {
+  try {
+    const rt: any = globalThis as any;
+    const decisions = rt?.__FEATURE_DECISIONS__ || rt?.__featureFlags?.decisions;
+    if (Array.isArray(decisions)) return isEnabled(decisions, "runtime_config_shadow");
+    const flags = rt?.__FEATURE_FLAGS__ || rt?.__featureFlags?.flags;
+    const state = flags?.runtime_config_shadow?.state;
+    return state === "ON" || state === "ROLLOUT";
+  } catch {
+    return false;
+  }
+}
 
 function resolveScope(): "/app" | "/cp" {
   try {
@@ -41,11 +78,49 @@ function readCached(): RuntimeConfig | null {
   }
 }
 
-function writeCached(next: RuntimeConfig) {
+function writeCachedLegacy(next: RuntimeConfig) {
   cached = next;
   try {
     localStorage.setItem(LS_KEY, JSON.stringify(next));
   } catch {}
+}
+
+function writeCached(next: RuntimeConfig) {
+  if (!isRuntimeConfigShadowEnabled()) {
+    writeCachedLegacy(next);
+    return;
+  }
+
+  const tenantId = getTenantId();
+  const correlationId = createCorrelationId("runtimecfg");
+  const cmd = {
+    kind: "RUNTIME_CONFIG_SET",
+    tenantId,
+    correlationId,
+    payload: next,
+    meta: { shadow: true, source: "runtimeConfig" },
+  };
+
+  try {
+    const res = resolveRuntimeCfgGateway().execute(cmd);
+    if (res.status !== "OK") {
+      logger.warn("WRITE_GATEWAY_RUNTIME_CONFIG_FALLBACK", {
+        kind: cmd.kind,
+        tenant_id: tenantId,
+        correlation_id: correlationId,
+        status: res.status,
+      });
+      writeCachedLegacy(next);
+    }
+  } catch (err) {
+    logger.warn("WRITE_GATEWAY_RUNTIME_CONFIG_ERROR", {
+      kind: cmd.kind,
+      tenant_id: tenantId,
+      correlation_id: correlationId,
+      error: String(err),
+    });
+    writeCachedLegacy(next);
+  }
 }
 
 export async function resolveRuntimeConfig(): Promise<RuntimeConfig> {
