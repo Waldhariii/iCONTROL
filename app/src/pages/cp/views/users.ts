@@ -16,6 +16,46 @@ import { createToolbar } from "../../../core/ui/toolbar";
 import { createContextualEmptyState } from "../../../core/ui/emptyState";
 import { createRoleBadge } from "../../../core/ui/badge";
 import { getSafeMode } from "../../../../../modules/core-system/ui/frontend-ts/pages/_shared/safeMode";
+import { isEnabled } from "../../../policies/feature_flags.enforce";
+import { createAuditHook } from "../../../core/write-gateway/auditHook";
+import { createLegacyAdapter } from "../../../core/write-gateway/adapters/legacyAdapter";
+import { createPolicyHook } from "../../../core/write-gateway/policyHook";
+import { createCorrelationId, createWriteGateway } from "../../../core/write-gate
+
+/** WRITE_GATEWAY_WRITE_SURFACE — shadow scaffold (legacy-first; NO-OP adapter). */
+const __wsLogger = getLogger("WRITE_GATEWAY_WRITE_SURFACE");
+let __wsGateway: ReturnType<typeof createWriteGateway> | null = null;
+
+function __resolveWsGateway() {
+  if (__wsGateway) return __wsGateway;
+  __wsGateway = createWriteGateway({
+    policy: createPolicyHook(),
+    audit: createAuditHook(),
+    adapter: createLegacyAdapter((cmd) => {
+      void cmd;
+      return { status: "SKIPPED", correlationId: cmd.correlationId };
+    }, "writeSurfaceShadowNoop"),
+    safeMode: { enabled: true },
+  });
+  return __wsGateway;
+}
+
+function __isWsShadowEnabled(): boolean {
+  try {
+    const rt: any = globalThis as any;
+    const decisions = rt?.__FEATURE_DECISIONS__ || rt?.__featureFlags?.decisions;
+    if (Array.isArray(decisions)) return isEnabled(decisions, "users_shadow");
+    const flags = rt?.__FEATURE_FLAGS__ || rt?.__featureFlags?.flags;
+    const state = flags?.["users_shadow"]?.state;
+    return state === "ON" || state === "ROLLOUT";
+  } catch {
+    return false;
+  }
+}
+
+way/writeGateway";
+import { getLogger } from "../../../core/utils/logger";
+import { getTenantId } from "../../../core/runtime/tenant";
 
 // Type pour un utilisateur système
 type SystemUser = {
@@ -51,7 +91,40 @@ function getSystemUsers(): SystemUser[] {
 function saveSystemUsers(users: SystemUser[]): void {
   try {
     localStorage.setItem(LS_KEY_SYSTEM_USERS, JSON.stringify(users));
-  } catch (e) {
+  
+    // Shadow path (report-only): emit write intent via gateway (NO-OP adapter; legacy already wrote).
+    if (__isWsShadowEnabled()) {
+      const tenantId = (typeof getTenantId === "function" ? getTenantId() : "public") || "public";
+      const correlationId = createCorrelationId("ws");
+      const cmd = {
+        kind: "USERS_WRITE_SHADOW",
+        tenantId,
+        correlationId,
+        payload: { key: String(LS_KEY_SYSTEM_USERS) },
+        meta: { shadow: true, source: "users.ts" },
+      };
+
+      try {
+        const res = __resolveWsGateway().execute(cmd as any);
+        if (res.status !== "OK" && res.status !== "SKIPPED") {
+          __wsLogger.warn("WRITE_GATEWAY_WRITE_SURFACE_FALLBACK", {
+            kind: cmd.kind,
+            tenant_id: tenantId,
+            correlation_id: correlationId,
+            status: res.status,
+          });
+        }
+      } catch (err) {
+        __wsLogger.warn("WRITE_GATEWAY_WRITE_SURFACE_ERROR", {
+          kind: cmd.kind,
+          tenant_id: tenantId,
+          correlation_id: correlationId,
+          error: String(err),
+        });
+      }
+    }
+
+} catch (e) {
     console.error("Erreur lors de la sauvegarde des utilisateurs système:", e);
   }
 }
@@ -343,7 +416,7 @@ export function renderUsersListCp(root: HTMLElement, model: UsersModelCp): void 
     const permissions = getUserPermissions(username, userRole as any);
     const modal = document.createElement("div");
     modal.setAttribute("style", `
-      position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:1000;
+      position:fixed; inset:0; background:var(--ic-overlay); z-index:1000;
       display:flex; align-items:center; justify-content:center; padding:20px;
     `);
     
@@ -351,33 +424,33 @@ export function renderUsersListCp(root: HTMLElement, model: UsersModelCp): void 
     
     // Construire le HTML du modal
     const modalContent = document.createElement("div");
-    modalContent.setAttribute("style", "background:#1e1e1e; border:1px solid #3e3e3e; border-radius:12px; padding:24px; max-width:600px; width:100%; max-height:90vh; overflow-y:auto;");
+    modalContent.setAttribute("style", "background:var(--ic-panel); border:1px solid var(--ic-border); border-radius:12px; padding:24px; max-width:600px; width:100%; max-height:90vh; overflow-y:auto;");
     
     const header = document.createElement("div");
     header.setAttribute("style", "display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;");
     header.innerHTML = `
-      <h3 style="font-size:18px; font-weight:700; color:#d4d4d4; margin:0;">Modifier les permissions de ${username}</h3>
-      <button id="close-modal" style="background:transparent; border:none; color:#858585; font-size:24px; cursor:pointer; padding:0; width:32px; height:32px; display:flex; align-items:center; justify-content:center;">×</button>
+      <h3 style="font-size:18px; font-weight:700; color:var(--ic-text); margin:0;">Modifier les permissions de ${username}</h3>
+      <button id="close-modal" style="background:transparent; border:none; color:var(--ic-mutedText); font-size:24px; cursor:pointer; padding:0; width:32px; height:32px; display:flex; align-items:center; justify-content:center;">×</button>
     `;
     
     const pagesSection = document.createElement("div");
     pagesSection.setAttribute("style", "margin-bottom:20px;");
     pagesSection.innerHTML = `
-      <label style="display:block; color:#858585; font-size:13px; margin-bottom:8px;">Pages accessibles</label>
+      <label style="display:block; color:var(--ic-mutedText); font-size:13px; margin-bottom:8px;">Pages accessibles</label>
       <div style="display:grid; gap:8px;" id="pages-list"></div>
     `;
     
     const pagesList = pagesSection.querySelector("#pages-list");
     allPages.forEach(page => {
       const label = document.createElement("label");
-      label.setAttribute("style", "display:flex; align-items:center; gap:8px; padding:8px; background:#252526; border-radius:6px; cursor:pointer;");
+      label.setAttribute("style", "display:flex; align-items:center; gap:8px; padding:8px; background:var(--ic-inputBg); border-radius:6px; cursor:pointer;");
       const checkbox = document.createElement("input");
       checkbox.type = "checkbox";
       checkbox.checked = permissions.pages.includes(page);
       checkbox.setAttribute("data-page", page);
       checkbox.style.cursor = "pointer";
       const span = document.createElement("span");
-      span.setAttribute("style", "color:#d4d4d4; text-transform:capitalize;");
+      span.setAttribute("style", "color:var(--ic-text); text-transform:capitalize;");
       span.textContent = page;
       label.appendChild(checkbox);
       label.appendChild(span);
@@ -387,8 +460,8 @@ export function renderUsersListCp(root: HTMLElement, model: UsersModelCp): void 
     const actions = document.createElement("div");
     actions.setAttribute("style", "display:flex; gap:12px; justify-content:flex-end;");
     actions.innerHTML = `
-      <button id="cancel-btn" style="padding:10px 20px; background:#3e3e3e; color:#d4d4d4; border:none; border-radius:8px; cursor:pointer; font-weight:600;">Annuler</button>
-      <button id="save-btn" style="padding:10px 20px; background:#37373d; color:white; border:none; border-radius:8px; cursor:pointer; font-weight:600;">Enregistrer</button>
+      <button id="cancel-btn" style="padding:10px 20px; background:var(--ic-panel); color:var(--ic-text); border:none; border-radius:8px; cursor:pointer; font-weight:600;">Annuler</button>
+      <button id="save-btn" style="padding:10px 20px; background:var(--ic-inputBg); color:var(--ic-text); border:none; border-radius:8px; cursor:pointer; font-weight:600;">Enregistrer</button>
     `;
     
     modalContent.appendChild(header);
@@ -473,7 +546,7 @@ function showAddSystemUserModal(onSuccess: () => void): void {
   modal.style.cssText = `
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.7);
+    background: var(--ic-overlay);
     z-index: 10000;
     display: flex;
     align-items: center;
@@ -483,8 +556,8 @@ function showAddSystemUserModal(onSuccess: () => void): void {
   
   const modalContent = document.createElement("div");
   modalContent.style.cssText = `
-    background: #1e1e1e;
-    border: 1px solid #3e3e3e;
+    background: var(--ic-panel);
+    border: 1px solid var(--ic-border);
     border-radius: 12px;
     padding: 24px;
     max-width: 500px;
@@ -494,7 +567,7 @@ function showAddSystemUserModal(onSuccess: () => void): void {
   `;
   
   modalContent.innerHTML = `
-    <div style="font-size: 18px; font-weight: 700; color: #d4d4d4; margin-bottom: 20px;">
+    <div style="font-size: 18px; font-weight: 700; color: var(--ic-text); margin-bottom: 20px;">
       Ajouter un utilisateur système
     </div>
     

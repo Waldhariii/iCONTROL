@@ -23,6 +23,9 @@
     },
     "logintheme_override_shadow": {
       "state": "OFF"
+    },
+    "users_shadow": {
+      "state": "OFF"
     }
   }
 }
