@@ -11,8 +11,43 @@
  */
 
 import { getLogger } from "../utils/logger";
+import { isEnabled } from "../../policies/feature_flags.enforce";
+import { createAuditHook } from "../write-gateway/auditHook";
+import { createLegacyAdapter } from "../write-gateway/adapters/legacyAdapter";
+import { createPolicyHook } from "../write-gateway/policyHook";
+import { createCorrelationId, createWriteGateway } from "../write-gateway/writeGateway";
+import { getTenantId } from "../runtime/tenant";
 
 const logger = getLogger("THEME_MANAGER");
+const shadowLogger = getLogger("WRITE_GATEWAY_THEME");
+let themeGateway: ReturnType<typeof createWriteGateway> | null = null;
+
+function resolveThemeGateway() {
+  if (themeGateway) return themeGateway;
+  themeGateway = createWriteGateway({
+    policy: createPolicyHook(),
+    audit: createAuditHook(),
+    adapter: createLegacyAdapter((cmd) => {
+      void cmd;
+      return { status: "SKIPPED", correlationId: cmd.correlationId };
+    }, "themeShadowNoop"),
+    safeMode: { enabled: true },
+  });
+  return themeGateway;
+}
+
+function isThemeShadowEnabled(): boolean {
+  try {
+    const rt: any = globalThis as any;
+    const decisions = rt?.__FEATURE_DECISIONS__ || rt?.__featureFlags?.decisions;
+    if (Array.isArray(decisions)) return isEnabled(decisions, "theme_shadow");
+    const flags = rt?.__FEATURE_FLAGS__ || rt?.__featureFlags?.flags;
+    const state = flags?.theme_shadow?.state;
+    return state === "ON" || state === "ROLLOUT";
+  } catch {
+    return false;
+  }
+}
 
 export type ThemeMode = "light" | "dark" | "auto";
 
@@ -227,6 +262,37 @@ class ThemeManager {
       localStorage.setItem("icontrol_theme", JSON.stringify(theme));
     } catch (e) {
       logger.warn("THEME_MANAGER_SAVE_FAILED", String(e));
+    }
+
+    if (!isThemeShadowEnabled()) return;
+
+    const correlationId = createCorrelationId("theme");
+    const tenantId = getTenantId();
+    const cmd = {
+      kind: "THEME_SET",
+      tenantId,
+      correlationId,
+      payload: theme,
+      meta: { shadow: true, source: "themeManager", key: "icontrol_theme" },
+    };
+
+    try {
+      const res = resolveThemeGateway().execute(cmd as any);
+      if (res.status !== "OK" && res.status !== "SKIPPED") {
+        shadowLogger.warn("WRITE_GATEWAY_THEME_FALLBACK", {
+          kind: cmd.kind,
+          tenant_id: tenantId,
+          correlation_id: correlationId,
+          status: res.status,
+        });
+      }
+    } catch (err) {
+      shadowLogger.warn("WRITE_GATEWAY_THEME_ERROR", {
+        kind: cmd.kind,
+        tenant_id: tenantId,
+        correlation_id: correlationId,
+        error: String(err),
+      });
     }
   }
 
