@@ -3,12 +3,14 @@
  * Gate (report-only): Write Gateway coverage heuristic.
  * Scans for write-like calls outside the gateway to guide migration.
  */
-import { execSync } from "node:child_process";
+import { execFileSync } from "node:child_process";
 import { mkdirSync, writeFileSync } from "node:fs";
-import { resolve, relative } from "node:path";
+import { dirname, resolve, relative } from "node:path";
+import { readPaths } from "../ssot/paths.mjs";
 
 const ROOT = process.cwd();
-const REPORT = resolve(ROOT, "docs/PHASE_1/APPENDIX_COMMAND_OUTPUTS/write_gateway_coverage_report.md");
+const paths = readPaths();
+const REPORT = resolve(ROOT, paths.reports.coverage);
 
 const TARGETS = [
   "app/src/core",
@@ -24,16 +26,17 @@ const PATTERN = String.raw`\\b(save|write)[A-Za-z0-9_]*\\s*\\(|localStorage\\.se
 function runRg() {
   const args = [
     "-n",
+    "--pcre2",
     "--no-heading",
     "--color",
     "never",
+    "-e",
     PATTERN,
     ...TARGETS,
     ...EXCLUDES.map((p) => `-g!${p}/**`),
   ];
-  const cmd = `rg ${args.map((a) => `"${a}"`).join(" ")}`;
   try {
-    return execSync(cmd, { cwd: ROOT, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
+    return execFileSync("rg", args, { cwd: ROOT, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
   } catch (e) {
     // rg exits 1 when no matches; still valid for report
     return (e.stdout || "").toString();
@@ -61,10 +64,11 @@ const body = [
   "## Notes",
   "- Report-only: does not block commits.",
   "- Heuristic may include false positives; migrate to WriteGateway as you touch these paths.",
+  `- Resolved via SSOT: \`${paths.reports.coverage}\``,
   "",
 ].join("\n");
 
-mkdirSync(resolve(ROOT, "docs/PHASE_1/APPENDIX_COMMAND_OUTPUTS"), { recursive: true });
+mkdirSync(resolve(ROOT, dirname(paths.reports.coverage)), { recursive: true });
 writeFileSync(REPORT, body, "utf8");
 
 console.log(`OK: report generated at ${relative(ROOT, REPORT)}`);

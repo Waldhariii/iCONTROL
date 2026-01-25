@@ -4,13 +4,16 @@
  * Scans for storage and write-like operations and ranks by file hit count.
  */
 import { execFileSync } from "node:child_process";
-import { mkdirSync, writeFileSync } from "node:fs";
-import { resolve, relative } from "node:path";
+import { existsSync, mkdirSync, writeFileSync } from "node:fs";
+import { dirname, resolve, relative } from "node:path";
+import { readPaths } from "../ssot/paths.mjs";
 
 const ROOT = process.cwd();
-const REPORT = resolve(ROOT, "docs/PHASE_1/APPENDIX_COMMAND_OUTPUTS/write_surface_map_report.md");
 
-const TARGETS = ["app/src", "modules", "platform-services", "server"]; // read-only scan
+const paths = readPaths();
+const REPORT = resolve(ROOT, paths.reports.surfaceMap);
+
+const TARGETS = paths.roots.length ? paths.roots : ["app/src", "modules", "platform-services", "server"]; // read-only scan
 const EXCLUDES = ["node_modules", "dist", "coverage"]; // coarse excludes
 
 const PATTERNS = [
@@ -21,15 +24,17 @@ const PATTERNS = [
   String.raw`\b(save|write|persist|upsert|insert|update|delete)[A-Za-z0-9_]*\s*\(`,
 ];
 
-function runRg() {
+function runRg(targets) {
   const args = [
     "-n",
     "--pcre2",
+    "--multiline",
+    "--multiline-dotall",
     "--no-heading",
     "--color",
     "never",
     ...PATTERNS.flatMap((p) => ["-e", p]),
-    ...TARGETS,
+    ...targets,
     ...EXCLUDES.map((p) => `-g!${p}/**`),
   ];
   try {
@@ -39,7 +44,9 @@ function runRg() {
   }
 }
 
-const hitsRaw = runRg().trim();
+const missingTargets = TARGETS.filter((t) => !existsSync(resolve(ROOT, t)));
+const activeTargets = TARGETS.filter((t) => existsSync(resolve(ROOT, t)));
+const hitsRaw = runRg(activeTargets).trim();
 const lines = hitsRaw ? hitsRaw.split("\n") : [];
 
 const counts = new Map();
@@ -59,6 +66,7 @@ const body = [
   "",
   `- Date: ${new Date().toISOString()}`,
   `- Targets: ${TARGETS.join(", ")}`,
+  `- Missing targets (skipped): ${missingTargets.length ? missingTargets.join(", ") : "none"}`,
   `- Excludes: ${EXCLUDES.join(", ")}`,
   `- Patterns:`,
   ...PATTERNS.map((p) => `  - \`${p}\``),
@@ -78,7 +86,7 @@ const body = [
   "",
 ].join("\n");
 
-mkdirSync(resolve(ROOT, "docs/PHASE_1/APPENDIX_COMMAND_OUTPUTS"), { recursive: true });
+mkdirSync(resolve(ROOT, dirname(paths.reports.surfaceMap)), { recursive: true });
 writeFileSync(REPORT, body, "utf8");
 
 console.log(`OK: report generated at ${relative(ROOT, REPORT)}`);
