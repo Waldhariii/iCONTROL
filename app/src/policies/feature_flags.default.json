@@ -26,6 +26,9 @@
     },
     "users_shadow": {
       "state": "OFF"
+    },
+    "brandservice_shadow": {
+      "state": "OFF"
     }
   }
 }

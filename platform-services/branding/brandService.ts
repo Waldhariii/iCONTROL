@@ -1,4 +1,42 @@
 import type { Brand, BrandResolved, BrandOverrideResult } from "../../core-kernel/contracts/BrandingPort";
+import { getLogger } from "../../app/src/core/utils/logger";
+import { isEnabled } from "../../app/src/policies/feature_flags.enforce";
+import { createAuditHook } from "../../app/src/core/write-gateway/auditHook";
+import { createLegacyAdapter } from "../../app/src/core/write-gateway/adapters/legacyAdapter";
+import { createPolicyHook } from "../../app/src/core/write-gateway/policyHook";
+import { createCorrelationId, createWriteGateway } from "../../app/src/core/write-gateway/writeGateway";
+import { getTenantId } from "../../app/src/core/runtime/tenant";
+
+/** WRITE_GATEWAY_WRITE_SURFACE — shadow scaffold (legacy-first; NO-OP adapter). */
+const __wsLogger = getLogger("WRITE_GATEWAY_WRITE_SURFACE");
+let __wsGateway: ReturnType<typeof createWriteGateway> | null = null;
+
+function __resolveWsGateway() {
+  if (__wsGateway) return __wsGateway;
+  __wsGateway = createWriteGateway({
+    policy: createPolicyHook(),
+    audit: createAuditHook(),
+    adapter: createLegacyAdapter((cmd) => {
+      void cmd;
+      return { status: "SKIPPED", correlationId: cmd.correlationId };
+    }, "writeSurfaceShadowNoop"),
+    safeMode: { enabled: true },
+  });
+  return __wsGateway;
+}
+
+function __isWsShadowEnabled(): boolean {
+  try {
+    const rt: any = globalThis as any;
+    const decisions = rt?.__FEATURE_DECISIONS__ || rt?.__featureFlags?.decisions;
+    if (Array.isArray(decisions)) return isEnabled(decisions, "brandservice_shadow");
+    const flags = rt?.__FEATURE_FLAGS__ || rt?.__featureFlags?.flags;
+    const state = flags?.["brandservice_shadow"]?.state;
+    return state === "ON" || state === "ROLLOUT";
+  } catch {
+    return false;
+  }
+}
 
 const LS_KEY = "icontrol_brand_v1";
 
@@ -111,6 +149,36 @@ export function setBrandLocalOverride(patch: Partial<Brand>): BrandOverrideResul
   if (!v.ok) return { ok: false, warnings: v.warnings };
   try {
     localStorage.setItem(LS_KEY, JSON.stringify(next));
+    if (__isWsShadowEnabled()) {
+      const tenantId = (typeof getTenantId === "function" ? getTenantId() : "public") || "public";
+      const correlationId = createCorrelationId("ws");
+      const cmd = {
+        kind: "BRANDSERVICE_WRITE_SHADOW",
+        tenantId,
+        correlationId,
+        payload: { key: LS_KEY },
+        meta: { shadow: true, source: "brandService.ts" },
+      };
+
+      try {
+        const res = __resolveWsGateway().execute(cmd as any);
+        if (res.status !== "OK" && res.status !== "SKIPPED") {
+          __wsLogger.warn("WRITE_GATEWAY_WRITE_SURFACE_FALLBACK", {
+            kind: cmd.kind,
+            tenant_id: tenantId,
+            correlation_id: correlationId,
+            status: res.status,
+          });
+        }
+      } catch (err) {
+        __wsLogger.warn("WRITE_GATEWAY_WRITE_SURFACE_ERROR", {
+          kind: cmd.kind,
+          tenant_id: tenantId,
+          correlation_id: correlationId,
+          error: String(err),
+        });
+      }
+    }
     return { ok: true };
   } catch (e: unknown) {
     return { ok: false, warnings: ["ERR_BRAND_WRITE_FAILED: " + String(e)] };
