@@ -38,6 +38,9 @@
     },
     "ui_catalog_shadow": {
       "state": "OFF"
+    },
+    "file_subscription_store_node_fs_shadow": {
+      "state": "OFF"
     }
   }
 }
