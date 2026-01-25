@@ -1,3 +1,5 @@
 {
-  "flags": {}
+  "flags": {
+    "write_gateway_shadow": { "state": "OFF" }
+  }
 }

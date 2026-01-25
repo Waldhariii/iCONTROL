@@ -1,0 +1,56 @@
+vite v7.3.1 building client environment for production...
+transforming...
+✓ 194 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/app/index.html                               0.99 kB │ gzip:  0.63 kB
+dist/app/assets/index-DFKM67h3.css               32.90 kB │ gzip:  5.18 kB
+dist/app/assets/versionGate-BZXDSCDX.js           0.07 kB │ gzip:  0.09 kB
+dist/app/assets/pageAccessGuard-B4T7so9q.js       0.07 kB │ gzip:  0.09 kB
+dist/app/assets/contract-COMonsok.js              0.09 kB │ gzip:  0.11 kB
+dist/app/assets/contract-CCkkYjqV.js              0.09 kB │ gzip:  0.11 kB
+dist/app/assets/ui-catalog-CuS-NSJC.js            0.15 kB │ gzip:  0.15 kB
+dist/app/assets/safeMode-Bg1GxHzi.js              0.33 kB │ gzip:  0.25 kB
+dist/app/assets/notfound-BF-iMtjk.js              0.71 kB │ gzip:  0.44 kB
+dist/app/assets/integrations-CJ8DbrH0.js          0.72 kB │ gzip:  0.46 kB
+dist/app/assets/blocked-DtVo_Ufz.js               0.74 kB │ gzip:  0.46 kB
+dist/app/assets/access-denied-Cl2hygxE.js         0.74 kB │ gzip:  0.46 kB
+dist/app/assets/storage-B5fp1C9I.js               1.02 kB │ gzip:  0.51 kB
+dist/app/assets/toolbar-B_VUPQsR.js               1.15 kB │ gzip:  0.58 kB
+dist/app/assets/index-Dop_GcvE.js                 1.48 kB │ gzip:  0.73 kB
+dist/app/assets/errorState-CQOhLu_C.js            1.57 kB │ gzip:  0.59 kB
+dist/app/assets/index-4OEIdS5z.js                 1.70 kB │ gzip:  0.80 kB
+dist/app/assets/index-ClhWIc3E.js                 1.73 kB │ gzip:  0.71 kB
+dist/app/assets/index-D2MBrb70.js                 1.75 kB │ gzip:  0.80 kB
+dist/app/assets/sectionCard-CyGeNV8A.js           1.78 kB │ gzip:  0.70 kB
+dist/app/assets/kpi-CnV5tvJl.js                   1.80 kB │ gzip:  0.71 kB
+dist/app/assets/publish-DB-8xAQc.js               1.81 kB │ gzip:  0.90 kB
+dist/app/assets/pages-C2sdt6C0.js                 2.33 kB │ gzip:  1.04 kB
+dist/app/assets/toast-B6FUqbnt.js                 2.47 kB │ gzip:  0.83 kB
+dist/app/assets/emptyState-C8EFnGC4.js            2.52 kB │ gzip:  0.93 kB
+dist/app/assets/system-xcHHGpja.js                2.67 kB │ gzip:  1.24 kB
+dist/app/assets/cpLayout-BBQpV9u0.js              3.04 kB │ gzip:  1.38 kB
+dist/app/assets/subscription-DiA5A1yN.js          3.14 kB │ gzip:  1.38 kB
+dist/app/assets/entitlements-QZPO0Cky.js          3.52 kB │ gzip:  1.30 kB
+dist/app/assets/pageShell-DVVNBemq.js             3.54 kB │ gzip:  1.31 kB
+dist/app/assets/index-C83U5bxB.js                 3.74 kB │ gzip:  1.47 kB
+dist/app/assets/audit-Bc38IKH_.js                 3.75 kB │ gzip:  1.61 kB
+dist/app/assets/users-BL2UvF3S.js                 3.86 kB │ gzip:  1.66 kB
+dist/app/assets/dataTable-DtsnHQic.js             3.92 kB │ gzip:  1.50 kB
+dist/app/assets/login-CcNwxkfl.js                 3.97 kB │ gzip:  1.37 kB
+dist/app/assets/registry-CZOfLceJ.js              4.30 kB │ gzip:  1.30 kB
+dist/app/assets/feature-flags-Cojo9FNL.js         4.34 kB │ gzip:  1.79 kB
+dist/app/assets/index-CBOqxBR6.js                 4.36 kB │ gzip:  1.77 kB
+dist/app/assets/entitlements-Bc2sJAvq.js          4.75 kB │ gzip:  1.84 kB
+dist/app/assets/toolbox-OVNYmHSv.js               5.84 kB │ gzip:  1.90 kB
+dist/app/assets/charts-BGE1P_U-.js                7.29 kB │ gzip:  2.29 kB
+dist/app/assets/tenants-BjE6kRo0.js               7.93 kB │ gzip:  3.01 kB
+dist/app/assets/loginTheme.override-DY3vrYeU.js   9.73 kB │ gzip:  2.54 kB
+dist/app/assets/runtime-smoke-BnvvNn5L.js         9.86 kB │ gzip:  3.51 kB
+dist/app/assets/index-ee9omZH6.js                10.39 kB │ gzip:  4.00 kB
+dist/app/assets/dashboard-DvhPIm5Y.js            12.68 kB │ gzip:  4.46 kB
+dist/app/assets/index-Dmgdc8ib.js                12.96 kB │ gzip:  4.17 kB
+dist/app/assets/index-P9nv-pnO.js                14.80 kB │ gzip:  5.37 kB
+dist/app/assets/login-theme-4tfErrLZ.js          19.67 kB │ gzip:  5.49 kB
+dist/app/assets/index-ptKq4nTB.js                78.99 kB │ gzip: 23.36 kB
+✓ built in 578ms

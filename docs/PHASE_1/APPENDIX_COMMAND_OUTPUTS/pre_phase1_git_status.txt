@@ -1,0 +1,123 @@
+## wip/phase6-next
+ M .env.example
+ M .githooks/pre-push
+ M CONTRIBUTING.md
+ M app/index.html
+ M app/src/__tests__/app-cp-guard.app-blocks-cp.contract.test.ts
+ M app/src/__tests__/app-cp-guard.cp-blocks-app.contract.test.ts
+ M app/src/core/entitlements/index.ts
+ M app/src/core/entitlements/resolve.ts
+ M app/src/core/studio/runtime/execute.ts
+ M app/src/core/ui/badge.ts
+ M app/src/core/ui/dataTable.ts
+ M app/src/core/ui/emptyState.ts
+ M app/src/core/ui/errorState.ts
+ M app/src/core/ui/pageShell.ts
+ M app/src/core/ui/sectionCard.ts
+ M app/src/core/ui/toast.ts
+ M app/src/core/ui/toolbar.ts
+ M app/src/localAuth.ts
+ M app/src/main.ts
+ M app/src/moduleLoader.ts
+ M app/src/pages/_shared/sections.ts
+ M app/src/pages/app/client-access-denied.ts
+ M app/src/pages/app/client-catalog.ts
+ M app/src/pages/app/client-disabled.ts
+ M app/src/pages/app/registry.ts
+ D app/src/pages/app/ui-catalog.ts
+ M app/src/pages/cp/_shared/cpLayout.ts
+ M app/src/pages/cp/audit.ts
+ M app/src/pages/cp/dashboard.ts
+ M app/src/pages/cp/entitlements.ts
+ M app/src/pages/cp/feature-flags.ts
+ M app/src/pages/cp/login-theme.ts
+ M app/src/pages/cp/login.ts
+ M app/src/pages/cp/pages.ts
+ M app/src/pages/cp/publish.ts
+ M app/src/pages/cp/subscription.ts
+ M app/src/pages/cp/system.ts
+ M app/src/pages/cp/tenants.ts
+ M app/src/pages/cp/users.ts
+ M app/src/pages/cp/views/users.ts
+ M app/src/pages/runtime-smoke.ts
+ M app/src/router.ts
+ M app/src/runtime/safeRender.ts
+ M app/vite.config.ts
+ M app/vitest.setup.ts
+ D docs/ICONTROL_MAIN_SYSTEM_TABLES_MIGRATION_20260110_091609.md
+ D docs/ICONTROL_PAGE_MIGRATION_20260109_212713.md
+ D docs/reports/ICONTROL_EXISTING_PAGES_WIRING_20260109_200900.md
+ D docs/reports/ICONTROL_MAIN_SYSTEM_RESTORE_20260109_211011.md
+ M docs/runbooks/gates-ui.md
+ M modules/core-system/subscription/FileSubscriptionStore.node.ts
+ M modules/core-system/ui/frontend-ts/pages/_shared/mainSystem.ui.ts
+ M modules/core-system/ui/frontend-ts/pages/access-denied/index.tsx
+ M modules/core-system/ui/frontend-ts/pages/activation/index.tsx
+ M modules/core-system/ui/frontend-ts/pages/blocked/index.ts
+ M modules/core-system/ui/frontend-ts/pages/dashboard.ts
+ M modules/core-system/ui/frontend-ts/pages/developer/entitlements.tsx
+ M modules/core-system/ui/frontend-ts/pages/developer/index.tsx
+ M modules/core-system/ui/frontend-ts/pages/login/loginPage.ts
+ M modules/core-system/ui/frontend-ts/pages/logs/index.ts
+ M modules/core-system/ui/frontend-ts/pages/settings/subscriptionHub.ts
+ M modules/core-system/ui/frontend-ts/pages/system/index.ts
+ M modules/core-system/ui/frontend-ts/pages/system/sections/cache-audit.ts
+ M modules/core-system/ui/frontend-ts/pages/toolbox.ts
+ M modules/core-system/ui/frontend-ts/pages/toolbox/sections/api-tools.ts
+ M modules/core-system/ui/frontend-ts/pages/toolbox/sections/diagnostics.ts
+ M modules/core-system/ui/frontend-ts/pages/toolbox/sections/logs.ts
+ M modules/core-system/ui/frontend-ts/pages/toolbox/sections/pipeline.ts
+ M modules/core-system/ui/frontend-ts/pages/toolbox/sections/tokens.ts
+ M modules/core-system/ui/frontend-ts/pages/toolbox/sections/webhooks.ts
+ M modules/core-system/ui/frontend-ts/pages/toolbox/ui.ts
+ M modules/core-system/ui/frontend-ts/pages/verification/model.ts
+ M modules/core-system/ui/frontend-ts/shared/coreStyles.ts
+ M platform-services/security/auth/localAuth.ts
+ M platform-services/ui-shell/layout/shell.css
+ M platform-services/ui-shell/layout/shell.ts
+ M server/runtime-config-server.ts
+?? .github/workflows/ssot-gates.yml
+?? CONVERGENCE_PLAN.md
+?? DUPLICATE_RISKS.md
+?? EXISTING_SURFACE_MAP.md
+?? app/src/core/control-plane/
+?? app/src/core/runtime/versionGate.ts
+?? app/src/core/ssot/
+?? app/src/core/ui/button.ts
+?? app/src/core/ui/clientSidebar.tsx
+?? app/src/core/ui/confirmModal.ts
+?? app/src/core/utils/
+?? app/src/pages/app/account.ts
+?? app/src/pages/app/client-account.tsx
+?? app/src/pages/app/client-dashboard.tsx
+?? app/src/pages/app/client-settings.tsx
+?? app/src/pages/app/client-system.tsx
+?? app/src/pages/app/client-users.tsx
+?? app/src/pages/app/dashboard.ts
+?? app/src/pages/app/settings.ts
+?? app/src/pages/app/system.ts
+?? app/src/pages/app/users.ts
+?? app/src/pages/cp/integrations.ts
+?? app/src/runtime/appKind.ts
+?? app/src/styles/STYLE_CLIENT_FINAL.css
+?? config/ssot/
+?? docs/AMELIORATIONS_PROFESSIONNALISME.md
+?? docs/EBOUCHE_VISUEL_ENTERPRISE_ADMIN.md
+?? docs/PHASE_1/
+?? docs/governance/DATA_NAMESPACE_RULES.md
+?? docs/governance/SNAPSHOT_ROLLBACK_POLICY.md
+?? docs/governance/WRITE_GATEWAY_CONTRACT.md
+?? docs/ssot/
+?? modules/core-system/ui/frontend-ts/pages/system/sections/chart-gallery.ts
+?? modules/core-system/ui/frontend-ts/pages/system/sections/health-charts.ts
+?? scripts/gates/PAGE_BOUNDARY_LINT_RULES.json
+?? scripts/gates/check-admin-components-registry.mjs
+?? scripts/gates/check-capability-status.mjs
+?? scripts/gates/check-design-tokens.mjs
+?? scripts/gates/check-route-catalog.mjs
+?? scripts/gates/check-route-drift.mjs
+?? scripts/gates/check-tenant-feature-matrix.mjs
+?? scripts/gates/design-tokens-utils.mjs
+?? scripts/gates/generate-design-tokens-css.mjs
+?? scripts/gates/generate-route-drift-report.mjs
+?? scripts/gates/run_ui_drift_gate.sh

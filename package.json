@@ -68,7 +68,8 @@
     "desktop:create-launchers-web": "bash scripts/mac/create-web-launchers.sh",
     "gate:ui-inline-drift": "bash scripts/gates/gate-ui-inline-drift.sh",
     "gate:ui-component-registry": "node scripts/gates/gate-ui-component-registry.mjs",
-    "gate:ui-contracts": "node scripts/gates/gate-ui-contracts.mjs"
+    "gate:ui-contracts": "node scripts/gates/gate-ui-contracts.mjs",
+    "gate:write-gateway-coverage": "node scripts/gates/gate-write-gateway-coverage.mjs"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^7.0.0",
