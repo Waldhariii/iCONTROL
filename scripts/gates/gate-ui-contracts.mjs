@@ -48,15 +48,7 @@ const CP_HEX_ALLOWLIST = new Set([
 
 // Allowlist: create* exports not yet tracked in registry (phase-in)
 const REGISTRY_COVERAGE_ALLOWLIST = new Set([
-  "createKpiCard",
-  "createKpiStrip",
-  "createLineChart",
-  "createBarChart",
-  "createStackedBarChart",
-  "createAreaChart",
-  "createChartCard",
-  "createDonutChart",
-  "createGaugeChart"
+  // Phase-in escape hatch (keep empty; prefer fixing registry.ts)
 ]);
 
 function rg(pattern, paths, extraArgs = "") {

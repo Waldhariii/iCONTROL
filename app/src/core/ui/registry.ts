@@ -67,3 +67,46 @@ export const UI_COMPONENT_REGISTRY: UiComponentRegistryEntry[] = [
 /** Convenience lookups */
 export const UI_COMPONENT_IDS = new Set(UI_COMPONENT_REGISTRY.map((x) => x.id));
 export const UI_COMPONENT_CLASSES = new Set(UI_COMPONENT_REGISTRY.map((x) => x.classBase));
+
+// === UI FACTORY REGISTRY (create*) ===
+// SSOT: list of UI factory exports that must be tracked for contracts coverage.
+// Notes:
+// - IDs are stable, used by gates and documentation.
+// - This registry is intentionally declarative (no imports) to avoid bundling/runtime side effects.
+// - If you add/remove a create* export, update this list.
+export const UI_FACTORY_REGISTRY = [
+  // Charts
+  { id: "ui.chart.area", export: "createAreaChart" },
+  { id: "ui.chart.bar", export: "createBarChart" },
+  { id: "ui.chart.line", export: "createLineChart" },
+  { id: "ui.chart.stackedBar", export: "createStackedBarChart" },
+  { id: "ui.chart.donut", export: "createDonutChart" },
+  { id: "ui.chart.gauge", export: "createGaugeChart" },
+  { id: "ui.chart.card", export: "createChartCard" },
+
+  // KPI
+  { id: "ui.kpi.card", export: "createKpiCard" },
+  { id: "ui.kpi.strip", export: "createKpiStrip" },
+
+  // Shell / Layout
+  { id: "ui.shell.page", export: "createPageShell" },
+  { id: "ui.shell.toolbar", export: "createToolbar" },
+  { id: "ui.shell.sectionCard", export: "createSectionCard" },
+
+  // Buttons / Badges
+  { id: "ui.button.base", export: "createButton" },
+  { id: "ui.badge.base", export: "createBadge" },
+  { id: "ui.badge.role", export: "createRoleBadge" },
+  { id: "ui.badge.safeMode", export: "createSafeModeBadge" },
+
+  // States / Empty / Error
+  { id: "ui.state.error", export: "createErrorState" },
+  { id: "ui.state.empty", export: "createEmptyStateCard" },
+  { id: "ui.state.contextualEmpty", export: "createContextualEmptyState" },
+  { id: "ui.state.emptySkeleton", export: "createCardSkeleton" },
+
+  // Modal
+  { id: "ui.modal.confirm", export: "createConfirmModal" }
+] as const;
+
+export type UiFactoryExportName = typeof UI_FACTORY_REGISTRY[number]["export"];
