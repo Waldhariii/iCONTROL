@@ -14,9 +14,12 @@ const TARGETS = ["app/src", "modules", "platform-services", "server"]; // read-o
 const EXCLUDES = ["node_modules", "dist", "coverage"]; // coarse excludes
 
 const PATTERN = String.raw`
-localStorage\.setItem\s*\(|sessionStorage\.setItem\s*\(|
-\bfetch\s*\(.*?\)\s*(?:\n|\r|\r\n)?[^\n]*method\s*:\s*"(POST|PUT|PATCH|DELETE)"|
-\b(writeFileSync|writeFile|appendFile|appendFileSync)\s*\(
+  (?:\b(localStorage|sessionStorage)\.setItem\s*\(|
+     \bfs\.(?:writeFileSync|writeFile|appendFile|appendFileSync)\s*\(|
+     \b(fetch)\s*\(.*
+     (?:\{[^}]*\bmethod\s*:\s*"(?:POST|PUT|PATCH|DELETE)")|
+     \baxios\.(?:post|put|patch|delete)\s*\(|
+     \b(save|write|persist|upsert|insert|update|delete)[A-Za-z0-9_]*\s*\()
 `;
 
 function runRg() {

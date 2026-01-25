@@ -1,9 +1,9 @@
 # Write Surface Map (report-only)
 
-- Date: 2026-01-25T21:23:54.575Z
+- Date: 2026-01-25T21:32:02.317Z
 - Targets: app/src, modules, platform-services, server
 - Excludes: node_modules, dist, coverage
-- Pattern: localStorage\.setItem\s*\(|sessionStorage\.setItem\s*\(|\bfetch\s*\(.*?\)\s*(?:\n|\r|\r\n)?[^\n]*method\s*:\s*"(POST|PUT|PATCH|DELETE)"|\b(writeFileSync|writeFile|appendFile|appendFileSync)\s*\(
+- Pattern: (?:\b(localStorage|sessionStorage)\.setItem\s*\(|     \bfs\.(?:writeFileSync|writeFile|appendFile|appendFileSync)\s*\(|     \b(fetch)\s*\(.*     (?:\{[^}]*\bmethod\s*:\s*"(?:POST|PUT|PATCH|DELETE)")|     \baxios\.(?:post|put|patch|delete)\s*\(|     \b(save|write|persist|upsert|insert|update|delete)[A-Za-z0-9_]*\s*\()
 - Total hits: 0
 
 ## Top Offenders (by file hit count)
