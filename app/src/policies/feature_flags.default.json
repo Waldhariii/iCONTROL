@@ -29,6 +29,9 @@
     },
     "brandservice_shadow": {
       "state": "OFF"
+    },
+    "localauth_shadow": {
+      "state": "OFF"
     }
   }
 }
