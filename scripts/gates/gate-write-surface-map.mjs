@@ -25,6 +25,7 @@ const PATTERN = String.raw`
 function runRg() {
   const args = [
     "-n",
+    "--multiline-dotall",
     "--no-heading",
     "--color",
     "never",
