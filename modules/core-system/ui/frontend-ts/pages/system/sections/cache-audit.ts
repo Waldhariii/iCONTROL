@@ -155,7 +155,7 @@ host.innerHTML = "";
 
 
   const card = __el("div", { style: {
-    border: "1px solid rgba(255,255,255,0.12)",
+    border: "1px solid var(--ic-borderLight)",
     borderRadius: "12px",
     padding: "12px",
   }});
@@ -168,7 +168,7 @@ host.innerHTML = "";
   const btn = __el("button", {
     type: "button",
     style: {
-      border: "1px solid rgba(255,255,255,0.16)",
+      border: "1px solid var(--ic-borderLightStrong)",
       background: "transparent",
       color: "inherit",
       borderRadius: "10px",
