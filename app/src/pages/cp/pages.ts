@@ -26,8 +26,8 @@ export function renderPages(root: HTMLElement): void {
   const safeModeValue = mapSafeMode(getSafeMode());
   root.innerHTML = coreBaseStyles();
   const { shell, content } = createPageShell({
-    title: "Pages Registry",
-    subtitle: "SSOT des routes /app et /cp (lecture seule)",
+    title: "Registre des pages",
+    subtitle: "Routes et périmètre",
     safeMode: safeModeValue,
     statusBadge: { label: "GOUVERNÉ", tone: "info" }
   });
@@ -77,7 +77,7 @@ export function renderPages(root: HTMLElement): void {
     { key: "route", label: "Route", sortable: true },
     { key: "scope", label: "Scope", sortable: true, render: (v) => createBadge(String(v), v === "CP" ? "info" : "neutral") },
     { key: "tags", label: "Tags", render: (v) => createBadge(Array.isArray(v) ? v.join(", ") : String(v), "neutral") },
-    { key: "status", label: "Status", sortable: true, render: (v) => createBadge(String(v), v === "GOVERNED" ? "ok" : "warn") }
+    { key: "status", label: "Statut", sortable: true, render: (v) => createBadge(String(v), v === "GOVERNED" ? "ok" : "warn") }
   ];
 
   const renderTable = () => {
