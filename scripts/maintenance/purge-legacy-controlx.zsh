@@ -1,6 +1,12 @@
 #!/bin/zsh
 set -euo pipefail
 
+resolve_tracked() {
+  # Deterministic tracked-file resolver (never use `rg` because it prefixes line numbers)
+  git ls-files 2>/dev/null || rg --files
+}
+
+
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 
 EXCL=(
@@ -10,7 +16,7 @@ EXCL=(
 )
 
 echo "=== PRE-SCAN (active source only) ==="
-HITS="$(rg -n --hidden --no-ignore "${EXCL[@]}" "iCONTROL" "$ROOT" || true)"
+HITS="$(rg --hidden --no-ignore "${EXCL[@]}" "iCONTROL" "$ROOT" || true)"
 if [ -z "$HITS" ]; then
   echo "OK: no iCONTROL token found (active source). Nothing to do."
   exit 0
@@ -36,7 +42,7 @@ done
 
 echo ""
 echo "=== POST-SCAN ==="
-HITS2="$(rg -n --hidden --no-ignore "${EXCL[@]}" "iCONTROL" "$ROOT" || true)"
+HITS2="$(rg --hidden --no-ignore "${EXCL[@]}" "iCONTROL" "$ROOT" || true)"
 if [ -n "$HITS2" ]; then
   echo "WARN: iCONTROL still found (showing first hits):"
   echo "$HITS2" | head -200
