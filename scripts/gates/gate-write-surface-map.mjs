@@ -9,7 +9,6 @@ import { dirname, resolve, relative } from "node:path";
 import { readPaths } from "../ssot/paths.mjs";
 
 const ROOT = process.cwd();
-
 const paths = readPaths();
 const REPORT = resolve(ROOT, paths.reports.surfaceMap);
 
