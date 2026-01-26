@@ -15,7 +15,7 @@ export default function blockedPage(): string {
         <div><b>Mode</b>: ${escapeHtml(kind)}</div>
         <div><b>Code</b>: ${escapeHtml(code)}</div>
       </div>
-      <div style="margin-top:14px; padding:12px; border:1px solid rgba(0,0,0,.15); border-radius:10px;">
+      <div style="margin-top:14px; padding:12px; border:1px solid var(--ic-borderDarkStrong); border-radius:10px;">
         ${escapeHtml(message)}
       </div>
 
