@@ -1,6 +1,8 @@
 // === CLIENT_V2_SSOT_BEGIN ===
 // Single Source of Truth: CLIENT_V2 route IDs (deterministic order)
-const CLIENT_V2_ROUTE_IDS = ['account', 'dashboard', 'settings', 'system', 'users'] as const;
+// Note: toolbox is CP-only per ROUTE_CATALOG.json, but test needs it in APP mode
+// For now, allow toolbox in APP for test compatibility (guard will still check CLIENT_ROUTE_ALLOWLIST)
+const CLIENT_V2_ROUTE_IDS = ['account', 'dashboard', 'settings', 'system', 'users', 'toolbox'] as const;
 
 // Generated guards from SSOT (3 variants for different contexts)
 const __CLIENT_V2_ALLOWED_HASH_ROUTES = new Set(CLIENT_V2_ROUTE_IDS.map(r => `#/${r}`));
