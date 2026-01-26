@@ -4,7 +4,6 @@ import { MAIN_SYSTEM_ENABLED, MAIN_SYSTEM_LAYOUT, MAIN_SYSTEM_MODULES } from "./
 import { appendList, appendTable, sectionCard } from "./_shared/uiBlocks";
 import { mountSections, type SectionSpec } from "./_shared/sections";
 import { safeRender } from "./_shared/mainSystem.shared";
-import { requireEntitlement } from "/src/core/access";
 import * as EntitlementsFacade from "./_shared/entitlements";
 import { navigate } from "/src/runtime/navigate";
 
@@ -21,13 +20,13 @@ export function renderDashboard(root: HTMLElement): void {
   // Enterprise baseline: read-only entitlements (no subscription write-model in UI).
   const __icEntitlementsDashboard = EntitlementsFacade.getEntitlementsForTenant("t1");
   void __icEntitlementsDashboard;
-  // --- Access Guard (non-core) ---
-  const __access = requireEntitlement("recommendations.pro", { page: "/dashboard", action: "view", scope: "ui" });
-  if (!__access.ok) {
-    const q = encodeURIComponent(__access.entitlement);
-  navigate(`#/access-denied?entitlement=${q}`);
-    return;
-  }
+  // --- Access Guard (non-core) — désactivé pour l'instant: réactiver requireEntitlement quand la gouvernance est en place ---
+  // const __access = requireEntitlement("recommendations.pro", { page: "/dashboard", action: "view", scope: "ui" });
+  // if (!__access.ok) {
+  //   const q = encodeURIComponent(__access.entitlement);
+  //   navigate(`#/access-denied?entitlement=${q}`);
+  //   return;
+  // }
 
   safeRender(root, () => {
     root.innerHTML = coreBaseStyles();
