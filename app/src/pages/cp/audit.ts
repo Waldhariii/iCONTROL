@@ -10,8 +10,9 @@ import { createBadge } from "/src/core/ui/badge";
 import { createDataTable, type TableColumn } from "/src/core/ui/dataTable";
 import { createEmptyStateCard } from "/src/core/ui/emptyState";
 import { createKpiStrip } from "/src/core/ui/kpi";
-import { createGovernanceFooter, createTwoColumnLayout, mapSafeMode } from "./_shared/cpLayout";
+import { createGovernanceFooter, createTwoColumnLayout, createDemoDataBanner, mapSafeMode } from "./_shared/cpLayout";
 import { isCpDemoEnabled } from "./_shared/cpDemo";
+import { formatDateTime } from "/src/core/utils/dateFormat";
 import { getSafeMode } from "../../../../modules/core-system/ui/frontend-ts/pages/_shared/safeMode";
 
 type AuditRow = {
@@ -34,13 +35,15 @@ export function renderAudit(root: HTMLElement): void {
   const safeModeValue = mapSafeMode(getSafeMode());
   root.innerHTML = coreBaseStyles();
   const { shell, content } = createPageShell({
-    title: "Audit & Conformité",
-    subtitle: "Logs immuables et exports (lecture seule)",
+    title: "Audit",
+    subtitle: "Traces et conformité",
     safeMode: safeModeValue,
     statusBadge: { label: "READ-ONLY", tone: "info" }
   });
 
   const data = isCpDemoEnabled() ? DEMO_AUDIT : DEMO_AUDIT;
+  const demoBanner = createDemoDataBanner();
+  if (demoBanner) content.appendChild(demoBanner);
   const kpis = createKpiStrip([
     { label: "Events (24h)", value: String(data.length), tone: "info" },
     { label: "Violations", value: String(data.filter((r) => r.level === "ERR").length), tone: "err" },
@@ -128,7 +131,7 @@ export function renderAudit(root: HTMLElement): void {
   exportBody.appendChild(createBadge("PDF", "neutral"));
   content.appendChild(exportCard);
 
-  content.appendChild(createGovernanceFooter());
+  content.appendChild(createGovernanceFooter(data[0]?.ts));
   root.appendChild(shell);
 }
 
