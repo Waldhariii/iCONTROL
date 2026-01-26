@@ -53,6 +53,15 @@
     },
     "gate_ui_component_registry_fs_shadow": {
       "state": "OFF"
+    },
+    "ui_preview_storage_shadow": {
+      "state": "OFF"
+    },
+    "ui_catalog_snap_storage_shadow": {
+      "state": "OFF"
+    },
+    "cp_visual_snap_storage_shadow": {
+      "state": "OFF"
     }
   }
 }

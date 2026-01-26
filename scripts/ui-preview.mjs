@@ -6,6 +6,36 @@ import { fileURLToPath } from "node:url";
 import http from "node:http";
 import { chromium } from "playwright";
 
+// WRITE_GATEWAY_STORAGE_SHADOW — canonical scaffold (standalone; legacy-first; NO-OP emit)
+const __storageShadowHelper = (() => {
+  const FLAG = "ui_preview_storage_shadow";
+  let __flagCache = null;
+  
+  const __readFlagState = () => {
+    if (__flagCache !== null) return __flagCache;
+    try {
+      const flagsPath = path.join(icontrolRoot, "app", "src", "policies", "feature_flags.default.json");
+      if (fs.existsSync(flagsPath)) {
+        const json = JSON.parse(fs.readFileSync(flagsPath, "utf8"));
+        const state = json?.flags?.[FLAG]?.state;
+        __flagCache = (state === "ON" || state === "ROLLOUT");
+        return __flagCache;
+      }
+    } catch {}
+    __flagCache = false;
+    return false;
+  };
+
+  const __emit = (payload) => {
+    if (!__readFlagState()) return;
+    try {
+      console.warn("UI_PREVIEW_STORAGE_WRITE_SHADOW", JSON.stringify(payload));
+    } catch {}
+  };
+
+  return { emit: __emit };
+})();
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const icontrolRoot = path.resolve(__dirname, "..");
@@ -304,6 +334,16 @@ async function main() {
             },
             { sessionKey, role, theme }
           );
+          
+          // Shadow emit (NO-OP) — gated by feature flag (legacy-first: assume write succeeds)
+          if (__storageShadowHelper) {
+            __storageShadowHelper.emit({
+              op: "WRITE",
+              keys: [sessionKey, "controlx_settings_v1.theme"],
+              source: "ui-preview.mjs",
+              context: { surface, role, theme }
+            });
+          }
 
           const page = await context.newPage();
           await page.emulateMedia({ colorScheme: theme });
