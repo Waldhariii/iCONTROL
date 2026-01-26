@@ -15,4 +15,6 @@ while read -r local_ref local_sha remote_ref remote_sha; do
   fi
 done
 
+npm run gate:ssot
+echo "OK: gate:ssot PASS"
 exit 0
