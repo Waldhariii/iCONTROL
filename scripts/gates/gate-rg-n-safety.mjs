@@ -2,9 +2,12 @@
 import { execFileSync } from "node:child_process";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
+import { readPaths } from "../ssot/paths.mjs";
+
 
 const ROOT = process.cwd();
-const REPORT = resolve(ROOT, "docs/SSOT/rg_n_safety_report.md");
+const paths = (() => { try { return readPaths(); } catch { return null; } })();
+const REPORT = resolve(ROOT, (paths?.rgNSafetyReport || paths?.reports?.rgNSafety || "rg_n_safety_report.md"));
 
 // We only scan scripts/ (not src runtime). This is governance hardening scope.
 const TARGETS = ["scripts"];

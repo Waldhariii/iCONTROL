@@ -88,3 +88,7 @@
   }
 }
 ```
+
+
+## SSOT Keys (paths.mjs)
+- `rgNSafetyReport`: canonical report output for rg -n safety inventory (default: `rg_n_safety_report.md`).

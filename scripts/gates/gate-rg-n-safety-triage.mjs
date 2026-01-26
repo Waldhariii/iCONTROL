@@ -1,30 +1,34 @@
 #!/usr/bin/env node
+import { execFileSync } from "node:child_process";
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import { resolve } from "node:path";
+import { readPaths } from "../ssot/paths.mjs";
+
+const paths = (() => {
+  try {
+    return readPaths();
+  } catch {
+    return null;
+  }
+})();
+const REPORT = paths?.rgNSafetyReport || paths?.reports?.rgNSafety || "rg_n_safety_report.md";
+const BACKLOG = "rg_n_safety_backlog.md";
+if (!existsSync(REPORT)) {
+  try {
+    // Report-only: generate the report if missing
+    execFileSync("npm", ["-s", "run", "-S", "gate:rg-n-safety"], { stdio: "inherit" });
+  } catch {
+    // ignore; we will validate existence right after
+  }
+}
+if (!existsSync(REPORT)) {
+  console.error("ERR_RG_N_TRIAGE_NO_REPORT", REPORT);
+  process.exit(2);
+}
+
 
 const ROOT = process.cwd();
-const reportCandidates = [
-  "docs/PHASE_1/APPENDIX_COMMAND_OUTPUTS/rg_n_safety_report.md",
-  "rg_n_safety_report.md",
-];
-
-function pickReport() {
-  for (const p of reportCandidates) {
-    try { if (existsSync(p)) return p; } catch {}
-  }
-  // last resort: caller can pass path as argv[2]
-  const arg = process.argv[2];
-  if (arg && existsSync(arg)) return arg;
-  return null;
-}
-
-const reportPath = pickReport();
-if (!reportPath) {
-  console.error("ERR_RG_N_TRIAGE_NO_REPORT");
-  process.exit(1);
-}
-
-const raw = readFileSync(reportPath, "utf8");
+const raw = readFileSync(REPORT, "utf8");
 
 // Accept both:
 // 1) bullets like "- scripts/foo.zsh:HITS=4"
@@ -61,7 +65,7 @@ const sorted = Array.from(byFile.values())
 const out = [];
 out.push("# rg -n safety backlog");
 out.push("");
-out.push(`- Source report: \`${reportPath}\``);
+out.push(`- Source report: \`${REPORT}\``);
 out.push(`- Total files impacted: ${sorted.length}`);
 out.push("");
 out.push("## Prioritized list");
@@ -72,5 +76,5 @@ for (const x of sorted) {
 }
 out.push("");
 
-writeFileSync(resolve(ROOT, "rg_n_safety_backlog.md"), out.join("\n"), "utf8");
+writeFileSync(resolve(ROOT, BACKLOG), out.join("\n"), "utf8");
 console.log("OK_RG_N_TRIAGE_WRITTEN rg_n_safety_backlog.md");

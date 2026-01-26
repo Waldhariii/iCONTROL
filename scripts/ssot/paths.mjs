@@ -18,9 +18,19 @@ export function readPaths({ root = process.cwd(), file = DEFAULT_PATHS_FILE } = 
   const jsonText = extractJsonBlock(md);
   const parsed = JSON.parse(jsonText);
 
+  // rg -n safety inventory (report-only). Canonicalized here to avoid path drift.
+  // NOTE: keep this path stable; gates must write/read ONLY via this SSOT entry.
+  const rgNSafetyReport =
+    parsed?.rgNSafetyReport || parsed?.reports?.rgNSafety || "rg_n_safety_report.md";
+  const reports = {
+    ...(parsed.reports || {}),
+    rgNSafety: parsed?.reports?.rgNSafety || rgNSafetyReport,
+  };
+
   return {
+    rgNSafetyReport,
     flags: parsed.flags,
-    reports: parsed.reports || {},
+    reports,
     gates: parsed.gates || {},
     hooks: parsed.hooks || {},
     roots: parsed.roots || [],
