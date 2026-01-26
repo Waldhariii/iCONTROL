@@ -16,10 +16,13 @@ const TARGETS = paths.roots.length ? paths.roots : ["app/src", "modules", "platf
 const EXCLUDES = ["node_modules", "dist", "coverage"]; // coarse excludes
 
 const PATTERNS = [
-  String.raw`\b(localStorage|sessionStorage)\.setItem\s*\(`,
-  String.raw`\bfs\.(?:writeFileSync|writeFile|appendFile|appendFileSync)\s*\(`,
-  String.raw`\baxios\.(?:post|put|patch|delete)\s*\(`,
-  String.raw`\bfetch\s*\([^)]*\bmethod\s*:\s*"(?:POST|PUT|PATCH|DELETE)"`,
+  String.raw`\b(?:window\.)?(localStorage|sessionStorage)\.(?:setItem|removeItem|clear)\s*\(`,
+  String.raw`\bdocument\.cookie\s*=`,
+  String.raw`\bindexedDB\b[\s\S]*?\.(?:put|add|delete|clear)\s*\(`,
+  String.raw`\bfs\.(?:writeFileSync|writeFile|appendFile|appendFileSync|renameSync|rename|rmSync|rm|unlinkSync|unlink)\s*\(`,
+  String.raw`\bfetch\s*\([\s\S]*?\{[\s\S]*?\bmethod\s*:\s*(?:"(?:POST|PUT|PATCH|DELETE)"|[A-Za-z_][A-Za-z0-9_]*)(?![A-Za-z0-9_])`,
+  String.raw`\bnavigator\.sendBeacon\s*\(`,
+  String.raw`\baxios\.(?:post|put|patch|delete|request)\s*\(`,
   String.raw`\b(save|write|persist|upsert|insert|update|delete)[A-Za-z0-9_]*\s*\(`,
 ];
 

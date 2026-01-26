@@ -54,7 +54,23 @@ function parseCoverageFiles(s) {
   return [...files];
 }
 
-const top = parseSurfaceTop(surface).sort((a,b)=>b.count-a.count);
+function isForbiddenPath(p) {
+  const lower = String(p || "").toLowerCase();
+  if (lower.includes("/test/") || lower.includes("/tests/")) return true;
+  if (lower.includes("/__tests__/")) return true;
+  if (lower.includes("/__mocks__/")) return true;
+  if (lower.includes("/mocks/")) return true;
+  if (lower.includes("/fixtures/")) return true;
+  if (lower.includes("/__fixtures__/")) return true;
+  if (lower.includes("/__snapshots__/")) return true;
+  if (/\.(test|spec)\.[cm]?[jt]sx?$/.test(lower)) return true;
+  if (lower.includes(".contract.test.")) return true;
+  return false;
+}
+
+const top = parseSurfaceTop(surface)
+  .filter((x) => !isForbiddenPath(x.file))
+  .sort((a, b) => b.count - a.count);
 const covFiles = new Set(parseCoverageFiles(coverage));
 
 function bucket(file) {
