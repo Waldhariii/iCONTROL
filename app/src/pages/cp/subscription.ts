@@ -10,8 +10,9 @@ import { createDataTable, type TableColumn } from "/src/core/ui/dataTable";
 import { createKpiStrip } from "/src/core/ui/kpi";
 import { createBarChart } from "/src/core/ui/charts";
 import { createEmptyStateCard } from "/src/core/ui/emptyState";
-import { createGovernanceFooter, createTwoColumnLayout, mapSafeMode } from "./_shared/cpLayout";
+import { createGovernanceFooter, createTwoColumnLayout, createDemoDataBanner, mapSafeMode } from "./_shared/cpLayout";
 import { isCpDemoEnabled } from "./_shared/cpDemo";
+import { formatDate } from "/src/core/utils/dateFormat";
 import { getSafeMode } from "../../../../modules/core-system/ui/frontend-ts/pages/_shared/safeMode";
 
 type PlanRow = { plan: string; status: "ACTIVE" | "TRIAL" | "PAST_DUE"; mrr: string; tenants: number };
@@ -35,8 +36,8 @@ export function renderSubscription(root: HTMLElement): void {
   const safeModeValue = mapSafeMode(getSafeMode());
   root.innerHTML = coreBaseStyles();
   const { shell, content } = createPageShell({
-    title: "Subscriptions",
-    subtitle: "Plans, revenus et historique (lecture seule)",
+    title: "Abonnements",
+    subtitle: "Plans et facturation",
     safeMode: safeModeValue,
     statusBadge: { label: "GOUVERNÉ", tone: "info" }
   });
@@ -44,6 +45,8 @@ export function renderSubscription(root: HTMLElement): void {
   const plans = isCpDemoEnabled() ? DEMO_PLANS : DEMO_PLANS;
   const payments = isCpDemoEnabled() ? DEMO_PAYMENTS : DEMO_PAYMENTS;
 
+  const demoBanner = createDemoDataBanner();
+  if (demoBanner) content.appendChild(demoBanner);
   const kpis = createKpiStrip([
     { label: "MRR", value: "$120,500", tone: "ok" },
     { label: "ARR", value: "$1.44M", tone: "info" },
@@ -92,7 +95,7 @@ export function renderSubscription(root: HTMLElement): void {
     description: "Lecture seule"
   });
   const paymentColumns: TableColumn<PaymentRow>[] = [
-    { key: "date", label: "Date", sortable: true },
+    { key: "date", label: "Date", sortable: true, render: (v) => formatDate(String(v)) },
     { key: "amount", label: "Montant", sortable: true },
     { key: "status", label: "Statut", sortable: true, render: (v) => createBadge(String(v), v === "PAID" ? "ok" : v === "FAILED" ? "err" : "warn") },
     { key: "ref", label: "Ref", sortable: true }
