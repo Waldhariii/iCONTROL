@@ -103,15 +103,15 @@ export function renderActivationPage(mount: HTMLElement) {
             <label style="display:block; font-size:13px; margin-bottom:6px;">Clé d’activation</label>
             <input id="act_key" value="${state.key}"
               placeholder="ex: IC-PRO-XXXX-YYYY-ZZZZ"
-              style="width:100%; padding:10px; border:1px solid #3333; border-radius:10px;" />
+              style="width:100%; padding:10px; border:1px solid var(--ic-border); border-radius:10px;" />
           </div>
-          <button id="act_apply" style="padding:10px 14px; border-radius:10px; border:1px solid #3333;">Appliquer</button>
-          <button id="act_clear" style="padding:10px 14px; border-radius:10px; border:1px solid #3333;">Revenir à FREE</button>
-          <button id="act_back" style="padding:10px 14px; border-radius:10px; border:1px solid #3333;">Retour Dashboard</button>
+          <button id="act_apply" style="padding:10px 14px; border-radius:10px; border:1px solid var(--ic-border);">Appliquer</button>
+          <button id="act_clear" style="padding:10px 14px; border-radius:10px; border:1px solid var(--ic-border);">Revenir à FREE</button>
+          <button id="act_back" style="padding:10px 14px; border-radius:10px; border:1px solid var(--ic-border);">Retour Dashboard</button>
         </div>
 
         ${state.status !== "idle" ? `
-          <div style="margin-top:12px; padding:10px; border-radius:10px; border:1px solid #3333;">
+          <div style="margin-top:12px; padding:10px; border-radius:10px; border:1px solid var(--ic-border);">
             <b>${state.status.toUpperCase()}</b>
             ${state.message ? `<div style="margin-top:6px; opacity:0.85;">${state.message}</div>` : ""}
           </div>
