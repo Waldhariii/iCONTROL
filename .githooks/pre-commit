@@ -2,6 +2,8 @@
 set -euo pipefail
 ./scripts/audit/audit-no-leaks.zsh >/dev/null
 npm -s run -S gate:ssot:paths || true
+npm -s run -S gate:gates:sanity || true
+npm -s run -S gate:routing:ssot:report
 npm -s run -S gate:write-gateway-coverage || true
 npm -s run -S gate:write-surface-map || true
 npm -s run -S gate:ui-inline-drift

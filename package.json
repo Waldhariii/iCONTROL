@@ -72,6 +72,9 @@
     "gate:write-gateway-coverage": "node scripts/gates/gate-write-gateway-coverage.mjs",
     "gate:write-surface-map": "node scripts/gates/gate-write-surface-map.mjs",
     "gate:ssot:paths": "node ./scripts/gates/gate-ssot-paths.mjs",
+    "gate:routing:ssot": "node scripts/gates/gate-routing-ssot.mjs",
+    "gate:routing:ssot:report": "node scripts/gates/gate-routing-ssot.mjs || true",
+    "gate:gates:sanity": "node scripts/gates/gate-gates-sanity.mjs",
     "gate:rg-n-safety": "node ./scripts/gates/gate-rg-n-safety.mjs",
     "gate:rg-n-safety:triage": "node scripts/gates/gate-rg-n-safety-triage.mjs",
     "gate:write-surface-triage": "node scripts/gates/gate-write-surface-triage.mjs"
