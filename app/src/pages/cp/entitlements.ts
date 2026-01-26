@@ -11,7 +11,7 @@ import { createDataTable, type TableColumn } from "/src/core/ui/dataTable";
 import { createEmptyStateCard } from "/src/core/ui/emptyState";
 import { createKpiStrip } from "/src/core/ui/kpi";
 import { createDonutChart } from "/src/core/ui/charts";
-import { createGovernanceFooter, createTwoColumnLayout, mapSafeMode } from "./_shared/cpLayout";
+import { createGovernanceFooter, createTwoColumnLayout, createDemoDataBanner, mapSafeMode } from "./_shared/cpLayout";
 import { isCpDemoEnabled } from "./_shared/cpDemo";
 import { getSafeMode } from "../../../../modules/core-system/ui/frontend-ts/pages/_shared/safeMode";
 
@@ -39,13 +39,15 @@ export function renderEntitlements(root: HTMLElement): void {
   const safeModeValue = mapSafeMode(getSafeMode());
   root.innerHTML = coreBaseStyles();
   const { shell, content } = createPageShell({
-    title: "Entitlements",
-    subtitle: "Gouvernance des entitlements — plans, modules, quotas",
+    title: "Droits",
+    subtitle: "Plans, modules et quotas",
     safeMode: safeModeValue,
     statusBadge: { label: "GOUVERNÉ", tone: "info" }
   });
 
   const data = isCpDemoEnabled() ? DEMO_ENTITLEMENTS : DEMO_ENTITLEMENTS;
+  const demoBanner = createDemoDataBanner();
+  if (demoBanner) content.appendChild(demoBanner);
   const kpis = createKpiStrip([
     { label: "Total", value: String(data.length), tone: "info" },
     { label: "Actifs", value: String(data.filter((e) => e.status === "ACTIVE").length), tone: "ok" },
@@ -103,7 +105,7 @@ export function renderEntitlements(root: HTMLElement): void {
       { key: "key", label: "Entitlement", sortable: true },
       { key: "plan", label: "Plan", sortable: true, render: (v) => createBadge(String(v), "neutral") },
       { key: "status", label: "Statut", sortable: true, render: (v) => createBadge(String(v), v === "ACTIVE" ? "ok" : v === "EXPIRED" ? "err" : "warn") },
-      { key: "owner", label: "Owner", sortable: true },
+      { key: "owner", label: "Propriétaire", sortable: true },
       { key: "expiresAt", label: "Expiration", sortable: true }
     ];
 
@@ -139,9 +141,9 @@ export function renderEntitlements(root: HTMLElement): void {
     description: "Lecture agrégée (audit visible)"
   });
   chartBody.appendChild(createDonutChart([
-    { label: "Actifs", value: data.filter((e) => e.status === "ACTIVE").length, color: "#4ec9b0" },
-    { label: "Inactifs", value: data.filter((e) => e.status === "INACTIVE").length, color: "#f59e0b" },
-    { label: "Expirés", value: data.filter((e) => e.status === "EXPIRED").length, color: "#f48771" }
+    { label: "Actifs", value: data.filter((e) => e.status === "ACTIVE").length, color: "var(--ic-success)" },
+    { label: "Inactifs", value: data.filter((e) => e.status === "INACTIVE").length, color: "var(--ic-warn)" },
+    { label: "Expirés", value: data.filter((e) => e.status === "EXPIRED").length, color: "var(--ic-error)" }
   ]));
   content.appendChild(chartCard);
 
@@ -166,7 +168,7 @@ function createDetailsPanel(entitlement: EntitlementRow | null): HTMLElement {
   body.appendChild(createRow("Entitlement", entitlement.key));
   body.appendChild(createRow("Plan", entitlement.plan));
   body.appendChild(createRow("Statut", entitlement.status));
-  body.appendChild(createRow("Owner", entitlement.owner));
+  body.appendChild(createRow("Propriétaire", entitlement.owner));
   body.appendChild(createRow("Scope", entitlement.scope));
   body.appendChild(createRow("Expiration", entitlement.expiresAt));
 
