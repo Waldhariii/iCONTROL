@@ -4,6 +4,7 @@
 # Objectif: isoler/trier le bruit du working tree sans casser SSOT/gates
 # =========================================================
 set -euo pipefail
+HOME_ROOT="${HOME%/*}"
 REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 export LC_ALL=C
 

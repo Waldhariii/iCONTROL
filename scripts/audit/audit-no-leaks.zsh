@@ -9,7 +9,7 @@ TMP="$REPORT_DIR/.tmp_audit_${NOW}.md"
 
 mkdir -p "$REPORT_DIR"
 
-# Important: exclusions must avoid self-match + reports + deps
+# Important: exclusions must avoid self-match + reports + deps + utility scripts
 EXCL=(
   --glob '!**/_REPORTS/**'
   --glob '!**/node_modules/**'
@@ -20,6 +20,9 @@ EXCL=(
   --glob '!**/dist/**'
   --glob '!**/target/**'
   --glob '!**/gen/**'
+  --glob '!**/.max-phases.sh'
+  --glob '!**/.run-max-phases-validation.sh'
+  --glob '!**/.triage-working-tree.sh'
 )
 
 # Build legacy token without writing it contiguously in this file
