@@ -28,7 +28,6 @@ export function readPaths({ root = process.cwd(), file = DEFAULT_PATHS_FILE } = 
   };
 
   return {
-    rgNSafetyReport,
     flags: parsed.flags,
     reports,
     gates: parsed.gates || {},

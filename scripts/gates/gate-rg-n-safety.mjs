@@ -6,9 +6,18 @@ import { readPaths } from "../ssot/paths.mjs";
 
 
 const ROOT = process.cwd();
-const paths = (() => { try { return readPaths(); } catch { return null; } })();
-const REPORT = resolve(ROOT, (paths?.rgNSafetyReport || paths?.reports?.rgNSafety || "rg_n_safety_report.md"));
 
+const paths = (() => {
+  try {
+    return readPaths();
+  } catch {
+    return null;
+  }
+})();
+const REPORT = resolve(
+  ROOT,
+  paths?.reports?.rgNSafety || paths?.rgNSafetyReport || "rg_n_safety_report.md"
+);
 // We only scan scripts/ (not src runtime). This is governance hardening scope.
 const TARGETS = ["scripts"];
 const PATTERN = String.raw`\brg\s+-n\b`;
