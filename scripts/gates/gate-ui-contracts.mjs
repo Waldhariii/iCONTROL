@@ -2,45 +2,52 @@
 import fs from "node:fs";
 import path from "node:path";
 import { execSync } from "node:child_process";
-import { createAuditHook } from "../../../app/src/core/write-gateway/auditHook";
-import { createLegacyAdapter } from "../../../app/src/core/write-gateway/adapters/legacyAdapter";
-import { createPolicyHook } from "../../../app/src/core/write-gateway/policyHook";
-import { createCorrelationId, createWriteGateway } from "../../../app/src/core/write-gateway/writeGateway";
-import { getLogger } from "../../../app/src/core/utils/logger";
-import { isEnabled } from "../../../app/src/policies/feature_flags.enforce";
 
-/** WRITE_GATEWAY_UI_CONTRACTS — shadow scaffold (legacy-first; NO-OP adapter). */
-const __wsLogger = getLogger("WRITE_GATEWAY_UI_CONTRACTS");
-let __wsGateway = null;
+/** WRITE_GATEWAY_UI_CONTRACTS — standalone gate (no TS dependencies). */
 
-function __resolveWsGateway() {
-  if (__wsGateway) return __wsGateway;
-  __wsGateway = createWriteGateway({
-    policy: createPolicyHook(),
-    audit: createAuditHook(),
-    adapter: createLegacyAdapter((cmd) => {
-      void cmd;
-      return { status: "SKIPPED", correlationId: cmd.correlationId };
-    }, "gateUiContractsFsShadowNoop"),
-    safeMode: { enabled: true },
-  });
-  return __wsGateway;
+// Minimal logger replacement (pure JS)
+function __logWarn(prefix, message, meta = {}) {
+  const metaStr = Object.keys(meta).length ? ` ${JSON.stringify(meta)}` : "";
+  console.warn(`WARN_${prefix}: ${message}${metaStr}`);
 }
 
-const __isWsShadowEnabled = () => {
+const ROOT = process.cwd();
+
+// Minimal feature flag check (reads JSON directly, no TS imports)
+function __isFeatureFlagEnabled(flagName) {
   try {
+    // Try runtime flags first (if available)
     const rt = globalThis;
     const decisions = rt?.__FEATURE_DECISIONS__ || rt?.__featureFlags?.decisions;
-    if (Array.isArray(decisions)) return isEnabled(decisions, "gate_ui_contracts_fs_shadow");
+    if (Array.isArray(decisions)) {
+      // Simple decision array check (format: [{ flag: "name", enabled: true }])
+      const decision = decisions.find(d => d.flag === flagName);
+      if (decision) return decision.enabled === true;
+    }
     const flags = rt?.__FEATURE_FLAGS__ || rt?.__featureFlags?.flags;
-    const state = flags?.["gate_ui_contracts_fs_shadow"]?.state;
-    return state === "ON" || state === "ROLLOUT";
+    if (flags && flags[flagName]) {
+      const state = flags[flagName].state;
+      return state === "ON" || state === "ROLLOUT";
+    }
+
+    // Fallback: read from SSOT JSON file
+    const flagsPath = path.join(ROOT, "app/src/policies/feature_flags.default.json");
+    if (fs.existsSync(flagsPath)) {
+      const flagsJson = JSON.parse(fs.readFileSync(flagsPath, "utf8"));
+      const flag = flagsJson.flags?.[flagName];
+      if (flag) {
+        const state = flag.state;
+        return state === "ON" || state === "ROLLOUT";
+      }
+    }
+    return false;
   } catch {
     return false;
   }
-};
+}
 
-const ROOT = process.cwd();
+const __isWsShadowEnabled = () => __isFeatureFlagEnabled("gate_ui_contracts_fs_shadow");
+
 const REPORTS_DIR = path.join(ROOT, "_REPORTS");
 const NOW = new Date().toISOString().replace(/[:.]/g, "-");
 const REPORT_PATH = path.join(REPORTS_DIR, `ui-contracts-report-${NOW}.md`);
@@ -61,40 +68,23 @@ function writeFile(p, s) {
   ensureDir(path.dirname(p));
   // Legacy-first FS write (best-effort; continue on error)
   let __wrote = false;
-  let __bytes = 0;
   try {
     fs.writeFileSync(p, s, "utf8");
     __wrote = true;
-    // approximate bytes if content is a string literal/variable (best-effort)
-  } catch {}
+  } catch (err) {
+    __logWarn("GATE_UI_CONTRACTS_FS_WRITE", `Failed to write ${p}: ${String(err)}`);
+  }
 
   // Shadow (NO-OP) — uniquement si flag ON/ROLLOUT
+  // NOTE: Shadow gateway removed (standalone gate). If flag enabled, log only.
   if (__wrote && __isWsShadowEnabled()) {
-    const correlationId = createCorrelationId("uiContracts");
-    const cmd = {
+    const correlationId = `uiContracts-${Date.now()}-${Math.random().toString(36).substring(7)}`;
+    __logWarn("WRITE_GATEWAY_UI_CONTRACTS_SHADOW", "Shadow write gateway disabled in standalone gate", {
       kind: "GATE_UI_CONTRACTS_FS_WRITE_SHADOW",
-      tenantId: "public",
-      correlationId,
-      payload: { path: "gate-ui-contracts", bytes: __bytes },
-      meta: { shadow: true, source: "gate-ui-contracts.mjs" },
-    };
-
-    try {
-      const res = __resolveWsGateway().execute(cmd);
-      if (res.status !== "OK" && res.status !== "SKIPPED") {
-        __wsLogger.warn("WRITE_GATEWAY_UI_CONTRACTS_FALLBACK", {
-          kind: cmd.kind,
-          correlation_id: correlationId,
-          status: res.status,
-        });
-      }
-    } catch (err) {
-      __wsLogger.warn("WRITE_GATEWAY_UI_CONTRACTS_ERROR", {
-        kind: cmd.kind,
-        correlation_id: correlationId,
-        error: String(err),
-      });
-    }
+      correlation_id: correlationId,
+      path: "gate-ui-contracts",
+      note: "Shadow gateway requires TS imports; gate is now standalone. Enable shadow via separate mechanism if needed.",
+    });
   }
 }
 
