@@ -40,8 +40,8 @@ export function renderLoginThemeEditor(root: HTMLElement): void {
   const readOnly = isSafeMode() || !(role === "SYSADMIN" || role === "ADMIN");
 
   const { shell, content } = createPageShell({
-    title: "Login Theme Editor",
-    subtitle: "Tokens visuels et overrides runtime pour /cp/#/login",
+    title: "Thème de connexion",
+    subtitle: "Apparence de la page de connexion",
     statusBadge: readOnly ? { label: "READ-ONLY", tone: "warn" } : { label: "EDITABLE", tone: "ok" }
   });
 
@@ -602,11 +602,11 @@ function renderPreview(
   const bg = tokens.bgGradient2 || "#0b0f15";
   background.style.cssText = `height:140px; border-radius:12px; border:1px solid #2b3136; background:${bg}; position:relative; overflow:hidden;`;
   const bgLayer = document.createElement("div");
-  bgLayer.style.cssText = `position:absolute; inset:0; background:${tokens.bgGradient0 || \"\"}, ${tokens.bgGradient1 || \"\"}; opacity:0.85;`;
+  bgLayer.style.cssText = `position:absolute; inset:0; background:${tokens.bgGradient0 || ""}, ${tokens.bgGradient1 || ""}; opacity:0.85;`;
   background.appendChild(bgLayer);
 
   const card = document.createElement("div");
-  card.style.cssText = `height:140px; border-radius:${tokens.cardRadius || \"16px\"}; border:${tokens.cardBorder || \"1px solid #2b3136\"}; background:${tokens.cardBg || \"rgba(12,17,23,0.8)\"}; box-shadow:${tokens.cardShadow || \"0 12px 40px rgba(0,0,0,0.4)\"}; display:flex; flex-direction:column; gap:10px; padding:12px;`;
+  card.style.cssText = `height:140px; border-radius:${tokens.cardRadius || "16px"}; border:${tokens.cardBorder || "1px solid #2b3136"}; background:${tokens.cardBg || "rgba(12,17,23,0.8)"}; box-shadow:${tokens.cardShadow || "0 12px 40px rgba(0,0,0,0.4)"}; display:flex; flex-direction:column; gap:10px; padding:12px;`;
   if (effects.metallic.enabled) {
     const intensity = Math.max(0, Math.min(1, effects.metallic.intensity));
     card.style.boxShadow = `${card.style.boxShadow}, 0 0 20px rgba(255,255,255,${0.2 * intensity})`;
@@ -614,13 +614,13 @@ function renderPreview(
 
   const title = document.createElement("div");
   title.textContent = "Admin Login";
-  title.style.cssText = `font-size:12px; color:${tokens.textPrimary || \"#e5e7eb\"};`;
+  title.style.cssText = `font-size:12px; color:${tokens.textPrimary || "#e5e7eb"};`;
   const input = document.createElement("div");
   input.textContent = "Email";
-  input.style.cssText = `padding:6px 10px; border-radius:${tokens.inputBorder ? \"8px\" : \"8px\"}; border:${tokens.inputBorder || \"1px solid #2b3136\"}; background:${tokens.inputBg || \"#11161d\"}; color:${tokens.inputText || \"#e5e7eb\"}; font-size:11px;`;
+  input.style.cssText = `padding:6px 10px; border-radius:${tokens.inputBorder ? "8px" : "8px"}; border:${tokens.inputBorder || "1px solid #2b3136"}; background:${tokens.inputBg || "#11161d"}; color:${tokens.inputText || "#e5e7eb"}; font-size:11px;`;
   const button = document.createElement("div");
   button.textContent = "Connexion";
-  button.style.cssText = `padding:6px 10px; border-radius:8px; background: linear-gradient(135deg, ${tokens.buttonBg0 || \"#4f46e5\"}, ${tokens.buttonBg1 || \"#7c3aed\"}); color:${tokens.buttonText || \"#f8fafc\"}; font-size:11px; text-align:center;`;
+  button.style.cssText = `padding:6px 10px; border-radius:8px; background: linear-gradient(135deg, ${tokens.buttonBg0 || "#4f46e5"}, ${tokens.buttonBg1 || "#7c3aed"}); color:${tokens.buttonText || "#f8fafc"}; font-size:11px; text-align:center;`;
 
   card.appendChild(title);
   card.appendChild(input);
