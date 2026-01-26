@@ -1,6 +1,17 @@
 import { defineConfig } from "vite";
+import path from "path";
+import { fileURLToPath } from "url";
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const enableRuntimeConfigDevMw = process.env.VITE_DEV_RUNTIME_CONFIG_MW === "1";
+
+const VALID_APP_KINDS = new Set(["APP", "CONTROL_PLANE"]);
+const rawAppKind = process.env.VITE_APP_KIND;
+if (!rawAppKind || !VALID_APP_KINDS.has(rawAppKind)) {
+  throw new Error(
+    `VITE_APP_KIND invalide ou absent: \"${rawAppKind}\" (attendu: APP | CONTROL_PLANE).`,
+  );
+}
 
 /* ICONTROL_VITE_RUNTIME_CONFIG_DEV_V1 */
 function icontrolRuntimeConfigDevPlugin() {
@@ -72,9 +83,25 @@ function icontrolRuntimeConfigDevPlugin() {
   };
 }
 
+// Cache Vite séparé pour dev:app et dev:cp lorsqu’ils tournent en parallèle (évite ENOTEMPTY sur deps)
+const isCp = rawAppKind === "CONTROL_PLANE";
+const cacheDir = `node_modules/.vite-${isCp ? "cp" : "app"}`;
+
 export default defineConfig({
+  cacheDir,
   plugins: enableRuntimeConfigDevMw ? [icontrolRuntimeConfigDevPlugin()] : [],
-  server: { port: 5176, strictPort: false },
+  build: {
+    outDir: isCp ? "dist/cp" : "dist/app",
+  },
+  resolve: {
+    alias: { "@config": path.resolve(__dirname, "../config") },
+  },
+  server: {
+    port: 5176,
+    strictPort: false,
+    // Ouvre le navigateur au lancement: /cp/ pour dev:cp, /app/ pour dev:app
+    open: isCp ? "/cp/" : "/app/",
+  },
   preview: { port: 5177, strictPort: false },
   test: {
     include: [
