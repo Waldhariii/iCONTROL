@@ -16,28 +16,30 @@ const TARGETS = paths.roots.length ? paths.roots : ["app/src", "modules", "platf
 const EXCLUDES = ["node_modules", "dist", "coverage"]; // coarse excludes
 
 const PATTERNS = [
-  String.raw`\b(?:window\.)?(localStorage|sessionStorage)\.(?:setItem|removeItem|clear)\s*\(`,
+  // STORAGE
+  String.raw`\b(?:window\.)?(?:localStorage|sessionStorage)\.(?:setItem|removeItem|clear)\s*\(`,
+  // COOKIE
   String.raw`\bdocument\.cookie\s*=`,
-  String.raw`\bindexedDB\b[\s\S]*?\.(?:put|add|delete|clear)\s*\(`,
-  String.raw`\bfs\.(?:writeFileSync|writeFile|appendFile|appendFileSync|renameSync|rename|rmSync|rm|unlinkSync|unlink)\s*\(`,
-  String.raw`\bfetch\s*\([\s\S]*?\{[\s\S]*?\bmethod\s*:\s*(?:"(?:POST|PUT|PATCH|DELETE)"|[A-Za-z_][A-Za-z0-9_]*)(?![A-Za-z0-9_])`,
+  // INDEXEDDB (broad signals; still useful for migration candidates)
+  String.raw`\bindexedDB\b`,
+  // FS (node)
+  String.raw`\bfs\.(?:writeFileSync|writeFile|appendFileSync|appendFile|renameSync|rename|rmSync|rm|unlinkSync|unlink)\s*\(`,
+  // NETWORK write-ish
   String.raw`\bnavigator\.sendBeacon\s*\(`,
   String.raw`\baxios\.(?:post|put|patch|delete|request)\s*\(`,
-  String.raw`\b(save|write|persist|upsert|insert|update|delete)[A-Za-z0-9_]*\s*\(`,
+  // fetch with method hints (still broad)
+  String.raw`\bfetch\s*\(`,
 ];
 
 function runRg(targets) {
   const args = [
-    "-n",
     "--pcre2",
-    "--multiline",
-    "--multiline-dotall",
     "--no-heading",
+    "--with-filename",
+    "--line-number",
     "--color",
     "never",
     ...PATTERNS.flatMap((p) => ["-e", p]),
-    ...targets,
-    ...EXCLUDES.map((p) => `-g!${p}/**`),
   ];
   try {
     return execFileSync("rg", args, { cwd: ROOT, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
