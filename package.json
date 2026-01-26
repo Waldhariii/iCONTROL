@@ -29,6 +29,7 @@
     "where:login": "node -e \"console.log('APP  : http://127.0.0.1:5176/app/#/login'); console.log('CP   : http://127.0.0.1:5177/cp/#/login');\"",
     "build:app": "VITE_APP_KIND=APP npm --prefix app run build -- --base /app/ --outDir dist/app",
     "build:cp": "VITE_APP_KIND=CONTROL_PLANE npm --prefix app run build -- --base /cp/ --outDir dist/cp",
+    "build": "echo 'ERR: Use build:app, build:cp, or build:ssot instead of build' && exit 1",
     "build:ssot": "npm run build:app && npm run build:cp",
     "server:build": "node server/build.mjs",
     "server:dev": "node server/build.mjs --watch --run",
