@@ -1,4 +1,11 @@
 import { navigate } from "./runtime/navigate";
+import { isEnabled } from "./policies/feature_flags.enforce";
+import { createAuditHook } from "./core/write-gateway/auditHook";
+import { createLegacyAdapter } from "./core/write-gateway/adapters/legacyAdapter";
+import { createPolicyHook } from "./core/write-gateway/policyHook";
+import { createCorrelationId, createWriteGateway } from "./core/write-gateway/writeGateway";
+import { getLogger } from "./core/utils/logger";
+import { getTenantId } from "./core/runtime/tenant";
 /**
  * localAuth.ts — bootstrap auth for dev/local use
  * - No network
@@ -41,22 +48,129 @@ function getCookiePath(scope: AuthScope): string {
   return scope === "CP" ? "/cp" : "/app";
 }
 
+// WRITE_GATEWAY_LOCALAUTH_COOKIE — shadow scaffold (legacy-first; NO-OP adapter)
+const __cookieLogger = getLogger("WRITE_GATEWAY_LOCALAUTH_COOKIE");
+let __cookieGateway: ReturnType<typeof createWriteGateway> | null = null;
+
+function __resolveCookieGateway() {
+  if (__cookieGateway) return __cookieGateway;
+  __cookieGateway = createWriteGateway({
+    policy: createPolicyHook(),
+    audit: createAuditHook(),
+    adapter: createLegacyAdapter((cmd) => {
+      void cmd;
+      return { status: "SKIPPED", correlationId: cmd.correlationId };
+    }, "localAuthCookieShadowNoop"),
+    safeMode: { enabled: true },
+  });
+  return __cookieGateway;
+}
+
+const __isLocalAuthCookieShadowEnabled = (): boolean => {
+  try {
+    const rt: any = globalThis as any;
+    const decisions = rt?.__FEATURE_DECISIONS__ || rt?.__featureFlags?.decisions;
+    if (Array.isArray(decisions)) return isEnabled(decisions, "localauth_cookie_shadow");
+    const flags = rt?.__FEATURE_FLAGS__ || rt?.__featureFlags?.flags;
+    const state = flags?.["localauth_cookie_shadow"]?.state;
+    return state === "ON" || state === "ROLLOUT";
+  } catch {
+    return false;
+  }
+};
+
 function setSessionCookie(scope: AuthScope): void {
+  const key = getSessionKey(scope);
+  const path = getCookiePath(scope);
+  let wrote = false;
+  let cookie = "";
   try {
     if (typeof document === "undefined") return;
-    const key = getSessionKey(scope);
-    const path = getCookiePath(scope);
-    document.cookie = `${key}=1; Path=${path}; SameSite=Strict${window.location.protocol === "https:" ? "; Secure" : ""}`;
-  } catch {}
+    cookie = `${key}=1; Path=${path}; SameSite=Strict${window.location.protocol === "https:" ? "; Secure" : ""}`;
+    document.cookie = cookie;
+    wrote = true;
+  } catch {
+    return;
+  }
+
+  // Shadow (NO-OP) — uniquement si flag ON/ROLLOUT
+  if (!wrote || !__isLocalAuthCookieShadowEnabled()) return;
+
+  const tenantId = (typeof getTenantId === "function" ? getTenantId() : "public") || "public";
+  const correlationId = createCorrelationId("localauth_cookie");
+  const cmd = {
+    kind: "LOCALAUTH_COOKIE_WRITE_SHADOW",
+    tenantId,
+    correlationId,
+    payload: { key, path, bytes: cookie.length, op: "SET" },
+    meta: { shadow: true, source: "localAuth.ts" },
+  };
+
+  try {
+    const res = __resolveCookieGateway().execute(cmd as any);
+    if (res.status !== "OK" && res.status !== "SKIPPED") {
+      __cookieLogger.warn("WRITE_GATEWAY_LOCALAUTH_COOKIE_FALLBACK", {
+        kind: cmd.kind,
+        tenant_id: tenantId,
+        correlation_id: correlationId,
+        status: res.status,
+      });
+    }
+  } catch (err) {
+    __cookieLogger.warn("WRITE_GATEWAY_LOCALAUTH_COOKIE_ERROR", {
+      kind: cmd.kind,
+      tenant_id: tenantId,
+      correlation_id: correlationId,
+      error: String(err),
+    });
+  }
 }
 
 function clearSessionCookie(scope: AuthScope): void {
+  const key = getSessionKey(scope);
+  const path = getCookiePath(scope);
+  let wrote = false;
+  let cookie = "";
   try {
     if (typeof document === "undefined") return;
-    const key = getSessionKey(scope);
-    const path = getCookiePath(scope);
-    document.cookie = `${key}=; Path=${path}; Max-Age=0; SameSite=Strict${window.location.protocol === "https:" ? "; Secure" : ""}`;
-  } catch {}
+    cookie = `${key}=; Path=${path}; Max-Age=0; SameSite=Strict${window.location.protocol === "https:" ? "; Secure" : ""}`;
+    document.cookie = cookie;
+    wrote = true;
+  } catch {
+    return;
+  }
+
+  // Shadow (NO-OP) — uniquement si flag ON/ROLLOUT
+  if (!wrote || !__isLocalAuthCookieShadowEnabled()) return;
+
+  const tenantId = (typeof getTenantId === "function" ? getTenantId() : "public") || "public";
+  const correlationId = createCorrelationId("localauth_cookie");
+  const cmd = {
+    kind: "LOCALAUTH_COOKIE_WRITE_SHADOW",
+    tenantId,
+    correlationId,
+    payload: { key, path, bytes: cookie.length, op: "CLEAR" },
+    meta: { shadow: true, source: "localAuth.ts" },
+  };
+
+  try {
+    const res = __resolveCookieGateway().execute(cmd as any);
+    if (res.status !== "OK" && res.status !== "SKIPPED") {
+      __cookieLogger.warn("WRITE_GATEWAY_LOCALAUTH_COOKIE_FALLBACK", {
+        kind: cmd.kind,
+        tenant_id: tenantId,
+        correlation_id: correlationId,
+        status: res.status,
+      });
+    }
+  } catch (err) {
+    __cookieLogger.warn("WRITE_GATEWAY_LOCALAUTH_COOKIE_ERROR", {
+      kind: cmd.kind,
+      tenant_id: tenantId,
+      correlation_id: correlationId,
+      error: String(err),
+    });
+  }
 }
 
 // ICONTROL_LOCALAUTH_STORAGE_V1: test-safe storage fallback without core deps
@@ -121,16 +235,64 @@ export function isLoggedIn(scope: AuthScope = resolveAuthScope()): boolean {
   return !!getSession(scope);
 }
 
-/**
- * Local bootstrap users (temporary).
- * Replace later with platform-services/security/auth.
- */
-const BOOTSTRAP_USERS: Record<string, { password: string; role: Role }> = {
+type BootstrapUser = { username: string; password: string; role: Role };
+
+function normalizeRole(input: unknown): Role | null {
+  const r = String(input || "").toUpperCase();
+  if (r === "USER" || r === "ADMIN" || r === "SYSADMIN" || r === "DEVELOPER") return r as Role;
+  return null;
+}
+
+function coerceUsers(input: unknown): Record<string, { password: string; role: Role }> {
+  if (!input) return {};
+  if (Array.isArray(input)) {
+    return input.reduce<Record<string, { password: string; role: Role }>>((acc, u) => {
+      const username = typeof u?.username === "string" ? u.username.trim() : "";
+      const password = typeof u?.password === "string" ? u.password : "";
+      const role = normalizeRole(u?.role);
+      if (username && password && role) acc[username] = { password, role };
+      return acc;
+    }, {});
+  }
+  if (typeof input === "object") {
+    return Object.entries(input as Record<string, unknown>).reduce<Record<string, { password: string; role: Role }>>(
+      (acc, [username, value]) => {
+        const password = typeof (value as any)?.password === "string" ? (value as any).password : "";
+        const role = normalizeRole((value as any)?.role);
+        if (username && password && role) acc[username] = { password, role };
+        return acc;
+      },
+      {},
+    );
+  }
+  return {};
+}
+
+const FALLBACK_BOOTSTRAP: Record<string, { password: string; role: Role }> = {
+  master: { password: "1234", role: "SYSADMIN" },
+  admin: { password: "admin", role: "ADMIN" },
   sysadmin: { password: "sysadmin", role: "SYSADMIN" },
   developer: { password: "developer", role: "DEVELOPER" },
-  admin: { password: "admin", role: "ADMIN" },
-  Waldhari: { password: "Dany123456@", role: "DEVELOPER" },
 };
+
+function loadBootstrapUsers(): Record<string, { password: string; role: Role }> {
+  let out: Record<string, { password: string; role: Role }> = {};
+  try {
+    const w = globalThis as any;
+    if (w?.__ICONTROL_BOOTSTRAP_USERS__) {
+      out = coerceUsers(w.__ICONTROL_BOOTSTRAP_USERS__);
+    }
+  } catch {}
+  if (Object.keys(out).length > 0) return out;
+  try {
+    const raw = String((import.meta as any)?.env?.VITE_BOOTSTRAP_USERS || "");
+    if (raw) out = coerceUsers(JSON.parse(raw));
+  } catch {}
+  if (Object.keys(out).length > 0) return out;
+  return FALLBACK_BOOTSTRAP;
+}
+
+const BOOTSTRAP_USERS = loadBootstrapUsers();
 
 export function authenticate(
   username: string,

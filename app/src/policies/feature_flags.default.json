@@ -41,6 +41,12 @@
     },
     "file_subscription_store_node_fs_shadow": {
       "state": "OFF"
+    },
+    "undefined": {
+      "state": "OFF"
+    },
+    "localauth_cookie_shadow": {
+      "state": "OFF"
     }
   }
 }
