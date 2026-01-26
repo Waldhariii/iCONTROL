@@ -10,9 +10,11 @@ import { createBadge } from "/src/core/ui/badge";
 import { createErrorState } from "/src/core/ui/errorState";
 import { createCardSkeleton } from "/src/core/ui/skeletonLoader";
 import { createKpiStrip } from "/src/core/ui/kpi";
-import { createLineChart, createBarChart, createDonutChart } from "/src/core/ui/charts";
-import { createGovernanceFooter, createTwoColumnLayout } from "./_shared/cpLayout";
+import { createLineChart, createAreaChart, createBarChart, createDonutChart } from "/src/core/ui/charts";
+import { createKpiCard } from "/src/core/ui/kpi";
+import { createGovernanceFooter, createDemoDataBanner } from "./_shared/cpLayout";
 import { demoSeries } from "./_shared/cpDemo";
+import { formatRelative } from "/src/core/utils/dateFormat";
 
 type DashboardStatus = "OPERATIONNEL" | "DEGRADE" | "INCIDENT";
 
@@ -49,12 +51,14 @@ export function renderDashboard(root: HTMLElement): void {
     root.innerHTML = coreBaseStyles();
     const safeModeValue = mapSafeMode(getSafeMode());
     const { shell, content } = createPageShell({
-      title: "Dashboard",
-      subtitle: "Vue exécutive de la santé du Control Plane",
+      title: "Tableau de bord",
+      subtitle: "Aperçu",
       safeMode: safeModeValue,
       statusBadge: { label: "CHARGEMENT", tone: "info" }
     });
 
+    const demoBanner = createDemoDataBanner();
+    if (demoBanner) content.appendChild(demoBanner);
     const kpiRow = document.createElement("div");
     kpiRow.style.cssText = "display:grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px;";
     for (let i = 0; i < 4; i += 1) {
@@ -88,14 +92,58 @@ export function renderDashboard(root: HTMLElement): void {
     root.innerHTML = coreBaseStyles();
     const safeModeValue = mapSafeMode(getSafeMode());
     const { shell, content } = createPageShell({
-      title: "Dashboard",
-      subtitle: "Vue exécutive de la santé du Control Plane",
+      title: "Tableau de bord",
+      subtitle: "Aperçu",
       safeMode: safeModeValue,
       statusBadge: {
         label: data.status,
         tone: data.status === "OPERATIONNEL" ? "ok" : data.status === "DEGRADE" ? "warn" : "err"
       }
     });
+
+    const latencyTone = toneFromThresholds(data.kpi.latencyMs, { warn: 250, err: 800 });
+    const cpuTone = toneFromThresholds(data.kpi.cpuPct, { warn: 85, err: 95 });
+    const memTone = toneFromThresholds(data.kpi.memPct, { warn: 85, err: 95 });
+
+    const demoBanner = createDemoDataBanner();
+    if (demoBanner) content.appendChild(demoBanner);
+
+    const toolbar = document.createElement("div");
+    toolbar.style.cssText = "display:flex; align-items:center; gap: 16px; flex-wrap:wrap;";
+    const periodSelect = document.createElement("select");
+    periodSelect.style.cssText = "height:36px; padding:0 12px; border-radius:var(--radius-md,8px); background:var(--ic-inputBg,#111418); border:1px solid var(--ic-border); color:var(--ic-text); font-size:var(--text-sm,12px); cursor:pointer;";
+    periodSelect.innerHTML = "<option>24 heures</option><option selected>Derniers 7 jours</option><option>30 jours</option>";
+    toolbar.appendChild(periodSelect);
+    const tabs = document.createElement("div");
+    tabs.style.cssText = "display:flex; gap:4px; margin-left:8px;";
+    const gen = document.createElement("button");
+    gen.type = "button";
+    gen.textContent = "Général";
+    gen.style.cssText = "padding:6px 14px; border-radius:var(--radius-sm,6px); border:1px solid var(--ic-accent); background:var(--ic-accentBg,rgba(59,130,246,.12)); color:var(--ic-accent); font-size:var(--text-sm); font-weight:600; cursor:pointer;";
+    const det = document.createElement("button");
+    det.type = "button";
+    det.textContent = "Détails";
+    det.style.cssText = "padding:6px 14px; border-radius:var(--radius-sm,6px); border:1px solid transparent; background:transparent; color:var(--ic-mutedText); font-size:var(--text-sm); cursor:pointer;";
+    det.onmouseover = () => { det.style.background = "var(--ic-bgHover)"; };
+    det.onmouseout = () => { det.style.background = "transparent"; };
+    tabs.appendChild(gen);
+    tabs.appendChild(det);
+    toolbar.appendChild(tabs);
+    content.appendChild(toolbar);
+
+    const kpiHeroRow = document.createElement("div");
+    kpiHeroRow.style.cssText = "display:grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px;";
+    const cpuTrend: "up" | "down" | "neutral" = data.kpi.cpuPct > 50 ? "up" : "down";
+    kpiHeroRow.appendChild(createKpiCardWithMiniChart(
+      { label: "CPU", value: `${data.kpi.cpuPct}`, tone: cpuTone, trend: cpuTrend, unit: "%" },
+      demoSeries(10, data.kpi.cpuPct, 15)
+    ));
+    const latTrend: "up" | "down" | "neutral" = data.kpi.latencyMs > 200 ? "up" : "down";
+    kpiHeroRow.appendChild(createKpiCardWithMiniChart(
+      { label: "Latence p95", value: String(data.kpi.latencyMs), tone: latencyTone, trend: latTrend, unit: "ms" },
+      demoSeries(10, data.kpi.latencyMs, 40)
+    ));
+    content.appendChild(kpiHeroRow);
 
     const grid = document.createElement("div");
     grid.style.cssText = `
@@ -104,10 +152,6 @@ export function renderDashboard(root: HTMLElement): void {
       gap: 16px;
       width: 100%;
     `;
-
-    const latencyTone = toneFromThresholds(data.kpi.latencyMs, { warn: 250, err: 800 });
-    const cpuTone = toneFromThresholds(data.kpi.cpuPct, { warn: 85, err: 95 });
-    const memTone = toneFromThresholds(data.kpi.memPct, { warn: 85, err: 95 });
 
     const { card: healthCard, body: healthBody } = createSectionCard({
       title: "Santé système",
@@ -189,44 +233,29 @@ export function renderDashboard(root: HTMLElement): void {
     modulesBody.appendChild(createLastUpdatedRow(data.lastUpdated));
     grid.appendChild(modulesCard);
 
-    const kpis = createKpiStrip([
-      { label: "CPU", value: `${data.kpi.cpuPct}%`, tone: cpuTone },
-      { label: "Latence p95", value: `${data.kpi.latencyMs} ms`, tone: latencyTone },
-      { label: "Alertes (24h)", value: formatNumber(data.kpi.warn24h + data.kpi.err24h), tone: data.kpi.err24h > 0 ? "err" : data.kpi.warn24h > 0 ? "warn" : "ok" },
-      { label: "Modules actifs", value: formatNumber(data.kpi.modulesActive), tone: data.kpi.modulesActive > 0 ? "ok" : "warn" }
-    ]);
-    content.appendChild(kpis);
+    const chartsRow = document.createElement("div");
+    chartsRow.style.cssText = "display:grid; grid-template-columns: minmax(0,2fr) minmax(0,1fr); gap: 16px;";
 
-    content.appendChild(grid);
-
-    const chartsGrid = createTwoColumnLayout();
-
-    const { card: trafficCard, body: trafficBody } = createSectionCard({
-      title: "Trafic API",
+    const { card: consumptionCard, body: consumptionBody } = createSectionCard({
+      title: "Trafic / Consommation API",
       description: "Volume de requêtes (lecture agrégée)"
     });
-    trafficBody.appendChild(createLineChart(demoSeries(14, 120, 40)));
-    chartsGrid.appendChild(trafficCard);
-
-    const { card: perfCard, body: perfBody } = createSectionCard({
-      title: "Performance",
-      description: "Temps de réponse p95 (ms)"
-    });
-    perfBody.appendChild(createBarChart(demoSeries(10, 200, 80)));
-    chartsGrid.appendChild(perfCard);
-
-    content.appendChild(chartsGrid);
+    consumptionBody.appendChild(createAreaChart(demoSeries(14, 120, 40), { width: 480, height: 180 }));
+    chartsRow.appendChild(consumptionCard);
 
     const { card: incidentsCard, body: incidentsBody } = createSectionCard({
-      title: "Incidents & Tickets",
-      description: "Distribution des incidents (24h)"
+      title: "Incidents & Santé",
+      description: "Distribution OK / WARN / ERR (24h)"
     });
     incidentsBody.appendChild(createDonutChart([
-      { label: "OK", value: 62, color: "#4ec9b0" },
-      { label: "WARN", value: 28, color: "#f59e0b" },
-      { label: "ERR", value: 10, color: "#f48771" }
+      { label: "OK", value: 62, color: "var(--ic-success)" },
+      { label: "WARN", value: 28, color: "var(--ic-warn)" },
+      { label: "ERR", value: 10, color: "var(--ic-error)" }
     ]));
-    content.appendChild(incidentsCard);
+    chartsRow.appendChild(incidentsCard);
+
+    content.appendChild(chartsRow);
+    content.appendChild(grid);
 
     const { card: eventsCard, body: eventsBody } = createSectionCard({
       title: "Événements récents",
@@ -247,12 +276,16 @@ export function renderDashboard(root: HTMLElement): void {
     eventsBody.appendChild(createEventsTable(data.recentEvents));
     content.appendChild(eventsCard);
 
-    content.appendChild(createGovernanceFooter());
+    content.appendChild(createGovernanceFooter(data.lastUpdated));
     root.appendChild(shell);
   };
 
   renderLoading();
-  getDashboardData()
+  const dataPromise = getDashboardData();
+  const timeoutPromise = new Promise<never>((_, reject) =>
+    setTimeout(() => reject(new Error("timeout")), 8000)
+  );
+  Promise.race([dataPromise, timeoutPromise])
     .then(({ data, errors }) => {
       renderData(data, errors);
     })
@@ -289,8 +322,22 @@ function createKpiRow(label: string, value: string, tone?: "ok" | "warn" | "err"
 function createLastUpdatedRow(value: string): HTMLElement {
   const row = document.createElement("div");
   row.style.cssText = "margin-top: 6px; font-size: 11px; color: var(--ic-mutedText, #a7b0b7);";
-  row.textContent = `Dernière mise à jour: ${new Date(value).toLocaleString("fr-CA")}`;
+  row.textContent = `Dernière mise à jour: ${formatRelative(value)}`;
   return row;
+}
+
+/** KPI type Température/Pression: valeur hero + tendance + mini area en arrière-plan (visuel Aperçu). */
+function createKpiCardWithMiniChart(
+  opts: { label: string; value: string; tone?: "ok" | "warn" | "err" | "info" | "neutral"; trend?: "up" | "down" | "neutral"; unit?: string },
+  chartData: number[]
+): HTMLElement {
+  const card = createKpiCard({ ...opts, hero: true });
+  card.style.position = "relative";
+  const chartWrap = document.createElement("div");
+  chartWrap.style.cssText = "position:absolute; bottom:10px; left:12px; right:12px; height:40px; opacity:0.35; pointer-events:none; overflow:hidden; border-radius:var(--radius-sm,6px);";
+  chartWrap.appendChild(createLineChart(chartData, { width: 400, height: 40 }));
+  card.appendChild(chartWrap);
+  return card;
 }
 
 function toneFromThresholds(value: number, thresholds: { warn: number; err: number }): "ok" | "warn" | "err" {
@@ -442,11 +489,11 @@ function createEventsTable(events: DashboardEvent[]): HTMLElement {
       padding: 8px 10px;
       border: 1px solid var(--ic-border, #2b3136);
       border-radius: 8px;
-      background: rgba(255,255,255,0.02);
+      background: var(--ic-highlightSubtle);
       font-size: 12px;
     `;
     const time = document.createElement("div");
-    time.textContent = new Date(event.time).toLocaleTimeString("fr-CA");
+    time.textContent = formatRelative(event.time);
     time.style.cssText = "color: var(--ic-mutedText, #a7b0b7);";
 
     const typeBadge = createBadge(event.type, event.tone);
