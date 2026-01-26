@@ -26,9 +26,9 @@ function resolveRuntimeCfgGateway() {
     policy: createPolicyHook(),
     audit: createAuditHook(),
     adapter: createLegacyAdapter((cmd) => {
-      writeCachedLegacy(cmd.payload as RuntimeConfig);
-      return { status: "OK", correlationId: cmd.correlationId };
-    }, "legacyRuntimeConfig"),
+      void cmd;
+      return { status: "SKIPPED", correlationId: cmd.correlationId };
+    }, "runtimeConfigShadowNoop"),
     safeMode: { enabled: true },
   });
   return runtimeCfgGateway;
@@ -80,37 +80,36 @@ function readCached(): RuntimeConfig | null {
 
 function writeCachedLegacy(next: RuntimeConfig) {
   cached = next;
+  if (typeof window === "undefined" || !window.localStorage) return;
   try {
     localStorage.setItem(LS_KEY, JSON.stringify(next));
   } catch {}
 }
 
 function writeCached(next: RuntimeConfig) {
-  if (!isRuntimeConfigShadowEnabled()) {
-    writeCachedLegacy(next);
-    return;
-  }
+  writeCachedLegacy(next);
+  if (!isRuntimeConfigShadowEnabled()) return;
 
   const tenantId = getTenantId();
   const correlationId = createCorrelationId("runtimecfg");
+  const serialized = JSON.stringify(next);
   const cmd = {
     kind: "RUNTIME_CONFIG_SET",
     tenantId,
     correlationId,
-    payload: next,
-    meta: { shadow: true, source: "runtimeConfig" },
+    payload: { key: LS_KEY, bytes: serialized.length },
+    meta: { shadow: true, source: "runtimeConfig.ts" },
   };
 
   try {
-    const res = resolveRuntimeCfgGateway().execute(cmd);
-    if (res.status !== "OK") {
+    const res = resolveRuntimeCfgGateway().execute(cmd as any);
+    if (res.status !== "OK" && res.status !== "SKIPPED") {
       logger.warn("WRITE_GATEWAY_RUNTIME_CONFIG_FALLBACK", {
         kind: cmd.kind,
         tenant_id: tenantId,
         correlation_id: correlationId,
         status: res.status,
       });
-      writeCachedLegacy(next);
     }
   } catch (err) {
     logger.warn("WRITE_GATEWAY_RUNTIME_CONFIG_ERROR", {
@@ -119,7 +118,6 @@ function writeCached(next: RuntimeConfig) {
       correlation_id: correlationId,
       error: String(err),
     });
-    writeCachedLegacy(next);
   }
 }
 
