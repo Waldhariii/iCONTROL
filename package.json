@@ -72,7 +72,8 @@
     "gate:write-gateway-coverage": "node scripts/gates/gate-write-gateway-coverage.mjs",
     "gate:write-surface-map": "node scripts/gates/gate-write-surface-map.mjs",
     "gate:ssot:paths": "node ./scripts/gates/gate-ssot-paths.mjs",
-    "gate:rg-n-safety": "node ./scripts/gates/gate-rg-n-safety.mjs"
+    "gate:rg-n-safety": "node ./scripts/gates/gate-rg-n-safety.mjs",
+    "gate:rg-n-safety:triage": "node scripts/gates/gate-rg-n-safety-triage.mjs"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^7.0.0",
