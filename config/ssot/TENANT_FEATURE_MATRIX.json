@@ -1,0 +1,39 @@
+{
+  "version": "1.0",
+  "source": "mainSystem.data.ts, module-registry.json, ROUTE_CATALOG, rbac.json",
+  "generated": "2026-01-24",
+  "templates": {
+    "FREE": {
+      "plan": "FREE",
+      "enabled_modules": ["core-system"],
+      "enabled_pages": ["login", "dashboard", "account"],
+      "enabled_capabilities": ["CORE_SYSTEM"],
+      "limits": { "users": 5, "tenants": 1 },
+      "billing_binding": null,
+      "audit_required": false
+    },
+    "PRO": {
+      "plan": "PRO",
+      "enabled_modules": ["core-system", "dossiers"],
+      "enabled_pages": ["login", "dashboard", "account", "settings", "users", "system", "logs", "dossiers", "developer", "developer_entitlements", "verification", "tenants", "audit", "login-theme"],
+      "enabled_capabilities": ["CORE_SYSTEM", "M_DOSSIERS", "SYSTEM_LOGS"],
+      "limits": { "users": 50, "tenants": 5 },
+      "billing_binding": "subscription_id",
+      "audit_required": true
+    },
+    "ENTERPRISE": {
+      "plan": "ENTERPRISE",
+      "enabled_modules": ["core-system", "dossiers", "clients", "integrations-hub"],
+      "enabled_pages": ["login", "dashboard", "account", "settings", "settings_branding", "users", "system", "logs", "dossiers", "developer", "developer_entitlements", "verification", "tenants", "entitlements", "pages", "feature-flags", "publish", "audit", "subscription", "integrations", "login-theme"],
+      "enabled_capabilities": ["CORE_SYSTEM", "M_DOSSIERS", "SYSTEM_LOGS", "DOCS_OCR"],
+      "limits": { "users": null, "tenants": null },
+      "billing_binding": "contract_id",
+      "audit_required": true
+    }
+  },
+  "roles_by_plan": {
+    "FREE": ["USER"],
+    "PRO": ["USER", "ADMIN", "SYSADMIN", "DEVELOPER"],
+    "ENTERPRISE": ["USER", "ADMIN", "SYSADMIN", "DEVELOPER"]
+  }
+}
