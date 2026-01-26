@@ -3,7 +3,7 @@ import { createSectionCard, appendAction } from "../ui";
 
 export const tokensSection: ToolboxSection = {
   id: "tokens",
-  title: "Tokens & Keys",
+  title: "Clés et jetons",
   render: (root, ctx) => {
     const card = createSectionCard("Tokens & Keys");
     card.setAttribute("data-toolbox-section", "tokens");

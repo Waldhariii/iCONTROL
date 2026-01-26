@@ -3,7 +3,7 @@ import { createSectionCard, appendAction } from "../ui";
 
 export const apiToolsSection: ToolboxSection = {
   id: "api-tools",
-  title: "API Tools",
+  title: "Outils API",
   render: (root, ctx) => {
     const card = createSectionCard("API Tools");
     card.setAttribute("data-toolbox-section", "api-tools");
@@ -17,7 +17,7 @@ export const apiToolsSection: ToolboxSection = {
     body.appendChild(p);
 
     const pre = document.createElement("pre");
-    pre.style.cssText = "white-space:pre-wrap;margin:0;padding:10px;border:1px solid #444;border-radius:10px;";
+    pre.style.cssText = "white-space:pre-wrap;margin:0;padding:10px;border:1px solid var(--ic-border);border-radius:10px;";
     pre.textContent = JSON.stringify({ endpoint: "/api/health", method: "GET", headers: { "x-request-id": "…" } }, null, 2);
     body.appendChild(pre);
 

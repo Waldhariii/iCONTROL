@@ -7,14 +7,14 @@ function safeNow(): string {
 
 export const logsSection: ToolboxSection = {
   id: "logs",
-  title: "Tech Logs",
+  title: "Journal technique",
   render: (root, ctx) => {
     const card = createSectionCard("Tech Logs");
     card.setAttribute("data-toolbox-section", "logs");
     const body = card.querySelector(".cxBody") as HTMLElement;
 
     const pre = document.createElement("pre");
-    pre.style.cssText = "white-space:pre-wrap;margin:0;padding:10px;border:1px solid #444;border-radius:10px;";
+    pre.style.cssText = "white-space:pre-wrap;margin:0;padding:10px;border:1px solid var(--ic-border);border-radius:10px;";
     pre.textContent = [
       `[${safeNow()}] INFO TOOLBOX_OPENED`,
       `[${safeNow()}] INFO PIPELINE_OK compilePlan->executePlan->safeRender`,

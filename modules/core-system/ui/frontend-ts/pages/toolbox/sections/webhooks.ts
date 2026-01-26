@@ -17,7 +17,7 @@ export const webhooksSection: ToolboxSection = {
     body.appendChild(p);
 
     const pre = document.createElement("pre");
-    pre.style.cssText = "white-space:pre-wrap;margin:0;padding:10px;border:1px solid #444;border-radius:10px;";
+    pre.style.cssText = "white-space:pre-wrap;margin:0;padding:10px;border:1px solid var(--ic-border);border-radius:10px;";
     pre.textContent = JSON.stringify({ event: "invoice.created", payload: { id: "INV-001", amount: 123.45 } }, null, 2);
     body.appendChild(pre);
 

@@ -35,7 +35,7 @@ export function appendAction(
   row.style.cssText = "margin-top:10px;display:flex;gap:8px;align-items:center;";
   const btn = document.createElement("button");
   btn.textContent = label;
-  btn.style.cssText = "padding:6px 10px;border-radius:10px;border:1px solid #555;background:transparent;color:inherit;cursor:pointer;";
+  btn.style.cssText = "padding:6px 10px;border-radius:10px;border:1px solid var(--ic-border);background:transparent;color:inherit;cursor:pointer;";
   if (disabled) {
     btn.disabled = true;
     btn.style.opacity = "0.5";
