@@ -20,10 +20,14 @@ describe("APP login session scope (contract)", () => {
       hash: "#/login",
       replace: vi.fn(),
     };
+    // Set VITE_APP_KIND for resolveAuthScope() to detect APP scope
+    // Note: resolveAuthScope() checks import.meta.env.VITE_APP_KIND first, then pathname
     (import.meta as any).env = {
       ...(import.meta as any).env,
-      VITE_APP_KIND: "CLIENT_APP",
+      VITE_APP_KIND: "APP",
     };
+    // Also set on globalThis as fallback (for __ICONTROL_APP_KIND__)
+    (globalThis as any).__ICONTROL_APP_KIND__ = "APP";
 
     Object.defineProperty(window.document, "cookie", {
       configurable: true,
@@ -35,6 +39,7 @@ describe("APP login session scope (contract)", () => {
       },
     });
 
+    // Clear localStorage before test
     try {
       localStorage.removeItem("icontrol_session_v1");
       localStorage.removeItem("icontrol_mgmt_session_v1");
@@ -50,7 +55,7 @@ describe("APP login session scope (contract)", () => {
   });
 
   it("writes only APP session key and Path=/app cookie", () => {
-    const res = authenticate("admin", "admin");
+    const res = authenticate("admin", "admin", "APP");
     expect(res.ok).toBe(true);
 
     expect(localStorage.getItem("icontrol_session_v1")).toBeTruthy();
