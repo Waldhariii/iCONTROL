@@ -31,6 +31,15 @@
 - cp storage: `app/src/core/control-plane/storage.ts`
 - FileSubscriptionStore: `modules/core-system/subscription/FileSubscriptionStore.node.ts`
 
+## Routing SSOT (Phase Routing Hardening)
+- Active router: `app/src/router.ts` (SSOT - single source of truth)
+- Deprecated router: `app/src/runtime/router.ts` (marked @deprecated, only used in tests)
+- Module loader: `app/src/moduleLoader.ts` (page loading orchestrator)
+- CP registry: `app/src/pages/cp/registry.ts` (referenced in moduleLoader.ts)
+- APP registry: `app/src/pages/app/registry.ts` (referenced in moduleLoader.ts)
+- Non-regression audit: `scripts/audits/audit-chemins-non-regression.sh`
+- Routing SSOT gate: `scripts/gates/gate-routing-ssot.mjs`
+
 ## Gates & Hooks
 - Gates directory: `scripts/gates`
 - SSOT helper: `scripts/ssot/paths.mjs`
@@ -55,12 +64,17 @@
   "flags": "app/src/policies/feature_flags.default.json",
   "reports": {
     "surfaceMap": "docs/PHASE_1/APPENDIX_COMMAND_OUTPUTS/write_surface_map_report.md",
-    "coverage": "docs/PHASE_1/APPENDIX_COMMAND_OUTPUTS/write_gateway_coverage_report.md"
+    "coverage": "docs/PHASE_1/APPENDIX_COMMAND_OUTPUTS/write_gateway_coverage_report.md",
+    "routingStatus": "docs/reports/SSOT_ROUTING_STATUS_SNAPSHOT.md",
+    "routingAudit": "docs/reports/AUDIT_NON_REGRESSION_CHEMINS.md",
+    "routingPolicy": "docs/reports/ROUTING_SSOT_POLICY.md",
+    "routingRemovalPlan": "docs/reports/PLAN_SUPPRESSION_RUNTIME_ROUTER.md"
   },
   "gates": {
     "ssotPaths": "scripts/gates/gate-ssot-paths.mjs",
     "surfaceMap": "scripts/gates/gate-write-surface-map.mjs",
-    "coverage": "scripts/gates/gate-write-gateway-coverage.mjs"
+    "coverage": "scripts/gates/gate-write-gateway-coverage.mjs",
+    "routingSsot": "scripts/gates/gate-routing-ssot.mjs"
   },
   "hooks": {
     "preCommit": ".githooks/pre-commit"
@@ -85,6 +99,14 @@
     "uiCatalog": "app/src/core/ui/catalog/index.ts",
     "cpStorage": "app/src/core/control-plane/storage.ts",
     "fileSubscriptionStore": "modules/core-system/subscription/FileSubscriptionStore.node.ts"
+  },
+  "routingSsot": {
+    "routerActive": "app/src/router.ts",
+    "routerDeprecated": "app/src/runtime/router.ts",
+    "moduleLoader": "app/src/moduleLoader.ts",
+    "cpRegistry": "app/src/pages/cp/registry.ts",
+    "appRegistry": "app/src/pages/app/registry.ts",
+    "auditScript": "scripts/audits/audit-chemins-non-regression.sh"
   }
 }
 ```
