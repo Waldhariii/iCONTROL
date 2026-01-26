@@ -42,24 +42,6 @@ export const CP_PAGES_REGISTRY: Record<string, PageRegistryEntry> = {
     },
     async: true,
   },
-  system: {
-    routeId: "system",
-    render: async (root) => {
-      // Page CP system (différente de APP system)
-      const m = await import("./system");
-      m.renderSystemPage(root);
-    },
-    async: true,
-  },
-  users: {
-    routeId: "users",
-    render: async (root) => {
-      // Page CP users (différente de APP users)
-      const m = await import("./users");
-      m.renderUsers(root);
-    },
-    async: true,
-  },
   subscription: {
     routeId: "subscription" as RouteId,
     render: async (root) => {
