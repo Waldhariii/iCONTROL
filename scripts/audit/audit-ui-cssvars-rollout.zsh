@@ -1,13 +1,19 @@
 #!/usr/bin/env zsh
 set -euo pipefail
 
+resolve_tracked() {
+  # Deterministic tracked-file resolver (never use `rg` because it prefixes line numbers)
+  git ls-files 2>/dev/null || rg --files
+}
+
+
 echo "=== AUDIT: P17 UI css vars rollout (pages only) ==="
 SCOPE="modules/core-system/ui/frontend-ts/pages"
 echo "Scope: ${SCOPE}/**/*.ts (exclut _shared/**)"
 
 # On vise les usages de TOK.* dans les template strings/styles (signal de non-migration CSS vars).
 # NOTE: _shared/** est exclu volontairement (backlog P17.2).
-MATCHES=$(rg -n "\\$\\{TOK\\.(text|mutedText|border|card|panel|accent|accent2)\\}" "$SCOPE" -S | rg -v "/_shared/" || true)
+MATCHES=$(rg "\\$\\{TOK\\.(text|mutedText|border|card|panel|accent|accent2)\\}" "$SCOPE" -S | rg -v "/_shared/" || true)
 
 if [ -n "$MATCHES" ]; then
   echo "BLOCKED: TOK.* détecté dans pages/** (doit passer par CSS vars var(--ic-*) avec fallback tokens)."
@@ -16,9 +22,9 @@ if [ -n "$MATCHES" ]; then
 fi
 
 # Hard stop: pattern qui casse esbuild (déjà vu)
-if rg -n "\\$\\{\\s*var\\(" "$SCOPE" -S >/dev/null; then
+if rg "\\$\\{\\s*var\\(" "$SCOPE" -S >/dev/null; then
   echo "BLOCKED: \${var( ... )} détecté (esbuild: Unexpected var)."
-  rg -n "\\$\\{\\s*var\\(" "$SCOPE" -S || true
+  rg "\\$\\{\\s*var\\(" "$SCOPE" -S || true
   exit 1
 fi
 
