@@ -26,7 +26,7 @@ echo "=== GATE: audit-no-leaks ==="
 
 echo ""
 echo "=== GATE: app build ==="
-( cd app && npm run build )
+npm run build:app
 
 echo ""
 echo "=== GATE: tests (non-interactive) ==="

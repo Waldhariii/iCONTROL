@@ -20,7 +20,7 @@ echo "OK: working tree clean"
 [ -f ./scripts/audit/audit-ui-cssvars-backlog-shared.zsh ] && ./scripts/audit/audit-ui-cssvars-backlog-shared.zsh || true
 
 # 2) Build + tests
-( cd app && npm run build )
-( cd app && npm run test )
+npm run build:app
+npm test
 
 echo "OK: RC PASS"
