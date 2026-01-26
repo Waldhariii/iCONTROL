@@ -1,4 +1,4 @@
-import "./login.css";
+/* import "./login.css"; — désactivé: styles visuels retirés */
 import { authenticateManagement } from "/src/localAuth";
 import { navigate } from "/src/router";
 import { coreBaseStyles } from "../../../../modules/core-system/ui/frontend-ts/shared/coreStyles";
@@ -141,95 +141,13 @@ export function renderCpLogin(root: HTMLElement): void {
   });
 }
 
+/** No-op: styles visuels désactivés. La logique (theme, effects) reste pour compatibilité. */
 function applyThemeVars(
-  wrapper: HTMLElement,
-  theme: CpLoginTheme,
-  effects: { metallic: { enabled: boolean; intensity: number } }
+  _wrapper: HTMLElement,
+  _theme: CpLoginTheme,
+  _effects: { metallic: { enabled: boolean; intensity: number } }
 ): void {
-  const intensity = Math.max(0, Math.min(1, effects.metallic.intensity));
-  const metallicOpacity = effects.metallic.enabled ? String(intensity) : "0";
-  const metallicHighlight = `rgba(255,255,255,${(0.35 * intensity).toFixed(2)})`;
-  const metallicSoft = `rgba(255,255,255,${(0.18 * intensity).toFixed(2)})`;
-  const vars: Record<string, string> = {
-    "--cp-login-bg-0": theme.bgGradient0,
-    "--cp-login-bg-1": theme.bgGradient1,
-    "--cp-login-bg-2": theme.bgGradient2,
-    "--cp-login-noise": theme.noise,
-    "--cp-login-noise-opacity": theme.noiseOpacity,
-    "--cp-login-noise-blend": theme.noiseBlendMode,
-    "--cp-login-vignette-color": theme.vignetteColor,
-    "--cp-login-vignette-opacity": theme.vignetteOpacity,
-    "--cp-login-card-bg": theme.cardBg,
-    "--cp-login-card-border": theme.cardBorder,
-    "--cp-login-card-shadow": theme.cardShadow,
-    "--cp-login-card-glow": theme.cardGlow,
-    "--cp-login-card-blur": theme.cardBlur,
-    "--cp-login-card-radius": theme.cardRadius,
-    "--cp-login-font-family": theme.fontFamily,
-    "--cp-login-text-primary": theme.textPrimary,
-    "--cp-login-text-muted": theme.textMuted,
-    "--cp-login-text-label": theme.textLabel,
-    "--cp-login-text-size-body": theme.textSizeBody,
-    "--cp-login-text-size-small": theme.textSizeSmall,
-    "--cp-login-text-size-subtitle": theme.textSizeSubtitle,
-    "--cp-login-text-size-tiny": theme.textSizeTiny,
-    "--cp-login-text-weight-title": theme.textWeightTitle,
-    "--cp-login-text-weight-button": theme.textWeightButton,
-    "--cp-login-text-weight-switch": theme.textWeightSwitch,
-    "--cp-login-logo-letter-spacing": theme.logoLetterSpacing,
-    "--cp-login-admin-letter-spacing": theme.adminLetterSpacing,
-    "--cp-login-input-bg": theme.inputBg,
-    "--cp-login-input-border": theme.inputBorder,
-    "--cp-login-input-text": theme.inputText,
-    "--cp-login-input-placeholder": theme.inputPlaceholder,
-    "--cp-login-input-icon": theme.inputIcon,
-    "--cp-login-button-bg-0": theme.buttonBg0,
-    "--cp-login-button-bg-1": theme.buttonBg1,
-    "--cp-login-button-text": theme.buttonText,
-    "--cp-login-button-glow": theme.buttonGlow,
-    "--cp-login-button-letter-spacing": theme.buttonLetterSpacing,
-    "--cp-login-link-color": theme.linkColor,
-    "--cp-login-focus-ring": theme.focusRing,
-    "--cp-login-switch-bg": theme.switchBg,
-    "--cp-login-switch-border": theme.switchBorder,
-    "--cp-login-switch-text": theme.switchText,
-    "--cp-login-switch-active-bg": theme.switchActiveBg,
-    "--cp-login-switch-active-text": theme.switchActiveText,
-    "--cp-login-checkbox": theme.checkboxAccent,
-    "--cp-login-card-width": theme.layout.cardWidth,
-    "--cp-login-card-padding": theme.layout.cardPadding,
-    "--cp-login-card-gap": theme.layout.cardGap,
-    "--cp-login-header-gap": theme.layout.headerGap,
-    "--cp-login-header-stack-gap": theme.layout.headerStackGap,
-    "--cp-login-logo-size": theme.layout.logoSize,
-    "--cp-login-admin-size": theme.layout.adminSize,
-    "--cp-login-switch-height": theme.layout.switchHeight,
-    "--cp-login-switch-padding": theme.layout.switchPadding,
-    "--cp-login-switch-gap": theme.layout.switchGap,
-    "--cp-login-switch-font-size": theme.layout.switchFontSize,
-    "--cp-login-switch-button-padding": theme.layout.switchButtonPadding,
-    "--cp-login-switch-radius": theme.layout.switchRadius,
-    "--cp-login-switch-button-radius": theme.layout.switchButtonRadius,
-    "--cp-login-input-height": theme.layout.inputHeight,
-    "--cp-login-input-radius": theme.layout.inputRadius,
-    "--cp-login-input-gap": theme.layout.inputGap,
-    "--cp-login-input-inner-gap": theme.layout.inputInnerGap,
-    "--cp-login-input-icon-size": theme.layout.inputIconSize,
-    "--cp-login-input-padding": theme.layout.inputPadding,
-    "--cp-login-button-height": theme.layout.buttonHeight,
-    "--cp-login-button-radius": theme.layout.buttonRadius,
-    "--cp-login-footer-gap": theme.layout.footerGap,
-    "--cp-login-footer-link-gap": theme.layout.footerLinkGap,
-    "--cp-login-footer-checkbox-gap": theme.layout.footerCheckboxGap,
-    "--cp-login-error-min-height": theme.layout.errorMinHeight,
-    "--cp-login-metallic-opacity": metallicOpacity,
-    "--cp-login-metallic-highlight": metallicHighlight,
-    "--cp-login-metallic-soft": metallicSoft
-  };
-
-  Object.entries(vars).forEach(([key, value]) => {
-    wrapper.style.setProperty(key, value);
-  });
+  /* Variables --cp-login-* non appliquées. Réactiver le corps si login.css est rétabli. */
 }
 
 function buildInput(id: string, type: string, placeholder: string, icon: string): HTMLElement {
