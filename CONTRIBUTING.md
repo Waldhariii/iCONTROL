@@ -31,8 +31,8 @@ Builtins output deterministic HTML that is 100% SafeRender-compliant:
 ### Quality gates
 No commit may bypass:
 - `./scripts/audit/audit-no-leaks.zsh`
-- `cd app && npm run build`
-- `cd app && npm run test`
+- `npm run build:app` (or `npm run build:cp` for Control Plane)
+- `npm test`
 
 Le hook **pre-commit** exécute `audit-no-leaks`, `gate:route-catalog`, `gate:tenant-matrix`, `gate:design-tokens`, `gate:capability-status`. Le hook **pre-push** exécute `gate:ssot` (ui-drift, route-catalog, route-drift, tenant-matrix, design-tokens, capability-status, admin-components-registry, check-cross-imports) avant d’autoriser le push.
 

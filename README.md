@@ -48,5 +48,5 @@ Blocked patterns:
 Run before any core/app merge:
 
 - `./scripts/audit/audit-no-leaks.zsh`
-- `(cd app && npm run build)`
-- `(cd app && npm run test)`
+- `npm run build:app`
+- `npm test`

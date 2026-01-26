@@ -10,7 +10,7 @@
     {
       "label": "iCONTROL: build",
       "type": "shell",
-      "command": "cd app && npm run build",
+      "command": "npm run build:app",
       "problemMatcher": []
     },
     {

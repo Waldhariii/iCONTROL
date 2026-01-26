@@ -51,9 +51,9 @@ echo ""
 echo "5) Sanity gates (audit + build + test)"
 "$ROOT/scripts/audit/audit-no-leaks.zsh" >/dev/null
 echo "OK: audit pass"
-( cd "$ROOT/app" && npm run build >/dev/null )
+( cd "$ROOT" && npm run build:app >/dev/null )
 echo "OK: build pass"
-( cd "$ROOT/app" && npm run test >/dev/null )
+( cd "$ROOT" && npm test >/dev/null )
 echo "OK: test pass"
 echo ""
 

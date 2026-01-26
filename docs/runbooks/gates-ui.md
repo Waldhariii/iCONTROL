@@ -24,7 +24,7 @@ npm run build:cp         # smoke
 ## Gates obligatoires (legacy / complément)
 ```sh
 ./scripts/audit/audit-no-leaks.zsh
-(cd app && npm run build)
+npm run build:app
 (cd app && npm run test)
 ```
 
