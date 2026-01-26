@@ -1,3 +1,8 @@
+/**
+ * @deprecated This router is no longer used in production.
+ * Kept only for test compatibility (__tests__/no-import-sideeffects-critical.contract.test.ts).
+ * The active router is app/src/router.ts
+ */
 import { navigate as coreNavigate } from "./navigate";
 import { safeRender, escapeHtml } from "./safeRender";
 
