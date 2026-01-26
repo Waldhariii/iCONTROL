@@ -191,7 +191,7 @@ generate_notes_if_missing() {
 - audit-subscription-no-ui-coupling
 - audit-no-node-builtins-in-app
 - audit-no-node-builtins-in-client-surface
-- npm run build (app)
+- npm run build:app
 - dist/assets: no FileSubscriptionStore* chunks
 
 ## Commit
@@ -222,7 +222,7 @@ EOF
 - audit-subscription-no-ui-coupling
 - audit-no-node-builtins-in-app
 - audit-no-node-builtins-in-client-surface
-- npm run build (app)
+- npm run build:app
 - dist/assets: no FileSubscriptionStore* chunks
 
 ## Risk / Follow-ups
