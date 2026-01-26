@@ -132,14 +132,12 @@ export function getRouteId(): RouteId {
   if (seg === "developer/entitlements" || seg === "dev/entitlements") return "developer_entitlements";
   if (seg === "developer" || seg === "dev") return "developer";
   if (seg === "access-denied") return "access_denied";
-  if (seg === "__ui-catalog" || seg === "ui-catalog") return "ui_catalog";
   if (seg === "toolbox" || seg === "dev-tools" || seg === "devtools") return "toolbox";
   if (seg === "system") return "system";
   if (seg === "logs") return "logs";
   if (seg === "dossiers") return "dossiers";
   if (seg === "verification" || seg === "verify") return "verification";
   if (seg === "client-disabled" || seg === "client_disabled") return "client_disabled";
-  if (seg === "__ui-catalog-client") return "client_catalog";
   if (seg === "settings") return canAccessSettings() ? "settings" : "dashboard";
   if (seg === "settings/branding") return canAccessSettings() ? "settings_branding" : "dashboard";
   
@@ -172,14 +170,12 @@ export function getRouteIdFromHash(hash: string): RouteId {
   if (seg === "developer/entitlements" || seg === "dev/entitlements") return "developer_entitlements";
   if (seg === "developer" || seg === "dev") return "developer";
   if (seg === "access-denied") return "access_denied";
-  if (seg === "__ui-catalog" || seg === "ui-catalog") return "ui_catalog";
   if (seg === "toolbox" || seg === "dev-tools" || seg === "devtools") return "toolbox";
   if (seg === "system") return "system";
   if (seg === "logs") return "logs";
   if (seg === "dossiers") return "dossiers";
   if (seg === "verification" || seg === "verify") return "verification";
   if (seg === "client-disabled" || seg === "client_disabled") return "client_disabled";
-  if (seg === "__ui-catalog-client") return "client_catalog";
   if (seg === "settings") return "settings";
   if (seg === "settings/branding") return "settings_branding";
   if (seg === "tenants") return "tenants";

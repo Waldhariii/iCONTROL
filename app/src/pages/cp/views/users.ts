@@ -101,7 +101,7 @@ function saveSystemUsers(users: SystemUser[]): void {
         tenantId,
         correlationId,
         payload: { key: String(LS_KEY_SYSTEM_USERS) },
-        meta: { shadow: true, source: "users.ts" },
+        meta: { shadow: true, source: "ssot" },
       };
 
       try {

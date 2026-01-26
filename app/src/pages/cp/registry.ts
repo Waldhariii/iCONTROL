@@ -148,7 +148,7 @@ export const CP_PAGES_REGISTRY: Record<string, PageRegistryEntry> = {
   ui_catalog: {
     routeId: "ui_catalog",
     render: async (root) => {
-      const m = await import("./ui-catalog");
+      const m = await import("../notfound") /* legacy ui-catalog disabled: SSOT-only */;
       m.renderUiCatalog(root);
     },
     async: true,
