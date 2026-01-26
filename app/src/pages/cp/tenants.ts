@@ -17,7 +17,7 @@ import { createEmptyStateCard } from "/src/core/ui/emptyState";
 import { showToast } from "/src/core/ui/toast";
 import { createKpiStrip } from "/src/core/ui/kpi";
 import { createDonutChart } from "/src/core/ui/charts";
-import { createGovernanceFooter, createTwoColumnLayout, mapSafeMode } from "./_shared/cpLayout";
+import { createGovernanceFooter, createTwoColumnLayout, createDemoDataBanner, mapSafeMode } from "./_shared/cpLayout";
 import { isCpDemoEnabled } from "./_shared/cpDemo";
 import { TenantService } from "../../core/control-plane/services/tenantService";
 import { LocalStorageProvider } from "../../core/control-plane/storage";
@@ -62,12 +62,14 @@ export async function renderTenants(root: HTMLElement): Promise<void> {
     root.innerHTML = coreBaseStyles();
     const safeModeValue = mapSafeMode(getSafeMode());
     const { shell, content } = createPageShell({
-      title: "Tenants",
-      subtitle: "Gestion des tenants — isolation, statut, health",
+      title: "Organisation",
+      subtitle: "Tenants — isolation, statut et santé",
       safeMode: safeModeValue,
       statusBadge: { label: "CHARGEMENT", tone: "info" }
     });
 
+    const demoBanner = createDemoDataBanner();
+    if (demoBanner) content.appendChild(demoBanner);
     const { card: skeletonCard, body: skeletonBody } = createSectionCard({
       title: "Chargement...",
       description: "Récupération des données tenants"
@@ -81,8 +83,8 @@ export async function renderTenants(root: HTMLElement): Promise<void> {
     root.innerHTML = coreBaseStyles();
     const safeModeValue = mapSafeMode(getSafeMode());
     const { shell, content } = createPageShell({
-      title: "Tenants",
-      subtitle: "Gestion des tenants — isolation, statut, health",
+      title: "Organisation",
+      subtitle: "Tenants — isolation, statut et santé",
       safeMode: safeModeValue,
       statusBadge: {
         label: data.kpi.active > 0 ? "ACTIF" : "AUCUN",
@@ -99,6 +101,8 @@ export async function renderTenants(root: HTMLElement): Promise<void> {
       ]
     });
 
+    const demoBanner = createDemoDataBanner();
+    if (demoBanner) content.appendChild(demoBanner);
     const kpis = createKpiStrip([
       { label: "Total tenants", value: formatNumber(data.kpi.total), tone: data.kpi.total > 0 ? "ok" : "neutral" },
       { label: "Actifs", value: formatNumber(data.kpi.active), tone: data.kpi.active > 0 ? "ok" : "warn" },
@@ -123,7 +127,7 @@ export async function renderTenants(root: HTMLElement): Promise<void> {
       }));
       grid.appendChild(tenantsCard);
       grid.appendChild(createDetailsPanel(null));
-      content.appendChild(createGovernanceFooter());
+      content.appendChild(createGovernanceFooter(data.lastUpdated));
       root.appendChild(shell);
       return;
     }
@@ -268,7 +272,7 @@ export async function renderTenants(root: HTMLElement): Promise<void> {
     if (grid.children.length === 1) {
       grid.appendChild(createDetailsPanel(null));
     }
-    content.appendChild(createGovernanceFooter());
+    content.appendChild(createGovernanceFooter(data.lastUpdated));
     root.appendChild(shell);
   };
 
@@ -344,9 +348,9 @@ export async function renderTenants(root: HTMLElement): Promise<void> {
     body.appendChild(divider);
 
     body.appendChild(createDonutChart([
-      { label: "CPU", value: 54, color: "#7b2cff" },
-      { label: "Storage", value: 28, color: "#4ec9b0" },
-      { label: "Queue", value: 18, color: "#f59e0b" }
+      { label: "CPU", value: 54, color: "var(--ic-accent2)" },
+      { label: "Storage", value: 28, color: "var(--ic-success)" },
+      { label: "Queue", value: 18, color: "var(--ic-warn)" }
     ]));
 
     const note = document.createElement("div");
