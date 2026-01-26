@@ -1,5 +1,4 @@
-import "./client-foundation.css";
-
+/* import "./client-foundation.css"; — désactivé: styles visuels retirés */
 export function renderClientDisabled(root: HTMLElement): void {
   root.innerHTML = `
     <div data-scope="client-foundation">
