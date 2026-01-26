@@ -11,7 +11,7 @@ import { createDataTable, type TableColumn } from "/src/core/ui/dataTable";
 import { createEmptyStateCard } from "/src/core/ui/emptyState";
 import { createKpiStrip } from "/src/core/ui/kpi";
 import { createDonutChart } from "/src/core/ui/charts";
-import { createGovernanceFooter, createTwoColumnLayout, mapSafeMode } from "./_shared/cpLayout";
+import { createGovernanceFooter, createTwoColumnLayout, createDemoDataBanner, mapSafeMode } from "./_shared/cpLayout";
 import { isCpDemoEnabled } from "./_shared/cpDemo";
 import { getSafeMode } from "../../../../modules/core-system/ui/frontend-ts/pages/_shared/safeMode";
 
@@ -36,16 +36,18 @@ export function renderFeatureFlags(root: HTMLElement): void {
   const safeModeValue = mapSafeMode(getSafeMode());
   root.innerHTML = coreBaseStyles();
   const { shell, content } = createPageShell({
-    title: "Feature Flags",
-    subtitle: "Gouvernance des flags et rollouts (lecture seule)",
+    title: "Drapeaux",
+    subtitle: "Fonctionnalités et déploiement progressif",
     safeMode: safeModeValue,
     statusBadge: { label: "GOUVERNÉ", tone: "info" }
   });
 
   const data = isCpDemoEnabled() ? DEMO_FLAGS : DEMO_FLAGS;
+  const demoBanner = createDemoDataBanner();
+  if (demoBanner) content.appendChild(demoBanner);
   const kpis = createKpiStrip([
     { label: "Flags actifs", value: String(data.filter((f) => f.status === "ON").length), tone: "ok" },
-    { label: "Rollout", value: String(data.filter((f) => f.status === "ROLLOUT").length), tone: "warn" },
+    { label: "En déploiement", value: String(data.filter((f) => f.status === "ROLLOUT").length), tone: "warn" },
     { label: "Off", value: String(data.filter((f) => f.status === "OFF").length), tone: "neutral" },
     { label: "Expirations proches", value: "2", tone: "warn" }
   ]);
@@ -56,7 +58,7 @@ export function renderFeatureFlags(root: HTMLElement): void {
 
   const { card: tableCard, body: tableBody } = createSectionCard({
     title: "Flags gouvernés",
-    description: "Owner, expiry et statut"
+    description: "Propriétaire, expiration et statut"
   });
 
   const detailPanel = createDetailsPanel(data[0] || null);
@@ -136,9 +138,9 @@ export function renderFeatureFlags(root: HTMLElement): void {
     description: "Derniers changements gouvernés"
   });
   auditBody.appendChild(createDonutChart([
-    { label: "ON", value: data.filter((f) => f.status === "ON").length, color: "#4ec9b0" },
-    { label: "ROLLOUT", value: data.filter((f) => f.status === "ROLLOUT").length, color: "#f59e0b" },
-    { label: "OFF", value: data.filter((f) => f.status === "OFF").length, color: "#9aa4ae" }
+    { label: "ON", value: data.filter((f) => f.status === "ON").length, color: "var(--ic-success)" },
+    { label: "ROLLOUT", value: data.filter((f) => f.status === "ROLLOUT").length, color: "var(--ic-warn)" },
+    { label: "OFF", value: data.filter((f) => f.status === "OFF").length, color: "var(--ic-mutedText)" }
   ]));
   content.appendChild(auditCard);
 
@@ -161,10 +163,10 @@ function createDetailsPanel(flag: FlagRow | null): HTMLElement {
   }
 
   body.appendChild(createRow("Flag", flag.key));
-  body.appendChild(createRow("Owner", flag.owner));
+  body.appendChild(createRow("Propriétaire", flag.owner));
   body.appendChild(createRow("Statut", flag.status));
-  body.appendChild(createRow("Rollout", flag.rollout));
-  body.appendChild(createRow("Expiry", flag.expiry));
+  body.appendChild(createRow("Déploiement", flag.rollout));
+  body.appendChild(createRow("Expiration", flag.expiry));
 
   const hint = document.createElement("div");
   hint.textContent = "Toggles visuels uniquement — actions gouvernées via Core.";
