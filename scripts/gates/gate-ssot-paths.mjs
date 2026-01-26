@@ -1,40 +1,50 @@
 #!/usr/bin/env node
 import { existsSync, readFileSync } from "node:fs";
-import { readPaths, assertPathsExist } from "../ssot/paths.mjs";
+import { readPaths } from "../ssot/paths.mjs";
 
-const MUST = [
-  "app/src/policies/feature_flags.default.json",
-  "docs/PHASE_1/APPENDIX_COMMAND_OUTPUTS/write_surface_map_report.md",
-  "docs/PHASE_1/APPENDIX_COMMAND_OUTPUTS/write_gateway_coverage_report.md",
-  "modules/core-system/subscription/FileSubscriptionStore.node.ts",
-];
+/**
+ * gate:ssot:paths
+ * Contract:
+ * - Never hardcode repo paths here (SSOT-only).
+ * - Verify SSOT-resolved paths exist.
+ * - Validate flags JSON parses.
+ * - Exit non-zero on missing/invalid.
+ */
+
+function fail(code, details) {
+  console.error(code, details || "");
+  process.exit(1);
+}
 
 let paths;
 try {
   paths = readPaths();
 } catch (err) {
-  console.error("ERR_SSOT_PATHS_READ", String(err));
-  process.exit(1);
+  fail("ERR_SSOT_PATHS_READ", String(err));
 }
 
-const missing = [
-  ...MUST.filter((p) => !existsSync(p)),
-  ...assertPathsExist(paths),
+const must = [
+  paths.flags,
+  paths.reports?.surfaceMap,
+  paths.reports?.coverage,
+  ...(Array.isArray(paths.roots) ? paths.roots : []),
 ].filter(Boolean);
+
+const missing = must.filter((p) => !existsSync(p));
 if (missing.length) {
   console.error("ERR_SSOT_PATHS_MISSING");
-  for (const p of missing) console.error(" -", p);
+  for (const m of missing) console.error(" -", m);
   process.exit(2);
 }
 
 try {
-  JSON.parse(readFileSync("app/src/policies/feature_flags.default.json", "utf8"));
-  if (paths?.flags && existsSync(paths.flags)) {
-    JSON.parse(readFileSync(paths.flags, "utf8"));
-  }
-} catch (e) {
-  console.error("ERR_SSOT_FLAGS_JSON_INVALID", String(e));
-  process.exit(3);
+  JSON.parse(readFileSync(paths.flags, "utf8"));
+} catch (err) {
+  fail("ERR_SSOT_FLAGS_JSON_INVALID", `${paths.flags} :: ${String(err)}`);
 }
 
-console.log("OK_SSOT_PATHS");
+console.log("OK_SSOT_PATHS", JSON.stringify({
+  flags: paths.flags,
+  reports: paths.reports,
+  roots: paths.roots,
+}, null, 2));
