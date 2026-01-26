@@ -27,7 +27,7 @@ export function renderLoginPage(): string {
 
         <div class="cxField">
           <label class="cxLabel" for="cxUser">Identifiant</label>
-          <input class="cxInput" id="cxUser" autocomplete="username" placeholder="ex: sysadmin, Waldhari" />
+          <input class="cxInput" id="cxUser" autocomplete="username" placeholder="ex: user" />
         </div>
 
         <div class="cxField">
