@@ -9,7 +9,7 @@ import { createBadge } from "/src/core/ui/badge";
 import { createDataTable, type TableColumn } from "/src/core/ui/dataTable";
 import { createKpiStrip } from "/src/core/ui/kpi";
 import { createBarChart } from "/src/core/ui/charts";
-import { createGovernanceFooter, createTwoColumnLayout, mapSafeMode } from "./_shared/cpLayout";
+import { createGovernanceFooter, createTwoColumnLayout, createDemoDataBanner, mapSafeMode } from "./_shared/cpLayout";
 import { isCpDemoEnabled } from "./_shared/cpDemo";
 import { getSafeMode } from "../../../../modules/core-system/ui/frontend-ts/pages/_shared/safeMode";
 
@@ -25,13 +25,15 @@ export function renderPublish(root: HTMLElement): void {
   const safeModeValue = mapSafeMode(getSafeMode());
   root.innerHTML = coreBaseStyles();
   const { shell, content } = createPageShell({
-    title: "Publish Center",
-    subtitle: "Versions, compatibilité et gates (lecture seule)",
+    title: "Publication",
+    subtitle: "Versions et déploiement",
     safeMode: safeModeValue,
     statusBadge: { label: "GOUVERNÉ", tone: "info" }
   });
 
   const releases = isCpDemoEnabled() ? DEMO_RELEASES : DEMO_RELEASES;
+  const demoBanner = createDemoDataBanner();
+  if (demoBanner) content.appendChild(demoBanner);
   const kpis = createKpiStrip([
     { label: "Version live", value: "0.2.0", tone: "ok" },
     { label: "Gates OK", value: "12", tone: "ok" },
