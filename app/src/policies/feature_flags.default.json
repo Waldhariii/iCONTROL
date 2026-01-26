@@ -50,6 +50,9 @@
     },
     "gate_ui_contracts_fs_shadow": {
       "state": "OFF"
+    },
+    "gate_ui_component_registry_fs_shadow": {
+      "state": "OFF"
     }
   }
 }

@@ -44,6 +44,40 @@ function read(p) {
   return fs.readFileSync(p, "utf8");
 }
 
+// Minimal feature flag check (reads JSON directly, no TS imports)
+function __isFeatureFlagEnabled(flagName) {
+  try {
+    const rt = globalThis;
+    const decisions = rt?.__FEATURE_DECISIONS__ || rt?.__featureFlags?.decisions;
+    if (Array.isArray(decisions)) {
+      const decision = decisions.find(d => d.flag === flagName);
+      if (decision) return decision.enabled === true;
+    }
+    const flags = rt?.__FEATURE_FLAGS__ || rt?.__featureFlags?.flags;
+    if (flags && flags[flagName]) {
+      const state = flags[flagName].state;
+      return state === "ON" || state === "ROLLOUT";
+    }
+    const flagsPath = path.join(repoRoot, "app/src/policies/feature_flags.default.json");
+    if (fs.existsSync(flagsPath)) {
+      const flagsJson = JSON.parse(fs.readFileSync(flagsPath, "utf8"));
+      const flag = flagsJson.flags?.[flagName];
+      if (flag) {
+        const state = flag.state;
+        return state === "ON" || state === "ROLLOUT";
+      }
+    }
+    return false;
+  } catch {
+    return false;
+  }
+}
+
+function __logWarn(prefix, message, meta = {}) {
+  const metaStr = Object.keys(meta).length ? ` ${JSON.stringify(meta)}` : "";
+  console.warn(`WARN_${prefix}: ${message}${metaStr}`);
+}
+
 function writeReport({ missingClasses, missingFiles, stats }) {
   const lines = [];
   lines.push(`# UI Component Registry Gate Report`);
@@ -78,8 +112,30 @@ function writeReport({ missingClasses, missingFiles, stats }) {
   lines.push(`- PHASE 6.2: ajouter une validation contractuelle (datasets/variants)`);
   lines.push(``);
 
+  // Legacy-first FS write
   fs.mkdirSync(path.dirname(reportPath), { recursive: true });
-  fs.writeFileSync(reportPath, lines.join("\n"), "utf8");
+  let __wrote = false;
+  let __bytes = 0;
+  try {
+    const content = lines.join("\n");
+    fs.writeFileSync(reportPath, content, "utf8");
+    __wrote = true;
+    __bytes = Buffer.byteLength(content, "utf8");
+  } catch (err) {
+    __logWarn("GATE_UI_COMPONENT_REGISTRY_FS_WRITE", `Failed to write ${reportPath}: ${String(err)}`);
+  }
+
+  // Shadow (NO-OP) — uniquement si flag ON/ROLLOUT
+  if (__wrote && __isFeatureFlagEnabled("gate_ui_component_registry_fs_shadow")) {
+    const correlationId = `uiComponentRegistry-${Date.now()}-${Math.random().toString(36).substring(7)}`;
+    __logWarn("WRITE_GATEWAY_UI_COMPONENT_REGISTRY_SHADOW", "Shadow write gateway disabled in standalone gate", {
+      kind: "GATE_UI_COMPONENT_REGISTRY_FS_WRITE_SHADOW",
+      correlation_id: correlationId,
+      path: path.relative(repoRoot, reportPath),
+      bytes: __bytes,
+      note: "Shadow gateway requires TS imports; gate is standalone. Enable shadow via separate mechanism if needed.",
+    });
+  }
 }
 
 function main() {
