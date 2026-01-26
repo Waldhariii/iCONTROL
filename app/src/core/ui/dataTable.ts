@@ -37,73 +37,46 @@ export function createDataTable<T extends Record<string, unknown>>(
   } = options;
 
   const container = document.createElement("div");
-  container.style.cssText = `
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-  `;
+  container.className = "ic-table";
 
   // Search bar
   let searchInput: HTMLInputElement | null = null;
   if (searchable) {
     const searchContainer = document.createElement("div");
-    searchContainer.style.cssText = "position: relative;";
+    searchContainer.className = "ic-table__search";
     searchInput = document.createElement("input");
     searchInput.type = "text";
     searchInput.placeholder = "Rechercher...";
-    searchInput.style.cssText = `
-      width: 100%;
-      padding: 8px 12px;
-      border: 1px solid var(--ic-border, #2b3136);
-      border-radius: 6px;
-      background: var(--ic-bg, #1a1d21);
-      color: var(--ic-text, #e7ecef);
-      font-size: 13px;
-    `;
+    searchInput.className = "ic-table__search-input";
     searchContainer.appendChild(searchInput);
     container.appendChild(searchContainer);
   }
 
   // Table
   const tableWrapper = document.createElement("div");
-  tableWrapper.style.cssText = `
-    overflow-x: auto;
-    border: 1px solid var(--ic-border, #2b3136);
-    border-radius: 8px;
-  `;
+  tableWrapper.className = "ic-table__wrap";
 
   const table = document.createElement("table");
-  table.style.cssText = `
-    width: 100%;
-    border-collapse: collapse;
-    background: var(--ic-bg, #1a1d21);
-  `;
+  table.className = "ic-table__table";
 
   // Header
   const thead = document.createElement("thead");
   const headerRow = document.createElement("tr");
-  headerRow.style.cssText = "border-bottom: 1px solid var(--ic-border, #2b3136);";
+  headerRow.className = "ic-table__row ic-table__row--head";
 
+  const PAGE_SIZE_OPTS = [10, 25, 50];
+  let currentPageSize = PAGE_SIZE_OPTS.includes(pageSize) ? pageSize : PAGE_SIZE_OPTS[0];
   let currentSort: { key: string; direction: "asc" | "desc" } | null = null;
   let filteredData = [...data];
   let currentPage = 1;
 
   columns.forEach((col) => {
     const th = document.createElement("th");
-    th.style.cssText = `
-      padding: 12px;
-      text-align: left;
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--ic-mutedText, #a7b0b7);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      ${col.width ? `width: ${col.width};` : ""}
-    `;
+    th.className = "ic-table__th";
+    if (col.width) th.style.width = col.width;
 
     if (sortable && col.sortable !== false) {
-      th.style.cursor = "pointer";
-      th.style.userSelect = "none";
+      th.classList.add("is-sortable");
       th.textContent = col.label + " ↕";
       th.onclick = () => {
         if (currentSort?.key === col.key) {
@@ -111,6 +84,20 @@ export function createDataTable<T extends Record<string, unknown>>(
         } else {
           currentSort = { key: col.key, direction: "asc" };
         }
+        columns.forEach((c, i) => {
+          const h = headerRow.children[i] as HTMLElement;
+          if (sortable && c.sortable !== false && h) {
+            const icon = currentSort?.key === c.key
+              ? (currentSort!.direction === "asc" ? " ▲" : " ▼")
+              : " ↕";
+            h.textContent = c.label + icon;
+            if (currentSort?.key === c.key) {
+              h.dataset.sortActive = "1";
+            } else {
+              delete h.dataset.sortActive;
+            }
+          }
+        });
         renderTable();
       };
     } else {
@@ -121,16 +108,7 @@ export function createDataTable<T extends Record<string, unknown>>(
 
   if (actions) {
     const actionsTh = document.createElement("th");
-    actionsTh.style.cssText = `
-      padding: 12px;
-      text-align: right;
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--ic-mutedText, #a7b0b7);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      width: 100px;
-    `;
+    actionsTh.className = "ic-table__th ic-table__th--actions";
     actionsTh.textContent = "Actions";
     headerRow.appendChild(actionsTh);
   }
@@ -171,37 +149,22 @@ export function createDataTable<T extends Record<string, unknown>>(
     // Paginate
     let paginatedData = filteredData;
     if (pagination) {
-      const start = (currentPage - 1) * pageSize;
-      const end = start + pageSize;
+      const start = (currentPage - 1) * currentPageSize;
+      const end = start + currentPageSize;
       paginatedData = filteredData.slice(start, end);
     }
 
     // Render rows
     paginatedData.forEach((row) => {
       const tr = document.createElement("tr");
-      tr.style.cssText = `
-        border-bottom: 1px solid var(--ic-border, #2b3136);
-        transition: background 0.2s;
-      `;
+      tr.className = "ic-table__row";
 
-      if (onRowClick) {
-        tr.style.cursor = "pointer";
-        tr.onclick = () => onRowClick(row);
-        tr.onmouseenter = () => {
-          tr.style.background = "var(--ic-bgHover, rgba(255,255,255,0.05))";
-        };
-        tr.onmouseleave = () => {
-          tr.style.background = "transparent";
-        };
-      }
+      if (onRowClick) tr.style.cursor = "pointer";
+      if (onRowClick) tr.onclick = () => onRowClick(row);
 
       columns.forEach((col) => {
         const td = document.createElement("td");
-        td.style.cssText = `
-          padding: 12px;
-          font-size: 13px;
-          color: var(--ic-text, #e7ecef);
-        `;
+        td.className = "ic-table__cell";
 
         const value = row[col.key];
         if (col.render) {
@@ -219,25 +182,13 @@ export function createDataTable<T extends Record<string, unknown>>(
 
       if (actions) {
         const actionsTd = document.createElement("td");
-        actionsTd.style.cssText = `
-          padding: 12px;
-          text-align: right;
-        `;
+        actionsTd.className = "ic-table__cell ic-table__cell--actions";
 
         const actionButtons = actions(row);
         actionButtons.forEach((action) => {
           const btn = document.createElement("button");
           btn.textContent = action.label;
-          btn.style.cssText = `
-            padding: 4px 8px;
-            margin-left: 4px;
-            border: 1px solid var(--ic-border, #2b3136);
-            border-radius: 4px;
-            background: transparent;
-            color: var(--ic-text, #e7ecef);
-            font-size: 12px;
-            cursor: pointer;
-          `;
+          btn.className = "ic-table__action-btn";
           btn.onclick = (e) => {
             e.stopPropagation();
             action.onClick();
@@ -265,65 +216,67 @@ export function createDataTable<T extends Record<string, unknown>>(
 
     if (!paginationContainer) {
       paginationContainer = document.createElement("div");
-      paginationContainer.style.cssText = `
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 12px;
-        border-top: 1px solid var(--ic-border, #2b3136);
-      `;
+      paginationContainer.className = "ic-table__pagination";
       container.appendChild(paginationContainer);
     }
 
-    const totalPages = Math.ceil(filteredData.length / pageSize);
-    const start = (currentPage - 1) * pageSize + 1;
-    const end = Math.min(currentPage * pageSize, filteredData.length);
+    const totalPages = Math.ceil(filteredData.length / currentPageSize);
+    const start = (currentPage - 1) * currentPageSize + 1;
+    const end = Math.min(currentPage * currentPageSize, filteredData.length);
 
-    paginationContainer.innerHTML = `
-      <div style="font-size: 12px; color: var(--ic-mutedText, #a7b0b7);">
-        ${start}-${end} sur ${filteredData.length}
-      </div>
-      <div style="display: flex; gap: 8px;">
-        <button id="prev-page" style="
-          padding: 4px 8px;
-          border: 1px solid var(--ic-border, #2b3136);
-          border-radius: 4px;
-          background: ${currentPage > 1 ? "var(--ic-primary, #4a9eff)" : "transparent"};
-          color: ${currentPage > 1 ? "white" : "var(--ic-mutedText, #a7b0b7)"};
-          font-size: 12px;
-          cursor: ${currentPage > 1 ? "pointer" : "not-allowed"};
-        ">Précédent</button>
-        <span style="font-size: 12px; color: var(--ic-text, #e7ecef); padding: 4px 8px;">
-          Page ${currentPage} / ${totalPages || 1}
-        </span>
-        <button id="next-page" style="
-          padding: 4px 8px;
-          border: 1px solid var(--ic-border, #2b3136);
-          border-radius: 4px;
-          background: ${currentPage < totalPages ? "var(--ic-primary, #4a9eff)" : "transparent"};
-          color: ${currentPage < totalPages ? "white" : "var(--ic-mutedText, #a7b0b7)"};
-          font-size: 12px;
-          cursor: ${currentPage < totalPages ? "pointer" : "not-allowed"};
-        ">Suivant</button>
-      </div>
-    `;
+    paginationContainer.innerHTML = "";
+    const left = document.createElement("div");
+    left.className = "ic-table__pagination-info";
+    const span = document.createElement("span");
+    span.textContent = `${start}-${end} sur ${filteredData.length}`;
+    left.appendChild(span);
 
-    const prevBtn = paginationContainer.querySelector("#prev-page") as HTMLButtonElement;
-    const nextBtn = paginationContainer.querySelector("#next-page") as HTMLButtonElement;
+    const pageSizeSel = document.createElement("select");
+    pageSizeSel.className = "ic-table__select";
+    pageSizeSel.setAttribute("aria-label", "Lignes par page");
+    pageSizeSel.innerHTML = PAGE_SIZE_OPTS.map((n) => `<option value="${n}" ${n === currentPageSize ? "selected" : ""}>${n}</option>`).join("");
+    pageSizeSel.onchange = () => {
+      currentPageSize = parseInt(pageSizeSel.value, 10);
+      currentPage = 1;
+      renderTable();
+    };
+    left.appendChild(pageSizeSel);
 
-    if (prevBtn && currentPage > 1) {
-      prevBtn.onclick = () => {
+    const right = document.createElement("div");
+    right.className = "ic-table__pagination-actions";
+
+    const prevBtn = document.createElement("button");
+    prevBtn.className = "ic-table__page-btn";
+    prevBtn.textContent = "Précédent";
+    prevBtn.disabled = currentPage <= 1;
+    prevBtn.onclick = () => {
+      if (currentPage > 1) {
         currentPage--;
         renderTable();
-      };
-    }
+      }
+    };
 
-    if (nextBtn && currentPage < totalPages) {
-      nextBtn.onclick = () => {
+    const pageInfo = document.createElement("span");
+    pageInfo.className = "ic-table__page-info";
+    pageInfo.textContent = `Page ${currentPage} / ${totalPages || 1}`;
+
+    const nextBtn = document.createElement("button");
+    nextBtn.className = "ic-table__page-btn";
+    nextBtn.textContent = "Suivant";
+    nextBtn.disabled = currentPage >= totalPages;
+    nextBtn.onclick = () => {
+      if (currentPage < totalPages) {
         currentPage++;
         renderTable();
-      };
-    }
+      }
+    };
+
+    right.appendChild(prevBtn);
+    right.appendChild(pageInfo);
+    right.appendChild(nextBtn);
+
+    paginationContainer.appendChild(left);
+    paginationContainer.appendChild(right);
   }
 
   table.appendChild(tbody);

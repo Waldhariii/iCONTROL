@@ -18,16 +18,7 @@ function getToastContainer(): HTMLElement {
 
   toastContainer = document.createElement("div");
   toastContainer.id = "icontrol-toast-container";
-  toastContainer.style.cssText = `
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    z-index: 10000;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    pointer-events: none;
-  `;
+  toastContainer.className = "ic-toast-container";
   document.body.appendChild(toastContainer);
   return toastContainer;
 }
@@ -35,39 +26,35 @@ function getToastContainer(): HTMLElement {
 export function showToast(options: ToastOptions): void {
   const container = getToastContainer();
   const toast = document.createElement("div");
-  
-  const statusColors = {
-    success: { bg: "rgba(76, 175, 80, 0.15)", border: "rgba(76, 175, 80, 0.5)", text: "#4caf50" },
-    error: { bg: "rgba(244, 67, 54, 0.15)", border: "rgba(244, 67, 54, 0.5)", text: "#f44336" },
-    warning: { bg: "rgba(255, 152, 0, 0.15)", border: "rgba(255, 152, 0, 0.5)", text: "#ff9800" },
-    info: { bg: "rgba(33, 150, 243, 0.15)", border: "rgba(33, 150, 243, 0.5)", text: "#2196f3" },
+  toast.className = "ic-toast";
+  toast.dataset.status = options.status;
+
+  const icons = {
+    success: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>`,
+    error: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>`,
+    warning: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`,
+    info: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>`,
   };
+  const iconSvg = icons[options.status] ?? icons.info;
 
-  const colors = statusColors[options.status] || statusColors.info;
+  toast.style.animation = "icToastIn 0.3s ease-out";
 
-  toast.style.cssText = `
-    padding: 12px 16px;
-    border-radius: 8px;
-    border: 1px solid ${colors.border};
-    background: ${colors.bg};
-    color: ${colors.text};
-    font-size: 13px;
-    font-weight: 500;
-    min-width: 200px;
-    max-width: 400px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    pointer-events: auto;
-    animation: slideIn 0.3s ease-out;
-  `;
-
-  toast.textContent = options.message;
+  const iconWrap = document.createElement("span");
+  iconWrap.className = "ic-toast__icon";
+  iconWrap.innerHTML = iconSvg;
+  const msg = document.createElement("span");
+  msg.textContent = options.message;
+  msg.className = "ic-toast__message";
+  toast.appendChild(iconWrap);
+  toast.appendChild(msg);
 
   // Add animation
   const style = document.createElement("style");
   if (!document.getElementById("icontrol-toast-animations")) {
     style.id = "icontrol-toast-animations";
+    style.setAttribute("data-icontrol-allow", "1");
     style.textContent = `
-      @keyframes slideIn {
+      @keyframes icToastIn {
         from {
           transform: translateX(100%);
           opacity: 0;
@@ -77,7 +64,7 @@ export function showToast(options: ToastOptions): void {
           opacity: 1;
         }
       }
-      @keyframes slideOut {
+      @keyframes icToastOut {
         from {
           transform: translateX(0);
           opacity: 1;
@@ -95,7 +82,7 @@ export function showToast(options: ToastOptions): void {
 
   const duration = options.duration || 3000;
   setTimeout(() => {
-    toast.style.animation = "slideOut 0.3s ease-out";
+    toast.style.animation = "icToastOut 0.3s ease-out";
     setTimeout(() => {
       if (toast.parentNode) {
         toast.parentNode.removeChild(toast);

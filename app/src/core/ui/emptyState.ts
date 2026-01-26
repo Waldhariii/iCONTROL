@@ -2,6 +2,7 @@
  * ICONTROL_EMPTY_STATE_V1
  * État vide contextuel standardisé pour les listes/tables vides
  */
+import { createButton } from "./button";
 
 export interface EmptyStateOptions {
   filter?: string;
@@ -15,38 +16,19 @@ export function createContextualEmptyState(
   options: EmptyStateOptions = {}
 ): HTMLElement {
   const container = document.createElement("div");
-  container.style.cssText = `
-    padding: 48px 24px;
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    align-items: center;
-  `;
+  container.className = "ic-empty-state";
 
   const icon = document.createElement("div");
-  icon.style.cssText = `
-    font-size: 48px;
-    opacity: 0.5;
-    margin-bottom: 8px;
-  `;
-  icon.textContent = "📭";
+  icon.setAttribute("aria-hidden", "true");
+  icon.className = "ic-empty-state__icon";
+  icon.innerHTML = `<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><rect x="3" y="4" width="18" height="14" rx="2"/></svg>`;
   container.appendChild(icon);
 
   const title = document.createElement("div");
-  title.style.cssText = `
-    font-size: 16px;
-    font-weight: 600;
-    color: var(--ic-text, #e7ecef);
-    margin-bottom: 4px;
-  `;
+  title.className = "ic-empty-state__title";
 
   const message = document.createElement("div");
-  message.style.cssText = `
-    font-size: 13px;
-    color: var(--ic-mutedText, #a7b0b7);
-    margin-bottom: 16px;
-  `;
+  message.className = "ic-empty-state__message";
 
   // Messages contextuels
   if (options.filter || options.searchQuery) {
@@ -87,64 +69,33 @@ export function createContextualEmptyState(
 
   // Actions
   const actions = document.createElement("div");
-  actions.style.cssText = `
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-    justify-content: center;
-  `;
+  actions.className = "ic-empty-state__actions";
 
   if (options.onClearFilter && (options.filter || options.searchQuery)) {
-    const clearBtn = document.createElement("button");
-    clearBtn.textContent = "Effacer les filtres";
-    clearBtn.style.cssText = `
-      padding: 8px 16px;
-      border-radius: 8px;
-      border: 1px solid var(--ic-border, #2b3136);
-      background: transparent;
-      color: var(--ic-text, #e7ecef);
-      font-size: 13px;
-      cursor: pointer;
-      transition: all 0.2s;
-    `;
-    clearBtn.onmouseenter = () => {
-      clearBtn.style.background = "var(--ic-bgHover, rgba(255,255,255,0.05))";
-    };
-    clearBtn.onmouseleave = () => {
-      clearBtn.style.background = "transparent";
-    };
-    clearBtn.onclick = () => {
-      if (options.onClearFilter) options.onClearFilter();
-    };
+    const clearBtn = createButton({
+      label: "Effacer les filtres",
+      variant: "secondary",
+      size: "default",
+      onClick: () => {
+        if (options.onClearFilter) options.onClearFilter();
+      }
+    });
     actions.appendChild(clearBtn);
   }
 
   if (options.onAdd) {
-    const addBtn = document.createElement("button");
-    addBtn.textContent = context === "users" ? "Ajouter un utilisateur" :
-                         context === "subscriptions" ? "Ajouter une souscription" :
-                         context === "logs" ? "Actualiser" :
-                         "Ajouter";
-    addBtn.style.cssText = `
-      padding: 8px 16px;
-      border-radius: 8px;
-      border: none;
-      background: var(--ic-primary, #4a9eff);
-      color: white;
-      font-size: 13px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.2s;
-    `;
-    addBtn.onmouseenter = () => {
-      addBtn.style.background = "var(--ic-primaryHover, #3a8eef)";
-    };
-    addBtn.onmouseleave = () => {
-      addBtn.style.background = "var(--ic-primary, #4a9eff)";
-    };
-    addBtn.onclick = () => {
-      if (options.onAdd) options.onAdd();
-    };
+    const label = context === "users" ? "Ajouter un utilisateur" :
+                  context === "subscriptions" ? "Ajouter une souscription" :
+                  context === "logs" ? "Actualiser" :
+                  "Ajouter";
+    const addBtn = createButton({
+      label,
+      variant: "primary",
+      size: "default",
+      onClick: () => {
+        if (options.onAdd) options.onAdd();
+      }
+    });
     actions.appendChild(addBtn);
   }
 
@@ -161,41 +112,25 @@ export function createEmptyStateCard(options: {
   action?: { label: string; onClick: () => void };
 }): HTMLElement {
   const container = document.createElement("div");
-  container.style.cssText = `
-    padding: 24px;
-    border: 1px dashed var(--ic-border, #2b3136);
-    border-radius: 10px;
-    background: var(--ic-card, #1a1d1f);
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  `;
+  container.className = "ic-empty-card";
 
   const title = document.createElement("div");
   title.textContent = options.title;
-  title.style.cssText = "font-size: 14px; font-weight: 700; color: var(--ic-text, #e7ecef);";
+  title.className = "ic-empty-card__title";
   const message = document.createElement("div");
   message.textContent = options.message;
-  message.style.cssText = "font-size: 12px; color: var(--ic-mutedText, #a7b0b7);";
+  message.className = "ic-empty-card__message";
 
   container.appendChild(title);
   container.appendChild(message);
 
   if (options.action) {
-    const btn = document.createElement("button");
-    btn.type = "button";
-    btn.textContent = options.action.label;
-    btn.style.cssText = `
-      align-self: flex-start;
-      padding: 6px 12px;
-      border-radius: 8px;
-      border: 1px solid var(--ic-border, #2b3136);
-      background: transparent;
-      color: var(--ic-text, #e7ecef);
-      font-size: 12px;
-      cursor: pointer;
-    `;
-    btn.onclick = options.action.onClick;
+    const btn = createButton({
+      label: options.action.label,
+      variant: "secondary",
+      size: "small",
+      onClick: () => options.action.onClick()
+    });
     container.appendChild(btn);
   }
 
