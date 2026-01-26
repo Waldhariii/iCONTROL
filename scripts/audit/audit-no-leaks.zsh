@@ -37,7 +37,7 @@ md "- Timestamp: \`$NOW\`"
 md ""
 
 echo "=== AUDIT: A1 Hardcoded /Users path ==="
-HIT_A1="$(rg -n --hidden --no-ignore "${EXCL[@]}" "/Users/" "$ROOT" || true)"
+HIT_A1="$(rg --hidden --no-ignore "${EXCL[@]}" "/Users/" "$ROOT" || true)"
 if [ -n "$HIT_A1" ]; then
   md "## FAIL A1 — Hardcoded path \`/Users/\` detected"
   md '```'
@@ -52,7 +52,7 @@ fi
 md ""
 
 echo "=== AUDIT: B1 Legacy token banned ==="
-HIT_B1="$(rg -n --hidden --no-ignore "${EXCL[@]}" "$LEGACY_TOKEN" "$ROOT" || true)"
+HIT_B1="$(rg --hidden --no-ignore "${EXCL[@]}" "$LEGACY_TOKEN" "$ROOT" || true)"
 if [ -n "$HIT_B1" ]; then
   md "## FAIL B1 — Legacy brand token found (banned)"
   md '```'
@@ -67,7 +67,7 @@ fi
 md ""
 
 echo "=== AUDIT: C1 core-kernel isolation ==="
-HIT_C1="$(rg -n --hidden --no-ignore "${EXCL[@]}" "from\\s+['\"]/modules/|from\\s+['\"]\\.\\./\\.\\./modules/" "$ROOT/core-kernel" || true)"
+HIT_C1="$(rg --hidden --no-ignore "${EXCL[@]}" "from\\s+['\"]/modules/|from\\s+['\"]\\.\\./\\.\\./modules/" "$ROOT/core-kernel" || true)"
 if [ -n "$HIT_C1" ]; then
   md "## FAIL C1 — core-kernel importing modules (forbidden)"
   md '```'
@@ -82,7 +82,7 @@ fi
 md ""
 
 echo "=== AUDIT: D1 module->module (warn) ==="
-HIT_D1="$(rg -n --hidden --no-ignore "${EXCL[@]}" "modules/[^/]+/.*modules/[^/]+" "$ROOT/modules" || true)"
+HIT_D1="$(rg --hidden --no-ignore "${EXCL[@]}" "modules/[^/]+/.*modules/[^/]+" "$ROOT/modules" || true)"
 if [ -n "$HIT_D1" ]; then
   md "## WARN D1 — module→module reference patterns found (review isolation)"
   md '```'
