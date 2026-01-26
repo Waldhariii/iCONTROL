@@ -2,6 +2,43 @@
 import fs from "node:fs";
 import path from "node:path";
 import { execSync } from "node:child_process";
+import { createAuditHook } from "../../../app/src/core/write-gateway/auditHook";
+import { createLegacyAdapter } from "../../../app/src/core/write-gateway/adapters/legacyAdapter";
+import { createPolicyHook } from "../../../app/src/core/write-gateway/policyHook";
+import { createCorrelationId, createWriteGateway } from "../../../app/src/core/write-gateway/writeGateway";
+import { getLogger } from "../../../app/src/core/utils/logger";
+import { isEnabled } from "../../../app/src/policies/feature_flags.enforce";
+
+/** WRITE_GATEWAY_UI_CONTRACTS — shadow scaffold (legacy-first; NO-OP adapter). */
+const __wsLogger = getLogger("WRITE_GATEWAY_UI_CONTRACTS");
+let __wsGateway = null;
+
+function __resolveWsGateway() {
+  if (__wsGateway) return __wsGateway;
+  __wsGateway = createWriteGateway({
+    policy: createPolicyHook(),
+    audit: createAuditHook(),
+    adapter: createLegacyAdapter((cmd) => {
+      void cmd;
+      return { status: "SKIPPED", correlationId: cmd.correlationId };
+    }, "gateUiContractsFsShadowNoop"),
+    safeMode: { enabled: true },
+  });
+  return __wsGateway;
+}
+
+const __isWsShadowEnabled = () => {
+  try {
+    const rt = globalThis;
+    const decisions = rt?.__FEATURE_DECISIONS__ || rt?.__featureFlags?.decisions;
+    if (Array.isArray(decisions)) return isEnabled(decisions, "gate_ui_contracts_fs_shadow");
+    const flags = rt?.__FEATURE_FLAGS__ || rt?.__featureFlags?.flags;
+    const state = flags?.["gate_ui_contracts_fs_shadow"]?.state;
+    return state === "ON" || state === "ROLLOUT";
+  } catch {
+    return false;
+  }
+};
 
 const ROOT = process.cwd();
 const REPORTS_DIR = path.join(ROOT, "_REPORTS");
@@ -22,7 +59,43 @@ function readFile(p) {
 }
 function writeFile(p, s) {
   ensureDir(path.dirname(p));
-  fs.writeFileSync(p, s, "utf8");
+  // Legacy-first FS write (best-effort; continue on error)
+  let __wrote = false;
+  let __bytes = 0;
+  try {
+    fs.writeFileSync(p, s, "utf8");
+    __wrote = true;
+    // approximate bytes if content is a string literal/variable (best-effort)
+  } catch {}
+
+  // Shadow (NO-OP) — uniquement si flag ON/ROLLOUT
+  if (__wrote && __isWsShadowEnabled()) {
+    const correlationId = createCorrelationId("uiContracts");
+    const cmd = {
+      kind: "GATE_UI_CONTRACTS_FS_WRITE_SHADOW",
+      tenantId: "public",
+      correlationId,
+      payload: { path: "gate-ui-contracts", bytes: __bytes },
+      meta: { shadow: true, source: "gate-ui-contracts.mjs" },
+    };
+
+    try {
+      const res = __resolveWsGateway().execute(cmd);
+      if (res.status !== "OK" && res.status !== "SKIPPED") {
+        __wsLogger.warn("WRITE_GATEWAY_UI_CONTRACTS_FALLBACK", {
+          kind: cmd.kind,
+          correlation_id: correlationId,
+          status: res.status,
+        });
+      }
+    } catch (err) {
+      __wsLogger.warn("WRITE_GATEWAY_UI_CONTRACTS_ERROR", {
+        kind: cmd.kind,
+        correlation_id: correlationId,
+        error: String(err),
+      });
+    }
+  }
 }
 
 const UI_CORE_DIR = "app/src/core/ui";

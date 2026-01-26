@@ -47,6 +47,9 @@
     },
     "localauth_cookie_shadow": {
       "state": "OFF"
+    },
+    "gate_ui_contracts_fs_shadow": {
+      "state": "OFF"
     }
   }
 }
