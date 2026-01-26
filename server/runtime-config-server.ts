@@ -35,6 +35,8 @@ const MIME: Record<string, string> = {
   ".json": "application/json; charset=utf-8",
 };
 
+const TENANT_ID_RE = /^[A-Za-z0-9][A-Za-z0-9_-]{0,62}$/;
+
 function parseCookies(header: string | undefined): Record<string, string> {
   if (!header) return {};
   return header.split(";").reduce<Record<string, string>>((acc, part) => {
@@ -47,11 +49,17 @@ function parseCookies(header: string | undefined): Record<string, string> {
   }, {});
 }
 
+function sanitizeTenantId(raw: string | undefined): string | null {
+  const t = String(raw || "").trim();
+  if (!t) return null;
+  if (!TENANT_ID_RE.test(t)) return null;
+  return t;
+}
+
 function getTenantIdFromCookie(header?: string): string {
   const cookies = parseCookies(header);
-  return (
-    cookies.icontrol_tenant_id || cookies.tenant_id || cookies.tenant || "local"
-  );
+  const candidate = cookies.icontrol_tenant_id || cookies.tenant_id || cookies.tenant;
+  return sanitizeTenantId(candidate) || "local";
 }
 
 function getOrigin(req: http.IncomingMessage): string {
@@ -123,9 +131,25 @@ function serveStatic(
   if (!fs.existsSync(filePath)) {
     const fallback = safeResolve(baseDir, "/index.html");
     if (fallback && fs.existsSync(fallback)) {
-      res.statusCode = 200;
+      const stat = fs.statSync(fallback);
+      const etag = `W/"${stat.size}-${stat.mtimeMs}"`;
+      const inm = String(req.headers["if-none-match"] || "");
       res.setHeader("Content-Type", "text/html; charset=utf-8");
-      res.end(fs.readFileSync(fallback));
+      res.setHeader("Cache-Control", "no-store");
+      res.setHeader("ETag", etag);
+      if (inm === etag) {
+        res.statusCode = 304;
+        res.end();
+        return;
+      }
+      res.statusCode = 200;
+      res.setHeader("Content-Length", stat.size);
+      const stream = fs.createReadStream(fallback);
+      stream.on("error", () => {
+        res.statusCode = 500;
+        res.end("Read error");
+      });
+      stream.pipe(res);
       return;
     }
     res.statusCode = 404;
@@ -133,10 +157,28 @@ function serveStatic(
     return;
   }
 
+  const stat = fs.statSync(filePath);
+  const etag = `W/"${stat.size}-${stat.mtimeMs}"`;
+  const inm = String(req.headers["if-none-match"] || "");
+  const isHtml = path.extname(filePath) === ".html";
+  res.setHeader("ETag", etag);
+  res.setHeader("Cache-Control", isHtml ? "no-store" : "public, max-age=3600");
+  if (inm === etag) {
+    res.statusCode = 304;
+    res.end();
+    return;
+  }
+
   const ext = path.extname(filePath);
   res.statusCode = 200;
   res.setHeader("Content-Type", MIME[ext] || "application/octet-stream");
-  res.end(fs.readFileSync(filePath));
+  res.setHeader("Content-Length", stat.size);
+  const stream = fs.createReadStream(filePath);
+  stream.on("error", () => {
+    res.statusCode = 500;
+    res.end("Read error");
+  });
+  stream.pipe(res);
 }
 
 export function handleRuntimeConfigRequest(
