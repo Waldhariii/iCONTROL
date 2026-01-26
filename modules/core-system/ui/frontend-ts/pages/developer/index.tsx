@@ -22,7 +22,7 @@ function __fmtTs(ts?: number) {
       {(() => {
         const a: any = __readCacheAudit();
         return (
-          <div style={{ border: "1px solid rgba(255,255,255,0.12)", borderRadius: 12, padding: 12, marginBottom: 12 }}>
+          <div style={{ border: "1px solid var(--ic-borderLight)", borderRadius: 12, padding: 12, marginBottom: 12 }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
               <div style={{ fontWeight: 700 }}>Cache Audit</div>
               <div style={{ opacity: 0.8, fontSize: 12 }}>{a?.ts ? __fmtTs(a.ts) : "n/a"}</div>

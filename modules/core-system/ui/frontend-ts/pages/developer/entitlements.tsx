@@ -37,7 +37,7 @@ export function renderDeveloperEntitlements(root: HTMLElement): void {
   wrap.appendChild(desc);
 
   const card = document.createElement("section");
-  card.style.cssText = "border:1px solid rgba(0,0,0,0.12);border-radius:8px;padding:12px";
+  card.style.cssText = "border:1px solid var(--ic-borderDark);border-radius:8px;padding:12px";
   const grid = document.createElement("div");
   grid.style.cssText = "display:grid;gap:8px";
 
@@ -102,7 +102,7 @@ export function renderDeveloperEntitlements(root: HTMLElement): void {
   const summary = document.createElement("summary");
   summary.textContent = "Voir JSON";
   const jsonPre = document.createElement("pre");
-  jsonPre.style.cssText = "background:rgba(0,0,0,0.04);padding:12px;border-radius:8px;overflow-x:auto";
+  jsonPre.style.cssText = "background:var(--ic-borderDarkMuted);padding:12px;border-radius:8px;overflow-x:auto";
   details.appendChild(summary);
   details.appendChild(jsonPre);
   grid.appendChild(details);
@@ -111,7 +111,7 @@ export function renderDeveloperEntitlements(root: HTMLElement): void {
   wrap.appendChild(card);
 
   const cardDod = document.createElement("section");
-  cardDod.style.cssText = "border:1px solid rgba(0,0,0,0.12);border-radius:8px;padding:12px";
+  cardDod.style.cssText = "border:1px solid var(--ic-borderDark);border-radius:8px;padding:12px";
   const dodTitle = document.createElement("h2");
   dodTitle.textContent = "DoD (cette section)";
   dodTitle.style.cssText = "font-size:14px;font-weight:700";
