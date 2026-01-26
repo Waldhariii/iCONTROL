@@ -1,8 +1,59 @@
+// === CLIENT_V2_SSOT_BEGIN ===
+// Single Source of Truth: CLIENT_V2 route IDs (deterministic order)
+const CLIENT_V2_ROUTE_IDS = ['account', 'dashboard', 'settings', 'system', 'users'] as const;
+
+// Generated guards from SSOT (3 variants for different contexts)
+const __CLIENT_V2_ALLOWED_HASH_ROUTES = new Set(CLIENT_V2_ROUTE_IDS.map(r => `#/${r}`));
+const __CLIENT_V2_ALLOW = new Set(CLIENT_V2_ROUTE_IDS.map(r => `#/${r}`));
+const __CLIENT_V2_ALLOWLIST = new Set(CLIENT_V2_ROUTE_IDS.map(r => `/${r}`));
+
+// Self-check: verify no duplicates after normalization (WARN only, non-blocking)
+if (__CLIENT_V2_ALLOWED_HASH_ROUTES.size !== CLIENT_V2_ROUTE_IDS.length) {
+  console.warn("WARN_CLIENT_V2_DUPLICATES_DETECTED", { expected: CLIENT_V2_ROUTE_IDS.length, actual: __CLIENT_V2_ALLOWED_HASH_ROUTES.size });
+}
+
+function __clientV2GuardHashRoute(hashRoute) {
+  try {
+    const r = (hashRoute || "").trim();
+    if (!r) return __clientV2FallbackHash("disabled");
+    if (__CLIENT_V2_ALLOWED_HASH_ROUTES.has(r)) return r;
+    return __clientV2FallbackHash("disabled");
+  } catch {
+    return __clientV2FallbackHash("disabled");
+  }
+}
+// === CLIENT_V2_SSOT_END ===
+
 import { getSession, isLoggedIn, logout } from "./localAuth";
 import { canAccessSettings } from "./runtime/rbac";
 import { navigate as coreNavigate } from "./runtime/navigate";
 import { applyVersionPolicyBootGuards } from "./policies/version_policy.runtime";
 import { getGlobalWindow, type WindowWithIControl } from "./core/utils/types";
+import { getLogger } from "./core/utils/logger";
+import { ADMIN_ROUTE_ALLOWLIST, CLIENT_ROUTE_ALLOWLIST } from "./core/ssot/routeCatalogLoader";
+
+const logger = getLogger("ROUTER");
+
+
+/* __CLIENT_V2_FALLBACK_NO_EXTRA_ROUTES__ (SSOT) 
+   - constitution: CLIENT_ALLOWLIST_ROUTES.txt
+   - routes: #/dashboard, #/account, #/settings, #/users, #/system
+   - policy: ANY unknown route => fallback "#/dashboard"
+   - states: disabled/denied are rendered INSIDE allowed routes (query param ?state=...)
+   - Note: __CLIENT_V2_ALLOW is generated from CLIENT_V2_ROUTE_IDS (see CLIENT_V2_SSOT_BEGIN)
+*/
+function __clientV2NormalizeHash(h) {
+  if (!h) return "#/dashboard";
+  const m = String(h).match(/^#\/[^?]*/);
+  return m ? m[0] : "#/dashboard";
+}
+function __clientV2FallbackHash(state) {
+  return state ? `#/dashboard?state=${encodeURIComponent(state)}` : "#/dashboard";
+}
+function __clientV2IsAllowed(hash) {
+  return __CLIENT_V2_ALLOW.has(__clientV2NormalizeHash(hash));
+}
+
 /**
  * router.ts — minimal hash router with RBAC guard
  * Public:  #/login
@@ -14,34 +65,23 @@ export type RouteId = "login" | "dashboard" | "settings" | "settings_branding" |
   | "system" | "logs" | "dossiers"
   | "tenants" | "entitlements" | "pages" | "feature-flags" | "publish" | "audit" | "subscription" | "integrations" | "login-theme" | "shell-debug"; // Routes CP
 
-// ADMIN_ALLOWLIST_SSOT_MIRROR_V1
-// Source of truth: iCONTROL/_REPORTS/GOVERNANCE_ADMIN_LOCK_V1_20260122_133646/surfaces/admin/route_lock/ADMIN_ALLOWLIST_ROUTES.txt
-const ADMIN_ROUTE_ALLOWLIST = new Set<string>([
-  "#/access-denied",
-  "#/account",
-  "#/audit",
-  "#/blocked",
-  "#/dashboard",
-  "#/developer/entitlements",
-  "#/login-theme",
-  "#/settings",
-  "#/system",
-  "#/tenants",
-  "#/users",
-  "#/verification"
-]);
+/* CLIENT_V2_GUARD_START */
+// Note: __CLIENT_V2_ALLOWLIST is generated from CLIENT_V2_ROUTE_IDS (see CLIENT_V2_SSOT_BEGIN)
+function __isClientV2Allowed(pathname: string) {
+  // pathname attendu style "/dashboard"
+  if (!pathname) return false;
+  const p = pathname.startsWith("/") ? pathname : "/" + pathname;
+  return __CLIENT_V2_ALLOWLIST.has(p);
+}
+/* CLIENT_V2_GUARD_END */
 
-// CLIENT_ROUTE_ALLOWLIST_V1 (Client disabled surface)
-const CLIENT_ROUTE_ALLOWLIST = new Set<string>([
-  "#/access-denied",
-  "#/client-disabled",
-  "#/__ui-catalog-client"
-]);
+// ADMIN_ROUTE_ALLOWLIST / CLIENT_ROUTE_ALLOWLIST — construits depuis config/ssot/ROUTE_CATALOG.json (Phase 2.1)
+// routeCatalogLoader filtre app_surface et status ACTIVE|EXPERIMENTAL. HIDDEN/DEPRECATED → guard bloque.
 
 function __icontrolNormalizeAppKind__(raw?: string): "CP" | "APP" {
   const k = String(raw || "").trim().toUpperCase();
   if (k === "CP" || k === "CONTROL_PLANE" || k === "CONTROLPLANE" || k === "ADMIN" || k === "ADMINISTRATION") return "CP";
-  if (k === "APP" || k === "CLIENT" || k === "DESKTOP_CLIENT") return "APP";
+  if (k === "APP" || k === "CLIENT" || k === "DESKTOP_CLIENT" || k === "CLIENT_APP") return "APP";
   return "CP";
 }
 
@@ -68,6 +108,8 @@ function __icontrolNormalizeHash__(hash: string): string {
 function __icontrolIsAdminRouteAllowed__(hash: string): boolean {
   const h = __icontrolNormalizeHash__(hash);
   if (h === "#/login" || h.startsWith("#/login?")) return true;
+  // Toujours autoriser #/dashboard sur CP (sécurité si ROUTE_CATALOG manque ou diffère).
+  if (h === "#/dashboard") return true;
   return ADMIN_ROUTE_ALLOWLIST.has(h);
 }
 
@@ -76,7 +118,10 @@ function __icontrolIsClientRouteAllowed__(hash: string): boolean {
   return CLIENT_ROUTE_ALLOWLIST.has(h);
 }
 export function getRouteId(): RouteId {
-  const h = (location.hash || "").replace(/^#\/?/, "");
+  // __clientV2GuardHashRoute: APP only. CP must use raw hash so #/login→login, #/dashboard→dashboard, etc.
+  const kind = __icontrolResolveAppKind();
+  const rawHash = String(location.hash || "");
+  const h = (kind === "APP" ? (__clientV2GuardHashRoute(rawHash) || rawHash) : rawHash).replace(/^#\/?/, "");
   const seg = (h.split("?")[0] || "").trim();
   if (!seg || seg === "login") return "login";
   if (seg === "dashboard") return "dashboard";
@@ -111,6 +156,42 @@ export function getRouteId(): RouteId {
   if (seg === "shell-debug" || seg === "debug-shell") return "shell-debug";
   
   // Routes communes
+  if (seg === "runtime-smoke" || seg === "runtime_smoke") return "runtime_smoke";
+  if (seg === "blocked") return "blocked";
+  return "notfound";
+}
+
+/** Déduit le route_id à partir du hash (pour guardRouteAccess, sans canAccessSettings). */
+export function getRouteIdFromHash(hash: string): RouteId {
+  const h = String(hash || "").replace(/^#\/?/, "");
+  const seg = (h.split("?")[0] || "").trim();
+  if (!seg || seg === "login") return "login";
+  if (seg === "dashboard") return "dashboard";
+  if (seg === "users") return "users";
+  if (seg === "account") return "account";
+  if (seg === "developer/entitlements" || seg === "dev/entitlements") return "developer_entitlements";
+  if (seg === "developer" || seg === "dev") return "developer";
+  if (seg === "access-denied") return "access_denied";
+  if (seg === "__ui-catalog" || seg === "ui-catalog") return "ui_catalog";
+  if (seg === "toolbox" || seg === "dev-tools" || seg === "devtools") return "toolbox";
+  if (seg === "system") return "system";
+  if (seg === "logs") return "logs";
+  if (seg === "dossiers") return "dossiers";
+  if (seg === "verification" || seg === "verify") return "verification";
+  if (seg === "client-disabled" || seg === "client_disabled") return "client_disabled";
+  if (seg === "__ui-catalog-client") return "client_catalog";
+  if (seg === "settings") return "settings";
+  if (seg === "settings/branding") return "settings_branding";
+  if (seg === "tenants") return "tenants";
+  if (seg === "entitlements") return "entitlements";
+  if (seg === "pages") return "pages";
+  if (seg === "feature-flags") return "feature-flags";
+  if (seg === "publish") return "publish";
+  if (seg === "audit") return "audit";
+  if (seg === "subscription") return "subscription";
+  if (seg === "integrations") return "integrations";
+  if (seg === "login-theme" || seg === "theme-editor") return "login-theme";
+  if (seg === "shell-debug" || seg === "debug-shell") return "shell-debug";
   if (seg === "runtime-smoke" || seg === "runtime_smoke") return "runtime_smoke";
   if (seg === "blocked") return "blocked";
   return "notfound";
@@ -185,15 +266,16 @@ export function bootRouter(onRoute: (rid: RouteId) => void): void {
         const allowed = __icontrolIsAdminRouteAllowed__(h);
         if (!allowed) {
           console.warn("ADMIN_ROUTE_GUARD_BLOCK", { route: h });
-          try { coreNavigate("#/access-denied"); } catch {}
+          // Redirection vers #/dashboard (sans state=denied pour éviter « Accès refusé »).
+          try { coreNavigate(__clientV2FallbackHash()); } catch {}
           return;
         }
       }
     } catch (e) {
-      // Fail closed: if guard errors in CP, route to access-denied
+      // Si le guard échoue (exception), rediriger vers #/dashboard (éviter state=denied / « Accès refusé »).
       try {
         console.warn("ADMIN_ROUTE_GUARD_FAILED", String(e));
-        if (__icontrolResolveAppKind() === "CP") coreNavigate("#/access-denied");
+        if (__icontrolResolveAppKind() === "CP") coreNavigate(__clientV2FallbackHash());
       } catch {}
       return;
     }
@@ -204,14 +286,14 @@ export function bootRouter(onRoute: (rid: RouteId) => void): void {
         const allowed = __icontrolIsClientRouteAllowed__(h);
         if (!allowed) {
           console.warn("CLIENT_ROUTE_GUARD_BLOCK", { route: h });
-          try { coreNavigate("#/client-disabled"); } catch {}
+          try { coreNavigate(__clientV2FallbackHash("disabled")); } catch {}
           return;
         }
       }
     } catch (e) {
       try {
         console.warn("CLIENT_ROUTE_GUARD_FAILED", String(e));
-        if (__icontrolResolveAppKind() === "APP") coreNavigate("#/client-disabled");
+        if (__icontrolResolveAppKind() === "APP") coreNavigate(__clientV2FallbackHash("disabled"));
       } catch {}
       return;
     }
@@ -226,7 +308,8 @@ export function bootRouter(onRoute: (rid: RouteId) => void): void {
       const accessCheck = await guardRouteAccess(h);
       if (!accessCheck.allowed) {
         logger.warn("ROUTE_ACCESS_DENIED", { route: h, reason: accessCheck.reason });
-        try { coreNavigate("#/access-denied"); } catch (e) {
+        // Redirection vers #/dashboard sans state=denied (éviter affichage « Accès refusé »).
+        try { coreNavigate(__clientV2FallbackHash()); } catch (e) {
           logger.error("ACCESS_DENIED_REDIRECT_FAILED", String(e));
         }
         return;
@@ -251,3 +334,29 @@ export function getMountEl(): HTMLElement {
   return el || (document.getElementById("app") as HTMLElement) || document.body;
 }
 /* ===== END ICONTROL_MOUNT_TARGET_V1 ===== */
+
+
+export function applyClientV2Guards(): void {
+  /* CLIENT_V2_WIRE */
+  try {
+    const kind = (import.meta as any)?.env?.VITE_APP_KIND || (window as any).__VITE_APP_KIND;
+    if (String(kind).toLowerCase() === "app") {
+      const h = (window.location && window.location.hash) ? window.location.hash : "";
+      const m = h.match(/^#(\/[^?]*)/);
+      const path = m ? m[1] : "/";
+      if (!__isClientV2Allowed(path) && !["/client-disabled","/access-denied"].includes(path)) {
+        coreNavigate(__clientV2FallbackHash("disabled"));
+      }
+    }
+  } catch {}
+
+  // Client V2 guard (no extra routes) — fallback after app/cp guard. APP only; CP must keep #/login, #/dashboard, etc.
+  try {
+    if (__icontrolResolveAppKind() === "APP") {
+      const __h = window.location.hash || "#/dashboard";
+      if (!__clientV2IsAllowed(__h)) {
+        coreNavigate(__clientV2FallbackHash());
+      }
+    }
+  } catch {}
+}

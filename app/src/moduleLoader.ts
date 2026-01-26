@@ -1,4 +1,5 @@
 import type { RouteId } from "./router";
+import { resolveAppKind } from "./runtime/appKind";
 
 // Import module pages (single source of truth)
 import { renderLogin } from "../../modules/core-system/ui/frontend-ts/pages/login";
@@ -116,9 +117,9 @@ export function renderRoute(rid: RouteId, root: HTMLElement): void {
       return;
     }
     // Activation / licence
-    if (hash.startsWith("#/activation")) {
+    if (String(location.hash || "").startsWith("#/activation")) {
       import("../../modules/core-system/ui/frontend-ts/pages/activation").then(
-        (m) => m.renderActivationPage(mount),
+        (m) => m.renderActivationPage(root),
       );
       return;
     }
@@ -180,9 +181,28 @@ export function renderRoute(rid: RouteId, root: HTMLElement): void {
   }
 
   if (rid === "login") return renderLogin(root);
-  if (rid === "dashboard") return renderDashboard(root);
+  // APP: modules dashboard; CP: cp/registry (cp/dashboard avec KPI, etc.)
+  if (rid === "dashboard" && resolveAppKind() !== "CP") return renderDashboard(root);
   if (rid === "settings") return renderSettingsPage(root);
   if (rid === "settings_branding") return renderBrandingSettings(root);
+
+  // CP fallback: pages du CP_PAGES_REGISTRY (dashboard, tenants, audit, login-theme, blocked, notfound, etc.)
+  if (resolveAppKind() === "CP") {
+    import("./pages/cp/registry").then((m) => m.renderCpPage(rid, root)).catch((e) => {
+      console.warn("WARN_CP_PAGE_FALLBACK", e);
+      root.innerHTML = `<div style="max-width:980px;margin:40px auto;padding:0 16px;opacity:.8">Page introuvable.</div>`;
+    });
+    return;
+  }
+
+  // APP fallback: pages du APP_PAGES_REGISTRY (client_disabled, client_catalog, etc.)
+  if (resolveAppKind() === "APP") {
+    import("./pages/app/registry").then((m) => m.renderAppPage(rid, root)).catch((e) => {
+      console.warn("WARN_APP_PAGE_FALLBACK", e);
+      root.innerHTML = `<div style="max-width:980px;margin:40px auto;padding:0 16px;opacity:.8">Page introuvable.</div>`;
+    });
+    return;
+  }
 
   root.innerHTML = `<div style="max-width:980px;margin:40px auto;padding:0 16px;opacity:.8">Page introuvable.</div>`;
 }

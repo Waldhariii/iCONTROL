@@ -1,5 +1,6 @@
+import "./styles/tokens.generated.css";
 import { getBrandResolved } from "../../platform-services/branding/brandService";
-
+import "./styles/STYLE_ADMIN_FINAL.css";
 
 /* ICONTROL_SHELL_RECOVERY_V1 (enterprise-grade guardrail)
  * Objectif: empêcher un dashboard CP "sans menu" même si un rendu/route écrase le DOM.
@@ -85,20 +86,19 @@ function __icontrol_mountShellIfNeeded__(navProvider: () => any[], shellFactory:
   }
 }
 
-(function __icontrolNormalizeAppKind__(raw?: string): "CP" | "APP" {
+function __icontrolNormalizeAppKind__(raw?: string): "CP" | "APP" {
   const k = String(raw || "").trim().toUpperCase();
   // Accept aliases to avoid silent regressions
   if (k === "CP" || k === "CONTROL_PLANE" || k === "CONTROLPLANE" || k === "ADMIN" || k === "ADMINISTRATION") return "CP";
-  if (k === "APP" || k === "CLIENT" || k === "DESKTOP_CLIENT") return "APP";
+  if (k === "APP" || k === "CLIENT" || k === "DESKTOP_CLIENT" || k === "CLIENT_APP") return "APP";
   return "CP"; // fail-open (menu must exist)
-});
+}
 
 import {
   createShell,
   getDefaultNavItems,
 } from "../../platform-services/ui-shell/layout/shell";
 // getDefaultNavItems() route automatiquement vers getDefaultNavItemsApp() ou getDefaultNavItemsCp() selon VITE_APP_KIND
-import { applyThemeTokensToCSSVars } from "../../modules/core-system/ui/frontend-ts/pages/_shared/themeCssVars";
 import { registerRuntimeConfigEndpoint } from "./core/runtime/runtimeConfigEndpoint";
 import { getGlobalWindow, getImportMeta } from "./core/utils/types";
 /* UI_SHELL_NAV_V1 */
@@ -117,12 +117,9 @@ try {
 }
 // END ICONTROL_BRAND_TITLE_V1
 
-import { bootRouter, RouteId, getMountEl } from "./router";
+import { applyClientV2Guards, bootRouter, RouteId, getMountEl } from "./router";
 
-/* ICONTROL_THEME_BOOTSTRAP_V1 */
-import { applyThemeTokensToCssVars } from "./core/theme/applyThemeCssVars";
-import { loadThemePreset } from "./core/theme/loadPreset";
-/* END ICONTROL_THEME_BOOTSTRAP_V1 */
+/* ICONTROL_THEME_BOOTSTRAP_V1 — SSOT tokens -> CSS vars (generated) */
 import { renderRoute } from "./moduleLoader";
 import { getLogger } from "./core/utils/logger";
 
@@ -130,44 +127,48 @@ const logger = getLogger("MAIN");
 
 
 
-/* ICONTROL_THEME_BOOTSTRAP_V1 */
+/* ICONTROL_THEME_BOOTSTRAP_V1 — single path: generated CSS vars + dataset */
 async function __ICONTROL_APPLY_THEME_SSOT__(): Promise<void> {
   try {
-    // Resolver minimal (enterprise-ready):
-    // - Default = cp-dashboard-charcoal (CP) / app-foundation-slate (APP)
-    // - Preview via query: ?theme=<id>[.dark|.light]
-    const q = new URLSearchParams(window.location.search);
-    const kind = __icontrol_resolveAppKind();
-    const defaultPreset = kind === "APP" ? "app-foundation-slate" : "cp-dashboard-charcoal";
-    const rawPreset = (q.get("theme") || defaultPreset).trim();
-    const modeParam = (q.get("mode") || "").trim().toLowerCase();
-
-    let presetId = rawPreset;
-    let presetMode = "dark";
-    if (rawPreset.endsWith(".light")) {
-      presetId = rawPreset.replace(/\.light$/, "");
-      presetMode = "light";
-    } else if (rawPreset.endsWith(".dark")) {
-      presetId = rawPreset.replace(/\.dark$/, "");
-      presetMode = "dark";
-    } else if (modeParam === "light" || modeParam === "dark") {
-      presetMode = modeParam;
+    const kind = (typeof __icontrol_resolveAppKind === "function")
+      ? __icontrol_resolveAppKind()
+      : "CP";
+    const root = document.documentElement;
+    const themeId = kind === "CP" ? "cp-dashboard-charcoal" : "app-foundation-slate";
+    const themeMode = "dark";
+    root.dataset.icThemeId = themeId;
+    root.dataset.icThemeMode = themeMode;
+    root.dataset.icThemeScope = kind === "CP" ? "cp.dashboard" : "app.foundation";
+    if (kind === "CP") {
+      root.dataset.appKind = "control_plane";
+    } else {
+      delete root.dataset.appKind;
     }
-
-    const presetPath = `/src/core/theme/presets/${presetId}.${presetMode}.json`;
-
-    const tokens = await loadThemePreset(presetPath);
-    applyThemeTokensToCssVars(document, tokens);
-
-    // Ops proof
-    (window as any).__ICONTROL_THEME_ACTIVE__ = { presetId, presetMode, meta: (tokens as any).meta };
-    console.info("THEME_SSOT_APPLIED", presetId, presetMode, (tokens as any).meta);
   } catch (e) {
-    console.warn("WARN_THEME_SSOT_APPLY_FAILED", String(e));
+    logger.warn("THEME_SSOT_BOOTSTRAP_FAILED", String(e));
   }
 }
 /* END ICONTROL_THEME_BOOTSTRAP_V1 */
 /* ICONTROL_APP_CP_GUARD_V1 */
+function __icontrol_assertAppKind__(): void {
+  const allowed = new Set(["APP", "CLIENT_APP", "CONTROL_PLANE", "CP"]);
+  let raw = "";
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const anyImportMeta = (import.meta as any);
+    raw = String(anyImportMeta?.env?.VITE_APP_KIND || "");
+  } catch {}
+  try {
+    if (!raw) raw = String((globalThis as any)?.__ICONTROL_APP_KIND__ || "");
+  } catch {}
+  const normalized = raw.trim().toUpperCase();
+  if (!normalized || !allowed.has(normalized)) {
+    throw new Error(
+      `ICONTROL_BOOT_GUARD: VITE_APP_KIND invalide ou absent (valeur: \"${raw}\").`,
+    );
+  }
+}
+
 function __icontrol_resolveAppKind(): "APP" | "CP" {
   // Canonical AppKind: "CP" | "APP"
   // Accept legacy aliases to avoid silent nav breakage.
@@ -184,32 +185,53 @@ function __icontrol_resolveAppKind(): "APP" | "CP" {
 
 }
 
+function __icontrol_redirect__(target: string): void {
+  try {
+    (globalThis as any).__ICONTROL_LAST_REDIRECT__ = target;
+  } catch {}
+  try {
+    window.location.replace(target);
+  } catch {}
+}
+
 function __icontrol_guardAppVsCp(): void {
   try {
     const kind = __icontrol_resolveAppKind();
-    const path = window.location.pathname || "/";
-    const hash = window.location.hash || "";
+    const path = String(window.location.pathname || "/");
+    const hash = String(window.location.hash || "");
+    const hashPath = hash.startsWith("#") ? hash.slice(1) : hash;
+    const pathIsApp = path.startsWith("/app");
+    const pathIsCp = path.startsWith("/cp");
+    const hashWantsCp =
+      hashPath.startsWith("/cp") ||
+      hashPath.startsWith("/console") ||
+      hashPath.startsWith("/management");
+    const hashWantsApp = hashPath.startsWith("/app");
 
-    const wantsCp =
-      path.startsWith("/cp") ||
-      hash.startsWith("#/cp") ||
-      hash.startsWith("#/console") ||
-      hash.startsWith("#/management");
+    if (pathIsApp && hashWantsCp) {
+      __icontrol_redirect__("/app/#/login");
+      return;
+    }
+    if (pathIsCp && hashWantsApp) {
+      __icontrol_redirect__("/cp/#/login");
+      return;
+    }
 
-    const wantsApp = path.startsWith("/app") || hash.startsWith("#/app");
+    const wantsCp = pathIsCp || hashWantsCp;
+    const wantsApp = pathIsApp || hashWantsApp;
 
     // APP: interdit CP
     if (kind === "APP" && wantsCp) {
       // redirect vers /app/#/login si possible, sinon /#/login
-      const target = path.startsWith("/app") ? "/app/#/login" : "/#/login";
-      window.location.replace(target);
+      const target = pathIsApp ? "/app/#/login" : "/#/login";
+      __icontrol_redirect__(target);
       return;
     }
 
     // CP: interdit APP
     if (kind === "CP" && wantsApp) {
-      const target = path.startsWith("/cp") ? "/cp/#/login" : "/#/login";
-      window.location.replace(target);
+      const target = pathIsCp ? "/cp/#/login" : "/#/login";
+      __icontrol_redirect__(target);
       return;
     }
   } catch {
@@ -218,7 +240,25 @@ function __icontrol_guardAppVsCp(): void {
   }
 }
 
+/**
+ * ICONTROL_BOOT_ORDER_V1 (enterprise-grade)
+ * 1. __icontrol_guardAppVsCp: path/hash vs APP/CP → location.replace si incohérent.
+ * 2. applyClientV2Guards: APP uniquement, routes Client V2 → coreNavigate si interdit.
+ * 3. IIFE UI_SHELL_NAV: mount shell (ou #app pour CP+login) — critical CSS + placeholder déjà dans index.html.
+ * 4. queueMicrotask: theme, versionGate, bootRouter → première route.
+ */
 __icontrol_guardAppVsCp();
+applyClientV2Guards();
+
+/* DEV: entitlements de base pour éviter écran noir sur dashboard (requireEntitlement "recommendations.pro") */
+try {
+  if ((import.meta as any)?.env?.DEV) {
+    const g = globalThis as any;
+    if (!g.__ICONTROL_ENTITLEMENTS__) {
+      g.__ICONTROL_ENTITLEMENTS__ = { "recommendations.pro": true };
+    }
+  }
+} catch {}
 
 /* ADMIN_STYLE_GUARD_V1 (CP only)
  * Objectif: bloquer l’injection de styles non gouvernés (style/link) sur la surface Admin.
@@ -386,9 +426,6 @@ __icontrol_installClientStyleGuard__();
   try {
     const appRoot = document.getElementById("app") || document.body;
 
-    // Apply theme tokens early
-    applyThemeTokensToCSSVars(document);
-
     // Runtime config shim (si activé)
     try {
       const w = getGlobalWindow() as typeof window & { __ICONTROL_RUNTIME_CONFIG_SHIM_BOOT__?: boolean };
@@ -406,13 +443,13 @@ __icontrol_installClientStyleGuard__();
       if (appRoot instanceof HTMLElement && appRoot.dataset) {
         // Vérifier si le shell est déjà monté (présence de #cxMain)
         const existingShell = appRoot.querySelector("#cxMain");
-        if (existingShell && appRoot.dataset.uiShell === "UI_SHELL_NAV_V1") {
+        if (existingShell && appRoot.dataset["uiShell"] === "UI_SHELL_NAV_V1") {
           // Shell déjà monté, juste mettre à jour __ICONTROL_MOUNT__
           const w = getGlobalWindow() as typeof window & { __ICONTROL_MOUNT__?: HTMLElement };
           w.__ICONTROL_MOUNT__ = existingShell as HTMLElement;
           return;
         }
-        appRoot.dataset.uiShell = "UI_SHELL_NAV_V1";
+        appRoot.dataset["uiShell"] = "UI_SHELL_NAV_V1";
       }
     } catch {}
 
@@ -435,7 +472,7 @@ const __icontrol_isLogin =
  * - sinon => shell obligatoire (menu/burger/nav)
  */
 if (__icontrol_kind === "CP" && __icontrol_isLogin) {
-  appRoot.innerHTML = "";
+  /* Ne pas vider #app: le placeholder "Chargement…" reste jusqu'à renderRoute(login) qui fera root.innerHTML. */
   const w = getGlobalWindow() as typeof window & { __ICONTROL_MOUNT__?: HTMLElement };
   w.__ICONTROL_MOUNT__ = appRoot;
 } else {
@@ -462,27 +499,8 @@ if (__icontrol_kind === "CP" && __icontrol_isLogin) {
         );
       } catch {}
 
-  // Debug: vérifier que le shell est bien monté
+  // Helper global __ICONTROL_DIAGNOSTIC__ (toujours exposé); log d’aide en DEV uniquement.
   try {
-    const debugShell = appRoot.querySelector("#cxMain");
-    const debugBurger = appRoot.querySelector("#cxBurger");
-    const debugDrawer = appRoot.querySelector("#cxDrawer");
-    if (!debugShell) {
-      console.error("❌ ERREUR: Shell non monté - #cxMain introuvable dans appRoot");
-    } else {
-      console.log("✅ Shell monté correctement - #cxMain trouvé");
-      if (!debugBurger) {
-        console.warn("⚠️ Burger menu introuvable - #cxBurger manquant");
-      } else {
-        console.log("✅ Burger menu trouvé - #cxBurger présent");
-      }
-      if (!debugDrawer) {
-        console.warn("⚠️ Drawer menu introuvable - #cxDrawer manquant");
-      } else {
-        console.log("✅ Drawer menu trouvé - #cxDrawer présent");
-      }
-    }
-    // Exposer une fonction de diagnostic globale
     (window as any).__ICONTROL_DIAGNOSTIC__ = () => {
       const root = document.querySelector("[data-icontrol-shell-root='1']");
       const main = document.querySelector("#cxMain");
@@ -490,12 +508,7 @@ if (__icontrol_kind === "CP" && __icontrol_isLogin) {
       const drawer = document.querySelector("#cxDrawer");
       const mount = (window as any).__ICONTROL_MOUNT__;
       const appKind = (() => {
-        try {
-          const meta = import.meta as any;
-          return meta.env?.VITE_APP_KIND || "NON_DEFINI";
-        } catch {
-          return "ERREUR";
-        }
+        try { return (import.meta as any)?.env?.VITE_APP_KIND || "NON_DEFINI"; } catch { return "ERREUR"; }
       })();
       return {
         shellRoot: root ? "✅ Trouvé" : "❌ Manquant",
@@ -507,7 +520,9 @@ if (__icontrol_kind === "CP" && __icontrol_isLogin) {
         hash: window.location.hash
       };
     };
-    console.log("💡 Pour diagnostiquer, tapez dans la console: __ICONTROL_DIAGNOSTIC__()");
+    if ((import.meta as any)?.env?.DEV) {
+      console.log("💡 Pour diagnostiquer, tapez dans la console: __ICONTROL_DIAGNOSTIC__()");
+    }
   } catch {}
 
 }
@@ -515,7 +530,8 @@ if (__icontrol_kind === "CP" && __icontrol_isLogin) {
     try {
       if (__icontrol_kind === "CP" && !__icontrol_isLogin) {
         const b = __br.brand;
-        if (b && b.APP_DISPLAY_NAME && shell) shell.setBrandTitle(b.APP_DISPLAY_NAME);
+        const sh = __icontrol_getShellGlobal__();
+        if (b?.APP_DISPLAY_NAME && sh?.setBrandTitle) sh.setBrandTitle(b.APP_DISPLAY_NAME);
       }
     } catch {}
   } catch (e) {
@@ -539,8 +555,7 @@ function renderShell(rid: RouteId): void {
   // Protection: vérifier que le shell est monté avant de rendre la page
   try {
     const shellRoot = document.querySelector("[data-icontrol-shell-root='1']");
-    const shellMain = document.querySelector("#cxMain");
-    
+
     // Si on est sur une page CP (pas login) et que le shell n'est pas monté, le monter
     if (rid !== "login" && !shellRoot && mount === document.getElementById("app")) {
       console.warn("⚠️ Shell non monté, tentative de remontage...");
@@ -569,6 +584,7 @@ function renderShell(rid: RouteId): void {
 
 // UI_SHELL_NAV_V1_BOOT: ensure shell mount is completed before first route render
 queueMicrotask(async () => {
+  __icontrol_assertAppKind__();
 
   /* THEME_SSOT_APPLY_CALL_V1 */
   await __ICONTROL_APPLY_THEME_SSOT__();
@@ -602,26 +618,3 @@ queueMicrotask(async () => {
 
   bootRouter((rid) => renderShell(rid));
 });
-       
-       // TEST: Verify master user is available
-       setTimeout(() => {
-         try {
-           console.log("🔵 [BOOT TEST] Starting authentication test...");
-           import("./localAuth").then(({ authenticate }) => {
-             console.log("🔵 [BOOT TEST] authenticate function imported");
-             const testResult = authenticate("master", "1234", "CP");
-             console.log("🔵 [BOOT TEST] Test result:", testResult);
-             if (testResult.ok) {
-               console.log("✅ [BOOT TEST] Master user authentication works!");
-               console.log("✅ [BOOT TEST] Session:", testResult.session);
-             } else {
-               console.error("❌ [BOOT TEST] Master user authentication FAILED:", testResult.error);
-               console.error("❌ [BOOT TEST] Full result:", JSON.stringify(testResult, null, 2));
-             }
-           }).catch((e) => {
-             console.error("❌ [BOOT TEST] Failed to import authenticate:", e);
-           });
-         } catch (e) {
-           console.error("❌ [BOOT TEST] Failed to test authentication:", e);
-         }
-       }, 1000);
