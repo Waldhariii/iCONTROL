@@ -1,5 +1,18 @@
 #!/bin/zsh
 set -euo pipefail
+# -------------------------------
+# Safe deterministic resolver (NO rg)
+# - tracked-first: git ls-files
+# - fallback: rg --files (if git unavailable)
+# - never returns NNN:path
+# -------------------------------
+resolve_tracked() {
+  if command -v git >/dev/null 2>&1 && git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+    git ls-files
+  else
+    rg --files
+  fi
+}
 
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 
@@ -16,7 +29,7 @@ EXCL=(
 )
 
 echo "=== PRE-SCAN (active source only) ==="
-HITS="$(rg -n --hidden --no-ignore "${EXCL[@]}" "$LEGACY_TOKEN" "$ROOT" || true)"
+HITS="$(rg --hidden --no-ignore "${EXCL[@]}" "$LEGACY_TOKEN" "$ROOT" || true)"
 if [ -z "$HITS" ]; then
   echo "OK: no legacy token found in active source. Nothing to do."
   exit 0
@@ -37,7 +50,7 @@ done
 
 echo ""
 echo "=== POST-SCAN ==="
-HITS2="$(rg -n --hidden --no-ignore "${EXCL[@]}" "$LEGACY_TOKEN" "$ROOT" || true)"
+HITS2="$(rg --hidden --no-ignore "${EXCL[@]}" "$LEGACY_TOKEN" "$ROOT" || true)"
 if [ -n "$HITS2" ]; then
   echo "WARN: legacy token still found (first hits):"
   echo "$HITS2" | head -200
