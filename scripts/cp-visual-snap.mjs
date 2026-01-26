@@ -6,6 +6,36 @@ import os from "node:os";
 import http from "node:http";
 import { createRequire } from "node:module";
 
+// WRITE_GATEWAY_STORAGE_SHADOW — canonical scaffold (standalone; legacy-first; NO-OP emit)
+const __storageShadowHelper = (() => {
+  const FLAG = "cp_visual_snap_storage_shadow";
+  let __flagCache = null;
+  
+  const __readFlagState = () => {
+    if (__flagCache !== null) return __flagCache;
+    try {
+      const flagsPath = path.join(icontrolRoot, "app", "src", "policies", "feature_flags.default.json");
+      if (fs.existsSync(flagsPath)) {
+        const json = JSON.parse(fs.readFileSync(flagsPath, "utf8"));
+        const state = json?.flags?.[FLAG]?.state;
+        __flagCache = (state === "ON" || state === "ROLLOUT");
+        return __flagCache;
+      }
+    } catch {}
+    __flagCache = false;
+    return false;
+  };
+
+  const __emit = (payload) => {
+    if (!__readFlagState()) return;
+    try {
+      console.warn("CP_VISUAL_SNAP_STORAGE_WRITE_SHADOW", JSON.stringify(payload));
+    } catch {}
+  };
+
+  return { emit: __emit };
+})();
+
 const icontrolRoot = process.cwd();
 const require = createRequire(path.join(icontrolRoot, "package.json"));
 const { chromium } = require("playwright");
@@ -126,6 +156,15 @@ async function main() {
         }));
       } catch {}
     });
+    
+    // Shadow emit (NO-OP) — gated by feature flag (legacy-first: assume write succeeds)
+    if (__storageShadowHelper) {
+      __storageShadowHelper.emit({
+        op: "WRITE",
+        key: "icontrol_mgmt_session_v1",
+        source: "cp-visual-snap.mjs"
+      });
+    }
     const page = await context.newPage();
 
     for (const route of routes) {
