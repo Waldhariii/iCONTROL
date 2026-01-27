@@ -59,10 +59,18 @@ function serveStatic(req, res, distDir, basePrefix) {
   );
   const raw = normalizePathname(url.pathname);
 
+  // Handle basePrefix (e.g., /app) -> serve index.html directly
+  // Avoid redirect loop: /app/ normalizes to /app, which would redirect to /app/ again
   if (raw === basePrefix) {
-    res.statusCode = 302;
-    res.setHeader("location", `${basePrefix}/`);
-    res.end();
+    const idx = path.resolve(distDir, "index.html");
+    if (fs.existsSync(idx)) {
+      res.setHeader("content-type", "text/html; charset=utf-8");
+      res.setHeader("cache-control", "no-store");
+      res.end(fs.readFileSync(idx));
+      return;
+    }
+    res.statusCode = 404;
+    res.end("Not found");
     return;
   }
 
