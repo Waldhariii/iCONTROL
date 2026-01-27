@@ -97,20 +97,27 @@ else
   " 2>/dev/null || echo "#/home-cp")
 fi
 
-# 5. Normalize routes (remove leading # if present, ensure it starts with /)
-APP_ROUTE_NORM="${APP_ROUTE#\#}"
-if [ "${APP_ROUTE_NORM:0:1}" != "/" ]; then
-  APP_ROUTE_NORM="/${APP_ROUTE_NORM}"
+# 5. Normalize routes (ensure # prefix for hash routing)
+# Routes from catalog are already in format #/home-app
+# URLs need: http://HOST:PORT/app/#/home-app
+if [ "${APP_ROUTE:0:1}" != "#" ]; then
+  APP_ROUTE="#${APP_ROUTE}"
 fi
-CP_ROUTE_NORM="${CP_ROUTE#\#}"
-if [ "${CP_ROUTE_NORM:0:1}" != "/" ]; then
-  CP_ROUTE_NORM="/${CP_ROUTE_NORM}"
+if [ "${APP_ROUTE:1:1}" != "/" ]; then
+  APP_ROUTE="#/${APP_ROUTE#\#}"
 fi
 
-# 6. Add cache-buster
+if [ "${CP_ROUTE:0:1}" != "#" ]; then
+  CP_ROUTE="#${CP_ROUTE}"
+fi
+if [ "${CP_ROUTE:1:1}" != "/" ]; then
+  CP_ROUTE="#/${CP_ROUTE#\#}"
+fi
+
+# 6. Add cache-buster (append to hash, not path)
 CACHE_BUST="?t=$(date +%s)"
-APP_URL="http://${HOST}:${PORT}/app${APP_ROUTE_NORM}${CACHE_BUST}"
-CP_URL="http://${HOST}:${PORT}/cp${CP_ROUTE_NORM}${CACHE_BUST}"
+APP_URL="http://${HOST}:${PORT}/app${APP_ROUTE}${CACHE_BUST}"
+CP_URL="http://${HOST}:${PORT}/cp${CP_ROUTE}${CACHE_BUST}"
 
 # 7. Open URLs
 echo "✅ Opening APP: ${APP_URL}"
