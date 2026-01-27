@@ -25,16 +25,16 @@ export interface PageRegistryEntry {
  * Règle: Ces pages sont pour l'administration (pilotage, gouvernance, configuration, supervision)
  */
 export const CP_PAGES_REGISTRY: Record<string, PageRegistryEntry> = {
-  login: {
-    routeId: "login",
+  home_cp: {
+    routeId: "home_cp" as RouteId,
     render: async (root) => {
-      const m = await import("./login");
-      m.renderCpLogin(root);
+      const m = await import("./home-cp");
+      m.renderHomeCp(root);
     },
     async: true,
   },
-  dashboard: {
-    routeId: "dashboard",
+  dashboard_cp: {
+    routeId: "dashboard_cp" as RouteId,
     render: async (root) => {
       // Page CP dashboard (différente de APP dashboard)
       const m = await import("./dashboard");
@@ -42,8 +42,8 @@ export const CP_PAGES_REGISTRY: Record<string, PageRegistryEntry> = {
     },
     async: true,
   },
-  subscription: {
-    routeId: "subscription" as RouteId,
+  subscription_cp: {
+    routeId: "subscription_cp" as RouteId,
     render: async (root) => {
       // Page CP subscription (gestion abonnements)
       const m = await import("./subscription");
@@ -52,8 +52,8 @@ export const CP_PAGES_REGISTRY: Record<string, PageRegistryEntry> = {
     async: true,
   },
   // Pages CP spécifiques (à créer)
-  tenants: {
-    routeId: "tenants" as RouteId,
+  tenants_cp: {
+    routeId: "tenants_cp" as RouteId,
     render: async (root) => {
       // Page CP Tenants (composants visuels core)
       const m = await import("./tenants");
@@ -61,8 +61,8 @@ export const CP_PAGES_REGISTRY: Record<string, PageRegistryEntry> = {
     },
     async: true,
   },
-  entitlements: {
-    routeId: "entitlements" as RouteId,
+  entitlements_cp: {
+    routeId: "entitlements_cp" as RouteId,
     render: async (root) => {
       // Page CP Entitlements (composants visuels core)
       const m = await import("./entitlements");
@@ -70,8 +70,8 @@ export const CP_PAGES_REGISTRY: Record<string, PageRegistryEntry> = {
     },
     async: true,
   },
-  pages: {
-    routeId: "pages" as RouteId,
+  pages_cp: {
+    routeId: "pages_cp" as RouteId,
     render: async (root) => {
       // Page CP Pages Registry (composants visuels core)
       const m = await import("./pages");
@@ -79,8 +79,8 @@ export const CP_PAGES_REGISTRY: Record<string, PageRegistryEntry> = {
     },
     async: true,
   },
-  "feature-flags": {
-    routeId: "feature-flags" as RouteId,
+  "feature-flags_cp": {
+    routeId: "feature-flags_cp" as RouteId,
     render: async (root) => {
       // Page CP Feature Flags (composants visuels core)
       const m = await import("./feature-flags");
@@ -88,8 +88,8 @@ export const CP_PAGES_REGISTRY: Record<string, PageRegistryEntry> = {
     },
     async: true,
   },
-  publish: {
-    routeId: "publish" as RouteId,
+  publish_cp: {
+    routeId: "publish_cp" as RouteId,
     render: async (root) => {
       // Page CP Publish Center (composants visuels core)
       const m = await import("./publish");
@@ -97,56 +97,48 @@ export const CP_PAGES_REGISTRY: Record<string, PageRegistryEntry> = {
     },
     async: true,
   },
-  "login-theme": {
-    routeId: "login-theme" as RouteId,
-    render: async (root) => {
-      const m = await import("./login-theme");
-      m.renderLoginThemeEditor(root);
-    },
-    async: true,
-  },
-  audit: {
-    routeId: "audit" as RouteId,
+  audit_cp: {
+    routeId: "audit_cp" as RouteId,
     render: async (root) => {
       const m = await import("./audit");
       m.renderAudit(root);
     },
     async: true,
   },
-  integrations: {
-    routeId: "integrations" as RouteId,
+  integrations_cp: {
+    routeId: "integrations_cp" as RouteId,
     render: async (root) => {
       const m = await import("./integrations");
       m.renderIntegrations(root);
     },
     async: true,
   },
-  access_denied: {
-    routeId: "access_denied",
+  access_denied_cp: {
+    routeId: "access_denied_cp" as RouteId,
     render: async (root) => {
       const m = await import("./access-denied");
       m.renderAccessDeniedCp(root);
     },
     async: true,
   },
-  blocked: {
-    routeId: "blocked",
+  blocked_cp: {
+    routeId: "blocked_cp" as RouteId,
     render: async (root) => {
       const m = await import("./blocked");
       m.renderBlockedCp(root);
     },
     async: true,
   },
-  notfound: {
-    routeId: "notfound",
+  notfound_cp: {
+    routeId: "notfound_cp" as RouteId,
     render: async (root) => {
       const m = await import("./notfound");
       m.renderNotFoundCp(root);
     },
     async: true,
   },
-  ui_catalog: {
-    routeId: "ui_catalog",
+  ui_catalog_cp: {
+    routeId: "ui_catalog_cp" as RouteId,
     render: async (root) => {
       const m = await import("./notfound") /* legacy ui-catalog disabled: SSOT-only */;
       m.renderUiCatalog(root);
@@ -161,8 +153,8 @@ export const CP_PAGES_REGISTRY: Record<string, PageRegistryEntry> = {
 export function renderCpPage(routeId: RouteId, root: HTMLElement): void {
   const entry = CP_PAGES_REGISTRY[routeId] || CP_PAGES_REGISTRY[String(routeId)];
   if (!entry) {
-    // Fallback vers notfound
-    CP_PAGES_REGISTRY.notfound.render(root);
+    // Fallback vers notfound_cp
+    CP_PAGES_REGISTRY.notfound_cp.render(root);
     return;
   }
 
@@ -174,7 +166,7 @@ export function renderCpPage(routeId: RouteId, root: HTMLElement): void {
           routeId,
           err: String(e),
         });
-        CP_PAGES_REGISTRY.notfound.render(root);
+        CP_PAGES_REGISTRY.notfound_cp.render(root);
       });
     } else {
       // Pages sync
@@ -185,6 +177,6 @@ export function renderCpPage(routeId: RouteId, root: HTMLElement): void {
       routeId,
       err: String(e),
     });
-    CP_PAGES_REGISTRY.notfound.render(root);
+    CP_PAGES_REGISTRY.notfound_cp.render(root);
   }
 }

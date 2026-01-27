@@ -132,6 +132,11 @@ export async function resolveRuntimeConfig(): Promise<RuntimeConfig> {
       credentials: "include",
     });
     if (!res.ok) throw new Error(`ERR_RUNTIME_CONFIG_${res.status}`);
+    // In dev, Vite can return index.html for unknown routes; treat that as a miss.
+    const ct = res.headers.get("content-type") || "";
+    if (!ct.includes("application/json")) {
+      throw new Error("ERR_RUNTIME_CONFIG_NOT_JSON");
+    }
     const json = (await res.json()) as RuntimeConfig;
     writeCached(json);
     return json;

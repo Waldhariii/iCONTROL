@@ -1,6 +1,6 @@
 /**
  * Runtime Config Endpoint (ICONTROL_RUNTIME_CONFIG_ENDPOINT_V1)
- * DEV-ONLY endpoint shim for GET /cp/api/runtime-config
+ * DEV-ONLY endpoint shim for GET /cp/api/runtime-config and /app/api/runtime-config
  *
  * PERF: fast-path returns originalFetch unless strict match.
  * SECURITY: ignores query params; derives tenant from client SSOT for local dev only.
@@ -71,7 +71,10 @@ export function registerRuntimeConfigEndpoint(): void {
       const url = new URL(req.url, window.location.origin);
 
       // strict path match (ignore search params entirely)
-      if (url.pathname === "/cp/api/runtime-config") {
+      if (
+        url.pathname === "/cp/api/runtime-config" ||
+        url.pathname === "/app/api/runtime-config"
+      ) {
         const tenantId = getTenantId();
         const origin = window.location.origin;
 

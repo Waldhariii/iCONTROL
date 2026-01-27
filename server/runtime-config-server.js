@@ -148,7 +148,7 @@ if (require.main === module) {
   const server = createServer();
   server.listen(PORT, HOST, () => {
     console.log(
-      `ICONTROL_LOCAL_WEB_READY http://${HOST}:${PORT}/app/#/login | http://${HOST}:${PORT}/cp/#/login`,
+      `ICONTROL_LOCAL_WEB_READY http://${HOST}:${PORT}/app/#/home-app | http://${HOST}:${PORT}/cp/#/home-cp`,
     );
   });
 }

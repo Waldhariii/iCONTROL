@@ -1,6 +1,6 @@
 /**
- * ICONTROL_CP_PAGES_INVENTORY_V3
- * Pages Inventory — Complete listing of all CP pages (active/inactive) from ROUTE_CATALOG and registry
+ * ICONTROL_APP_PAGES_INVENTORY_V1
+ * Pages Inventory — Complete listing of all APP pages (active/inactive) from ROUTE_CATALOG and registry
  */
 import { coreBaseStyles } from "../../../../modules/core-system/ui/frontend-ts/shared/coreStyles";
 import { createPageShell } from "/src/core/ui/pageShell";
@@ -9,37 +9,32 @@ import { createToolbar } from "/src/core/ui/toolbar";
 import { createBadge } from "/src/core/ui/badge";
 import { createDataTable, type TableColumn } from "/src/core/ui/dataTable";
 import { createKpiStrip } from "/src/core/ui/kpi";
-import { createGovernanceFooter, mapSafeMode } from "./_shared/cpLayout";
-import { getSafeMode } from "../../../../modules/core-system/ui/frontend-ts/pages/_shared/safeMode";
 import { getPagesInventory, type PageInventoryEntry } from "/src/core/pagesInventory";
 
-const CP_PAGES = getPagesInventory("CP");
+const APP_PAGES = getPagesInventory("CLIENT");
 
-export function renderPages(root: HTMLElement): void {
-  const safeModeValue = mapSafeMode(getSafeMode());
+export function renderClientPagesInventory(root: HTMLElement): void {
   root.innerHTML = coreBaseStyles();
   const { shell, content } = createPageShell({
-    title: "Registre des pages",
-    subtitle: "Routes et périmètre",
-    safeMode: safeModeValue,
-    statusBadge: { label: "GOUVERNÉ", tone: "info" }
+    title: "Pages Inventory — APP",
+    subtitle: "Complete listing: Index, PageName, RouteId, Status, SourceFile, DuplicateGroup, Notes"
   });
 
-  const activeCount = CP_PAGES.filter((p) => p.status === "ACTIVE").length;
-  const experimentalCount = CP_PAGES.filter((p) => p.status === "EXPERIMENTAL").length;
-  const hiddenCount = CP_PAGES.filter((p) => p.status === "HIDDEN").length;
-  const inRegistryCount = CP_PAGES.filter((p) => p.inRegistry).length;
+  const activeCount = APP_PAGES.filter((p) => p.status === "ACTIVE").length;
+  const experimentalCount = APP_PAGES.filter((p) => p.status === "EXPERIMENTAL").length;
+  const hiddenCount = APP_PAGES.filter((p) => p.status === "HIDDEN").length;
+  const inRegistryCount = APP_PAGES.filter((p) => p.inRegistry).length;
   
   const kpis = createKpiStrip([
-    { label: "Total Pages", value: String(CP_PAGES.length), tone: "info" },
+    { label: "Total Pages", value: String(APP_PAGES.length), tone: "info" },
     { label: "Active", value: String(activeCount), tone: "ok" },
     { label: "Experimental", value: String(experimentalCount), tone: "warn" },
-    { label: "In Registry", value: String(inRegistryCount), tone: inRegistryCount === CP_PAGES.length ? "ok" : "warn" }
+    { label: "In Registry", value: String(inRegistryCount), tone: inRegistryCount === APP_PAGES.length ? "ok" : "warn" }
   ]);
   content.appendChild(kpis);
 
   const { card, body } = createSectionCard({
-    title: "Pages Inventory — CP",
+    title: "Pages Inventory — APP",
     description: "Complete listing: Index, PageName, RouteId, Status, SourceFile, DuplicateGroup, Notes"
   });
 
@@ -103,7 +98,7 @@ export function renderPages(root: HTMLElement): void {
 
   const renderTable = () => {
     tableContainer.innerHTML = "";
-    let rows = [...CP_PAGES];
+    let rows = [...APP_PAGES];
     if (state.search) {
       const q = state.search.toLowerCase();
       rows = rows.filter((r) => 
@@ -120,6 +115,5 @@ export function renderPages(root: HTMLElement): void {
   renderTable();
 
   content.appendChild(card);
-  content.appendChild(createGovernanceFooter());
   root.appendChild(shell);
 }

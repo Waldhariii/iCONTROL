@@ -6,6 +6,7 @@ import { coreBaseStyles } from "../../../../modules/core-system/ui/frontend-ts/s
 import { getSafeMode } from "../../../../modules/core-system/ui/frontend-ts/pages/_shared/safeMode";
 import { createPageShell } from "/src/core/ui/pageShell";
 import { createSectionCard } from "/src/core/ui/sectionCard";
+import { navigate } from "/src/router";
 import { createBadge } from "/src/core/ui/badge";
 import { createErrorState } from "/src/core/ui/errorState";
 import { createCardSkeleton } from "/src/core/ui/skeletonLoader";
@@ -195,7 +196,7 @@ export function renderDashboard(root: HTMLElement): void {
       actions: [
         {
           label: "Voir logs",
-          onClick: () => { window.location.hash = "#/audit"; }
+          onClick: () => { navigate("#/audit"); }
         }
       ]
     });
@@ -217,7 +218,7 @@ export function renderDashboard(root: HTMLElement): void {
       actions: [
         {
           label: "Gérer modules",
-          onClick: () => { window.location.hash = "#/subscription"; }
+          onClick: () => { navigate("#/subscription"); }
         }
       ]
     });

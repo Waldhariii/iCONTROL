@@ -11,7 +11,9 @@ export type NavItem = {
 };
 
 function getRouteHash(): string {
-  return window.location.hash || "#/login";
+  // Landing: CP uses home-cp, APP uses home-app (login removed)
+  const kind = (window as any).__ICONTROL_APP_KIND__ || (import.meta as any)?.env?.VITE_APP_KIND;
+  return window.location.hash || (kind === "APP" || kind === "CLIENT_APP" ? "#/home-app" : "#/home-cp");
 }
 
 function setActiveLinks(drawer: HTMLElement){
@@ -72,7 +74,9 @@ export function createShell(navItems: NavItem[]){
       logoutLink.onclick = (e)=>{
         e.preventDefault();
         logout();
-        window.location.hash = "#/login";
+        // Landing: CP uses home-cp, APP uses home-app (login removed)
+        const kind = (window as any).__ICONTROL_APP_KIND__ || (import.meta as any)?.env?.VITE_APP_KIND;
+        window.location.hash = kind === "APP" || kind === "CLIENT_APP" ? "#/home-app" : "#/home-cp";
         closeDrawer();
       };
       const s = getSession() as any;

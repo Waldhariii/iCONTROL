@@ -19,40 +19,57 @@ export interface PageRegistryEntry {
 }
 
 export const APP_PAGES_REGISTRY: Record<RouteId, PageRegistryEntry> = {
-  client_disabled: {
-    routeId: "client_disabled",
+  home_app: {
+    routeId: "home_app" as RouteId,
+    render: async (root) => {
+      const m = await import("./home-app");
+      m.renderHomeApp(root);
+    },
+    async: true,
+  },
+  client_disabled_app: {
+    routeId: "client_disabled_app" as RouteId,
     render: renderClientDisabled,
   },
-  access_denied: {
-    routeId: "access_denied",
+  access_denied_app: {
+    routeId: "access_denied_app" as RouteId,
     render: renderClientAccessDenied,
   },
-  client_catalog: {
-    routeId: "client_catalog",
+  client_catalog_app: {
+    routeId: "client_catalog_app" as RouteId,
     render: renderClientCatalog,
   },
-  notfound: {
-    routeId: "notfound",
+  notfound_app: {
+    routeId: "notfound_app" as RouteId,
     render: renderClientDisabled,
+  },
+  // Pages Inventory (APP)
+  pages_inventory_app: {
+    routeId: "pages_inventory_app" as RouteId,
+    render: async (root) => {
+      const m = await import("./client-pages-inventory");
+      m.renderClientPagesInventory(root);
+    },
+    async: true,
   },
 };
 
 export function renderAppPage(routeId: RouteId, root: HTMLElement): void {
   const entry = APP_PAGES_REGISTRY[routeId];
   if (!entry) {
-    APP_PAGES_REGISTRY.notfound.render(root);
+    APP_PAGES_REGISTRY.notfound_app.render(root);
     return;
   }
 
   try {
     if (entry.async) {
       (entry.render(root) as Promise<void>).catch(() => {
-        APP_PAGES_REGISTRY.notfound.render(root);
+        APP_PAGES_REGISTRY.notfound_app.render(root);
       });
     } else {
       entry.render(root);
     }
   } catch {
-    APP_PAGES_REGISTRY.notfound.render(root);
+    APP_PAGES_REGISTRY.notfound_app.render(root);
   }
 }

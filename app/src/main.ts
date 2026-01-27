@@ -11,11 +11,7 @@ import "./styles/STYLE_ADMIN_FINAL.css";
  */
 type IControlShell = { root: HTMLElement; main: HTMLElement; setBrandTitle?: (t: string) => void };
 
-function __icontrol_isCpLoginHash__(hash: string): boolean {
-  const h = String(hash || "");
-  // STRICT login-only (évite faux positifs)
-  return h === "#/login" || h.startsWith("#/login?") || h.startsWith("#/login&") || h.startsWith("#/login/");
-}
+// NOTE: login removed - this function is no longer needed
 
 function __icontrol_getAppRoot__(): HTMLElement {
   const el = document.getElementById("app") || document.body;
@@ -60,8 +56,7 @@ function __icontrol_mountShellIfNeeded__(navProvider: () => any[], shellFactory:
     const kind = (typeof __icontrol_resolveAppKind === "function") ? __icontrol_resolveAppKind() : "CP";
     const hash = (() => { try { return window.location.hash || ""; } catch { return ""; } })();
 
-    // Sur login CP: ne pas imposer le shell (UX)
-    if (kind === "CP" && __icontrol_isCpLoginHash__(hash)) return;
+    // Shell always required for CP
 
     // Hors login: shell obligatoire
     if (__icontrol_isShellMounted__()) return;
@@ -186,10 +181,23 @@ function __icontrol_resolveAppKind(): "APP" | "CP" {
 }
 
 function __icontrol_redirect__(target: string): void {
+  // Prevent full-page redirect loops when the target is already active.
   try {
     (globalThis as any).__ICONTROL_LAST_REDIRECT__ = target;
   } catch {}
   try {
+    const origin = window.location.origin;
+    const absTarget = target.startsWith("http") ? target : `${origin}${target}`;
+    const here = window.location.href;
+    if (here === absTarget) return;
+    // Also guard against same-path same-hash redirects.
+    const next = new URL(absTarget);
+    if (
+      next.pathname === window.location.pathname &&
+      next.hash === window.location.hash
+    ) {
+      return;
+    }
     window.location.replace(target);
   } catch {}
 }
@@ -209,11 +217,11 @@ function __icontrol_guardAppVsCp(): void {
     const hashWantsApp = hashPath.startsWith("/app");
 
     if (pathIsApp && hashWantsCp) {
-      __icontrol_redirect__("/app/#/login");
+      __icontrol_redirect__("/app/#/dashboard");
       return;
     }
     if (pathIsCp && hashWantsApp) {
-      __icontrol_redirect__("/cp/#/login");
+      __icontrol_redirect__("/cp/#/dashboard");
       return;
     }
 
@@ -222,15 +230,15 @@ function __icontrol_guardAppVsCp(): void {
 
     // APP: interdit CP
     if (kind === "APP" && wantsCp) {
-      // redirect vers /app/#/login si possible, sinon /#/login
-      const target = pathIsApp ? "/app/#/login" : "/#/login";
+      // redirect vers /app/#/dashboard si possible, sinon /#/dashboard
+      const target = pathIsApp ? "/app/#/dashboard" : "/#/dashboard";
       __icontrol_redirect__(target);
       return;
     }
 
     // CP: interdit APP
     if (kind === "CP" && wantsApp) {
-      const target = pathIsCp ? "/cp/#/login" : "/#/login";
+      const target = pathIsCp ? "/cp/#/dashboard" : "/#/dashboard";
       __icontrol_redirect__(target);
       return;
     }
@@ -432,7 +440,8 @@ __icontrol_installClientStyleGuard__();
       if (!w.__ICONTROL_RUNTIME_CONFIG_SHIM_BOOT__) {
         w.__ICONTROL_RUNTIME_CONFIG_SHIM_BOOT__ = true;
         const importMeta = getImportMeta();
-        if (importMeta.env?.VITE_RUNTIME_CONFIG_SHIM === "1") {
+        // In local dev, default the shim ON to avoid runtime-config fetch loops.
+        if (importMeta.env?.VITE_RUNTIME_CONFIG_SHIM === "1" || importMeta.env?.DEV) {
           registerRuntimeConfigEndpoint();
         }
       }
@@ -458,21 +467,16 @@ const __icontrol_hash = (() => { try { return window.location.hash || ""; } catc
 const __icontrol_kind = __icontrol_resolveAppKind();
 
 /**
- * STRICT LOGIN MATCH:
- * - Autorise UNIQUEMENT "#/login" ou "#/login?..."
- * - Évite tout match permissif qui casserait dashboard/pages.
+ * NOTE: Login removed - landing pages are home-app (APP) and home-cp (CP)
  */
-const __icontrol_isLogin =
-  __icontrol_hash === "#/login" ||
-  __icontrol_hash.startsWith("#/login?");
+const __icontrol_isLogin = false;
 
 /**
  * Gouvernance d'UI Shell (Enterprise guardrail):
- * - CP + login => bypass shell (login minimal)
- * - sinon => shell obligatoire (menu/burger/nav)
+ * - Shell always mounted (login removed)
  */
-if (__icontrol_kind === "CP" && __icontrol_isLogin) {
-  /* Ne pas vider #app: le placeholder "Chargement…" reste jusqu'à renderRoute(login) qui fera root.innerHTML. */
+if (false) {
+  // This block is disabled (login removed)
   const w = getGlobalWindow() as typeof window & { __ICONTROL_MOUNT__?: HTMLElement };
   w.__ICONTROL_MOUNT__ = appRoot;
 } else {
@@ -528,7 +532,7 @@ if (__icontrol_kind === "CP" && __icontrol_isLogin) {
 }
 /* END __ICONTROL_BYPASS_SHELL_ON_CP_LOGIN__ */
     try {
-      if (__icontrol_kind === "CP" && !__icontrol_isLogin) {
+      if (__icontrol_kind === "CP") {
         const b = __br.brand;
         const sh = __icontrol_getShellGlobal__();
         if (b?.APP_DISPLAY_NAME && sh?.setBrandTitle) sh.setBrandTitle(b.APP_DISPLAY_NAME);
@@ -539,16 +543,8 @@ if (__icontrol_kind === "CP" && __icontrol_isLogin) {
   }
 })();
   /* ICONTROL_SHELL_HASHCHANGE_V1 */
-  try {
-    window.addEventListener("hashchange", () => {
-      try {
-        __icontrol_mountShellIfNeeded__(
-          () => getDefaultNavItems(),
-          (nav) => createShell(nav)
-        );
-      } catch {}
-    });
-  } catch {}
+  // NOTE: hashchange listener removed - handled by bootRouter() in router.ts
+  // Duplicate listener was causing multiple router ticks
 function renderShell(rid: RouteId): void {
   const mount = getMountEl();
   
@@ -556,15 +552,13 @@ function renderShell(rid: RouteId): void {
   try {
     const shellRoot = document.querySelector("[data-icontrol-shell-root='1']");
 
-    // Si on est sur une page CP (pas login) et que le shell n'est pas monté, le monter
-    if (rid !== "login" && !shellRoot && mount === document.getElementById("app")) {
+    // Si on est sur une page CP et que le shell n'est pas monté, le monter
+    if (!shellRoot && mount === document.getElementById("app")) {
       console.warn("⚠️ Shell non monté, tentative de remontage...");
       const appRoot = document.getElementById("app") || document.body;
       const __icontrol_kind = __icontrol_resolveAppKind();
-      const hash = window.location.hash || "";
-      const __icontrol_isLogin = hash === "#/login" || hash.startsWith("#/login?");
       
-      if (__icontrol_kind === "CP" && !__icontrol_isLogin) {
+      if (__icontrol_kind === "CP") {
         const shell = createShell(getDefaultNavItems());
         (shell.root as any).dataset.icontrolShellRoot = "1";
         __icontrol_setShellGlobal__(shell as any);
@@ -582,39 +576,106 @@ function renderShell(rid: RouteId): void {
   renderRoute(rid, mount);
 }
 
+function __icontrol_renderBootError__(msg: string): void {
+  try {
+    const el = document.getElementById("app");
+    if (!el) return;
+    el.innerHTML = `<div style="padding:16px;text-align:center;font:14px/1.4 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;color:#e7ecef;background:#0f1112;">Boot error: ${msg}</div>`;
+  } catch {
+    // ignore
+  }
+}
+
 // UI_SHELL_NAV_V1_BOOT: ensure shell mount is completed before first route render
-queueMicrotask(async () => {
-  __icontrol_assertAppKind__();
-
-  /* THEME_SSOT_APPLY_CALL_V1 */
-  await __ICONTROL_APPLY_THEME_SSOT__();
-  /* END THEME_SSOT_APPLY_CALL_V1 */
-  // ICONTROL_VERSION_GATE_V1: Vérifier compatibilité des versions avant de continuer
+queueMicrotask(() => {
   try {
-    const { applyVersionGate } = await import("./core/runtime/versionGate");
-    const mount = getMountEl();
-    const gateResult = await applyVersionGate(mount);
-    if (!gateResult.allowed) {
-      // VersionGate a bloqué : écran "Update Required" affiché, ne pas continuer
-      logger.warn("VERSION_GATE_BLOCKED", "Application blocked by version gate");
-      return;
+    // Dev watchdog: if the boot placeholder survives too long, force a first render.
+    const w = window as any;
+    if ((import.meta as any)?.env?.DEV && !w.__ICONTROL_BOOT_WATCHDOG__) {
+      w.__ICONTROL_BOOT_WATCHDOG__ = true;
+      setTimeout(() => {
+        try {
+          const bootEl = document.getElementById("icontrol-boot");
+          if (!bootEl) return;
+          logger.warn("BOOT_WATCHDOG_FORCE_RENDER", "Boot placeholder still present; forcing render.");
+          try {
+            bootRouter((rid) => renderShell(rid));
+          } catch (e) {
+            logger.warn("BOOT_WATCHDOG_ROUTER_FAILED", String(e));
+          }
+          // If the placeholder still exists after a forced router tick, render login directly.
+          setTimeout(() => {
+            try {
+              const bootStillThere = document.getElementById("icontrol-boot");
+              if (!bootStillThere) return;
+              const mount = getMountEl();
+              logger.warn("BOOT_WATCHDOG_RENDER_LANDING", "Boot placeholder persists; rendering landing directly.");
+              const kind = __icontrol_resolveAppKind();
+              const landing = kind === "CP" ? "home_cp" : "home_app";
+              renderRoute(landing as RouteId, mount);
+            } catch (e) {
+              logger.warn("BOOT_WATCHDOG_LOGIN_FAILED", String(e));
+            }
+          }, 500);
+        } catch (e) {
+          logger.warn("BOOT_WATCHDOG_FAILED", String(e));
+        }
+      }, 3000);
     }
-  } catch (e) {
-    logger.warn("VERSION_GATE_CHECK_FAILED", String(e));
-    // Continuer même si VersionGate échoue (fail open)
+  } catch {
+    // ignore
   }
+  (async () => {
+    __icontrol_assertAppKind__();
 
-  /* RUNTIME_SMOKE_TOGGLE_V1 */
-  try {
-    const __q = new URLSearchParams(window.location.search);
-    if (__q.get("runtime") === "1") {
+    /* THEME_SSOT_APPLY_CALL_V1 */
+    await __ICONTROL_APPLY_THEME_SSOT__();
+    /* END THEME_SSOT_APPLY_CALL_V1 */
+    // ICONTROL_VERSION_GATE_V1: Vérifier compatibilité des versions avant de continuer
+    try {
+      const { applyVersionGate } = await import("./core/runtime/versionGate");
       const mount = getMountEl();
-      import("./pages/runtime-smoke").then((m) => m.renderRuntimeSmoke(mount));
-      return;
+      const gateResult = await applyVersionGate(mount);
+      if (!gateResult.allowed) {
+        // VersionGate a bloqué : écran "Update Required" affiché, ne pas continuer
+        logger.warn("VERSION_GATE_BLOCKED", "Application blocked by version gate");
+        return;
+      }
+    } catch (e) {
+      logger.warn("VERSION_GATE_CHECK_FAILED", String(e));
+      // Continuer même si VersionGate échoue (fail open)
     }
-  } catch (e) {
-    logger.warn("WARN_RUNTIME_SMOKE_TOGGLE", String(e));
-  }
 
-  bootRouter((rid) => renderShell(rid));
+    /* RUNTIME_SMOKE_TOGGLE_V1 */
+    try {
+      const __q = new URLSearchParams(window.location.search);
+      if (__q.get("runtime") === "1") {
+        const mount = getMountEl();
+        import("./pages/runtime-smoke").then((m) => m.renderRuntimeSmoke(mount));
+        return;
+      }
+    } catch (e) {
+      logger.warn("WARN_RUNTIME_SMOKE_TOGGLE", String(e));
+    }
+
+    // DEV fast-path: if we are still on the boot placeholder, render landing directly.
+    try {
+      const isDev = (import.meta as any)?.env?.DEV;
+      const bootEl = document.getElementById("icontrol-boot");
+      if (isDev && bootEl) {
+        const mount = getMountEl();
+        const kind = __icontrol_resolveAppKind();
+        const landing = kind === "CP" ? "home_cp" : "home_app";
+        renderRoute(landing as RouteId, mount);
+      }
+    } catch (e) {
+      logger.warn("WARN_DEV_FASTPATH_LANDING", String(e));
+    }
+
+    bootRouter((rid) => renderShell(rid));
+  })().catch((err) => {
+    const msg = err instanceof Error ? err.message : String(err);
+    logger.error("BOOT_FAILED", msg);
+    __icontrol_renderBootError__(msg);
+  });
 });

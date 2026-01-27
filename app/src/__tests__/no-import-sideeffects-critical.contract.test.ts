@@ -9,7 +9,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
  */
 
 // IMPORTANT: path must match where modules import navigate() from.
-vi.mock("../runtime/router", async () => {
+vi.mock("../runtime/navigate", async () => {
   // We still want the module to load for other imports if needed,
   // but for this test we only need navigate().
   return {
@@ -17,10 +17,10 @@ vi.mock("../runtime/router", async () => {
   };
 });
 
-// Some modules might import navigate from app/src/runtime/router.ts via relative paths.
+// Some modules might import navigate from app/src/runtime/navigate.ts via relative paths.
 // Ensure the same module id is mocked everywhere in this test file.
 const getNavigate = async () => {
-  const m: any = await import("../runtime/router");
+  const m: any = await import("../runtime/navigate");
   return m.navigate as unknown as ReturnType<typeof vi.fn>;
 };
 
@@ -68,7 +68,7 @@ describe("Governance: critical modules have no import-time navigation side effec
 
   it("importing app runtime router does not call navigate()", async () => {
     const nav = await getNavigate();
-    await import("../runtime/router");
+    await import("../runtime/navigate");
     expect(nav).not.toHaveBeenCalled();
   });
 });

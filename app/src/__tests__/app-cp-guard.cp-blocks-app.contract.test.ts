@@ -33,8 +33,8 @@ describe("APP/CP guard (contract) — CP blocks APP routes", () => {
     delete (globalThis as any).__ICONTROL_LAST_REDIRECT__;
   });
 
-  it("redirects to /cp/#/login when CP tries to hit APP", async () => {
+  it("redirects to /cp/#/dashboard when CP tries to hit APP", async () => {
     await import("../main");
-    expect((globalThis as any).__ICONTROL_LAST_REDIRECT__).toBe("/cp/#/login");
+    expect((globalThis as any).__ICONTROL_LAST_REDIRECT__).toBe("/cp/#/dashboard");
   });
 });
