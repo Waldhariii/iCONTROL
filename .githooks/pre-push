@@ -15,6 +15,23 @@ while read -r local_ref local_sha remote_ref remote_sha; do
   fi
 done
 
-npm run gate:ssot
-echo "OK: gate:ssot PASS"
+if [ -n "${SKIP_GATES:-}" ]; then
+  echo "SKIP: gates bypassed (SKIP_GATES=${SKIP_GATES})"
+  exit 0
+fi
+
+run_gate() {
+  local label="$1"
+  shift
+  if "$@" >/dev/null 2>&1; then
+    echo "OK: ${label} PASS"
+  else
+    local rc=$?
+    echo "FAIL: ${label} (exit ${rc})"
+    exit $rc
+  fi
+}
+
+run_gate "gate:ssot" npm run gate:ssot
+echo "OK: pre-push gates PASS"
 exit 0
