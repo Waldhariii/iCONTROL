@@ -37,7 +37,7 @@
     "server:build": "node server/build.mjs",
     "server:dev": "node server/build.mjs --watch --run",
     "server:prod": "node server/dist/runtime-config-server.mjs",
-    "local:web:build": "VITE_APP_KIND=APP npm --prefix app run build -- --base /app/ --outDir ../../dist/app && VITE_APP_KIND=CONTROL_PLANE npm --prefix app run build -- --base /cp/ --outDir ../../dist/cp",
+    "local:web:build": "bash scripts/local-web-build.sh",
     "local:web:serve": "bash -lc 'node ./server/runtime-config-server.js --host ${ICONTROL_LOCAL_HOST:-127.0.0.1} --port ${ICONTROL_LOCAL_PORT:-4176} --dist ./dist'",
     "start": "bash scripts/rebuild-and-serve.sh",
     "local:web": "bash ./scripts/local-web.sh",
