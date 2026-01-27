@@ -15,31 +15,52 @@ cd "$ROOT"
 HOST="${ICONTROL_LOCAL_HOST:-127.0.0.1}"
 PORT_FILE="${ICONTROL_LOCAL_PORT_FILE:-/tmp/icontrol-local-web.port}"
 
-# 1. Detect port
-if [ ! -f "$PORT_FILE" ]; then
-  echo "⚠️  Local web server not running. Starting..."
-  npm run -s local:web:build >/dev/null 2>&1 || true
-  PORT="${ICONTROL_LOCAL_PORT:-4176}"
-  echo "$PORT" > "$PORT_FILE"
-else
-  PORT="$(cat "$PORT_FILE")"
+# 1. Check if server is already running
+PORT=""
+if [ -f "$PORT_FILE" ]; then
+  PORT="$(cat "$PORT_FILE" 2>/dev/null | tr -d ' \n\r\t' || true)"
+  if [ -n "$PORT" ]; then
+    # Verify server is actually responding
+    if curl -s -f "http://${HOST}:${PORT}/app/api/runtime-config" >/dev/null 2>&1; then
+      echo "✅ Server already running on port ${PORT}"
+    else
+      PORT=""
+      rm -f "$PORT_FILE"
+    fi
+  fi
 fi
 
-# 2. Wait for server to be ready (max 10s)
-MAX_WAIT=10
-WAIT_COUNT=0
-while [ $WAIT_COUNT -lt $MAX_WAIT ]; do
-  if curl -s -f "http://${HOST}:${PORT}/app/api/runtime-config" >/dev/null 2>&1; then
-    break
+# 2. Start server if not running
+if [ -z "$PORT" ]; then
+  echo "🚀 Starting local web server..."
+  PORT="${ICONTROL_LOCAL_PORT:-4176}"
+  echo "$PORT" > "$PORT_FILE"
+  
+  # Build first
+  npm run -s local:web:build >/dev/null 2>&1 || true
+  
+  # Start server in background
+  npm run -s local:web:serve >/dev/null 2>&1 &
+  SERVER_PID=$!
+  
+  # Wait for server to be ready (max 30s)
+  MAX_WAIT=30
+  WAIT_COUNT=0
+  while [ $WAIT_COUNT -lt $MAX_WAIT ]; do
+    if curl -s -f "http://${HOST}:${PORT}/app/api/runtime-config" >/dev/null 2>&1; then
+      echo "✅ Server ready on port ${PORT}"
+      break
+    fi
+    sleep 1
+    WAIT_COUNT=$((WAIT_COUNT + 1))
+  done
+  
+  if [ $WAIT_COUNT -ge $MAX_WAIT ]; then
+    echo "❌ Server not responding after ${MAX_WAIT}s"
+    echo "   Check logs or start manually: npm run local:web"
+    kill "$SERVER_PID" 2>/dev/null || true
+    exit 1
   fi
-  sleep 1
-  WAIT_COUNT=$((WAIT_COUNT + 1))
-done
-
-if [ $WAIT_COUNT -ge $MAX_WAIT ]; then
-  echo "❌ Server not responding after ${MAX_WAIT}s"
-  echo "   Start server: npm run local:web"
-  exit 1
 fi
 
 # 3. Fetch route catalog via HTTP (SSOT)
