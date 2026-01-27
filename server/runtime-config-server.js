@@ -10,6 +10,7 @@ const ROOT = path.resolve(__dirname, "..");
 const distRoot = path.resolve(ROOT, "dist");
 const appDist = path.resolve(distRoot, "app");
 const cpDist = path.resolve(distRoot, "cp");
+const routeCatalogPath = path.resolve(ROOT, "config", "ssot", "ROUTE_CATALOG.json");
 
 function send(res, code, headers, body) {
   res.statusCode = code;
@@ -116,6 +117,13 @@ function handleRuntimeConfigRequest(req, res) {
       return serveRuntimeConfig(req, res, "/app");
     if (pathname === "/cp/api/runtime-config")
       return serveRuntimeConfig(req, res, "/cp");
+    if (pathname === "/app/api/route-catalog" || pathname === "/cp/api/route-catalog") {
+      if (fs.existsSync(routeCatalogPath)) {
+        const catalog = JSON.parse(fs.readFileSync(routeCatalogPath, "utf8"));
+        return sendJson(res, 200, catalog);
+      }
+      return sendJson(res, 404, { code: "ERR_ROUTE_CATALOG_NOT_FOUND", message: "ROUTE_CATALOG.json not found" });
+    }
 
     // 2) root redirect
     if (pathname === "/") {

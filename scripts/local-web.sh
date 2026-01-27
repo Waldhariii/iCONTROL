@@ -31,14 +31,7 @@ SERVER_PID=$!
 # smoke must use the SSOT port file
 "$SCRIPT_DIR/smoke-local-web.sh"
 
-# open both surfaces (best-effort)
-# NOTE: login removed - using dashboard/client-disabled as fallback
-if command -v open >/dev/null 2>&1; then
-  open "http://${HOST}:${PORT}/app/#/client-disabled" >/dev/null 2>&1 || true
-  open "http://${HOST}:${PORT}/cp/#/dashboard" >/dev/null 2>&1 || true
-elif command -v xdg-open >/dev/null 2>&1; then
-  xdg-open "http://${HOST}:${PORT}/app/#/client-disabled" >/dev/null 2>&1 || true
-  xdg-open "http://${HOST}:${PORT}/cp/#/dashboard" >/dev/null 2>&1 || true
-fi
+# open both surfaces using SSOT discovery
+"$SCRIPT_DIR/open-local-ssot-urls.sh" || true
 
 wait "$SERVER_PID"
