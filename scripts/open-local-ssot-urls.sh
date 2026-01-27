@@ -114,10 +114,11 @@ if [ "${CP_ROUTE:1:1}" != "/" ]; then
   CP_ROUTE="#/${CP_ROUTE#\#}"
 fi
 
-# 6. Add cache-buster (append to hash, not path)
+# 6. Build URLs (ensure / before hash for proper SPA routing)
+# Format: http://HOST:PORT/app/#/home-app (not /app#/home-app)
 CACHE_BUST="?t=$(date +%s)"
-APP_URL="http://${HOST}:${PORT}/app${APP_ROUTE}${CACHE_BUST}"
-CP_URL="http://${HOST}:${PORT}/cp${CP_ROUTE}${CACHE_BUST}"
+APP_URL="http://${HOST}:${PORT}/app/${APP_ROUTE}${CACHE_BUST}"
+CP_URL="http://${HOST}:${PORT}/cp/${CP_ROUTE}${CACHE_BUST}"
 
 # 7. Open URLs
 echo "✅ Opening APP: ${APP_URL}"
