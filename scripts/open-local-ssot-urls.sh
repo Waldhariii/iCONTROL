@@ -97,12 +97,22 @@ else
   " 2>/dev/null || echo "#/home-cp")
 fi
 
-# 5. Add cache-buster
-CACHE_BUST="?t=$(date +%s)"
-APP_URL="http://${HOST}:${PORT}/app/${APP_ROUTE}${CACHE_BUST}"
-CP_URL="http://${HOST}:${PORT}/cp/${CP_ROUTE}${CACHE_BUST}"
+# 5. Normalize routes (remove leading # if present, ensure it starts with /)
+APP_ROUTE_NORM="${APP_ROUTE#\#}"
+if [ "${APP_ROUTE_NORM:0:1}" != "/" ]; then
+  APP_ROUTE_NORM="/${APP_ROUTE_NORM}"
+fi
+CP_ROUTE_NORM="${CP_ROUTE#\#}"
+if [ "${CP_ROUTE_NORM:0:1}" != "/" ]; then
+  CP_ROUTE_NORM="/${CP_ROUTE_NORM}"
+fi
 
-# 6. Open URLs
+# 6. Add cache-buster
+CACHE_BUST="?t=$(date +%s)"
+APP_URL="http://${HOST}:${PORT}/app${APP_ROUTE_NORM}${CACHE_BUST}"
+CP_URL="http://${HOST}:${PORT}/cp${CP_ROUTE_NORM}${CACHE_BUST}"
+
+# 7. Open URLs
 echo "✅ Opening APP: ${APP_URL}"
 echo "✅ Opening CP:  ${CP_URL}"
 
