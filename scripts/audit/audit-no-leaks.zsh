@@ -23,6 +23,7 @@ EXCL=(
   --glob '!**/.max-phases.sh'
   --glob '!**/.run-max-phases-validation.sh'
   --glob '!**/.triage-working-tree.sh'
+  --glob '!**/.runbook-zero-boucle.sh'
 )
 
 # Build legacy token without writing it contiguously in this file
