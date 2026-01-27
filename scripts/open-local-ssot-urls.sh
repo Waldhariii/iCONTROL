@@ -54,7 +54,8 @@ else
   # 4. Extract golden paths from catalog
   # Prefer: home > dashboard > first ACTIVE route
   APP_ROUTE=$(echo "$CATALOG_JSON" | node -e "
-    const data = JSON.parse(require('fs').readFileSync(0, 'utf8'));
+    const stdin = require('fs').readFileSync(0, 'utf8');
+    const data = JSON.parse(stdin);
     const appRoutes = data.routes.filter(r => r.app_surface === 'CLIENT' && r.status === 'ACTIVE' && r.path);
     const home = appRoutes.find(r => r.route_id === 'home_app');
     const dashboard = appRoutes.find(r => r.route_id.includes('dashboard'));
@@ -64,7 +65,8 @@ else
   " 2>/dev/null || echo "#/home-app")
 
   CP_ROUTE=$(echo "$CATALOG_JSON" | node -e "
-    const data = JSON.parse(require('fs').readFileSync(0, 'utf8'));
+    const stdin = require('fs').readFileSync(0, 'utf8');
+    const data = JSON.parse(stdin);
     const cpRoutes = data.routes.filter(r => r.app_surface === 'CP' && r.status === 'ACTIVE' && r.path);
     const home = cpRoutes.find(r => r.route_id === 'home_cp');
     const dashboard = cpRoutes.find(r => r.route_id.includes('dashboard'));
