@@ -59,5 +59,7 @@ retry_expect_oneof "$BASE/cp" 200 302
 # APIs must be 200
 retry_expect_oneof "$BASE/app/api/runtime-config" 200
 retry_expect_oneof "$BASE/cp/api/runtime-config" 200
+retry_expect_oneof "$BASE/app/api/route-catalog" 200
+retry_expect_oneof "$BASE/cp/api/route-catalog" 200
 
 echo "SMOKE OK (HOST=$HOST PORT=$PORT PORT_FILE=$PORT_FILE)"
