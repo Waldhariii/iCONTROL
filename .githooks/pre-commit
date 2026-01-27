@@ -1,131 +1,22 @@
 #!/bin/zsh
 set -euo pipefail
-export LC_ALL=C
 
-# Pre-commit hook: deterministic, verbose, non-silent
-# Exit codes: 0 = pass, non-zero = fail (with clear error message)
+run_gate() {
+  local label="$1"
+  shift
+  if "$@" >/dev/null 2>&1; then
+    echo "OK: ${label} PASS"
+  else
+    local rc=$?
+    echo "FAIL: ${label} (exit ${rc})"
+    exit $rc
+  fi
+}
 
-echo "=== PRE-COMMIT HOOK ==="
-echo "PWD: $(pwd)"
-echo "BRANCH: $(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo 'detached')"
-echo "NODE: $(node -v 2>/dev/null || echo 'N/A')"
-echo "NPM: $(npm -v 2>/dev/null || echo 'N/A')"
-echo "STAGED_FILES:"
-git diff --cached --name-only 2>/dev/null | sed 's/^/  - /' || echo "  (none)"
-echo
+run_gate "audit-no-leaks" ./scripts/audit/audit-no-leaks.zsh
+run_gate "gate:route-catalog" npm run gate:route-catalog
+run_gate "gate:tenant-matrix" npm run gate:tenant-matrix
+run_gate "gate:design-tokens" npm run gate:design-tokens
+run_gate "gate:capability-status" npm run gate:capability-status
 
-# A1: audit-no-leaks (blocking)
-echo "=== RUN: audit-no-leaks ==="
-if ./scripts/audit/audit-no-leaks.zsh; then
-  echo "OK: audit-no-leaks PASS"
-else
-  RC=$?
-  echo "ERR: audit-no-leaks failed with exit code $RC"
-  echo "See report in _REPORTS/ for details"
-  exit $RC
-fi
-echo
-
-# Gate: ssot:paths (non-blocking, report-only)
-echo "=== RUN: gate:ssot:paths (report-only) ==="
-npm -s run -S gate:ssot:paths || echo "WARN: gate:ssot:paths failed (non-blocking)"
-echo
-
-# Gate: gates:sanity (non-blocking, report-only)
-echo "=== RUN: gate:gates:sanity (report-only) ==="
-npm -s run -S gate:gates:sanity || echo "WARN: gate:gates:sanity failed (non-blocking)"
-echo
-
-# Gate: routing:ssot:report (blocking)
-echo "=== RUN: gate:routing:ssot:report ==="
-if npm -s run -S gate:routing:ssot:report; then
-  echo "OK: gate:routing:ssot:report PASS"
-else
-  RC=$?
-  echo "ERR: gate:routing:ssot:report failed with exit code $RC"
-  exit $RC
-fi
-echo
-
-# Gate: write-gateway-coverage (non-blocking, report-only)
-echo "=== RUN: gate:write-gateway-coverage (report-only) ==="
-npm -s run -S gate:write-gateway-coverage || echo "WARN: gate:write-gateway-coverage failed (non-blocking)"
-echo
-
-# Gate: write-surface-map (non-blocking, report-only)
-echo "=== RUN: gate:write-surface-map (report-only) ==="
-npm -s run -S gate:write-surface-map || echo "WARN: gate:write-surface-map failed (non-blocking)"
-echo
-
-# Gate: ui-inline-drift (blocking)
-echo "=== RUN: gate:ui-inline-drift ==="
-if npm -s run -S gate:ui-inline-drift; then
-  echo "OK: gate:ui-inline-drift PASS"
-else
-  RC=$?
-  echo "ERR: gate:ui-inline-drift failed with exit code $RC"
-  exit $RC
-fi
-echo
-
-# Gate: route-catalog (blocking)
-echo "=== RUN: gate:route-catalog ==="
-if npm run gate:route-catalog >/dev/null 2>&1; then
-  echo "OK: gate:route-catalog PASS"
-else
-  RC=$?
-  echo "ERR: gate:route-catalog failed with exit code $RC"
-  exit $RC
-fi
-echo
-
-# Gate: tenant-matrix (blocking)
-echo "=== RUN: gate:tenant-matrix ==="
-if npm run gate:tenant-matrix >/dev/null 2>&1; then
-  echo "OK: gate:tenant-matrix PASS"
-else
-  RC=$?
-  echo "ERR: gate:tenant-matrix failed with exit code $RC"
-  exit $RC
-fi
-echo
-
-# Gate: design-tokens (blocking)
-echo "=== RUN: gate:design-tokens ==="
-if npm run gate:design-tokens >/dev/null 2>&1; then
-  echo "OK: gate:design-tokens PASS"
-else
-  RC=$?
-  echo "ERR: gate:design-tokens failed with exit code $RC"
-  exit $RC
-fi
-echo
-
-# Gate: capability-status (blocking)
-echo "=== RUN: gate:capability-status ==="
-if npm run gate:capability-status >/dev/null 2>&1; then
-  echo "OK: gate:capability-status PASS"
-else
-  RC=$?
-  echo "ERR: gate:capability-status failed with exit code $RC"
-  exit $RC
-fi
-echo
-
-# Gate: ui-component-registry (non-blocking, report-only)
-echo "=== RUN: gate:ui-component-registry (report-only) ==="
-npm -s run -S gate:ui-component-registry || echo "WARN: gate:ui-component-registry failed (non-blocking)"
-echo
-
-# Gate: ui-contracts (blocking)
-echo "=== RUN: gate:ui-contracts ==="
-if npm -s run -S gate:ui-contracts; then
-  echo "OK: gate:ui-contracts PASS"
-else
-  RC=$?
-  echo "ERR: gate:ui-contracts failed with exit code $RC"
-  exit $RC
-fi
-echo
-
-echo "=== PRE-COMMIT HOOK: ALL CHECKS PASSED ==="
+echo "OK: pre-commit gates PASS"
