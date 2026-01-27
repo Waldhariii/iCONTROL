@@ -1,6 +1,19 @@
 #!/usr/bin/env zsh
 set -euo pipefail
 
+
+run_tests_with_kind_matrix() {
+  local cmd=("$@")
+  if [[ -n "${VITE_APP_KIND:-}" ]]; then
+    echo "[gate] VITE_APP_KIND preset: ${VITE_APP_KIND}"
+    "${cmd[@]}"
+  else
+    echo "[gate] VITE_APP_KIND missing -> running APP + CONTROL_PLANE"
+    VITE_APP_KIND=APP "${cmd[@]}"
+    VITE_APP_KIND=CONTROL_PLANE "${cmd[@]}"
+  fi
+}
+
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 cd "$ROOT"
 
@@ -30,7 +43,7 @@ npm run build:app
 
 echo ""
 echo "=== GATE: tests (non-interactive) ==="
-( cd app && npm run test )
+run_tests_with_kind_matrix bash -lc 'cd app && npm run test'
 
 echo ""
 echo "OK: gate-oss PASS"
