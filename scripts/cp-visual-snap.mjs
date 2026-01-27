@@ -134,14 +134,14 @@ async function main() {
     const browser = await chromium.launch({ headless: true });
     const items = [];
 
-    // Login capture (no session)
-    const loginRoute = routes.find((r) => r.includes("#/login"));
-    if (loginRoute) {
+    // Home CP capture (no session)
+    const homeRoute = routes.find((r) => r.includes("#/home-cp"));
+    if (homeRoute) {
       const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
-      await page.goto(`http://${HOST}:${CP_PORT}${loginRoute}`, { waitUntil: "networkidle" });
-      const filePath = path.join(outputCp, `${sanitize(loginRoute)}.png`);
+      await page.goto(`http://${HOST}:${CP_PORT}${homeRoute}`, { waitUntil: "networkidle" });
+      const filePath = path.join(outputCp, `${sanitize(homeRoute)}.png`);
       await page.screenshot({ path: filePath, fullPage: true });
-      items.push({ route: loginRoute, path: filePath });
+      items.push({ route: homeRoute, path: filePath });
       await page.close();
     }
 
@@ -168,7 +168,7 @@ async function main() {
     const page = await context.newPage();
 
     for (const route of routes) {
-      if (route.includes("#/login")) continue;
+      if (route.includes("#/home-cp")) continue; // Already captured above
       const url = `http://${HOST}:${CP_PORT}${route}`;
       await page.goto(url, { waitUntil: "networkidle" });
       const filePath = path.join(outputCp, `${sanitize(route)}.png`);
