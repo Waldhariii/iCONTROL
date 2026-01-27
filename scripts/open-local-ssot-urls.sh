@@ -38,15 +38,29 @@ if [ -z "$PORT" ]; then
   
   # Build first (ensure dist exists)
   echo "🔨 Building APP and CP..."
-  if ! npm run -s local:web:build 2>&1; then
-    echo "⚠️  Build failed, but continuing..."
+  BUILD_OUTPUT=$(npm run -s local:web:build 2>&1)
+  BUILD_EXIT=$?
+  if [ $BUILD_EXIT -ne 0 ]; then
+    echo "⚠️  Build failed (exit code: $BUILD_EXIT)"
+    echo "$BUILD_OUTPUT" | tail -5
   fi
-  # Verify dist exists
-  if [ ! -f "dist/app/index.html" ] || [ ! -f "dist/cp/index.html" ]; then
-    echo "❌ Build incomplete: dist/app/index.html or dist/cp/index.html missing"
+  # Verify dist exists (ensure we're in ROOT directory)
+  cd "$ROOT" || exit 1
+  if [ ! -f "dist/app/index.html" ]; then
+    echo "❌ Build incomplete: dist/app/index.html missing"
+    echo "   Current dir: $(pwd)"
+    echo "   Expected: $(pwd)/dist/app/index.html"
     echo "   Run manually: npm run local:web:build"
     exit 1
   fi
+  if [ ! -f "dist/cp/index.html" ]; then
+    echo "❌ Build incomplete: dist/cp/index.html missing"
+    echo "   Current dir: $(pwd)"
+    echo "   Expected: $(pwd)/dist/cp/index.html"
+    echo "   Run manually: npm run local:web:build"
+    exit 1
+  fi
+  echo "✅ Build complete: dist files verified"
   
   # Start server in background
   npm run -s local:web:serve >/dev/null 2>&1 &
