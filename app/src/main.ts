@@ -580,7 +580,7 @@ function __icontrol_renderBootError__(msg: string): void {
   try {
     const el = document.getElementById("app");
     if (!el) return;
-    el.innerHTML = `<div style="padding:16px;text-align:center;font:14px/1.4 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;color:#e7ecef;background:#0f1112;">Boot error: ${msg}</div>`;
+    el.innerHTML = `<div style="padding:16px;text-align:center;font:14px/1.4 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;color:var(--text, var(--text-primary));background:var(--bg, var(--bg-app));">Boot error: ${msg}</div>`;
   } catch {
     // ignore
   }

@@ -9,7 +9,7 @@ import { canAccessToolbox } from "./runtime/rbac";
 export function renderRoute(rid: RouteId, root: HTMLElement): void {
   const failSafe = (err: unknown) => {
     try {
-      root.innerHTML = `<div style="padding:16px;text-align:center;font:14px/1.4 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;color:#e7ecef;background:#0f1112;">Route render failed: ${String(err)}</div>`;
+      root.innerHTML = `<div style="padding:16px;text-align:center;font:14px/1.4 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;color:var(--text, var(--text-primary));background:var(--bg, var(--bg-app));">Route render failed: ${String(err)}</div>`;
     } catch {
       // ignore
     }

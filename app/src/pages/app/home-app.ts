@@ -31,10 +31,10 @@ export function renderHomeApp(root: HTMLElement): void {
       Vous êtes sur l'application client iCONTROL.
     </p>
     <div style="display:flex;gap:12px;flex-wrap:wrap;">
-      <button id="btn-pages-inventory" style="padding:10px 20px;background:#2d3748;border:none;border-radius:6px;color:#fff;cursor:pointer;font-size:14px;">
+      <button id="btn-pages-inventory" style="padding:10px 20px;background:var(--btn, var(--bg-panel));border:none;border-radius:6px;color:var(--text, var(--text-primary));cursor:pointer;font-size:14px;">
         Pages Inventory
       </button>
-      <button id="btn-client-catalog" style="padding:10px 20px;background:#2d3748;border:none;border-radius:6px;color:#fff;cursor:pointer;font-size:14px;">
+      <button id="btn-client-catalog" style="padding:10px 20px;background:var(--btn, var(--bg-panel));border:none;border-radius:6px;color:var(--text, var(--text-primary));cursor:pointer;font-size:14px;">
         Client Catalog
       </button>
     </div>

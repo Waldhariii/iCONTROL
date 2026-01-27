@@ -34,13 +34,13 @@ export function renderHomeCp(root: HTMLElement): void {
       Vous êtes sur le Control Plane iCONTROL.
     </p>
     <div style="display:flex;gap:12px;flex-wrap:wrap;">
-      <button id="btn-dashboard" style="padding:10px 20px;background:#2d3748;border:none;border-radius:6px;color:#fff;cursor:pointer;font-size:14px;">
+      <button id="btn-dashboard" style="padding:10px 20px;background:var(--btn, var(--bg-panel));border:none;border-radius:6px;color:var(--text, var(--text-primary));cursor:pointer;font-size:14px;">
         Dashboard
       </button>
-      <button id="btn-pages" style="padding:10px 20px;background:#2d3748;border:none;border-radius:6px;color:#fff;cursor:pointer;font-size:14px;">
+      <button id="btn-pages" style="padding:10px 20px;background:var(--btn, var(--bg-panel));border:none;border-radius:6px;color:var(--text, var(--text-primary));cursor:pointer;font-size:14px;">
         Pages Registry
       </button>
-      <button id="btn-audit" style="padding:10px 20px;background:#2d3748;border:none;border-radius:6px;color:#fff;cursor:pointer;font-size:14px;">
+      <button id="btn-audit" style="padding:10px 20px;background:var(--btn, var(--bg-panel));border:none;border-radius:6px;color:var(--text, var(--text-primary));cursor:pointer;font-size:14px;">
         Audit
       </button>
     </div>
