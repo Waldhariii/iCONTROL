@@ -36,8 +36,17 @@ if [ -z "$PORT" ]; then
   PORT="${ICONTROL_LOCAL_PORT:-4176}"
   echo "$PORT" > "$PORT_FILE"
   
-  # Build first
-  npm run -s local:web:build >/dev/null 2>&1 || true
+  # Build first (ensure dist exists)
+  echo "🔨 Building APP and CP..."
+  if ! npm run -s local:web:build 2>&1; then
+    echo "⚠️  Build failed, but continuing..."
+  fi
+  # Verify dist exists
+  if [ ! -f "dist/app/index.html" ] || [ ! -f "dist/cp/index.html" ]; then
+    echo "❌ Build incomplete: dist/app/index.html or dist/cp/index.html missing"
+    echo "   Run manually: npm run local:web:build"
+    exit 1
+  fi
   
   # Start server in background
   npm run -s local:web:serve >/dev/null 2>&1 &
