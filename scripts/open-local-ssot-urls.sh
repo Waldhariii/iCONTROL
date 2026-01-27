@@ -38,18 +38,27 @@ if [ -z "$PORT" ]; then
   
   # Build first (ensure dist exists)
   echo "🔨 Building APP and CP..."
-  BUILD_OUTPUT=$(npm run -s local:web:build 2>&1)
-  BUILD_EXIT=$?
-  if [ $BUILD_EXIT -ne 0 ]; then
-    echo "⚠️  Build failed (exit code: $BUILD_EXIT)"
-    echo "$BUILD_OUTPUT" | tail -5
-  fi
-  # Verify dist exists (ensure we're in ROOT directory)
   cd "$ROOT" || exit 1
+  # Run build and capture output
+  if ! npm run -s local:web:build >/tmp/icontrol-build.log 2>&1; then
+    echo "⚠️  Build failed, showing last 10 lines:"
+    tail -10 /tmp/icontrol-build.log
+    echo ""
+    echo "   Full log: /tmp/icontrol-build.log"
+  fi
+  # Wait a moment for filesystem to sync
+  sleep 0.5
+  # Verify dist exists (ensure we're in ROOT directory)
   if [ ! -f "dist/app/index.html" ]; then
     echo "❌ Build incomplete: dist/app/index.html missing"
     echo "   Current dir: $(pwd)"
     echo "   Expected: $(pwd)/dist/app/index.html"
+    if [ -d "dist/app" ]; then
+      echo "   dist/app contents:"
+      ls -la "dist/app/" | head -5
+    else
+      echo "   dist/app directory does not exist"
+    fi
     echo "   Run manually: npm run local:web:build"
     exit 1
   fi
@@ -57,6 +66,12 @@ if [ -z "$PORT" ]; then
     echo "❌ Build incomplete: dist/cp/index.html missing"
     echo "   Current dir: $(pwd)"
     echo "   Expected: $(pwd)/dist/cp/index.html"
+    if [ -d "dist/cp" ]; then
+      echo "   dist/cp contents:"
+      ls -la "dist/cp/" | head -5
+    else
+      echo "   dist/cp directory does not exist"
+    fi
     echo "   Run manually: npm run local:web:build"
     exit 1
   fi
