@@ -14,6 +14,8 @@
     "lint:fix": "eslint . --ext .ts,.tsx --fix",
     "test": "npm run test:app",
     "test:app": "bash ./scripts/vitest-app.sh",
+    "test:cp": "bash ./scripts/vitest-cp.sh",
+    "test:matrix": "npm run test:app && npm run test:cp",
     "hooks:install": "bash ./scripts/dev/install-githooks.sh",
     "desktop:app": "bash -lc 'cd app-desktop-client/src-tauri && cargo tauri build'",
     "desktop:cp": "bash -lc 'cd app-desktop-control/src-tauri && cargo tauri build'",
