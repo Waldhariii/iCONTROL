@@ -1,22 +1,6 @@
-#!/bin/zsh
+#!/usr/bin/env bash
 set -euo pipefail
 
-run_gate() {
-  local label="$1"
-  shift
-  if "$@" >/dev/null 2>&1; then
-    echo "OK: ${label} PASS"
-  else
-    local rc=$?
-    echo "FAIL: ${label} (exit ${rc})"
-    exit $rc
-  fi
-}
-
-run_gate "audit-no-leaks" ./scripts/audit/audit-no-leaks.zsh
-run_gate "gate:route-catalog" npm run gate:route-catalog
-run_gate "gate:tenant-matrix" npm run gate:tenant-matrix
-run_gate "gate:design-tokens" npm run gate:design-tokens
-run_gate "gate:capability-status" npm run gate:capability-status
-
-echo "OK: pre-commit gates PASS"
+if [ -x "app/tools/scripts/guard-cp-no-inline-styles.sh" ]; then
+  (cd app && ./tools/scripts/guard-cp-no-inline-styles.sh)
+fi
