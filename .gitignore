@@ -132,3 +132,23 @@ reports/
 # --- Logs / caches ---
 # --- Backups / generated dumps ---
 *_backup*/
+
+### SSOT_HYGIENE_V1 (non-destructive)
+# Local evidence / audits (generated)
+_AUDIT_*/
+_audit/
+app/_audit/
+
+# Backup artifacts created during hotfixes
+*.bak_*
+*.bak
+
+# Common local noise
+.DS_Store
+**/.DS_Store
+*.log
+
+# Node/Vite caches (local)
+**/.vite/
+**/.turbo/
+**/.cache/
