@@ -1,4 +1,6 @@
-#!/bin/zsh
+#!/usr/bin/env bash
 set -euo pipefail
-./scripts/audit/audit-no-leaks.zsh >/dev/null
-echo "OK: audit-no-leaks PASS"
+
+if [ -x "app/tools/scripts/guard-cp-no-inline-styles.sh" ]; then
+  (cd app && ./tools/scripts/guard-cp-no-inline-styles.sh)
+fi

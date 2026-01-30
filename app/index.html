@@ -1,12 +1,114 @@
 <!doctype html>
 <html lang="fr">
   <head>
-    <meta charset="UTF-8" />
+
+<script>
+(function () {
+  try {
+    if (typeof window === "undefined") return;
+
+    // CP uniquement (chemin)
+    var path = String(window.location.pathname || "");
+    if (path.indexOf("/cp") === -1) return;
+
+    var h = String(window.location.hash || "");
+    var isHomeCp = (h === "#/home-cp" || h.indexOf("#/home-cp?") === 0 || h.indexOf("#/home-cp&") === 0);
+
+    if (isHomeCp) {
+      // PREUVE VISUELLE (si tu la vois, le script s'exécute vraiment)
+      try {
+        var el = document.createElement("div");
+        el.id = "__cp_homecp_redirect_proof__";
+        el.textContent = "REDIRECT_HOME_CP_TRIGGERED";
+        el.style.cssText = "position:fixed;z-index:2147483647;top:12px;right:12px;padding:10px 12px;background:#b00020;color:#fff;font:600 12px/1.2 system-ui, -apple-system, Segoe UI, Roboto, Arial;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.35)";
+        document.documentElement.appendChild(el);
+        setTimeout(function(){ try { el.remove(); } catch(e){} }, 800);
+      } catch(e) {}
+
+      // Redirect agressif
+      var u = String(window.location.href || "");
+      if (u.indexOf("#/home-cp") !== -1) {
+        window.location.replace(u.replace("#/home-cp", "#/dashboard"));
+      } else {
+        window.location.replace(window.location.origin + "/cp/#/dashboard");
+      }
+      return;
+    }
+  } catch (e) {}
+})();
+</script>
+
+<meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>iCONTROL</title>
-  </head>
+    <!-- ICONTROL_CRITICAL_CSS_V1: fond immédiat pour éviter flash blanc (first paint). -->
+    <style>
+      html, body { margin: 0; padding: 0; min-height: 100vh; overflow-x: hidden; }
+      body { background: #0f1112; color: #e7ecef; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
+      #app { min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+      #icontrol-boot { opacity: 0.85; font-size: 14px; color: #a7b0b7; }
+    </style>
+  
+<!-- CP_HOME_CP_EARLY_REDIRECT_V3 -->
+<script>
+(function(){
+  try {
+    var ts = Date.now();
+    var h = String(location.hash || "");
+    var u = String(location.href || "");
+
+    // Badge persistant (preuve d'exécution)
+    var b = document.createElement("div");
+    b.id = "icontrol-cp-v3";
+    b.style.cssText = "position:fixed;z-index:2147483647;top:10px;right:10px;padding:8px 10px;border-radius:10px;background:#b00020;color:#fff;font:12px -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Arial,sans-serif;box-shadow:0 8px 24px rgba(0,0,0,.35)";
+    b.textContent = "CP V3 running • hash=" + h;
+    document.documentElement.appendChild(b);
+
+    console.log("[CP_V3] running", {href:u, hash:h, ts:ts});
+
+    function goDash(reason){
+      try {
+        var target = location.pathname + location.search + "#/dashboard";
+        console.log("[CP_V3] redirect -> #/dashboard", {reason:reason, target:target});
+        // On force replaceState d'abord (évite reload), puis replace (hard)
+        history.replaceState(null, "", target);
+        // Si un autre guard rollback, on re-force 3 fois
+        var n = 0;
+        var t = setInterval(function(){
+          n++;
+          var hh = String(location.hash||"");
+          b.textContent = "CP V3 running • hash=" + hh + " • n=" + n;
+          if (hh === "#/dashboard" || hh.indexOf("#/dashboard?")===0 || hh.indexOf("#/dashboard&")===0) {
+            clearInterval(t);
+            console.log("[CP_V3] dashboard confirmed");
+            return;
+          }
+          if (n <= 3) {
+            console.warn("[CP_V3] dashboard not sticking, forcing hard replace", {n:n, hh:hh});
+            location.replace(location.origin + "/cp/#/dashboard");
+          } else {
+            clearInterval(t);
+            console.error("[CP_V3] dashboard still not sticking after retries", {hh:hh});
+          }
+        }, 350);
+      } catch(e){ console.error("[CP_V3] goDash error", e); }
+    }
+
+    if (h === "#/home-cp" || h.indexOf("#/home-cp?")===0 || h.indexOf("#/home-cp&")===0) {
+      goDash("hash-is-home-cp");
+    } else if (u.indexOf("#/home-cp") !== -1) {
+      goDash("url-contains-home-cp");
+    }
+  } catch(e) {
+    console.error("[CP_V3] fatal", e);
+  }
+})();
+</script>
+<!-- /CP_HOME_CP_EARLY_REDIRECT_V3 -->
+
+</head>
   <body>
-    <div id="app"></div>
+    <div id="app"><div id="icontrol-boot" aria-live="polite">Chargement…</div></div>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

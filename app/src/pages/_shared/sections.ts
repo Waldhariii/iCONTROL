@@ -27,8 +27,8 @@ export function renderErrorCard(
     "margin:12px 0",
     "padding:12px",
     "border-radius:12px",
-    "border:1px solid #c33",
-    "background:rgba(255,255,255,0.03)"
+    "border:1px solid var(--ic-error)",
+    "background:var(--ic-surfaceOverlay)"
   ].join(";");
   const title = document.createElement("div");
   title.style.cssText = "font-weight:800;margin-bottom:6px";

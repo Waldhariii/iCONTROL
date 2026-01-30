@@ -1,8 +1,43 @@
 import { nsKey } from "../runtime/storageNs";
 import { isSafeMode } from "../runtime/safeMode";
+import { isEnabled } from "../../policies/feature_flags.enforce";
+import { createAuditHook } from "../write-gateway/auditHook";
+import { createLegacyAdapter } from "../write-gateway/adapters/legacyAdapter";
+import { createPolicyHook } from "../write-gateway/policyHook";
+import { createCorrelationId, createWriteGateway } from "../write-gateway/writeGateway";
+import { getLogger } from "../utils/logger";
 import { DEFAULT_ENTITLEMENTS, type Entitlements } from "./types";
 
 const BASE_KEY = "entitlements.v1";
+const logger = getLogger("WRITE_GATEWAY_ENTITLEMENTS_STORAGE");
+let storageGateway: ReturnType<typeof createWriteGateway> | null = null;
+
+function resolveStorageGateway() {
+  if (storageGateway) return storageGateway;
+  storageGateway = createWriteGateway({
+    policy: createPolicyHook(),
+    audit: createAuditHook(),
+    adapter: createLegacyAdapter((cmd) => {
+      void cmd;
+      return { status: "SKIPPED", correlationId: cmd.correlationId };
+    }, "entitlementsStorageShadowNoop"),
+    safeMode: { enabled: true },
+  });
+  return storageGateway;
+}
+
+function isEntitlementsStorageShadowEnabled(): boolean {
+  try {
+    const rt: any = globalThis as any;
+    const decisions = rt?.__FEATURE_DECISIONS__ || rt?.__featureFlags?.decisions;
+    if (Array.isArray(decisions)) return isEnabled(decisions, "entitlements_storage_shadow");
+    const flags = rt?.__FEATURE_FLAGS__ || rt?.__featureFlags?.flags;
+    const state = flags?.entitlements_storage_shadow?.state;
+    return state === "ON" || state === "ROLLOUT";
+  } catch {
+    return false;
+  }
+}
 
 function safeParse(json: string): unknown {
   try { return JSON.parse(json); } catch { return null; }
@@ -46,6 +81,36 @@ export function saveEntitlements(tenantId: string, e: Entitlements): void {
   if (isSafeMode()) return;
   if (typeof window === "undefined" || !window.localStorage) return;
   window.localStorage.setItem(entitlementsKey(tenantId), JSON.stringify(e));
+
+  if (!isEntitlementsStorageShadowEnabled()) return;
+
+  const correlationId = createCorrelationId("storage");
+  const cmd = {
+    kind: "ENTITLEMENTS_STORAGE_SET",
+    tenantId,
+    correlationId,
+    payload: e,
+    meta: { shadow: true, source: "entitlements.storage", key: entitlementsKey(tenantId) },
+  };
+
+  try {
+    const res = resolveStorageGateway().execute(cmd as any);
+    if (res.status !== "OK" && res.status !== "SKIPPED") {
+      logger.warn("WRITE_GATEWAY_STORAGE_FALLBACK", {
+        kind: cmd.kind,
+        tenant_id: tenantId,
+        correlation_id: correlationId,
+        status: res.status,
+      });
+    }
+  } catch (err) {
+    logger.warn("WRITE_GATEWAY_STORAGE_ERROR", {
+      kind: cmd.kind,
+      tenant_id: tenantId,
+      correlation_id: correlationId,
+      error: String(err),
+    });
+  }
 }
 
 export function clearEntitlements(tenantId: string): void {

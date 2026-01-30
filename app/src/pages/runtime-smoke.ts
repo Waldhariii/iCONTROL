@@ -43,7 +43,7 @@ export function renderRuntimeSmoke(mount: HTMLElement): void {
   if (!sr.ok) { mount.appendChild(el("pre", {}, "SafeRender BLOCKED:\n" + JSON.stringify(sr, null, 2))); return; }
 
   mount.appendChild(el("h3", {}, "Output"));
-  const preview = el("div", { style: "padding:12px;border:1px solid #ccc;margin-top:8px;" });
+  const preview = el("div", { style: "padding:12px;border:1px solid var(--ic-border);margin-top:8px;" });
   preview.innerHTML = sr.html;
   mount.appendChild(preview);
 }

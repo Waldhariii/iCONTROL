@@ -60,14 +60,14 @@ async function renderLogsPageAsync(root: HTMLElement): Promise<void> {
       root.innerHTML = coreBaseStyles();
       const safeModeValue = mapSafeMode(safeMode);
       const { shell, content } = createPageShell({
-        title: "Logs",
-        subtitle: "Observabilité CP — recherche, filtres, corrélation",
+        title: "Audit",
+        subtitle: "Observabilité et traces",
         safeMode: safeModeValue,
         statusBadge: { label: "CHARGEMENT", tone: "info" }
       });
 
       const { card: pilotCard, body: pilotBody } = createSectionCard({
-        title: "Pilotage",
+        title: "Contrôle",
         description: "Synthèse rapide des erreurs"
       });
       pilotBody.appendChild(createSkeletonRow());
@@ -77,8 +77,15 @@ async function renderLogsPageAsync(root: HTMLElement): Promise<void> {
 
       const { card: flowCard, body: flowBody } = createSectionCard({
         title: "Flux",
-        description: "Logs système et corrélation"
+        description: "Traces et corrélation"
       });
+      const { element: loadingToolbar } = createToolbar({
+        actions: [
+          { label: "Rafraîchir", primary: true, onClick: () => refreshLogs() },
+          { label: "Exporter CSV", actionId: "export_logs", onClick: () => exportCsv([]) }
+        ]
+      });
+      flowBody.appendChild(loadingToolbar);
       flowBody.appendChild(createSkeletonBlock());
       content.appendChild(flowCard);
 
@@ -109,14 +116,14 @@ function renderData(
         : { label: "ERREUR", tone: "err" as const };
 
     const { shell, content } = createPageShell({
-      title: "Logs",
-      subtitle: "Observabilité CP — recherche, filtres, corrélation",
+      title: "Audit",
+      subtitle: "Observabilité et traces",
       safeMode: safeModeValue,
       statusBadge
     });
 
     const { card: pilotCard, body: pilotBody } = createSectionCard({
-      title: "Pilotage",
+      title: "Contrôle",
       description: "Synthèse rapide des erreurs"
     });
 
@@ -181,7 +188,7 @@ function renderData(
       ],
       actions: [
         { label: "Rafraîchir", primary: true, onClick: () => refreshLogs() },
-        { label: "Exporter CSV", onClick: () => exportCsv(getFilteredRows(data.rows, tableState)) }
+        { label: "Exporter CSV", actionId: "export_logs", onClick: () => exportCsv(getFilteredRows(data.rows, tableState)) }
       ]
     });
 
@@ -321,13 +328,13 @@ function createKpiRow(label: string, value: string, tone?: "ok" | "warn" | "err"
 
 function createSkeletonRow(): HTMLElement {
   const row = document.createElement("div");
-  row.style.cssText = "height: 16px; background: rgba(255,255,255,0.06); border-radius: 6px;";
+  row.style.cssText = "height: 16px; background: var(--ic-shimmer); border-radius: 6px;";
   return row;
 }
 
 function createSkeletonBlock(): HTMLElement {
   const block = document.createElement("div");
-  block.style.cssText = "height: 140px; background: rgba(255,255,255,0.04); border-radius: 10px;";
+  block.style.cssText = "height: 140px; background: var(--ic-surfaceOverlayStrong); border-radius: 10px;";
   return block;
 }
 
@@ -426,6 +433,16 @@ function getFilteredRows(rows: LogRow[], state: { search: string; level: string;
 }
 
 function exportCsv(rows: LogRow[]): void {
+  if (getSafeMode() === "STRICT") {
+    recordObs({ code: OBS.WARN_SAFE_MODE_WRITE_BLOCKED, actionId: "logs.export", detail: "SAFE_MODE strict" });
+    showToast({ status: "warning", message: "SAFE_MODE strict: export bloque." });
+    return;
+  }
+  if (rows.length === 0) {
+    recordObs({ code: OBS.WARN_EXPORT_EMPTY, actionId: "logs.export", detail: "no_rows" });
+    showToast({ status: "warning", message: "Aucune ligne a exporter." });
+    return;
+  }
   const header = ["ts", "level", "source", "message", "correlationId", "code", "module"];
   const esc = (s: any) => `"${String(s ?? "").replaceAll("\"", "\"\"")}"`;
   const body = rows.map((r) => header.map((h) => esc((r as any)[h])).join(",")).join("\n");
@@ -456,3 +473,11 @@ function refreshLogs(): void {
   const target = currentRoot || getMountEl();
   if (target) void renderLogsPageAsync(target);
 }
+
+export const logsSections = [
+  "logs-control",
+  "logs-kpis",
+  "logs-table",
+  "logs-filters",
+  "logs-export"
+];

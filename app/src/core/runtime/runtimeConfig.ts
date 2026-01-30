@@ -1,3 +1,11 @@
+import { isEnabled } from "../../policies/feature_flags.enforce";
+import { createAuditHook } from "../write-gateway/auditHook";
+import { createLegacyAdapter } from "../write-gateway/adapters/legacyAdapter";
+import { createPolicyHook } from "../write-gateway/policyHook";
+import { createCorrelationId, createWriteGateway } from "../write-gateway/writeGateway";
+import { getLogger } from "../utils/logger";
+import { getTenantId } from "./tenant";
+
 export type RuntimeConfig = {
   tenant_id: string;
   app_base_path: string;
@@ -9,6 +17,35 @@ export type RuntimeConfig = {
 
 const LS_KEY = "icontrol.runtime.config.v1";
 let cached: RuntimeConfig | null = null;
+const logger = getLogger("WRITE_GATEWAY_RUNTIME_CONFIG");
+let runtimeCfgGateway: ReturnType<typeof createWriteGateway> | null = null;
+
+function resolveRuntimeCfgGateway() {
+  if (runtimeCfgGateway) return runtimeCfgGateway;
+  runtimeCfgGateway = createWriteGateway({
+    policy: createPolicyHook(),
+    audit: createAuditHook(),
+    adapter: createLegacyAdapter((cmd) => {
+      void cmd;
+      return { status: "SKIPPED", correlationId: cmd.correlationId };
+    }, "runtimeConfigShadowNoop"),
+    safeMode: { enabled: true },
+  });
+  return runtimeCfgGateway;
+}
+
+function isRuntimeConfigShadowEnabled(): boolean {
+  try {
+    const rt: any = globalThis as any;
+    const decisions = rt?.__FEATURE_DECISIONS__ || rt?.__featureFlags?.decisions;
+    if (Array.isArray(decisions)) return isEnabled(decisions, "runtime_config_shadow");
+    const flags = rt?.__FEATURE_FLAGS__ || rt?.__featureFlags?.flags;
+    const state = flags?.runtime_config_shadow?.state;
+    return state === "ON" || state === "ROLLOUT";
+  } catch {
+    return false;
+  }
+}
 
 function resolveScope(): "/app" | "/cp" {
   try {
@@ -41,11 +78,47 @@ function readCached(): RuntimeConfig | null {
   }
 }
 
-function writeCached(next: RuntimeConfig) {
+function writeCachedLegacy(next: RuntimeConfig) {
   cached = next;
+  if (typeof window === "undefined" || !window.localStorage) return;
   try {
     localStorage.setItem(LS_KEY, JSON.stringify(next));
   } catch {}
+}
+
+function writeCached(next: RuntimeConfig) {
+  writeCachedLegacy(next);
+  if (!isRuntimeConfigShadowEnabled()) return;
+
+  const tenantId = getTenantId();
+  const correlationId = createCorrelationId("runtimecfg");
+  const serialized = JSON.stringify(next);
+  const cmd = {
+    kind: "RUNTIME_CONFIG_SET",
+    tenantId,
+    correlationId,
+    payload: { key: LS_KEY, bytes: serialized.length },
+    meta: { shadow: true, source: "runtimeConfig.ts" },
+  };
+
+  try {
+    const res = resolveRuntimeCfgGateway().execute(cmd as any);
+    if (res.status !== "OK" && res.status !== "SKIPPED") {
+      logger.warn("WRITE_GATEWAY_RUNTIME_CONFIG_FALLBACK", {
+        kind: cmd.kind,
+        tenant_id: tenantId,
+        correlation_id: correlationId,
+        status: res.status,
+      });
+    }
+  } catch (err) {
+    logger.warn("WRITE_GATEWAY_RUNTIME_CONFIG_ERROR", {
+      kind: cmd.kind,
+      tenant_id: tenantId,
+      correlation_id: correlationId,
+      error: String(err),
+    });
+  }
 }
 
 export async function resolveRuntimeConfig(): Promise<RuntimeConfig> {
@@ -59,6 +132,11 @@ export async function resolveRuntimeConfig(): Promise<RuntimeConfig> {
       credentials: "include",
     });
     if (!res.ok) throw new Error(`ERR_RUNTIME_CONFIG_${res.status}`);
+    // In dev, Vite can return index.html for unknown routes; treat that as a miss.
+    const ct = res.headers.get("content-type") || "";
+    if (!ct.includes("application/json")) {
+      throw new Error("ERR_RUNTIME_CONFIG_NOT_JSON");
+    }
     const json = (await res.json()) as RuntimeConfig;
     writeCached(json);
     return json;

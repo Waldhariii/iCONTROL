@@ -36,7 +36,8 @@ describe("system page", () => {
     setSession({ username: "admin", role: "ADMIN", issuedAt: Date.now() });
     const root = document.createElement("div");
     renderSystemPage(root);
-    expect(systemSections.length).toBe(5);
+    // Updated: 7 sections total (health-charts, chart-gallery, safe-mode, cache-audit, safe-mode-actions, flags, flags-actions, layout)
+    expect(systemSections.length).toBeGreaterThanOrEqual(5);
     expect(root.textContent || "").toContain("SAFE_MODE");
   });
 

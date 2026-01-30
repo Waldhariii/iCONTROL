@@ -2,9 +2,13 @@
  * ICONTROL_SECTION_CARD_V1
  * Cartes de section standardisées (titre, description, actions, body)
  */
+import { createButton } from "./button";
+
 export interface SectionCardOptions {
   title: string;
   description?: string;
+  /** Icône (SVG inline ou emoji) à gauche du titre — style Enterprise */
+  icon?: string;
   actions?: Array<{ label: string; onClick: () => void; primary?: boolean; icon?: string }>;
   dense?: boolean;
   collapsible?: boolean;
@@ -17,58 +21,58 @@ export function createSectionCard(options: SectionCardOptions): {
   header: HTMLElement;
 } {
   const card = document.createElement("div");
-  card.style.cssText = `
-    background: var(--ic-card, #1a1d1f);
-    border: 1px solid var(--ic-border, #2b3136);
-    border-radius: 10px;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-  `;
+  card.className = "ic-section-card";
+  if (options.dense) card.classList.add("is-dense");
 
   const header = document.createElement("div");
-  header.style.cssText = `
-    padding: ${options.dense ? "10px 14px" : "12px 16px"};
-    background: var(--ic-panel, #1a1d1f);
-    border-bottom: 1px solid var(--ic-border, #2b3136);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-  `;
+  header.className = "ic-section-card__header";
+
+  let collapsed = false;
+  let chevronEl: HTMLElement | null = null;
+  if (options.collapsible) {
+    header.setAttribute("aria-expanded", "true");
+    chevronEl = document.createElement("span");
+    chevronEl.setAttribute("aria-hidden", "true");
+    chevronEl.textContent = "▼";
+    chevronEl.className = "ic-section-card__chevron";
+    header.appendChild(chevronEl);
+  }
 
   const titleBlock = document.createElement("div");
-  titleBlock.style.cssText = "display:flex; flex-direction:column; gap:2px;";
+  titleBlock.className = "ic-section-card__title-block";
+  const titleRow = document.createElement("div");
+  titleRow.className = "ic-section-card__title-row";
+  if (options.icon) {
+    const iconEl = document.createElement("span");
+    iconEl.setAttribute("aria-hidden", "true");
+    iconEl.innerHTML = options.icon;
+    iconEl.className = "ic-section-card__icon";
+    titleRow.appendChild(iconEl);
+  }
   const title = document.createElement("div");
   title.textContent = options.title;
-  title.style.cssText = "font-size: 13px; font-weight: 700; color: var(--ic-text, #e7ecef);";
-  titleBlock.appendChild(title);
+  title.className = "ic-section-card__title";
+  titleRow.appendChild(title);
+  titleBlock.appendChild(titleRow);
   if (options.description) {
     const desc = document.createElement("div");
     desc.textContent = options.description;
-    desc.style.cssText = "font-size: 12px; color: var(--ic-mutedText, #a7b0b7);";
+    desc.className = "ic-section-card__desc";
     titleBlock.appendChild(desc);
   }
   header.appendChild(titleBlock);
 
   if (options.actions && options.actions.length > 0) {
     const actions = document.createElement("div");
-    actions.style.cssText = "display:flex; gap:8px; align-items:center; flex-wrap:wrap;";
+    actions.className = "ic-section-card__actions";
     options.actions.forEach((action) => {
-      const btn = document.createElement("button");
-      btn.type = "button";
-      btn.textContent = action.icon ? `${action.icon} ${action.label}` : action.label;
-      btn.style.cssText = `
-        padding: 6px 10px;
-        border-radius: 8px;
-        border: 1px solid ${action.primary ? "var(--ic-accent, #7b2cff)" : "var(--ic-border, #2b3136)"};
-        background: ${action.primary ? "var(--ic-accent, #7b2cff)" : "transparent"};
-        color: ${action.primary ? "white" : "var(--ic-text, #e7ecef)"};
-        font-weight: 600;
-        font-size: 11px;
-        cursor: pointer;
-      `;
-      btn.onclick = action.onClick;
+      const btn = createButton({
+        label: action.label,
+        variant: action.primary ? "primary" : "secondary",
+        size: "small",
+        icon: action.icon,
+        onClick: (e) => { e.stopPropagation(); action.onClick(); }
+      });
       actions.appendChild(btn);
     });
     header.appendChild(actions);
@@ -77,19 +81,16 @@ export function createSectionCard(options: SectionCardOptions): {
   }
 
   const body = document.createElement("div");
-  body.style.cssText = `
-    padding: ${options.dense ? "12px 14px" : "16px"};
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  `;
+  body.className = "ic-section-card__body";
 
   if (options.collapsible) {
-    let collapsed = false;
     header.style.cursor = "pointer";
-    header.onclick = () => {
+    header.onclick = (e) => {
+      if ((e.target as Element)?.closest?.("button, a")) return;
       collapsed = !collapsed;
       body.style.display = collapsed ? "none" : "flex";
+      header.setAttribute("aria-expanded", String(!collapsed));
+      if (chevronEl) chevronEl.textContent = collapsed ? "▶" : "▼";
     };
   }
 

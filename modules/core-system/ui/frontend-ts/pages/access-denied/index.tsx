@@ -20,7 +20,7 @@ export function renderAccessDeniedPage(root: HTMLElement, props: AccessDeniedPro
 
   if (ent) {
     const card = document.createElement("div");
-    card.style.cssText = "margin-top:12px;padding:12px;border:1px solid #ddd;border-radius:8px";
+    card.style.cssText = "margin-top:12px;padding:12px;border:1px solid var(--ic-border);border-radius:8px";
     const strong = document.createElement("strong");
     strong.textContent = "Entitlement requis:";
     const code = document.createElement("code");
@@ -35,11 +35,11 @@ export function renderAccessDeniedPage(root: HTMLElement, props: AccessDeniedPro
   actions.style.cssText = "margin-top:16px;display:flex;gap:12px;flex-wrap:wrap";
   const linkProvision = document.createElement("a");
   linkProvision.href = "#/developer/entitlements";
-  linkProvision.style.cssText = "padding:10px 14px;border-radius:8px;border:1px solid #111;text-decoration:none";
+  linkProvision.style.cssText = "padding:10px 14px;border-radius:8px;border:1px solid var(--ic-border);text-decoration:none";
   linkProvision.textContent = "Ouvrir Provisioning (Developer → Entitlements)";
   const linkLogs = document.createElement("a");
   linkLogs.href = "#/logs";
-  linkLogs.style.cssText = "padding:10px 14px;border-radius:8px;border:1px solid #ddd;text-decoration:none";
+  linkLogs.style.cssText = "padding:10px 14px;border-radius:8px;border:1px solid var(--ic-border);text-decoration:none";
   linkLogs.textContent = "Voir les logs / audit";
   actions.appendChild(linkProvision);
   actions.appendChild(linkLogs);

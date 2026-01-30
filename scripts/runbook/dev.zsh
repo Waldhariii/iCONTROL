@@ -16,8 +16,8 @@ echo "OK: audit pass"
 echo ""
 
 echo "2) Build smoke (fast)"
-cd "$ROOT/app"
-npm run build >/dev/null
+cd "$ROOT"
+npm run build:app >/dev/null
 echo "OK: build pass"
 echo ""
 

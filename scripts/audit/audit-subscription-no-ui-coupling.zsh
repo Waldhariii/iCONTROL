@@ -1,6 +1,17 @@
 #!/usr/bin/env zsh
 set -euo pipefail
 
+resolve_tracked() {
+  # Deterministic tracked-file resolver (NO rg). Prefer git index; fallback rg --files.
+  if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+    git ls-files -z | tr '\0' '\n'
+  else
+    rg --files
+  fi
+}
+
+
+
 echo "=== AUDIT: P3 Subscription anti-coupling (UI/pages never import write-model; app runtime only via facade boundary) ==="
 
 UI_SCOPE="modules/core-system/ui/frontend-ts/pages"
@@ -19,9 +30,9 @@ FOUND=0
 
 # 1) UI/pages: zéro tolérance
 for p in "${DENY_PATTERNS[@]}"; do
-  if rg -n "$p" "$UI_SCOPE" -S >/dev/null 2>&1; then
+  if rg "$p" "$UI_SCOPE" -S >/dev/null 2>&1; then
     echo "BLOCKED: UI/pages references forbidden core subscription write-model/integration:"
-    rg -n "$p" "$UI_SCOPE" -S || true
+    rg "$p" "$UI_SCOPE" -S || true
     FOUND=1
   fi
 done
@@ -29,12 +40,12 @@ done
 # 2) app/src runtime: interdit partout SAUF dans la boundary facade
 # NOTE: exclusion glob must match full relative path under app/src
 for p in "${DENY_PATTERNS[@]}"; do
-  if rg -n "$p" "$APP_SCOPE" -S \
+  if rg "$p" "$APP_SCOPE" -S \
       --glob "!**/__tests__/**" \
       --glob "!**/core/subscription/**" \
       >/dev/null 2>&1; then
     echo "BLOCKED: app/src runtime references forbidden write-model/integration outside facade boundary:"
-    rg -n "$p" "$APP_SCOPE" -S \
+    rg "$p" "$APP_SCOPE" -S \
       --glob "!**/__tests__/**" \
       --glob "!**/core/subscription/**" \
       || true
@@ -44,7 +55,7 @@ for p in "${DENY_PATTERNS[@]}"; do
 done
 
 # 3) Guardrail (signal): UI/pages devraient consommer le facade
-if ! rg -n "getEntitlementsForTenant" "$UI_SCOPE" -S >/dev/null 2>&1; then
+if ! rg "getEntitlementsForTenant" "$UI_SCOPE" -S >/dev/null 2>&1; then
   echo "WARN: UI/pages does not appear to consume entitlements facade yet (recommended next step)."
 fi
 

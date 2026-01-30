@@ -15,43 +15,46 @@ export function el<K extends keyof HTMLElementTagNameMap>(
 
 export function sectionCard(title: string): HTMLDivElement {
   const card = el("div");
-  card.style.cssText = [
-    "margin:14px 0",
-    "padding:14px",
-    "border-radius:16px",
-    "border:1px solid var(--line)",
-    "background:rgba(255,255,255,0.03)"
-  ].join(";");
+  card.className = "cxNoticeCard";
 
   const h = el("div", undefined, title);
-  h.style.cssText = "font-weight:800;margin-bottom:10px";
+  h.className = "cxNoticeTitle";
   card.appendChild(h);
   return card;
 }
 
+function ensureNoticeBody(host: HTMLElement): HTMLElement {
+  const existing = host.querySelector<HTMLElement>(":scope > .cxNoticeBody");
+  if (existing) return existing;
+  const body = document.createElement("div");
+  body.className = "cxNoticeBody";
+  host.appendChild(body);
+  return body;
+}
+
 export function appendParagraph(host: HTMLElement, text: string): void {
-  const p = el("div", undefined, text);
-  p.style.cssText = "opacity:.8;line-height:1.4";
-  host.appendChild(p);
+  const body = ensureNoticeBody(host);
+  const p = el("p", undefined, text);
+  body.appendChild(p);
 }
 
 export function appendList(host: HTMLElement, items: string[]): void {
+  const body = ensureNoticeBody(host);
   const ul = el("ul");
-  ul.style.cssText = "margin:0;padding-left:18px;opacity:.9";
   items.forEach((item) => ul.appendChild(el("li", undefined, item)));
-  host.appendChild(ul);
+  body.appendChild(ul);
 }
 
 export function appendKeyValueTable(host: HTMLElement, rows: Array<{ key: string; value: string }>): void {
   const table = el("table");
-  table.style.cssText = "width:100%;border-collapse:collapse";
+  table.className = "cxTable cxTable--kv";
 
   rows.forEach((r) => {
     const tr = el("tr");
     const tdKey = el("td", undefined, r.key);
-    tdKey.style.cssText = "padding:8px;border-bottom:1px solid var(--line);opacity:.85;width:40%";
+    tdKey.className = "cxTable__cell cxTable__cell--key";
     const tdVal = el("td", undefined, r.value);
-    tdVal.style.cssText = "padding:8px;border-bottom:1px solid var(--line)";
+    tdVal.className = "cxTable__cell";
     tr.appendChild(tdKey);
     tr.appendChild(tdVal);
     table.appendChild(tr);
@@ -68,13 +71,14 @@ export function appendTable(
   const maxRows = 200;
   const safeRows = rows.slice(0, maxRows);
   const table = el("table");
-  table.style.cssText = "width:100%;border-collapse:collapse";
+  table.className = "cxTable";
 
   const thead = el("thead");
   const trh = el("tr");
+  trh.className = "cxTable__row cxTable__row--head";
   columns.forEach((c) => {
     const th = el("th", undefined, c);
-    th.style.cssText = "text-align:left;padding:8px;border-bottom:1px solid var(--line);font-size:12px;opacity:.85";
+    th.className = "cxTable__th";
     trh.appendChild(th);
   });
   thead.appendChild(trh);
@@ -83,17 +87,19 @@ export function appendTable(
   const tbody = el("tbody");
   if (safeRows.length === 0) {
     const tr = el("tr");
+    tr.className = "cxTable__row";
     const td = el("td", undefined, "Aucune donnée");
-    td.style.cssText = "padding:8px;border-bottom:1px solid var(--line);opacity:.7";
+    td.className = "cxTable__cell cxTable__cell--empty";
     td.colSpan = columns.length || 1;
     tr.appendChild(td);
     tbody.appendChild(tr);
   }
   safeRows.forEach((row) => {
     const tr = el("tr");
+    tr.className = "cxTable__row";
     columns.forEach((c) => {
       const td = el("td", undefined, row[c] ?? "");
-      td.style.cssText = "padding:8px;border-bottom:1px solid var(--line)";
+      td.className = "cxTable__cell";
       tr.appendChild(td);
     });
     tbody.appendChild(tr);
@@ -104,7 +110,7 @@ export function appendTable(
 
   if (rows.length > maxRows) {
     const note = el("div", undefined, `Affichage limité à ${maxRows} lignes (sur ${rows.length}).`);
-    note.style.cssText = "margin-top:8px;opacity:.7;font-size:12px";
+    note.className = "cxTable__note";
     host.appendChild(note);
   }
 }
@@ -118,18 +124,11 @@ export type UiAction = {
 
 export function appendActionRow(host: HTMLElement, actions: UiAction[]): HTMLDivElement {
   const row = el("div");
-  row.style.cssText = "display:flex;gap:10px;flex-wrap:wrap;margin-top:10px";
+  row.className = "cxActionRow";
   actions.forEach((action) => {
     const btn = el("button", { type: "button", "data-action-id": action.id }, action.label);
     btn.setAttribute("aria-label", action.label);
-    btn.style.cssText = [
-      "padding:8px 12px",
-      "border-radius:10px",
-      "border:1px solid var(--line)",
-      "background:rgba(255,255,255,0.04)",
-      "color:inherit",
-      "cursor:pointer"
-    ].join(";");
+    btn.className = "cxActionBtn";
     row.appendChild(btn);
   });
   host.appendChild(row);
@@ -204,16 +203,10 @@ export function buildCsv(
 
 export function appendPillRow(host: HTMLElement, items: string[]): void {
   const wrap = el("div");
-  wrap.style.cssText = "display:flex;flex-wrap:wrap;gap:8px";
+  wrap.className = "cxPillRow";
   items.forEach((item) => {
     const pill = el("span", undefined, item);
-    pill.style.cssText = [
-      "padding:4px 10px",
-      "border-radius:999px",
-      "border:1px solid var(--line)",
-      "background:rgba(255,255,255,0.04)",
-      "font-size:12px"
-    ].join(";");
+    pill.className = "cxPill";
     wrap.appendChild(pill);
   });
   host.appendChild(wrap);
@@ -389,17 +382,8 @@ export function blockActionBar(args: {
 /* ===== ICONTROL_TOAST_V1 ===== */
 export function blockToast(message: string, kind: "ok" | "warn" | "error" = "ok"): HTMLElement {
   const toast = el("div");
-  toast.style.cssText = [
-    "margin:8px 0",
-    "padding:8px 10px",
-    "border-radius:10px",
-    "border:1px solid var(--line)",
-    "background:rgba(255,255,255,0.03)",
-    "font-size:12px",
-    "opacity:.9"
-  ].join(";");
-  if (kind === "warn") toast.style.borderColor = "#b58a00";
-  if (kind === "error") toast.style.borderColor = "#c33";
+  toast.className = "ic-toast";
+  toast.dataset.status = kind === "ok" ? "success" : kind === "warn" ? "warning" : "error";
   toast.textContent = message;
   return toast;
 }
@@ -414,7 +398,7 @@ export function blockFilterInput(args: {
   input.type = "text";
   input.placeholder = args.placeholder;
   input.value = args.value;
-  input.style.cssText = "padding:8px 10px;border-radius:10px;border:1px solid var(--line);background:transparent;color:inherit;";
+  input.className = "cxInput";
   input.addEventListener("input", () => args.onChange(input.value));
   return input;
 }

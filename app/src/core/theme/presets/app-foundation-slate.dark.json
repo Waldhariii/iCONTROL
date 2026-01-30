@@ -1,0 +1,21 @@
+{
+  "meta": {
+    "id": "app-foundation-slate",
+    "version": "v2026.01.22.1",
+    "mode": "dark",
+    "scope": "app.foundation",
+    "brand": "icontrol"
+  },
+  "appBgPrimary": "#0f1115",
+  "appBgSecondary": "#0a0c10",
+  "appBgGradient": "radial-gradient(1200px 700px at 18% 12%, rgba(255,255,255,0.05), transparent 60%), radial-gradient(900px 600px at 85% 25%, rgba(56,189,248,0.08), transparent 58%), linear-gradient(180deg, #0f1115 0%, #0a0c10 55%, #07080a 100%)",
+  "surface0": "linear-gradient(180deg, rgba(40,42,48,0.92), rgba(28,30,36,0.92))",
+  "surface1": "linear-gradient(180deg, rgba(34,36,42,0.86), rgba(24,26,32,0.86))",
+  "surfaceBorder": "rgba(255,255,255,0.08)",
+  "textPrimary": "#e6e8ee",
+  "textMuted": "rgba(148,163,184,0.85)",
+  "accentPrimary": "rgba(56,189,248,0.9)",
+  "accentGlow": "rgba(56,189,248,0.25)",
+  "shadowMd": "0 18px 46px rgba(0,0,0,0.45)",
+  "shadowLg": "0 26px 70px rgba(0,0,0,0.55)"
+}

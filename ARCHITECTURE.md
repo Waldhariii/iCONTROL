@@ -33,5 +33,5 @@ Plateforme modulaire long terme, avec isolation stricte par modules et UI shell 
 
 ### Qualité (hard gates)
 - Audit: `./scripts/audit/audit-no-leaks.zsh`
-- Build: `(cd app && npm run build)`
+- Build: `npm run build:app` (or `npm run build:cp` for Control Plane)
 

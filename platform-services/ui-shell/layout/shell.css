@@ -1,109 +1,114 @@
-:root{
-  --bg:#0f1112; --panel:#1a1d1f; --panel2:#202427; --line:#2b3136;
-  --text:#e7ecef; --muted:#a7b0b7;
-  --accent:#7b2cff; /* mauve sombre visible */
-  --btn:#262b2f; --btn2:#2e353b;
-  --radius:18px;
-  --shadow: 0 12px 40px rgba(0,0,0,.35);
-  --font: -apple-system, BlinkMacSystemFont, "SF Pro Display","SF Pro Text", Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+/* Variables, base, focus: STYLE_ADMIN_FINAL.css. Ici: layout .cx* uniquement. */
+.cxHeader {
+  position: sticky; top: 0; z-index: 50;
+  height: 56px; display: flex; align-items: center; justify-content: flex-start;
+  gap: 12px; padding: 0 16px;
+  background: var(--panel);
+  border-bottom: 1px solid var(--line);
 }
-*{box-sizing:border-box}
-body{margin:0;background:radial-gradient(1200px 800px at 20% 0%, #1a1f23 0%, var(--bg) 55%) fixed;color:var(--text);font-family:var(--font)}
-.cxHeader{
-  position:sticky; top:0; z-index:50;
-  height:60px; display:flex; align-items:center; justify-content:flex-start;
-  gap:12px; padding:0 14px;
-  background:rgba(20,22,24,.88); backdrop-filter: blur(10px);
-  border-bottom:1px solid var(--line);
+.cxBrand {
+  display: flex; align-items: center; gap: 10px;
+  font-weight: 700; font-size: 15px; letter-spacing: .02em; color: var(--text);
 }
-.cxBrand{
-  display:flex; align-items:center; gap:10px;
-  font-weight:800; letter-spacing:.2px;
+.cxBrandDot {
+  width: 10px; height: 10px; border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 3px rgba(59,130,246,.2);
 }
-.cxBrandDot{
-  width:12px;height:12px;border-radius:99px;background:var(--accent);
-  box-shadow:0 0 0 4px rgba(123,44,255,.14);
+.cxBurger {
+  width: 40px; height: 40px; border-radius: var(--radius-md);
+  background: var(--btn); border: 1px solid var(--line);
+  display: grid; place-items: center; cursor: pointer; color: var(--text);
 }
-.cxBurger{
-  width:44px;height:44px;border-radius:12px;
-  background:var(--btn); border:1px solid var(--line);
-  display:grid; place-items:center; cursor:pointer;
+.cxBurger:hover { background: var(--btn2); }
+.cxBurger:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
-.cxBurger:hover{background:var(--btn2)}
-.cxBurger:focus-visible{
-  outline:2px solid var(--accent);
-  outline-offset:2px;
+.cxSearch {
+  flex: 1; min-width: 80px; max-width: 260px;
+  height: 34px; padding: 0 12px; border-radius: var(--radius-md);
+  background: var(--btn); border: 1px solid var(--line);
+  color: var(--text); font: inherit; font-size: 13px;
 }
-.cxMain{
-  padding:18px; max-width:1280px; margin:0 auto;
+.cxSearch::placeholder { color: var(--muted); }
+.cxSearch:focus { outline: none; border-color: var(--accent); }
+.cxUserZone {
+  margin-left: auto; font-size: 12px; color: var(--muted);
+  white-space: nowrap;
 }
-.cxDrawerOverlay{
-  position:fixed; inset:0; background:rgba(0,0,0,.45);
-  z-index:80; display:none;
+.cxMain {
+  padding: 20px; max-width: 1280px; margin: 0 auto;
+  background: var(--bg);
 }
-.cxDrawer{
-  position:fixed; top:0; left:0; height:100%;
-  width:340px; max-width:90vw;
-  background:linear-gradient(180deg, rgba(32,36,39,.98), rgba(26,29,31,.98));
-  border-right:1px solid var(--line);
+.cxDrawerOverlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,.5);
+  z-index: 80; display: none;
+}
+.cxDrawer {
+  position: fixed; top: 0; left: 0; height: 100%;
+  width: 280px; max-width: 90vw;
+  background: var(--panel);
+  border-right: 1px solid var(--line);
   box-shadow: var(--shadow);
-  z-index:90; transform: translateX(-100%);
-  transition: transform .18s ease;
-  padding:14px;
+  z-index: 90; transform: translateX(-100%);
+  transition: transform .2s ease;
+  padding: 16px; display: flex; flex-direction: column;
 }
-.cxDrawer.open{ transform: translateX(0); }
-.cxDrawerOverlay.open{ display:block; }
-.cxDrawerTop{
-  display:flex; align-items:center; justify-content:space-between;
-  margin-bottom:12px;
+.cxDrawer.open { transform: translateX(0); }
+.cxDrawerOverlay.open { display: block; }
+.cxDrawerTop {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 12px; flex-shrink: 0;
 }
-.cxDrawerTitle{
-  font-weight:900; letter-spacing:.3px;
+.cxDrawerTitle {
+  font-weight: 700; font-size: 14px; color: var(--text); letter-spacing: .02em;
 }
-.cxClose{
-  width:40px;height:40px;border-radius:12px;
-  background:transparent; border:1px solid var(--line);
-  color:var(--text); cursor:pointer;
+.cxClose {
+  width: 36px; height: 36px; border-radius: var(--radius-md);
+  background: transparent; border: 1px solid var(--line);
+  color: var(--text); cursor: pointer; display: grid; place-items: center;
 }
-.cxClose:hover{background:rgba(255,255,255,.06)}
-.cxClose:focus-visible{
-  outline:2px solid var(--accent);
-  outline-offset:2px;
+.cxClose:hover { background: var(--ic-bgHover); }
+.cxClose:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
-.cxNav{
-  display:flex; flex-direction:column; gap:8px; margin-top:10px;
+.cxNav {
+  display: flex; flex-direction: column; gap: 4px; margin-top: 8px; flex: 1; overflow-y: auto;
 }
-.cxNav a{
-  text-decoration:none; color:var(--text);
-  padding:12px 12px; border-radius:14px;
-  background:rgba(255,255,255,.03);
-  border:1px solid rgba(255,255,255,.06);
+.cxNav a {
+  display: flex; align-items: center;
+  text-decoration: none; color: var(--text);
+  padding: 10px 12px; border-radius: var(--radius-md);
+  background: transparent; border: 1px solid transparent;
+  font-size: 13px; transition: background .15s, border-color .15s;
 }
-.cxNav a:hover{background:rgba(255,255,255,.06)}
-.cxNav a:focus-visible{
-  outline:2px solid var(--accent);
-  outline-offset:2px;
+.cxNav .cxNavIcon { display: inline-flex; margin-right: 10px; flex-shrink: 0; opacity: .85; }
+.cxNav a:hover { background: var(--ic-bgHover); }
+.cxNav a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
-.cxNav a.active{
-  border-color: rgba(123,44,255,.55);
-  background: rgba(123,44,255,.10);
+.cxNav a.active {
+  border-color: rgba(59,130,246,.4);
+  background: var(--ic-accentBg);
+  color: var(--text);
 }
-.cxNav small{color:var(--muted)}
+.cxNav small { color: var(--muted); font-size: 11px; }
 
-/* ICONTROL_SIDEBAR_LEFT_LAYOUT_V1
-   Desktop: persistent left sidebar, content to the right.
-*/
-@media (min-width: 960px){
-  .cxBurger{display:none}
-  .cxDrawerOverlay{display:none !important}
-  .cxDrawer{
-    left:0; right:auto;
+/* Desktop: sidebar fixe à gauche */
+@media (min-width: 960px) {
+  .cxBurger { display: none; }
+  .cxDrawerOverlay { display: none !important; }
+  .cxDrawer {
+    left: 0; right: auto;
     transform: translateX(0);
-    border-left:0;
-    border-right:1px solid var(--line);
+    border-right: 1px solid var(--line);
+    width: 260px;
   }
-  .cxMain{
-    margin: 0 0 0 340px;
-    max-width: 1280px;
+  .cxMain {
+    margin: 0 0 0 260px;
+    max-width: none; padding: 24px;
   }
 }

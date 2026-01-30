@@ -1,16 +1,19 @@
-// @vitest-environment jsdom
-// @vitest-environment-options { "url": "http://localhost" }
-import { describe, it, expect } from "vitest";
-import { getRouteId } from "../router";
+import { describe, it, expect, vi } from "vitest";
 
-describe("router system/logs", () => {
-  it("maps #/system", () => {
-    (globalThis as any).location = { hash: "#/system" };
-    expect(getRouteId()).toBe("system");
+const loadCpRouter = async () => {
+  vi.resetModules();
+  process.env.VITE_APP_KIND = "CONTROL_PLANE";
+  return await import("../router");
+};
+
+describe("router system/logs (CP)", () => {
+  it("maps #/system -> system_cp", async () => {
+    const { getRouteIdFromHash } = await loadCpRouter();
+    expect(getRouteIdFromHash("#/system")).toBe("system_cp");
   });
 
-  it("maps #/logs", () => {
-    (globalThis as any).location = { hash: "#/logs" };
-    expect(getRouteId()).toBe("logs");
+  it("maps #/logs -> logs_cp", async () => {
+    const { getRouteIdFromHash } = await loadCpRouter();
+    expect(getRouteIdFromHash("#/logs")).toBe("logs_cp");
   });
 });

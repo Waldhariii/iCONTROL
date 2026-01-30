@@ -3,9 +3,9 @@ import { createSectionCard, appendAction } from "../ui";
 
 export const diagnosticsSection: ToolboxSection = {
   id: "diagnostics",
-  title: "Diagnostics",
+  title: "Diagnostic",
   render: (root, ctx) => {
-    const card = createSectionCard("Diagnostics");
+    const card = createSectionCard("Diagnostic");
     card.setAttribute("data-toolbox-section", "diagnostics");
     const body = card.querySelector(".cxBody") as HTMLElement;
 
@@ -16,7 +16,7 @@ export const diagnosticsSection: ToolboxSection = {
     ["Signal", "Value"].forEach((h) => {
       const th = document.createElement("th");
       th.textContent = h;
-      th.style.cssText = "text-align:left;padding:6px;border-bottom:1px solid rgba(255,255,255,0.08);opacity:.8;";
+      th.style.cssText = "text-align:left;padding:6px;border-bottom:1px solid var(--ic-highlight);opacity:.8;";
       trh.appendChild(th);
     });
     thead.appendChild(trh);
@@ -33,7 +33,7 @@ export const diagnosticsSection: ToolboxSection = {
       Object.values(row).forEach((v) => {
         const td = document.createElement("td");
         td.textContent = String(v);
-        td.style.cssText = "padding:6px;border-bottom:1px solid rgba(255,255,255,0.06);";
+        td.style.cssText = "padding:6px;border-bottom:1px solid var(--ic-borderLightMuted);";
         tr.appendChild(td);
       });
       tbody.appendChild(tr);

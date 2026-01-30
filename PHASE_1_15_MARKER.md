@@ -1,0 +1,16 @@
+# PHASE 1.15 — Marker (report-only / no runtime change)
+- Date (UTC): 2026-01-25T23:16:56Z
+- Target (resolved): modules/core-system/subscription/FileSubscriptionStore.node.ts
+- Flags (SSOT): app/src/policies/feature_flags.default.json
+- Flag key: file_subscription_store_node_fs_shadow (default OFF)
+- cmd.kind: FILESUBSCRIPTIONSTORE_NODE_FS_WRITE_SHADOW
+- Canonical constraints validated:
+  - 1x fs.writeFileSync(fp, ...)
+  - 1x FileSubscriptionStore.isShadowEnabled()
+  - 1x FILESUBSCRIPTIONSTORE_NODE_FS_WRITE_SHADOW
+- Proofs:
+  - gate:ssot PASS
+  - build:cp PASS
+  - build:app PASS
+- Repo hygiene:
+  - Report churn excluded (write_surface_map_report.md / write_gateway_coverage_report.md reverted before commit)

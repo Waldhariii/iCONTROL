@@ -1,16 +1,59 @@
 import { incCounter, observeHistogram } from "./metrics.registry";
 
+/** ICONTROL_CACHE_REGISTRY_DEANY_V1
+ * Objectif: éliminer `any`/`as unknown` sans changer le comportement runtime.
+ * Approche: `unknown` + narrowing + typed bags (Record<string, unknown>).
+ */
+type Bag = Record<string, unknown>;
+type MetricsBag = Bag & { __METRICS_DISABLED__?: boolean };
+type CacheBag = Bag & {
+  __CACHE__?: Record<string, unknown>;
+  __CACHE_TAGS__?: Record<string, Record<string, 1>>;
+  __CACHE_PROVIDER__?: unknown;
+  __CACHE_SWR_DISABLED__?: boolean;
+  __CACHE_AUDIT__?: unknown;
+};
+const asBag = <T extends Bag>(v: unknown): T => (v as T);
+
+
+
+/** ICONTROL_CACHE_REGISTRY_TYPED_BAG_V1
+ * Goal: reduce `any` by centralizing runtime typing + narrowing at boundaries.
+ * Strategy: store cache state on rt via a typed bag (no `any`), use `unknown` for raw/provider payloads.
+ */
+type UnknownRecord = Record<string, unknown>;
+
+type RtCacheBag = AnyRt & {
+  __CACHE__?: Record<string, CacheEntry<unknown>>;
+  __CACHE_TAGS__?: Record<string, Record<string, 1>>;
+  __CACHE_PROVIDER__?: CacheProvider;
+
+  __CACHE_INFLIGHT__?: Map<string, Promise<unknown>>;
+  __CACHE_SWR_META__?: Map<string, number>;
+  __CACHE_LRU__?: Map<string, true>;
+
+  __METRICS_DISABLED__?: boolean;
+  __CACHE_SWR_DISABLED__?: boolean;
+};
+
+function _asBag(rt: AnyRt): RtCacheBag {
+  return rt as RtCacheBag;
+}
+
+function isRecord(v: unknown): v is UnknownRecord {
+  return typeof v === "object" && v !== null;
+}
 
 // ================= HARD_CLAMP_CACHE_BOUNDS =================
 // Défense contre configurations toxiques (runtime / caller)
 
-function clampPositiveInt(v: any, def: number, max?: number): number {
+function clampPositiveInt(v: unknown, def: number, max?: number): number {
   if (typeof v !== "number" || !Number.isFinite(v) || v <= 0) return def;
   if (max !== undefined && v > max) return max;
   return Math.floor(v);
 }
 
-function clampCacheOpts(opts: any) {
+function clampCacheOpts(opts: unknown) {
   if (!opts || typeof opts !== "object") return opts || {};
 
   // TTL: minimum 1ms, maximum 24h
@@ -70,7 +113,7 @@ function ensure(rt: AnyRt) {
 }
 
 function inMemProvider(rt: AnyRt): CacheProvider {
-  const base = ensure(rt) as any;
+  const base = _asBag(ensure(rt));
   const map: Record<string, CacheEntry<any>> = base.__CACHE__;
   const tagMap: Record<string, Record<string, 1>> = base.__CACHE_TAGS__;
 
@@ -102,8 +145,8 @@ function inMemProvider(rt: AnyRt): CacheProvider {
  *   If present, it owns cache operations only; core keeps rest.
  */
 export function getCacheProvider(rt: AnyRt): CacheProvider {
-  const r = ensure(rt) as any;
-  if (!r) return inMemProvider({} as any); // should never be used, but keeps contract non-throw
+  const r = _asBag(ensure(rt));
+  if (!r) return inMemProvider(_asBag({} as AnyRt)); // should never be used, but keeps contract non-throw
   const p = r.__CACHE_PROVIDER__ as CacheProvider | undefined;
   return p || inMemProvider(r);
 }
@@ -203,12 +246,12 @@ const __CACHE_REFRESH_ASIDE_META_TTL_MS = 2000;
 // ------------------------------
 // Enterprise extensions: single-flight + refresh-aside + LRU bound
 
-type __CacheRawEntry = any;
+type __CacheRawEntry = unknown;
 
 function __deferMicrotask(fn: () => void) {
   try {
     // queueMicrotask is preferred when available (deterministic, no macro-tick jitter)
-    (globalThis as any).queueMicrotask ? (globalThis as any).queueMicrotask(fn) : Promise.resolve().then(fn);
+    typeof queueMicrotask === "function" ? queueMicrotask(fn) : Promise.resolve().then(fn);
   } catch {
     try { Promise.resolve().then(fn); } catch {}
   }
@@ -219,25 +262,25 @@ function __nowMs(): number {
   return Date.now();
 }
 
-function __mInc(rt: any, name: string, by = 1, tags: any = {}) {
+function __mInc(rt: AnyRt, name: string, by = 1, tags: Record<string, string> | undefined = {}) {
   try {
-    if ((rt as any)?.__METRICS_DISABLED__) return;
+    if (_asBag(rt).__METRICS_DISABLED__) return;
     incCounter(rt, name, by, tags || {});
   } catch {}
 }
 
-function __mHist(rt: any, name: string, v: number, tags: any = {}) {
+function __mHist(rt: AnyRt, name: string, v: number, tags: Record<string, string> | undefined = {}) {
   try {
-    if ((rt as any)?.__METRICS_DISABLED__) return;
+    if (_asBag(rt).__METRICS_DISABLED__) return;
     observeHistogram(rt, name, v, tags || {});
   } catch {}
 }
 
 // Provider-raw read: bypasses cacheGet() purge; reads entry directly from provider store.
 // Works for inMemProvider() and premium __CACHE_PROVIDER__.
-async function __cacheRawGetEntry(rt: any, key: string): Promise<any | null> {
+async function __cacheRawGetEntry(rt: AnyRt, key: string): Promise<unknown | null> {
   try {
-    const p = getCacheProvider(rt as any);
+    const p = getCacheProvider(rt as unknown);
     const e = await p.get(key);
     return e || null;
   } catch {
@@ -246,19 +289,19 @@ async function __cacheRawGetEntry(rt: any, key: string): Promise<any | null> {
 }
 
 // Normalize entry shape to what SWR needs.
-function __cacheExtract(raw: any): { value: any; expiresAt: number } | null {
+function __cacheExtract(raw: unknown): { value: unknown; expiresAt: number } | null {
   if (!raw) return null;
 
   // Canonical CacheEntry: { v, exp, tags, cAt }
   if (typeof raw === "object" && "v" in raw) {
-    const exp = typeof (raw as any).exp === "number" ? (raw as any).exp : 0;
-    return { value: (raw as any).v, expiresAt: exp };
+    const exp = typeof (raw as unknown).exp === "number" ? (raw as unknown).exp : 0;
+    return { value: (raw as unknown).v, expiresAt: exp };
   }
 
   // Fallback shapes (best-effort)
   if (typeof raw === "object" && "value" in raw) {
-    const exp = typeof (raw as any).exp === "number" ? (raw as any).exp : (typeof (raw as any).expiresAt === "number" ? (raw as any).expiresAt : 0);
-    return { value: (raw as any).value, expiresAt: exp };
+    const exp = typeof (raw as unknown).exp === "number" ? (raw as unknown).exp : (typeof (raw as unknown).expiresAt === "number" ? (raw as unknown).expiresAt : 0);
+    return { value: (raw as unknown).value, expiresAt: exp };
   }
 
   return { value: raw, expiresAt: 0 };
@@ -289,14 +332,14 @@ function __clampSWRMs(n?: number): number {
   // hard safety cap (7 days) to avoid stale serving forever via misconfig
   return Math.min(v, 7 * 24 * 60 * 60 * 1000);
 }
-function getInflight(rt: any): Map<string, Promise<any>> {
-  const w: any = rt || ({} as any);
-  if (!w.__CACHE_INFLIGHT__) w.__CACHE_INFLIGHT__ = new Map<string, Promise<any>>();
+function getInflight(rt: AnyRt): Map<string, Promise<unknown>> {
+  const w = _asBag(rt ?? ({} as AnyRt));
+  if (!w.__CACHE_INFLIGHT__) w.__CACHE_INFLIGHT__ = new Map<string, Promise<unknown>>();
   return w.__CACHE_INFLIGHT__;
 }
 
-function getRefreshAsideMeta(rt: any): Map<string, number> {
-const w: any = rt || ({} as any);
+function getRefreshAsideMeta(rt: AnyRt): Map<string, number> {
+const w = _asBag(rt ?? ({} as AnyRt));
   if (!w.__CACHE_REFRESH_ASIDE_META__) w.__CACHE_REFRESH_ASIDE_META__ = new Map<string, number>();
   // Opportunistic purge (best-effort): bound growth even if timers don't run
   try {
@@ -314,13 +357,13 @@ const w: any = rt || ({} as any);
 // LRU implemented via Map insertion order:
 // - touch = delete + set (moves key to end => MRU)
 // - evict = first key in map => LRU
-function getLRU(rt: any): Map<string, true> {
-  const w: any = rt || ({} as any);
+function getLRU(rt: AnyRt): Map<string, true> {
+  const w = _asBag(rt ?? ({} as AnyRt));
   if (!w.__CACHE_LRU__) w.__CACHE_LRU__ = new Map<string, true>();
   return w.__CACHE_LRU__;
 }
 
-function lruTouch(rt: any, key: string) {
+function lruTouch(rt: AnyRt, key: string) {
   try {
     const lru = getLRU(rt);
     if (lru.has(key)) lru.delete(key);
@@ -328,9 +371,9 @@ function lruTouch(rt: any, key: string) {
   } catch {}
 }
 
-function inMemoryStore(rt: any): Map<string, any> | null {
+function inMemoryStore(rt: AnyRt): Map<string, any> | null {
   try {
-    const w: any = rt || {};
+    const w = _asBag(rt ?? ({} as AnyRt));
     const store = w.__CACHE_STORE__ as Map<string, any> | undefined;
     return store || null;
   } catch {
@@ -338,10 +381,10 @@ function inMemoryStore(rt: any): Map<string, any> | null {
   }
 }
 
-function lruEvictIfNeeded(rt: any, maxEntries?: number) {
+function lruEvictIfNeeded(rt: unknown, maxEntries?: number) {
 
   try {
-    const w: any = rt || {};
+    const w = _asBag(rt ?? ({} as AnyRt));
     if (w.__CACHE_LRU_DISABLED__) return;
   } catch {}
 
@@ -359,13 +402,13 @@ function lruEvictIfNeeded(rt: any, maxEntries?: number) {
       try { lru.delete(k); } catch {}
 
       // real eviction from provider-backed cache
-      try { cacheDel(rt as any, k as any); } catch {}
+      try { cacheDel(rt as unknown, k as unknown); } catch {}
       try { incCounter(rt, "cache.lru.evict.count", 1, {}); } catch {}
     }
   } catch {}
 }
 
-async function computeAndSet(rt: any, key: string, compute: () => Promise<any> | any, opts: CacheComputeOptions) {
+async function computeAndSet(rt: unknown, key: string, compute: () => Promise<unknown> | unknown, opts: CacheComputeOptions) {
   const t0 = now();
   try {
     const v = await compute();
@@ -386,9 +429,9 @@ async function computeAndSet(rt: any, key: string, compute: () => Promise<any> |
 // If staleWhileRevalidateMs is provided:
 // - if entry is expired but still within stale window, returns stale immediately and triggers background refresh.
 
-function __cacheAuditMark(rt: any) {
+function __cacheAuditMark(rt: unknown) {
   try {
-    const w: any = rt || ({} as any);
+    const w = _asBag(rt ?? ({} as AnyRt));
     if (!w.__cacheAudit) w.__cacheAudit = Object.create(null);
     w.__cacheAudit.swrDisabled = (w.__CACHE_SWR_DISABLED__ === true);
     w.__cacheAudit.metricsDisabled = (w.__METRICS_DISABLED__ === true);
@@ -400,7 +443,7 @@ function __cacheAuditMark(rt: any) {
         const a = w.__cacheAudit;
 
         // Helper: recursively redact likely sensitive keys, enforce bounded shapes
-        const __redact = (input: any): any => {
+        const __redact = (input: unknown): any => {
           try {
             const SENSITIVE = /pass|pwd|token|secret|auth|cookie|session|key|bearer|apikey|api_key/i;
             const MAX_STR = 256;
@@ -408,7 +451,7 @@ function __cacheAuditMark(rt: any) {
             const MAX_KEYS = 200;
 
             const seen = new WeakSet();
-            const walk = (v: any, depth: number): any => {
+            const walk = (v: unknown, depth: number): any => {
               if (depth > 6) return "[DEPTH_LIMIT]";
               if (v == null) return v;
               const t = typeof v;
@@ -422,11 +465,11 @@ function __cacheAuditMark(rt: any) {
 
               if (Array.isArray(v)) return v.slice(0, MAX_ARR).map(x => walk(x, depth + 1));
 
-              const out: any = {};
+              const out: Record<string, unknown> = {};
               const keys = Object.keys(v).slice(0, MAX_KEYS);
               for (const k of keys) {
                 if (SENSITIVE.test(k)) { out[k] = "[REDACTED]"; continue; }
-                const vv = (v as any)[k];
+                const vv = (v as unknown)[k];
                 const wv = walk(vv, depth + 1);
                 if (typeof wv !== "undefined") out[k] = wv;
               }
@@ -440,7 +483,7 @@ function __cacheAuditMark(rt: any) {
         };
 
         // Stable-key snapshot: always include known keys with defaults
-        const __stable = (snap: any) => ({
+        const __stable = (snap: unknown) => ({
           schemaVersion: typeof snap?.schemaVersion === "number" ? snap.schemaVersion : 1,
           ts: typeof snap?.ts === "number" ? snap.ts : Date.now(),
           swrDisabled: typeof snap?.swrDisabled === "boolean" ? snap.swrDisabled : false,
@@ -482,9 +525,9 @@ function __cacheAuditMark(rt: any) {
 }
 
 export async function cacheGetOrCompute(
-  rt: any,
+  rt: unknown,
   key: string,
-  compute: () => Promise<any> | any,
+  compute: () => Promise<unknown> | unknown,
   opts: CacheComputeOptions
 ) {
   __cacheAuditMark(rt);
@@ -495,8 +538,8 @@ export async function cacheGetOrCompute(
 
   // 1) provider read (raw entry)
   try {
-    const p = getCacheProvider(rt as any);
-    const e: any = await p.get(key as any);
+    const p = getCacheProvider(rt as unknown);
+    const e: unknown = await p.get(key as unknown);
 
     if (e) {
       const exp = typeof e.exp === "number" ? e.exp : 0;
@@ -524,7 +567,7 @@ export async function cacheGetOrCompute(
         const agePastExpiry = now() - exp;
         if (agePastExpiry > 0 && agePastExpiry <= swr) {
           // SWR kill-switch: force recompute path (no stale serving)
-          if ((rt as any)?.__CACHE_SWR_DISABLED__ === true) {
+          if (_asBag(rt).__CACHE_SWR_DISABLED__ === true) {
             try { incCounter(rt, "cache.refresh_aside.count", 1, { action: "disabled" }); } catch {}
             throw new Error("SWR_DISABLED");
           }
@@ -570,7 +613,7 @@ export async function cacheGetOrCompute(
 
       // 1c) expired and outside SWR: delete then fall through to compute
       try {
-        await cacheDel(rt as any, key as any, (e.tags || []) as any);
+        await cacheDel(rt as unknown, key as unknown, (e.tags || []) as unknown);
       } catch {}
       try { incCounter(rt, "cache.get.count", 1, { outcome: "expired" }); } catch {}
     } else {
@@ -586,9 +629,9 @@ export async function cacheGetOrCompute(
 
 // Same as cacheGetOrCompute, but with single-flight to dedupe concurrent computes per key. to dedupe concurrent computes per key.
 export async function cacheGetOrComputeSingleFlight(
-  rt: any,
+  rt: unknown,
   key: string,
-  compute: () => Promise<any> | any,
+  compute: () => Promise<unknown> | unknown,
   opts: CacheComputeOptions
 ) {
   __cacheAuditMark(rt);
@@ -620,7 +663,7 @@ export async function cacheGetOrComputeSingleFlight(
       if (exp > 0) {
         const agePastExpiry = now() - exp;
         if (agePastExpiry > 0 && agePastExpiry <= swr) {
-          if ((rt as any)?.__CACHE_SWR_DISABLED__ === true) {
+          if (_asBag(rt).__CACHE_SWR_DISABLED__ === true) {
             try { incCounter(rt, "cache.refresh_aside.count", 1, { action: "disabled" }); } catch {}
           } else {
             try { incCounter(rt, "cache.refresh_aside.count", 1, { action: "serve_stale" }); } catch {}

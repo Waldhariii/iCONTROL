@@ -5,7 +5,7 @@
   "build": {
     "beforeBuildCommand": "VITE_APP_KIND=CLIENT_APP npm --prefix ../app run build -- --base /app/ --outDir ../app-desktop-client/dist/app",
     "beforeDevCommand": "VITE_APP_KIND=CLIENT_APP npm --prefix ../app run dev -- --host 127.0.0.1 --port 5176 --strictPort --base /app/",
-    "devUrl": "http://127.0.0.1:5176/app/#/login",
+    "devUrl": "http://127.0.0.1:5176/app/#/home-app",
     "frontendDist": "../dist"
   },
   "app": {
@@ -14,7 +14,7 @@
         "title": "iCONTROL Client",
         "width": 1200,
         "height": 780,
-        "url": "app/index.html#/login"
+        "url": "app/index.html#/home-app"
       }
     ],
     "security": {

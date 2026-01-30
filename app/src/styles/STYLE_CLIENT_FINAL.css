@@ -1,0 +1,55 @@
+/*
+ * STYLE_CLIENT_FINAL — Client (APP)
+ * ==================================
+ * Source de vérité: UNIQUEMENT les images de référence Client.
+ * À compléter exclusivement depuis ces images: couleurs, contrastes,
+ * espacements, typographie, hiérarchie visuelle, disposition.
+ * Aucun style legacy. Aucune interprétation.
+ *
+ * Ce fichier remplace: shell.css (en mode APP), client-foundation.css.
+ * Chargé quand VITE_APP_KIND=CLIENT_APP (ou non CP).
+ */
+
+/* -------------------------------------------------------------------------
+   Tokens à définir depuis les images Client.
+   Noms requis pour compatibilité: --app-bg-gradient, --text-primary,
+   --font-sans, --surface-0, --surface-1, --surface-border, --shadow-md, --text-muted.
+   REMPLACER toutes les valeurs par celles extraites des images Client.
+   ------------------------------------------------------------------------- */
+:root {
+  /* --app-bg-gradient, --text-primary, --font-sans, --surface-0, --surface-1, --surface-border, --shadow-md, --text-muted : depuis image Client */
+  /* Shell (--bg, --panel, --line, --text, --muted, --accent, --btn, --radius, --font): depuis image Client */
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; overflow-x: hidden; width: 100%; max-width: 100vw; }
+
+/* ---- Shell (même structure qu’Admin, valeurs depuis image Client) ---- */
+.cxHeader { /* depuis image Client */ }
+.cxBrand { /* depuis image Client */ }
+.cxBrandDot { /* depuis image Client */ }
+.cxBurger { /* depuis image Client */ }
+.cxMain { /* depuis image Client */ }
+.cxDrawerOverlay { /* depuis image Client */ }
+.cxDrawer { /* depuis image Client */ }
+.cxDrawer.open { /* depuis image Client */ }
+.cxDrawerOverlay.open { /* depuis image Client */ }
+.cxDrawerTop { /* depuis image Client */ }
+.cxDrawerTitle { /* depuis image Client */ }
+.cxClose { /* depuis image Client */ }
+.cxNav { /* depuis image Client */ }
+.cxNav a { /* depuis image Client */ }
+.cxNav a:hover { /* depuis image Client */ }
+.cxNav a.active { /* depuis image Client */ }
+.cxNav small { /* depuis image Client */ }
+@media (min-width: 960px) { /* .cxBurger, .cxDrawer, .cxMain — depuis image Client */ }
+
+/* ---- [data-scope="client-foundation"] et .cf-* — depuis image Client ---- */
+[data-scope="client-foundation"] { /* min-height, background, color, font-family: depuis image Client */ }
+[data-scope="client-foundation"] .cf-shell { /* max-width, margin, padding: depuis image Client */ }
+[data-scope="client-foundation"] .cf-panel { /* background, border, border-radius, box-shadow, padding: depuis image Client */ }
+[data-scope="client-foundation"] .cf-title { /* font-size, font-weight, margin: depuis image Client */ }
+[data-scope="client-foundation"] .cf-subtitle { /* margin, color, font-size: depuis image Client */ }
+[data-scope="client-foundation"] .cf-meta { /* font-size, color: depuis image Client */ }
+[data-scope="client-foundation"] .cf-grid { /* display, grid-template-columns, gap, margin: depuis image Client */ }
+[data-scope="client-foundation"] .cf-card { /* background, border, border-radius, padding: depuis image Client */ }

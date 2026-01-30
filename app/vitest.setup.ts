@@ -33,6 +33,9 @@ const g = globalThis as any;
 // Vitest (node) peut ne pas avoir window/document; on expose quand meme un storage canonique.
 g.localStorage = makeStorage();
 g.sessionStorage = makeStorage();
+g.__ICONTROL_BOOTSTRAP_USERS__ = {
+  admin: { password: "admin", role: "ADMIN" }
+};
 
 // Certains codes app passent par window.localStorage si window existe
 if (typeof g.window === "object" && g.window) {

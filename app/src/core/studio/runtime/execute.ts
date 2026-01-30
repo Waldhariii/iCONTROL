@@ -187,7 +187,7 @@ function renderBuiltinForm(props: Record<string, unknown>): string {
           `<div style="margin:0 0 10px 0;">`,
           `<label style="display:block;font-size:12px;opacity:0.9;margin:0 0 4px 0;">${escapeHtml(label)}</label>`,
           `<input name="${escapeHtml(name)}" type="${escapeHtml(safeType)}"`,
-          ` style="width:100%;padding:8px;border-radius:8px;border:1px solid #666;background:transparent;color:inherit;" />`,
+          ` style="width:100%;padding:8px;border-radius:8px;border:1px solid var(--ic-border);background:transparent;color:inherit;" />`,
           `</div>`
         ].join("");
       }).join("")
@@ -198,7 +198,7 @@ function renderBuiltinForm(props: Record<string, unknown>): string {
     `<div style="font-weight:600;margin:0 0 6px 0;">${escapeHtml(title)}</div>`,
     `<form>`,
     body,
-    `<button type="button" style="padding:8px 12px;border-radius:10px;border:1px solid #666;background:transparent;color:inherit;cursor:pointer;">Submit</button>`,
+    `<button type="button" style="padding:8px 12px;border-radius:10px;border:1px solid var(--ic-border);background:transparent;color:inherit;cursor:pointer;">Submit</button>`,
     `</form>`,
     `</section>`
   ].join("");

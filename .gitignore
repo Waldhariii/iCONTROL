@@ -80,3 +80,75 @@ app-desktop-*/src-tauri/gen/
 ._WIP_BACKUPS/
 _security_inventory_*/
 _audit_system_innovex_clean/
+
+# ICONTROL_UI_BACKUPS (enterprise hygiene)
+**/.DS_Store
+**/*.bak.*
+**/*.backup.*
+**/icontrol_*.tmp
+/tmp/icontrol_*
+# ===== Option 1: Backups/Quarantaine hors Git =====
+/QUARANTAINE/**
+/**/QUARANTAINE/**
+/iCONTROL/QUARANTAINE/**
+/iCONTROL/_ARCHIVES/_TRASH_QUARANTINE/**
+/iCONTROL/_ARCHIVES/_BK_*/**
+# ===== Artefacts volumineux / binaires (ne jamais committer) =====
+*.tar.gz
+*.tgz
+*.zip
+*.7z
+*.rar
+*.dmg
+*.pkg
+*.exe
+*.bin
+*.pdf
+*.png
+*.jpg
+*.jpeg
+*.webp
+*.gif
+*.mp4
+*.mov
+*.avi
+# ===== Reports/logs/caches (hors Git) =====
+/iCONTROL/_REPORTS/**
+/_REPORTS/**
+**/.vite/**
+**/dist/**
+**/.cache/**
+**/node_modules/**
+**/*.log
+**/*.map
+# --- Local audit / reports / artifacts (do not version) ---
+_AUDIT_WIP/
+RAPPORTS/
+reports/
+**/_AUDIT_WIP/
+**/RAPPORTS/
+**/reports/
+# --- Build outputs ---
+# --- Logs / caches ---
+# --- Backups / generated dumps ---
+*_backup*/
+
+### SSOT_HYGIENE_V1 (non-destructive)
+# Local evidence / audits (generated)
+_AUDIT_*/
+_audit/
+app/_audit/
+
+# Backup artifacts created during hotfixes
+*.bak_*
+*.bak
+
+# Common local noise
+.DS_Store
+**/.DS_Store
+*.log
+
+# Node/Vite caches (local)
+**/.vite/
+**/.turbo/
+**/.cache/

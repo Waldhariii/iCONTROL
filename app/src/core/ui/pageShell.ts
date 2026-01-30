@@ -3,6 +3,7 @@
  * Conteneur standardisé pour toutes les pages CP
  */
 import { createBadge, createSafeModeBadge } from "./badge";
+import { createButton } from "./button";
 
 export interface PageAction {
   label: string;
@@ -11,10 +12,13 @@ export interface PageAction {
   primary?: boolean;
 }
 
+export type BreadcrumbItem = string | { label: string; href?: string };
+
 export interface PageShellOptions {
   title: string;
   subtitle?: string;
-  breadcrumbs?: string[];
+  /** Segments cliquables : `{ label, href }` = lien, `string` ou `{ label }` sans href = texte seul. */
+  breadcrumbs?: BreadcrumbItem[];
   actions?: PageAction[];
   safeMode?: "OFF" | "COMPAT" | "STRICT";
   statusBadge?: { label: string; tone?: "neutral" | "info" | "ok" | "warn" | "err" | "accent" };
@@ -26,54 +30,49 @@ export function createPageShell(options: PageShellOptions): {
   content: HTMLElement;
 } {
   const shell = document.createElement("div");
-  shell.style.cssText = `
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    padding: 16px;
-    width: 100%;
-    max-width: 100%;
-    box-sizing: border-box;
-  `;
+  shell.className = "ic-page-shell";
 
   const header = document.createElement("div");
-  header.style.cssText = `
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    padding: 16px;
-    border: 1px solid var(--ic-border, #2b3136);
-    background: var(--ic-card, #1a1d1f);
-    border-radius: 10px;
-  `;
+  header.className = "ic-page-shell__header";
 
   const titleRow = document.createElement("div");
-  titleRow.style.cssText = `
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-  `;
+  titleRow.className = "ic-page-shell__title-row";
 
   const titleBlock = document.createElement("div");
-  titleBlock.style.cssText = "display:flex; flex-direction:column; gap:4px;";
+  titleBlock.className = "ic-page-shell__title-block";
 
   if (options.breadcrumbs && options.breadcrumbs.length > 0) {
-    const crumbs = document.createElement("div");
-    crumbs.textContent = options.breadcrumbs.join(" / ");
-    crumbs.style.cssText = "font-size: 11px; color: var(--ic-mutedText, #a7b0b7); letter-spacing: 0.2px;";
+    const crumbs = document.createElement("nav");
+    crumbs.setAttribute("aria-label", "Fil d'Ariane");
+    crumbs.className = "ic-page-shell__breadcrumbs";
+    const sep = " / ";
+    options.breadcrumbs.forEach((it, i) => {
+      if (i > 0) crumbs.appendChild(document.createTextNode(sep));
+      const item = typeof it === "string" ? { label: it } : it;
+      if (item.href) {
+        const a = document.createElement("a");
+        a.href = item.href;
+        a.textContent = item.label;
+        a.className = "ic-page-shell__breadcrumb-link";
+        crumbs.appendChild(a);
+      } else {
+        const s = document.createElement("span");
+        s.textContent = item.label;
+        crumbs.appendChild(s);
+      }
+    });
     titleBlock.appendChild(crumbs);
   }
 
   const title = document.createElement("div");
   title.textContent = options.title;
-  title.style.cssText = "font-size: 18px; font-weight: 700; color: var(--ic-text, #e7ecef);";
+  title.className = "ic-page-shell__title";
   titleBlock.appendChild(title);
 
   if (options.subtitle) {
     const subtitle = document.createElement("div");
     subtitle.textContent = options.subtitle;
-    subtitle.style.cssText = "font-size: 13px; color: var(--ic-mutedText, #a7b0b7);";
+    subtitle.className = "ic-page-shell__subtitle";
     titleBlock.appendChild(subtitle);
   }
 
@@ -81,22 +80,15 @@ export function createPageShell(options: PageShellOptions): {
 
   if (options.actions && options.actions.length > 0) {
     const actions = document.createElement("div");
-    actions.style.cssText = "display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end;";
+    actions.className = "ic-page-shell__actions";
     options.actions.forEach((action) => {
-      const btn = document.createElement("button");
-      btn.type = "button";
-      btn.textContent = action.icon ? `${action.icon} ${action.label}` : action.label;
-      btn.style.cssText = `
-        padding: 8px 14px;
-        border-radius: 8px;
-        border: 1px solid ${action.primary ? "var(--ic-accent, #7b2cff)" : "var(--ic-border, #2b3136)"};
-        background: ${action.primary ? "var(--ic-accent, #7b2cff)" : "transparent"};
-        color: ${action.primary ? "white" : "var(--ic-text, #e7ecef)"};
-        font-weight: 600;
-        font-size: 12px;
-        cursor: pointer;
-      `;
-      btn.onclick = action.onClick;
+      const btn = createButton({
+        label: action.label,
+        variant: action.primary ? "primary" : "secondary",
+        size: "small",
+        icon: action.icon,
+        onClick: () => action.onClick()
+      });
       actions.appendChild(btn);
     });
     titleRow.appendChild(actions);
@@ -105,7 +97,7 @@ export function createPageShell(options: PageShellOptions): {
   header.appendChild(titleRow);
 
   const metaRow = document.createElement("div");
-  metaRow.style.cssText = "display:flex; gap:8px; flex-wrap:wrap;";
+  metaRow.className = "ic-page-shell__meta";
 
   if (options.safeMode) {
     metaRow.appendChild(createSafeModeBadge(options.safeMode));
@@ -120,7 +112,7 @@ export function createPageShell(options: PageShellOptions): {
   }
 
   const content = document.createElement("div");
-  content.style.cssText = "display:flex; flex-direction:column; gap:16px;";
+  content.className = "ic-page-shell__content";
 
   shell.appendChild(header);
   shell.appendChild(content);

@@ -1,0 +1,7 @@
+OK: ROUTE_CATALOG.json valide (39 routes).
+OK: ROUTE_DRIFT_REPORT — Routes extra = 0.
+OK: TENANT_FEATURE_MATRIX.json valide (3 plans).
+OK: design.tokens.json valide et CSS à jour.
+OK: CAPABILITY_STATUS.json valide (19 capabilities).
+OK: ADMIN_COMPONENTS_REGISTRY.ts valide.
+OK: no cross-imports between app and cp pages

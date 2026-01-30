@@ -1,0 +1,26 @@
+{
+  "version": "1.0",
+  "source": "mainSystem.data.ts, module-registry.json, moduleLoader, router",
+  "generated": "2026-01-24",
+  "capabilities": [
+    { "id": "CORE_SYSTEM", "status": "DONE", "quality_level": 2, "notes": "dashboard, account, settings, developer, developer_entitlements branchés" },
+    { "id": "M_DOSSIERS", "status": "DONE", "quality_level": 2, "notes": "#/dossiers branché" },
+    { "id": "SYSTEM_LOGS", "status": "DONE", "quality_level": 2, "notes": "system, logs branchés" },
+    { "id": "DOCS_OCR", "status": "TODO", "quality_level": 0, "notes": "route #/docs absente" },
+    { "id": "core-system", "status": "DONE", "quality_level": 2, "notes": "module-registry core, always on" },
+    { "id": "dossiers", "status": "DONE", "quality_level": 2, "notes": "module-registry complementary, page branchée" },
+    { "id": "clients", "status": "PARTIAL", "quality_level": 1, "notes": "module-registry, pas de page dédiée" },
+    { "id": "inventory", "status": "TODO", "quality_level": 0, "notes": "module-registry" },
+    { "id": "documents", "status": "TODO", "quality_level": 0, "notes": "module-registry" },
+    { "id": "ocr", "status": "TODO", "quality_level": 0, "notes": "module-registry" },
+    { "id": "finance", "status": "TODO", "quality_level": 0, "notes": "module-registry" },
+    { "id": "billing", "status": "TODO", "quality_level": 0, "notes": "module-registry" },
+    { "id": "quotes", "status": "TODO", "quality_level": 0, "notes": "module-registry" },
+    { "id": "jobs", "status": "TODO", "quality_level": 0, "notes": "module-registry" },
+    { "id": "calendar", "status": "TODO", "quality_level": 0, "notes": "module-registry" },
+    { "id": "reports", "status": "TODO", "quality_level": 0, "notes": "module-registry" },
+    { "id": "contacts", "status": "TODO", "quality_level": 0, "notes": "module-registry" },
+    { "id": "payments", "status": "TODO", "quality_level": 0, "notes": "module-registry" },
+    { "id": "integrations-hub", "status": "PARTIAL", "quality_level": 1, "notes": "cp.integrations en registry, non branché" }
+  ]
+}

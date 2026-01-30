@@ -1,6 +1,12 @@
 #!/usr/bin/env zsh
 set -euo pipefail
 
+resolve_tracked() {
+  # Deterministic tracked-file resolver (never use `rg -n` because it prefixes line numbers)
+  git ls-files 2>/dev/null || rg --files
+}
+
+
 ROOT="modules/core-system/ui/frontend-ts/pages"
 NAME="AUDIT_UI_NO_HARDCODED_COLORS"
 REPORT_DIR="_REPORTS"

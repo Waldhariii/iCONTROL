@@ -60,7 +60,7 @@ echo "OK: audits green"
 echo ""
 
 echo "=== 6) BUILD GATE (app) ==="
-( cd app && npm run build )
+npm run build:app
 echo "OK: build green"
 echo ""
 

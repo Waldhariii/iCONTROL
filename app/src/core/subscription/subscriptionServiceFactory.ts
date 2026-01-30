@@ -26,7 +26,7 @@ let nodeFileStoreCtor: FileStoreCtor | null = null;
 async function getNodeFileStoreCtor(): Promise<FileStoreCtor> {
   if (nodeFileStoreCtor) return nodeFileStoreCtor;
   // Dynamic import: prevents browser bundle from pulling node builtin fs/path.
-  const nodeUrl = new URL("../../../../modules/core-system/subscription/FileSubscriptionStore.node", import.meta.url);
+  const nodeUrl = new URL("../../../../modules/core-system/subscription/FileSubscriptionStore.node.ts", import.meta.url);
 const mod = await import(/* @vite-ignore */ nodeUrl.href);
   nodeFileStoreCtor = mod.FileSubscriptionStore as unknown as FileStoreCtor;
   return nodeFileStoreCtor!;

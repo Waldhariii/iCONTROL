@@ -1,3 +1,67 @@
 {
-  "flags": {}
+  "flags": {
+    "write_gateway_shadow": {
+      "state": "OFF"
+    },
+    "runtime_config_shadow": {
+      "state": "OFF"
+    },
+    "audit_shadow": {
+      "state": "OFF"
+    },
+    "entitlements_storage_shadow": {
+      "state": "OFF"
+    },
+    "tenant_shadow": {
+      "state": "OFF"
+    },
+    "theme_shadow": {
+      "state": "OFF"
+    },
+    "cp_storage_shadow": {
+      "state": "OFF"
+    },
+    "logintheme_override_shadow": {
+      "state": "OFF"
+    },
+    "users_shadow": {
+      "state": "OFF"
+    },
+    "brandservice_shadow": {
+      "state": "OFF"
+    },
+    "localauth_shadow": {
+      "state": "OFF"
+    },
+    "safemode_shadow": {
+      "state": "OFF"
+    },
+    "ui_catalog_shadow": {
+      "state": "OFF"
+    },
+    "file_subscription_store_node_fs_shadow": {
+      "state": "OFF"
+    },
+    "undefined": {
+      "state": "OFF"
+    },
+    "localauth_cookie_shadow": {
+      "state": "OFF"
+    },
+    "gate_ui_contracts_fs_shadow": {
+      "state": "OFF"
+    },
+    "gate_ui_component_registry_fs_shadow": {
+      "state": "OFF"
+    },
+    "ui_preview_storage_shadow": {
+      "state": "OFF"
+    },
+    "ui_catalog_snap_storage_shadow": {
+      "state": "OFF"
+    },
+    "cp_visual_snap_storage_shadow": {
+      "state": "OFF"
+    }
+  }
 }

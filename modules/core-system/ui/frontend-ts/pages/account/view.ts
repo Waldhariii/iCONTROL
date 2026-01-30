@@ -13,7 +13,7 @@ export function renderAccountSettingsKeys(root: HTMLElement, model: AccountModel
     card,
     ["Storage key", "Field"],
     model.settingsKeys.map((key) => ({
-      "Storage key": "controlx_settings_v1",
+      "Storage key": "icontrol_settings_v1",
       Field: key
     }))
   );

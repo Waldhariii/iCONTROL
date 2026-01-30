@@ -14,6 +14,6 @@ export function createAccountModel(): AccountModel {
     description: "Gestion du compte et preferences.",
     settingsKeys: ["language", "theme"],
     storageAllow: MAIN_SYSTEM_RULES.storageAllow,
-    storageUsageKeys: ["controlx_iam_v1", "controlx_settings_v1", "controlx_logs_v1"]
+    storageUsageKeys: ["icontrol_iam_v1", "icontrol_settings_v1", "icontrol_logs_v1"]
   };
 }

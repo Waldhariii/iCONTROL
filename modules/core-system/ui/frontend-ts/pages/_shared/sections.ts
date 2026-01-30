@@ -27,21 +27,15 @@ export function renderErrorCard(
   detail: { page: string; section: string; message: string }
 ): void {
   const card = document.createElement("div");
-  card.style.cssText = [
-    "margin:12px 0",
-    "padding:12px",
-    "border-radius:12px",
-    "border:1px solid #c33",
-    "background:rgba(255,255,255,0.03)"
-  ].join(";");
+  card.className = "cxNoticeCard";
   const title = document.createElement("div");
-  title.style.cssText = "font-weight:800;margin-bottom:6px";
+  title.className = "cxNoticeTitle";
   title.textContent = code;
   const meta = document.createElement("div");
-  meta.style.cssText = "font-size:12px;opacity:.85";
+  meta.className = "cxNoticeMeta";
   meta.textContent = `page=${detail.page} section=${detail.section}`;
   const msg = document.createElement("div");
-  msg.style.cssText = "margin-top:6px;white-space:pre-wrap";
+  msg.className = "cxNoticeMsg";
   msg.textContent = detail.message;
   card.appendChild(title);
   card.appendChild(meta);

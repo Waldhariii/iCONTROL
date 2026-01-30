@@ -17,7 +17,7 @@ describe("CP login session scope (contract)", () => {
     delete (window as any).location;
     (window as any).location = {
       pathname: "/cp/",
-      hash: "#/login",
+      hash: "#/dashboard",
       replace: vi.fn(),
     };
     (import.meta as any).env = {
