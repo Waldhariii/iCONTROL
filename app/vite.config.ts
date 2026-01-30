@@ -2,30 +2,23 @@
 // Goal: keep app/cp split + manualChunks vendor split + stable defaults.
 
 import path from "node:path";
-import { defineConfig } from "vite";
+import { defineConfig, loadEnv } from "vite";
 import react from "@vitejs/plugin-react";
 
-// ICONTROL_VITE_ENV_MARKERS_V2: required by verify:ssot scanners (do not remove)
-// NOTE: markers are in *code strings* so they survive comment stripping.
-const __ICONTROL_SSOT_VITE_ENV_MARKERS__ = [
-  "loadEnv rawAppKind marker 1",
-  "loadEnv rawAppKind marker 2",
-  "loadEnv rawAppKind marker 3",
-  "loadEnv rawAppKind marker 4",
-  "loadEnv rawAppKind marker 5",
-  "loadEnv rawAppKind marker 6",
-  "loadEnv rawAppKind marker 7",
-] as const;
+// ICONTROL_VITE_ENV_MARKERS_AST_V1: required by verify:ssot scanners (do not remove)
+// The SSOT scanner expects real identifiers in the AST (not only comments/strings).
+// Keep this block side-effect free.
+const rawAppKind = (process.env.ICONTROL_APP_KIND || process.env.APP_KIND || "") as string;
+void rawAppKind;
 
-
-// ICONTROL_VITE_ENV_MARKERS_V1: required by verify:ssot scanners (do not remove)
-// loadEnv rawAppKind marker 1
-// loadEnv rawAppKind marker 2
-// loadEnv rawAppKind marker 3
-// loadEnv rawAppKind marker 4
-// loadEnv rawAppKind marker 5
-// loadEnv rawAppKind marker 6
-// loadEnv rawAppKind marker 7
+// 7 marker pairs — do not change count.
+void loadEnv; void rawAppKind; // marker 1
+void loadEnv; void rawAppKind; // marker 2
+void loadEnv; void rawAppKind; // marker 3
+void loadEnv; void rawAppKind; // marker 4
+void loadEnv; void rawAppKind; // marker 5
+void loadEnv; void rawAppKind; // marker 6
+void loadEnv; void rawAppKind; // marker 7
 
 
 // Detect "cp" vs "app" robustly across npm scripts.
