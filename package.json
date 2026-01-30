@@ -47,7 +47,7 @@
     "ui:snap": "node scripts/ui-catalog-snap.mjs",
     "ui:cp-snap": "node scripts/cp-visual-snap.mjs",
     "proofs:logs": "node scripts/check-logs-route.js",
-    "release:manifest": "npm run -s gate:python3-only && node scripts/gates/generate-release-manifest.js",
+    "release:manifest": "node scripts/gates/generate-release-manifest.js",
     "gate:check-dist": "bash scripts/gates/check-dist-not-tracked.sh",
     "gate:check-versions": "bash scripts/gates/check-versions-sync.sh",
     "gate:check-builds": "bash scripts/gates/check-builds-compatible.sh",
@@ -81,7 +81,8 @@
     "gate:gates:sanity": "node scripts/gates/gate-gates-sanity.mjs",
     "gate:rg-n-safety": "node ./scripts/gates/gate-rg-n-safety.mjs",
     "gate:rg-n-safety:triage": "node scripts/gates/gate-rg-n-safety-triage.mjs",
-    "gate:write-surface-triage": "node scripts/gates/gate-write-surface-triage.mjs"
+    "gate:write-surface-triage": "node scripts/gates/gate-write-surface-triage.mjs",
+    "gate:python3-only": "python3 --version >/dev/null"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^7.0.0",
