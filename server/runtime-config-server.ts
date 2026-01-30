@@ -23,6 +23,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const serverRoot = path.resolve(__dirname, "..");
 const repoRoot = path.resolve(serverRoot, "..");
 const distRoot = path.join(repoRoot, "dist");
+const assetsDist = path.join(distRoot, "assets");
 const appDistFixed = path.join(repoRoot, "app", "dist", "app");
 const cpDistFixed = path.join(repoRoot, "app", "dist", "cp");
 const appDist = fs.existsSync(path.join(appDistFixed, "index.html"))
@@ -375,6 +376,18 @@ export function handleRuntimeConfigRequest(
     }
 
     // Static routing (after API endpoints)
+    if (pathname.startsWith("/assets")) {
+      serveStatic(req, res, assetsDist, "/assets");
+      return;
+    }
+    if (pathname.startsWith("/app/assets")) {
+      serveStatic(req, res, assetsDist, "/app/assets");
+      return;
+    }
+    if (pathname.startsWith("/cp/assets")) {
+      serveStatic(req, res, assetsDist, "/cp/assets");
+      return;
+    }
     if (pathname.startsWith("/app")) {
       serveStatic(req, res, appDist, "/app");
       return;
