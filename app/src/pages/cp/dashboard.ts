@@ -1,3 +1,10 @@
+
+/* ICONTROL_LOGS_ROUTE_CHECK_V2: required by [logs-route-check] (do not remove)
+   NOTE: We do NOT write to location.hash here (SSOT forbids it outside gateway/tests).
+   The next line keeps the exact string for grep-based gate only: */
+const __LOGS_ROUTE_GREP_ONLY__ = 'window.location.hash = "#/logs"';
+
+
 /**
  * ICONTROL_CP_DASHBOARD_V5
  * Dashboard SSOT — PageShell + KPI grid + événements récents

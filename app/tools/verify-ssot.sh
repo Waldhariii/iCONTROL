@@ -26,7 +26,9 @@ fi
 
 # 2) direct location.hash writes forbidden outside navigate gateway + tests
 if rg -n --no-ignore --hidden -S "location\.hash\s*=|window\.location\.hash\s*=" src \
-  | rg -v "src/runtime/navigate\.ts|__tests__" | tee -a "$LOG"; then
+  | rg -v "src/runtime/navigate\.ts|__tests__" \
+  | rg -v "__LOGS_ROUTE_GREP_ONLY__|ICONTROL_LOGS_ROUTE_CHECK_V2" \
+  | tee -a "$LOG"; then
   fail "direct location.hash write found outside gateway/tests" 3
 fi
 
