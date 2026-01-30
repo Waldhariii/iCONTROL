@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+set -euo pipefail
+if command -v python3 >/dev/null 2>&1; then
+  exec python3 "$@"
+fi
+echo "[ERR] python3 introuvable (Tooling invariant). Installe Python 3 (Homebrew: brew install python) puis réessaie."
+exit 1
