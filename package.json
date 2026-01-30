@@ -82,7 +82,9 @@
     "gate:rg-n-safety": "node ./scripts/gates/gate-rg-n-safety.mjs",
     "gate:rg-n-safety:triage": "node scripts/gates/gate-rg-n-safety-triage.mjs",
     "gate:write-surface-triage": "node scripts/gates/gate-write-surface-triage.mjs",
-    "gate:python3-only": "python3 --version >/dev/null"
+    "gate:python3-only": "python3 --version >/dev/null",
+    "build:shared-assets": "node scripts/perf/dist-shared-assets.mjs",
+    "build:prod": "npm run -s build:app && npm run -s build:cp && npm run -s build:shared-assets"
   },
   "devDependencies": {
     "@types/react": "^19.2.10",
