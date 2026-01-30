@@ -94,7 +94,9 @@
     "gate:preflight:release": "./scripts/gates/preflight-release-check.sh",
     "release:bundle": "node scripts/gates/generate-release-bundle.mjs",
     "release:index": "node scripts/gates/generate-release-index.mjs",
-    "gate:release:index": "./scripts/gates/check-release-index.sh"
+    "gate:release:index": "./scripts/gates/check-release-index.sh",
+    "release:consistency": "node scripts/gates/check-release-consistency.mjs",
+    "gate:release:consistency": "npm run -s release:consistency"
   },
   "devDependencies": {
     "@types/react": "^19.2.10",
