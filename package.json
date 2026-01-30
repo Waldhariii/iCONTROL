@@ -84,7 +84,10 @@
     "gate:write-surface-triage": "node scripts/gates/gate-write-surface-triage.mjs",
     "gate:python3-only": "python3 --version >/dev/null",
     "build:shared-assets": "node scripts/perf/dist-shared-assets.mjs",
-    "build:prod": "npm run -s build:app && npm run -s build:cp && npm run -s build:shared-assets"
+    "build:prod": "npm run -s build:app && npm run -s build:cp && npm run -s build:shared-assets",
+    "assets:manifest": "node scripts/gates/generate-assets-manifest.mjs",
+    "gate:assets-routing": "node scripts/gates/check-assets-routing.mjs",
+    "verify:prod:assets": "npm run -s gate:assets-routing && npm run -s assets:manifest"
   },
   "devDependencies": {
     "@types/react": "^19.2.10",
