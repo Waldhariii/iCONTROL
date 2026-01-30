@@ -90,7 +90,9 @@
     "verify:prod:assets": "npm run -s gate:assets-routing && npm run -s assets:manifest",
     "gate:pre-release:prod": "./scripts/gates/pre-release-prod-check.sh",
     "gate:release-bundle": "./scripts/gates/release-bundle-check.sh",
-    "release:notes": "node scripts/gates/generate-release-notes.mjs"
+    "release:notes": "node scripts/gates/generate-release-notes.mjs",
+    "gate:preflight:release": "./scripts/gates/preflight-release-check.sh",
+    "release:bundle": "node scripts/gates/generate-release-bundle.mjs"
   },
   "devDependencies": {
     "@types/react": "^19.2.10",
