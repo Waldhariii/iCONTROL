@@ -84,7 +84,7 @@ const cacheDir = `node_modules/.vite-${isCp ? "cp" : "app"}`;
 export default defineConfig({
   cacheDir,
   plugins: enableRuntimeConfigDevMw ? [icontrolRuntimeConfigDevPlugin()] : [],
-  build: {
+  
     outDir: isCp ? "dist/cp" : "dist/app",
   },
   resolve: {
@@ -108,3 +108,5 @@ export default defineConfig({
     ],
   },
 });
+
+
