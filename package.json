@@ -87,7 +87,8 @@
     "build:prod": "npm run -s build:app && npm run -s build:cp && npm run -s build:shared-assets",
     "assets:manifest": "node scripts/gates/generate-assets-manifest.mjs",
     "gate:assets-routing": "node scripts/gates/check-assets-routing.mjs",
-    "verify:prod:assets": "npm run -s gate:assets-routing && npm run -s assets:manifest"
+    "verify:prod:assets": "npm run -s gate:assets-routing && npm run -s assets:manifest",
+    "gate:pre-release:prod": "./scripts/gates/pre-release-prod-check.sh"
   },
   "devDependencies": {
     "@types/react": "^19.2.10",
