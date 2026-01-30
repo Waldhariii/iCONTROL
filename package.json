@@ -88,11 +88,13 @@
     "assets:manifest": "node scripts/gates/generate-assets-manifest.mjs",
     "gate:assets-routing": "node scripts/gates/check-assets-routing.mjs",
     "verify:prod:assets": "npm run -s gate:assets-routing && npm run -s assets:manifest",
-    "gate:pre-release:prod": "./scripts/gates/pre-release-prod-check.sh",
+    "gate:pre-release:prod": "./scripts/gates/pre-release-prod-check.sh && npm run -s gate:release:index",
     "gate:release-bundle": "./scripts/gates/release-bundle-check.sh",
     "release:notes": "node scripts/gates/generate-release-notes.mjs",
     "gate:preflight:release": "./scripts/gates/preflight-release-check.sh",
-    "release:bundle": "node scripts/gates/generate-release-bundle.mjs"
+    "release:bundle": "node scripts/gates/generate-release-bundle.mjs",
+    "release:index": "node scripts/gates/generate-release-index.mjs",
+    "gate:release:index": "./scripts/gates/check-release-index.sh"
   },
   "devDependencies": {
     "@types/react": "^19.2.10",
