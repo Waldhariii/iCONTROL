@@ -11,7 +11,7 @@ export type DatasourceDef = {
 
 export function resolveDatasource(def: DatasourceDef, storage: Storage): Record<string, unknown>[] {
   if (def.type === "logs") {
-    const raw = storage.getItem("controlx_logs_v1") || "[]";
+    const raw = storage.getItem("icontrol_logs_v1") || "[]";
     try {
       return JSON.parse(raw);
     } catch {

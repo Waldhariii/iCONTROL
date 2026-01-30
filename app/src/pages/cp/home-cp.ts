@@ -29,18 +29,18 @@ export function renderHomeCp(root: HTMLElement): void {
   const welcome = document.createElement("div");
   welcome.style.padding = "24px";
   welcome.innerHTML = `
-    <h2 style="margin:0 0 16px 0;font-size:24px;font-weight:600;">Bienvenue</h2>
-    <p style="margin:0 0 24px 0;opacity:0.9;line-height:1.6;">
+    <h2 class="ic-cp-c6a3149db1">Bienvenue</h2>
+    <p class="ic-cp-f06124b730">
       Vous êtes sur le Control Plane iCONTROL.
     </p>
-    <div style="display:flex;gap:12px;flex-wrap:wrap;">
-      <button id="btn-dashboard" style="padding:10px 20px;background:var(--btn, var(--bg-panel));border:none;border-radius:6px;color:var(--text, var(--text-primary));cursor:pointer;font-size:14px;">
+    <div class="ic-cp-283d51b208">
+      <button id="btn-dashboard" class="ic-cp-c52af2f4f5">
         Dashboard
       </button>
-      <button id="btn-pages" style="padding:10px 20px;background:var(--btn, var(--bg-panel));border:none;border-radius:6px;color:var(--text, var(--text-primary));cursor:pointer;font-size:14px;">
+      <button id="btn-pages" class="ic-cp-c52af2f4f5">
         Pages Registry
       </button>
-      <button id="btn-audit" style="padding:10px 20px;background:var(--btn, var(--bg-panel));border:none;border-radius:6px;color:var(--text, var(--text-primary));cursor:pointer;font-size:14px;">
+      <button id="btn-audit" class="ic-cp-c52af2f4f5">
         Audit
       </button>
     </div>

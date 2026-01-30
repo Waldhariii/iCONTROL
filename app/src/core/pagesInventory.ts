@@ -99,7 +99,7 @@ function getSourceFile(routeId: string, appSurface: "CP" | "CLIENT"): string {
   // All routeIds now have _cp or _app suffix
   if (appSurface === "CP") {
     const fileMap: Record<string, string> = {
-      home_cp: "app/src/pages/cp/home-cp.ts",
+      home_cp: null /* LEGACY_DISABLED */,
       dashboard_cp: "app/src/pages/cp/dashboard.ts",
       subscription_cp: "app/src/pages/cp/subscription.ts",
       tenants_cp: "app/src/pages/cp/tenants.ts",
@@ -113,6 +113,7 @@ function getSourceFile(routeId: string, appSurface: "CP" | "CLIENT"): string {
       blocked_cp: "app/src/pages/cp/blocked.ts",
       notfound_cp: "app/src/pages/cp/notfound.ts",
       ui_catalog_cp: "app/src/pages/cp/ui-catalog.ts",
+      login_cp: "app/src/pages/cp/login.ts",
       account_cp: "app/src/pages/cp/registry.ts",
       settings_cp: "app/src/pages/cp/registry.ts",
       users_cp: "app/src/pages/cp/users.ts",
@@ -123,8 +124,7 @@ function getSourceFile(routeId: string, appSurface: "CP" | "CLIENT"): string {
       toolbox_cp: "app/src/pages/cp/registry.ts",
       logs_cp: "app/src/pages/cp/registry.ts",
       dossiers_cp: "app/src/pages/cp/registry.ts",
-      runtime_smoke_cp: "app/src/pages/runtime-smoke.ts",
-      "shell-debug_cp": "app/src/pages/cp/registry.ts"
+      runtime_smoke_cp: "app/src/pages/runtime-smoke.ts"
     };
     return fileMap[routeId] || "app/src/pages/cp/registry.ts";
   } else {

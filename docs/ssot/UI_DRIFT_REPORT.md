@@ -1,6 +1,6 @@
 # UI_DRIFT_REPORT
 
-**Dernière exécution:** 2026-01-26T14:45:12Z
+**Dernière exécution:** 2026-01-29T15:53:31Z
 
 ## Règle
 Couleurs en dur (#hex, rgb, rgba, hsl, hsla) hors `var(--*)`, tokens, presets → FAIL.

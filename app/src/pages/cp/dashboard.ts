@@ -61,20 +61,15 @@ export function renderDashboard(root: HTMLElement): void {
     const demoBanner = createDemoDataBanner();
     if (demoBanner) content.appendChild(demoBanner);
     const kpiRow = document.createElement("div");
-    kpiRow.style.cssText = "display:grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px;";
+    kpiRow.classList.add("ic-cp-71ffbe0c48");
     for (let i = 0; i < 4; i += 1) {
       kpiRow.appendChild(createCardSkeleton(80));
     }
     content.appendChild(kpiRow);
 
     const grid = document.createElement("div");
-    grid.style.cssText = `
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 16px;
-      width: 100%;
-    `;
-    for (let i = 0; i < 4; i += 1) {
+    grid.classList.add("ic-cp-da39a3ee5e");
+for (let i = 0; i < 4; i += 1) {
       grid.appendChild(createCardSkeleton());
     }
     content.appendChild(grid);
@@ -110,21 +105,21 @@ export function renderDashboard(root: HTMLElement): void {
     if (demoBanner) content.appendChild(demoBanner);
 
     const toolbar = document.createElement("div");
-    toolbar.style.cssText = "display:flex; align-items:center; gap: 16px; flex-wrap:wrap;";
+    toolbar.classList.add("ic-cp-5a86b7eec3");
     const periodSelect = document.createElement("select");
-    periodSelect.style.cssText = "height:36px; padding:0 12px; border-radius:var(--radius-md,8px); background:var(--ic-inputBg,#111418); border:1px solid var(--ic-border); color:var(--ic-text); font-size:var(--text-sm,12px); cursor:pointer;";
+    periodSelect.classList.add("ic-cp-7f9639531f");
     periodSelect.innerHTML = "<option>24 heures</option><option selected>Derniers 7 jours</option><option>30 jours</option>";
     toolbar.appendChild(periodSelect);
     const tabs = document.createElement("div");
-    tabs.style.cssText = "display:flex; gap:4px; margin-left:8px;";
+    tabs.classList.add("ic-cp-e988e644f9");
     const gen = document.createElement("button");
     gen.type = "button";
     gen.textContent = "Général";
-    gen.style.cssText = "padding:6px 14px; border-radius:var(--radius-sm,6px); border:1px solid var(--ic-accent); background:var(--ic-accentBg,rgba(59,130,246,.12)); color:var(--ic-accent); font-size:var(--text-sm); font-weight:600; cursor:pointer;";
+    gen.classList.add("ic-cp-6bba7f9326");
     const det = document.createElement("button");
     det.type = "button";
     det.textContent = "Détails";
-    det.style.cssText = "padding:6px 14px; border-radius:var(--radius-sm,6px); border:1px solid transparent; background:transparent; color:var(--ic-mutedText); font-size:var(--text-sm); cursor:pointer;";
+    det.classList.add("ic-cp-1d73f26e87");
     det.onmouseover = () => { det.style.background = "var(--ic-bgHover)"; };
     det.onmouseout = () => { det.style.background = "transparent"; };
     tabs.appendChild(gen);
@@ -133,7 +128,7 @@ export function renderDashboard(root: HTMLElement): void {
     content.appendChild(toolbar);
 
     const kpiHeroRow = document.createElement("div");
-    kpiHeroRow.style.cssText = "display:grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px;";
+    kpiHeroRow.classList.add("ic-cp-f74ca94b4f");
     const cpuTrend: "up" | "down" | "neutral" = data.kpi.cpuPct > 50 ? "up" : "down";
     kpiHeroRow.appendChild(createKpiCardWithMiniChart(
       { label: "CPU", value: `${data.kpi.cpuPct}`, tone: cpuTone, trend: cpuTrend, unit: "%" },
@@ -147,14 +142,8 @@ export function renderDashboard(root: HTMLElement): void {
     content.appendChild(kpiHeroRow);
 
     const grid = document.createElement("div");
-    grid.style.cssText = `
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 16px;
-      width: 100%;
-    `;
-
-    const { card: healthCard, body: healthBody } = createSectionCard({
+    grid.classList.add("ic-cp-da39a3ee5e");
+const { card: healthCard, body: healthBody } = createSectionCard({
       title: "Santé système",
       description: "CPU, mémoire, latence p95 et état local"
     });
@@ -235,7 +224,7 @@ export function renderDashboard(root: HTMLElement): void {
     grid.appendChild(modulesCard);
 
     const chartsRow = document.createElement("div");
-    chartsRow.style.cssText = "display:grid; grid-template-columns: minmax(0,2fr) minmax(0,1fr); gap: 16px;";
+    chartsRow.classList.add("ic-cp-17b5a5ae38");
 
     const { card: consumptionCard, body: consumptionBody } = createSectionCard({
       title: "Trafic / Consommation API",
@@ -308,13 +297,20 @@ function formatNumber(value: number): string {
 
 function createKpiRow(label: string, value: string, tone?: "ok" | "warn" | "err"): HTMLElement {
   const row = document.createElement("div");
-  row.style.cssText = "display:flex; align-items:center; justify-content:space-between; gap:12px;";
+  row.classList.add("ic-cp-6026bbc29a");
   const left = document.createElement("div");
   left.textContent = label;
-  left.style.cssText = "font-size: 12px; color: var(--ic-mutedText, #a7b0b7);";
+  left.classList.add("ic-cp-a12091f56b");
   const right = document.createElement("div");
   right.textContent = value;
-  right.style.cssText = `font-size: 13px; font-weight: 600; color: ${tone === "err" ? "var(--ic-error, #f48771)" : tone === "warn" ? "var(--ic-warn, #f59e0b)" : tone === "ok" ? "var(--ic-success, #4ec9b0)" : "var(--ic-text, #e7ecef)"};`;
+  right.classList.add("ic-cp-41a41952dc");
+switch (tone) {
+  case "err": right.classList.add("ic-cp-tone-err"); break;
+  case "warn": right.classList.add("ic-cp-tone-warn"); break;
+  case "ok": right.classList.add("ic-cp-tone-ok"); break;
+  default: right.classList.add("ic-cp-tone-neutral"); break;
+}
+
   row.appendChild(left);
   row.appendChild(right);
   return row;
@@ -322,7 +318,7 @@ function createKpiRow(label: string, value: string, tone?: "ok" | "warn" | "err"
 
 function createLastUpdatedRow(value: string): HTMLElement {
   const row = document.createElement("div");
-  row.style.cssText = "margin-top: 6px; font-size: 11px; color: var(--ic-mutedText, #a7b0b7);";
+  row.classList.add("ic-cp-6a62adaa82");
   row.textContent = `Dernière mise à jour: ${formatRelative(value)}`;
   return row;
 }
@@ -335,7 +331,7 @@ function createKpiCardWithMiniChart(
   const card = createKpiCard({ ...opts, hero: true });
   card.style.position = "relative";
   const chartWrap = document.createElement("div");
-  chartWrap.style.cssText = "position:absolute; bottom:10px; left:12px; right:12px; height:40px; opacity:0.35; pointer-events:none; overflow:hidden; border-radius:var(--radius-sm,6px);";
+  chartWrap.classList.add("ic-cp-85c54b74fe");
   chartWrap.appendChild(createLineChart(chartData, { width: 400, height: 40 }));
   card.appendChild(chartWrap);
   return card;
@@ -470,11 +466,11 @@ function computeStatus(kpi: DashboardData["kpi"]): DashboardStatus {
 
 function createEventsTable(events: DashboardEvent[]): HTMLElement {
   const wrapper = document.createElement("div");
-  wrapper.style.cssText = "display:flex; flex-direction:column; gap:10px;";
+  wrapper.classList.add("ic-cp-464b28cd89");
 
   if (!events || events.length === 0) {
     const empty = document.createElement("div");
-    empty.style.cssText = "padding: 16px; color: var(--ic-mutedText, #a7b0b7); font-size: 13px;";
+    empty.classList.add("ic-cp-8d78c513e2");
     empty.textContent = "Aucun événement pour cette période. Rafraîchissez dans quelques minutes.";
     wrapper.appendChild(empty);
     return wrapper;
@@ -482,29 +478,19 @@ function createEventsTable(events: DashboardEvent[]): HTMLElement {
 
   events.forEach((event) => {
     const row = document.createElement("div");
-    row.style.cssText = `
-      display: grid;
-      grid-template-columns: 140px 90px 1fr 160px;
-      gap: 12px;
-      align-items: center;
-      padding: 8px 10px;
-      border: 1px solid var(--ic-border, #2b3136);
-      border-radius: 8px;
-      background: var(--ic-highlightSubtle);
-      font-size: 12px;
-    `;
-    const time = document.createElement("div");
+    row.classList.add("ic-cp-da39a3ee5e");
+const time = document.createElement("div");
     time.textContent = formatRelative(event.time);
-    time.style.cssText = "color: var(--ic-mutedText, #a7b0b7);";
+    time.classList.add("ic-cp-9745d7bea4");
 
     const typeBadge = createBadge(event.type, event.tone);
 
     const label = document.createElement("div");
     label.textContent = event.label;
-    label.style.cssText = "color: var(--ic-text, #e7ecef);";
+    label.classList.add("ic-cp-fff51be17c");
 
     const correlation = document.createElement("div");
-    correlation.style.cssText = "font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, \"Liberation Mono\", \"Courier New\", monospace; color: var(--ic-mutedText, #a7b0b7);";
+    correlation.classList.add("ic-cp-mono-muted");
     correlation.textContent = event.correlationId ? event.correlationId : "—";
 
     row.appendChild(time);

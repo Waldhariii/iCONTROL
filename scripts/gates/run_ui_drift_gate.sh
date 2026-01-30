@@ -6,6 +6,9 @@ set -euo pipefail
 ROOT="${1:-.}"
 if [[ "$ROOT" = /* ]]; then REPO="$ROOT"; else REPO="$(cd "$ROOT" && pwd)"; fi
 cd "$REPO"
+
+# Gate: python3-only (tooling invariant)
+zsh ./scripts/gates/check_python3_only.sh
 REPORT="$REPO/docs/ssot/UI_DRIFT_REPORT.md"
 TS="$(date +%Y-%m-%dT%H:%M:%SZ)"
 

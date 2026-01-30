@@ -23,7 +23,7 @@ export function getRole(): Role {
 
 export function getTheme(): "dark" | "light" {
   try {
-    const v = readStorage("controlx_settings_v1.theme");
+    const v = readStorage("icontrol_settings_v1.theme");
     if (v === "dark" || v === "light") return v;
   } catch {}
   return "dark";

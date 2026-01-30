@@ -3,6 +3,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { info } from "./log";
 type RuntimeConfig = {
   tenant_id: string;
   app_base_path: string;
@@ -22,8 +23,16 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const serverRoot = path.resolve(__dirname, "..");
 const repoRoot = path.resolve(serverRoot, "..");
 const distRoot = path.join(repoRoot, "dist");
-const appDist = path.join(distRoot, "app");
-const cpDist = path.join(distRoot, "cp");
+const appDistFixed = path.join(repoRoot, "app", "dist", "app");
+const cpDistFixed = path.join(repoRoot, "app", "dist", "cp");
+const appDist = fs.existsSync(path.join(appDistFixed, "index.html"))
+  ? appDistFixed
+  : path.join(distRoot, "app");
+const cpDist = fs.existsSync(path.join(cpDistFixed, "index.html"))
+  ? cpDistFixed
+  : path.join(distRoot, "cp");
+// SSOT: route catalog path (same as JS legacy for compatibility)
+const routeCatalogPath = path.resolve(repoRoot, "config", "ssot", "ROUTE_CATALOG.json");
 
 const MIME: Record<string, string> = {
   ".html": "text/html; charset=utf-8",
@@ -102,6 +111,56 @@ function serveRuntimeConfig(
   sendJson(res, 200, buildRuntimeConfig(req));
 }
 
+// SSOT: serve route catalog (parity with JS legacy)
+function detectRouteCatalogSurface(req: http.IncomingMessage): "CP" | "CLIENT" {
+  try {
+    const u = new URL(req.url || "/", getOrigin(req));
+    const pathname = normalizePathname(u.pathname);
+    if (pathname.startsWith("/cp/") || pathname === "/cp") return "CP";
+    if (pathname.startsWith("/app/") || pathname === "/app") return "CLIENT";
+  } catch {}
+  return "CP";
+}
+
+function serveRouteCatalog(
+  req: http.IncomingMessage,
+  res: http.ServerResponse,
+) {
+  if ((req.method || "GET").toUpperCase() !== "GET") {
+    res.statusCode = 405;
+    res.setHeader("Allow", "GET");
+    res.setHeader("Cache-Control", "no-store");
+    res.end();
+    return;
+  }
+  res.setHeader("X-ICONTROL-SSOT", "1");
+  if (fs.existsSync(routeCatalogPath)) {
+    try {
+      const catalog = JSON.parse(fs.readFileSync(routeCatalogPath, "utf8"));
+      const surface = detectRouteCatalogSurface(req);
+      if (catalog && Array.isArray(catalog.routes)) {
+        const routesFiltered = catalog.routes.filter(
+          (r: { app_surface?: string }) => r?.app_surface === surface,
+        );
+        sendJson(res, 200, { ...catalog, routes: routesFiltered });
+      } else {
+        sendJson(res, 200, catalog);
+      }
+      return;
+    } catch (err) {
+      sendJson(res, 500, {
+        code: "ERR_ROUTE_CATALOG_READ",
+        message: String(err),
+      });
+      return;
+    }
+  }
+  sendJson(res, 404, {
+    code: "ERR_ROUTE_CATALOG_NOT_FOUND",
+    message: "ROUTE_CATALOG.json not found",
+  });
+}
+
 function safeResolve(baseDir: string, urlPath: string): string | null {
   const clean = urlPath.split("?")[0] || "/";
   const rel = clean.replace(/^\//, "");
@@ -110,12 +169,63 @@ function safeResolve(baseDir: string, urlPath: string): string | null {
   return fsPath;
 }
 
+function normalizePathname(p: string): string {
+  if (!p) return "/";
+  p = p.replace(/\/+/g, "/");
+  if (p.length > 1 && p.endsWith("/")) p = p.slice(0, -1);
+  return p;
+}
+
 function serveStatic(
   req: http.IncomingMessage,
   res: http.ServerResponse,
   baseDir: string,
   basePath: string,
 ) {
+  const isHead = (req.method || "GET").toUpperCase() === "HEAD";
+  const setDistHeader = () => {
+    if (basePath === "/app") res.setHeader("X-ICONTROL-APPDIST", baseDir);
+    if (basePath === "/cp") res.setHeader("X-ICONTROL-CPDIST", baseDir);
+  };
+  const u = new URL(req.url || "/", getOrigin(req));
+  const raw = normalizePathname(u.pathname);
+
+  // Handle basePrefix (e.g., /app) -> serve index.html directly
+  // Avoid redirect loop: /app/ normalizes to /app, which would redirect to /app/ again
+  if (raw === basePath) {
+    const idx = safeResolve(baseDir, "/index.html");
+    if (idx && fs.existsSync(idx)) {
+      const stat = fs.statSync(idx);
+      const etag = `W/"${stat.size}-${stat.mtimeMs}"`;
+      const inm = String(req.headers["if-none-match"] || "");
+      res.setHeader("Content-Type", "text/html; charset=utf-8");
+      res.setHeader("Cache-Control", "no-store");
+      res.setHeader("ETag", etag);
+      setDistHeader();
+      if (inm === etag) {
+        res.statusCode = 304;
+        res.end();
+        return;
+      }
+      res.statusCode = 200;
+      res.setHeader("Content-Length", stat.size);
+      if (isHead) {
+        res.end();
+        return;
+      }
+      const stream = fs.createReadStream(idx);
+      stream.on("error", () => {
+        res.statusCode = 500;
+        res.end("Read error");
+      });
+      stream.pipe(res);
+      return;
+    }
+    res.statusCode = 404;
+    res.end("Not found");
+    return;
+  }
+
   const rawPath = (req.url || "/").split("?")[0] || "/";
   const relPath = rawPath.replace(basePath, "") || "/";
   const wantsDir = relPath === "/" || relPath.endsWith("/");
@@ -173,6 +283,17 @@ function serveStatic(
   res.statusCode = 200;
   res.setHeader("Content-Type", MIME[ext] || "application/octet-stream");
   res.setHeader("Content-Length", stat.size);
+  setDistHeader();
+  // CORS headers for ES modules (needed when crossorigin attribute is used)
+  if (ext === ".js" || ext === ".mjs") {
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+  }
+  if (isHead) {
+    res.end();
+    return;
+  }
   const stream = fs.createReadStream(filePath);
   stream.on("error", () => {
     res.statusCode = 500;
@@ -186,9 +307,54 @@ export function handleRuntimeConfigRequest(
   res: http.ServerResponse,
 ) {
   try {
+    // Handle OPTIONS requests for CORS
+    if ((req.method || "GET").toUpperCase() === "OPTIONS") {
+      res.statusCode = 200;
+      res.setHeader("Access-Control-Allow-Origin", "*");
+      res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
+      res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+      res.setHeader("Content-Length", "0");
+      res.end();
+      return;
+    }
+    
     const u = new URL(req.url || "/", getOrigin(req));
     const pathname = u.pathname;
 
+    // SSOT: Routing order is STRICT and IMMUTABLE
+    // 1) Health endpoints (no async dependencies, always available)
+    if (pathname === "/api/health") {
+      res.statusCode = 200;
+      res.setHeader("X-ICONTROL-SSOT", "1");
+      res.setHeader("Content-Type", "application/json; charset=utf-8");
+      res.setHeader("Cache-Control", "no-store");
+      res.end(
+        JSON.stringify({
+          status: "ok",
+          service: "runtime-config-server",
+          ssot: 1,
+          version: 1,
+        }),
+      );
+      return;
+    }
+    if (pathname === "/healthz") {
+      res.statusCode = 200;
+      res.setHeader("X-ICONTROL-SSOT", "1");
+      res.setHeader("Content-Type", "application/json; charset=utf-8");
+      res.setHeader("Cache-Control", "no-store");
+      res.end(
+        JSON.stringify({
+          status: "ok",
+          service: "runtime-config-server",
+          ssot: 1,
+          version: 1,
+        }),
+      );
+      return;
+    }
+
+    // 2) Runtime config endpoints
     if (pathname === "/app/api/runtime-config") {
       serveRuntimeConfig(req, res);
       return;
@@ -198,6 +364,17 @@ export function handleRuntimeConfigRequest(
       return;
     }
 
+    // 3) Route catalog endpoints
+    if (pathname === "/app/api/route-catalog") {
+      serveRouteCatalog(req, res);
+      return;
+    }
+    if (pathname === "/cp/api/route-catalog") {
+      serveRouteCatalog(req, res);
+      return;
+    }
+
+    // Static routing (after API endpoints)
     if (pathname.startsWith("/app")) {
       serveStatic(req, res, appDist, "/app");
       return;
@@ -233,11 +410,7 @@ export function createRuntimeConfigServer(opts: ServerOptions = {}) {
     server.on("listening", () => {
       const addr = server.address();
       if (addr && typeof addr !== "string") {
-        // eslint-disable-next-line no-console
-        console.log(
-          `runtime-config server (dev) on http://${addr.address}:${addr.port}`,
-        );
-      }
+        info("INFO_RUNTIME_CONFIG_LISTENING", "runtime-config-server", "listening (dev)", { host: addr.address, port: addr.port, url: `http://${addr.address}:${addr.port}` });}
     });
   }
 
@@ -255,10 +428,17 @@ function parseArgs(argv: string[]) {
   return out;
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+// Start server if run directly (not imported)
+// Use fileURLToPath to normalize paths for comparison
+const currentFile = fileURLToPath(import.meta.url);
+const mainFile = process.argv[1] ? path.resolve(process.argv[1]) : "";
+
+if (currentFile === mainFile || mainFile.includes("runtime-config-server.mjs")) {
   const args = parseArgs(process.argv.slice(2));
   const port = Number(process.env.PORT || args.port || 4176);
   const host = String(process.env.HOST || args.host || "127.0.0.1");
   const server = createRuntimeConfigServer({ dev: !!args.dev });
-  server.listen(port, host);
+  server.listen(port, host, () => {
+    info("INFO_RUNTIME_CONFIG_LISTENING", "runtime-config-server", "listening", { host, port, url: `http://${host}:${port}` });
+  });
 }

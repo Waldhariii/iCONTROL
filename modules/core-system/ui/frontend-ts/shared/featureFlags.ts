@@ -66,7 +66,7 @@ export const FLAG_DEFS: FlagDef[] = [
   }
 ];
 
-const PREFIX = "controlx_flags_v1.";
+const PREFIX = "icontrol_flags_v1.";
 
 function keyOf(id: FlagId): string {
   return PREFIX + id;

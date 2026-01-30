@@ -1,0 +1,49 @@
+./moduleLoader.ts:37:          console.warn("WARN_ROUTE_IMPORT_FAILED", {
+./moduleLoader.ts:45:    console.warn("WARN_RUNTIME_SMOKE_ROUTE", String(e));
+./moduleLoader.ts:54:          console.warn("WARN_ROUTE_IMPORT_FAILED", {
+./moduleLoader.ts:66:          console.warn("WARN_ROUTE_IMPORT_FAILED", {
+./moduleLoader.ts:78:          console.warn("WARN_ROUTE_IMPORT_FAILED", {
+./moduleLoader.ts:90:          console.warn("WARN_ROUTE_IMPORT_FAILED", {
+./moduleLoader.ts:102:          console.warn("WARN_ROUTE_IMPORT_FAILED", {
+./moduleLoader.ts:128:          console.warn("WARN_ROUTE_IMPORT_FAILED", {
+./moduleLoader.ts:140:          console.warn("WARN_ROUTE_IMPORT_FAILED", {
+./moduleLoader.ts:152:          console.warn("WARN_ROUTE_IMPORT_FAILED", {
+./moduleLoader.ts:169:          console.warn("WARN_ROUTE_IMPORT_FAILED", {
+./moduleLoader.ts:177:    console.warn("WARN_MAIN_SYSTEM_ROUTE", String(e));
+./moduleLoader.ts:187:      console.warn("WARN_CP_PAGE_FALLBACK", e);
+./moduleLoader.ts:198:      console.warn("WARN_APP_PAGE_FALLBACK", e);
+./moduleLoader.ts:206:    console.warn("WARN_RENDER_ROUTE_FAILED", String(e));
+./localAuth.ts:379:      console.warn("WARN_DEV_LOGIN_FAILED", "setSession_failed");
+./core/studio/runtime/audit.ts:29:      // default sink: no-op (do not console.log in core)
+./core/utils/logger.ts:18:    debug: (...a) => console.debug(p, ...a),
+./core/utils/logger.ts:19:    info: (...a) => console.info(p, ...a),
+./core/utils/logger.ts:20:    warn: (...a) => console.warn(p, ...a),
+./core/utils/logger.ts:21:    error: (...a) => console.error(p, ...a),
+./core/utils/logger.ts:30:export const logInfo = (...a: any[]) => console.info("[app]", ...a);
+./core/utils/logger.ts:31:export const logWarn = (...a: any[]) => console.warn("[app]", ...a);
+./core/utils/logger.ts:32:export const logError = (...a: any[]) => console.error("[app]", ...a);
+./main.ts:119:    try { console.warn("ICONTROL_SHELL_RECOVERY_V1 failed", e); } catch {}
+./main.ts:147:    console.warn("WARN_BRAND_FALLBACK", __br.warnings);
+./main.ts:150:  console.warn("WARN_BRAND_TITLE_FAILED", String(e));
+./main.ts:368:    console.info("ADMIN_STYLE_GUARD_INIT", { kind });
+./main.ts:375:    console.info("ADMIN_STYLE_GUARD_INIT", { kind });
+./main.ts:402:          console.warn("ADMIN_STYLE_GUARD_BLOCK", { type: "style" });
+./main.ts:412:            console.warn("ADMIN_STYLE_GUARD_BLOCK", { type: "link", href: link.href });
+./main.ts:445:    console.warn("ADMIN_STYLE_GUARD_FAILED", String(e));
+./main.ts:478:        console.warn("CLIENT_STYLE_GUARD_BLOCK", { reason });
+./main.ts:509:    console.info("CLIENT_STYLE_GUARD_INIT", { kind });
+./main.ts:617:      console.log("💡 Pour diagnostiquer, tapez dans la console: __ICONTROL_DIAGNOSTIC__()");
+./main.ts:631:    console.error("UI_SHELL_NAV_V1 mount failed", e);
+./main.ts:667:      console.warn("⚠️ Shell non monté, tentative de remontage...");
+./main.ts:678:        console.log("✅ Shell remonté avec succès");
+./main.ts:682:    console.warn("⚠️ Erreur lors de la vérification du shell:", e);
+./router.ts:41:  console.warn("WARN_CLIENT_V2_DUPLICATES_DETECTED", { expected: CLIENT_V2_ROUTE_IDS.length, actual: __CLIENT_V2_ALLOWED_HASH_ROUTES.size });
+./router.ts:393:          console.warn("ADMIN_ROUTE_GUARD_BLOCK", { route: h });
+./router.ts:408:        console.warn("ADMIN_ROUTE_GUARD_FAILED", String(e));
+./router.ts:428:          console.warn("CLIENT_ROUTE_GUARD_BLOCK", { route: h });
+./router.ts:435:        console.warn("CLIENT_ROUTE_GUARD_FAILED", String(e));
+./runtime/navigate.ts:24:      console.warn("NAVIGATE_LOOP_DETECTED", { target: h, count: redirectCount });
+./pages/cp/registry.ts:193:        console.warn("WARN_ROUTE_IMPORT_FAILED", {
+./pages/cp/registry.ts:204:    console.warn("WARN_ROUTE_RENDER_FAILED", {
+./pages/cp/_shared/auditOnce.ts:24:    console.warn(code, meta || {});
+./pages/cp/views/users.ts:129:    console.error("Erreur lors de la sauvegarde des utilisateurs système:", e);

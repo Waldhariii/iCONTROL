@@ -17,10 +17,10 @@
    - labels: HITS=1, HITS2=1
    - `scripts/maintenance/purge-legacy-brand-token.zsh:HITS="$(rg -n --hidden --no-ignore "${EXCL[@]}" "$LEGACY_TOKEN" "$ROOT" || true)"`
    - `scripts/maintenance/purge-legacy-brand-token.zsh:HITS2="$(rg -n --hidden --no-ignore "${EXCL[@]}" "$LEGACY_TOKEN" "$ROOT" || true)"`
-3. **scripts/maintenance/purge-legacy-controlx.zsh** — hits=2 (line=0, label=2) — risk=MED
+3. **scripts/maintenance/purge-legacy-brand.zsh** — hits=2 (line=0, label=2) — risk=MED
    - labels: HITS=1, HITS2=1
-   - `scripts/maintenance/purge-legacy-controlx.zsh:HITS="$(rg -n --hidden --no-ignore "${EXCL[@]}" "iCONTROL" "$ROOT" || true)"`
-   - `scripts/maintenance/purge-legacy-controlx.zsh:HITS2="$(rg -n --hidden --no-ignore "${EXCL[@]}" "iCONTROL" "$ROOT" || true)"`
+   - `scripts/maintenance/purge-legacy-brand.zsh:HITS="$(rg -n --hidden --no-ignore "${EXCL[@]}" "iCONTROL" "$ROOT" || true)"`
+   - `scripts/maintenance/purge-legacy-brand.zsh:HITS2="$(rg -n --hidden --no-ignore "${EXCL[@]}" "iCONTROL" "$ROOT" || true)"`
 4. **scripts/gates/gate-oss.zsh** — hits=2 (line=0, label=2) — risk=MED
    - labels: BAD_TRACKED=1, BAD_STAGED=1
    - `scripts/gates/gate-oss.zsh:BAD_TRACKED="$(git ls-files -z | tr '\0' '\n' | rg -n --pcre2 '(^|/)\.DS_Store$|^app/dist/|^dist/|^node_modules/|^\.vite/|^\.cache/' || true)"`
@@ -41,7 +41,7 @@
 |---:|---|---:|---:|---:|---|---|
 | 1 | MED | 4 | 0 | 4 | `scripts/audit/audit-no-leaks.zsh` | HIT_A1=1, HIT_B1=1, HIT_C1=1, HIT_D1=1 |
 | 2 | MED | 2 | 0 | 2 | `scripts/maintenance/purge-legacy-brand-token.zsh` | HITS=1, HITS2=1 |
-| 3 | MED | 2 | 0 | 2 | `scripts/maintenance/purge-legacy-controlx.zsh` | HITS=1, HITS2=1 |
+| 3 | MED | 2 | 0 | 2 | `scripts/maintenance/purge-legacy-brand.zsh` | HITS=1, HITS2=1 |
 | 4 | MED | 2 | 0 | 2 | `scripts/gates/gate-oss.zsh` | BAD_TRACKED=1, BAD_STAGED=1 |
 | 5 | MED | 1 | 0 | 1 | `scripts/audit/audit-ui-cssvars-backlog-shared.zsh` | MATCHES=1 |
 | 6 | MED | 1 | 0 | 1 | `scripts/audit/audit-ui-cssvars-rollout.zsh` | MATCHES=1 |

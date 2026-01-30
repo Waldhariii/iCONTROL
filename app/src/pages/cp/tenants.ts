@@ -37,13 +37,20 @@ type TenantsData = {
 
 function createKpiRow(label: string, value: string, tone?: "ok" | "warn" | "err" | "neutral"): HTMLElement {
   const row = document.createElement("div");
-  row.style.cssText = "display:flex; align-items:center; justify-content:space-between; gap:12px;";
+  row.classList.add("ic-cp-6026bbc29a");
   const left = document.createElement("div");
   left.textContent = label;
-  left.style.cssText = "font-size: 12px; color: var(--ic-mutedText, #a7b0b7);";
+  left.classList.add("ic-cp-a12091f56b");
   const right = document.createElement("div");
   right.textContent = value;
-  right.style.cssText = `font-size: 13px; font-weight: 600; color: ${tone === "err" ? "var(--ic-error, #f48771)" : tone === "warn" ? "var(--ic-warn, #f59e0b)" : tone === "ok" ? "var(--ic-success, #4ec9b0)" : "var(--ic-text, #e7ecef)"};`;
+  right.classList.add("ic-cp-41a41952dc");
+switch (tone) {
+  case "err": right.classList.add("ic-cp-tone-err"); break;
+  case "warn": right.classList.add("ic-cp-tone-warn"); break;
+  case "ok": right.classList.add("ic-cp-tone-ok"); break;
+  default: right.classList.add("ic-cp-tone-neutral"); break;
+}
+
   row.appendChild(left);
   row.appendChild(right);
   return row;
@@ -74,7 +81,7 @@ export async function renderTenants(root: HTMLElement): Promise<void> {
       title: "Chargement...",
       description: "Récupération des données tenants"
     });
-    skeletonBody.innerHTML = "<div style='padding:20px;text-align:center;opacity:0.7;'>Chargement en cours...</div>";
+    skeletonBody.innerHTML = "<div class='ic-cp-f4b75a9854'>Chargement en cours...</div>";
     content.appendChild(skeletonCard);
     root.appendChild(shell);
   };
@@ -344,7 +351,7 @@ export async function renderTenants(root: HTMLElement): Promise<void> {
     body.appendChild(createKpiRow("Mis à jour", formatDateTime(formatTenantDate(tenant.updatedAt))));
 
     const divider = document.createElement("div");
-    divider.style.cssText = "margin:10px 0; height:1px; background: var(--ic-border, #2b3136);";
+    divider.classList.add("ic-cp-8c2d50408e");
     body.appendChild(divider);
 
     body.appendChild(createDonutChart([
@@ -355,7 +362,7 @@ export async function renderTenants(root: HTMLElement): Promise<void> {
 
     const note = document.createElement("div");
     note.textContent = "Actions gouvernées disponibles via le Core (lecture seule).";
-    note.style.cssText = "font-size: 11px; color: var(--ic-mutedText, #a7b0b7);";
+    note.classList.add("ic-cp-73dec56e03");
     body.appendChild(note);
 
     return card;

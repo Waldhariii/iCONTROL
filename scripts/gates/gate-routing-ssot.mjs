@@ -2,7 +2,7 @@
 import { spawnSync } from "node:child_process";
 import { existsSync } from "node:fs";
 
-const SCRIPT = "scripts/audits/audit-chemins-non-regression.sh";
+const SCRIPT = "scripts/audit/audit-chemins-non-regression.sh";
 
 if (!existsSync(SCRIPT)) {
   console.error("ERR_ROUTING_SSOT_AUDIT_MISSING", SCRIPT);

@@ -120,13 +120,6 @@ export function renderRoute(rid: RouteId, root: HTMLElement): void {
       }
       return;
     }
-    // Activation / licence
-    if (String(location.hash || "").startsWith("#/activation")) {
-      import("../../modules/core-system/ui/frontend-ts/pages/activation").then(
-        (m) => m.renderActivationPage(root),
-      );
-      return;
-    }
     if ((rid as any) === "verification_cp") {
       import("../../modules/core-system/ui/frontend-ts/pages/verification")
         .then((m) => m.renderVerification(root))
@@ -139,7 +132,7 @@ export function renderRoute(rid: RouteId, root: HTMLElement): void {
         });
       return;
     }
-    if ((rid as any) === "system") {
+    if ((rid as any) === "system_cp") {
       import("../../modules/core-system/ui/frontend-ts/pages/system")
         .then((m) => m.renderSystemPage(root))
         .catch((e) => {

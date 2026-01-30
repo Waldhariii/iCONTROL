@@ -1,4 +1,4 @@
-import { defineConfig } from "vite";
+import { defineConfig, loadEnv } from "vite";
 import path from "path";
 import { fileURLToPath } from "url";
 
@@ -9,7 +9,8 @@ const enableRuntimeConfigDevMw = process.env.VITE_DEV_RUNTIME_CONFIG_MW !== "0";
 const enableAutoOpen = process.env.VITE_OPEN === "1";
 
 const VALID_APP_KINDS = new Set(["APP", "CONTROL_PLANE"]);
-const rawAppKind = process.env.VITE_APP_KIND;
+const __env = loadEnv(process.env.NODE_ENV || "development", process.cwd(), "");
+const rawAppKind = __env.VITE_APP_KIND || process.env.VITE_APP_KIND;
 if (!rawAppKind || !VALID_APP_KINDS.has(rawAppKind)) {
   throw new Error(
     `VITE_APP_KIND invalide ou absent: \"${rawAppKind}\" (attendu: APP | CONTROL_PLANE).`,
@@ -102,6 +103,8 @@ export default defineConfig({
       "../modules/core-system/ui/frontend-ts/pages/**/*.test.ts",
     ],
     // ICONTROL_VITEST_SETUPFILES_V1: stable storage stubs for tests
-    setupFiles: ["./vitest.setup.ts"],
+    setupFiles: ["./vitest.setup.ts",
+      "src/vitest.setup.ts"
+    ],
   },
 });

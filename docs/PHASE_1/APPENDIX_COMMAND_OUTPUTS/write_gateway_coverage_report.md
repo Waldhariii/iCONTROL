@@ -1,6 +1,6 @@
 # Write Gateway Coverage Report (heuristic)
 
-- Date: 2026-01-26T21:06:32.603Z
+- Date: 2026-01-29T20:52:08.099Z
 - Targets: `app/src/core`, `modules`
 - Excludes: `app/src/core/write-gateway`
 - Pattern: `\\b(save|write)[A-Za-z0-9_]*\\s*\\(|localStorage\\.setItem\\s*\\(|sessionStorage\\.setItem\\s*\\(`

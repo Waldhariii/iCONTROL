@@ -1,0 +1,9 @@
+dist
+app/dist
+server/dist
+node_modules
+coverage
+.vite
+.vitest
+
+src/pages/cp/views/users.ts

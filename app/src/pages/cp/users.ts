@@ -84,13 +84,13 @@ export function renderUsers(root: HTMLElement): void {
     body.appendChild(createRow("Dernière connexion", user.lastLogin));
 
     const perms = document.createElement("div");
-    perms.style.cssText = "display:flex; flex-wrap:wrap; gap:6px; margin-top:8px;";
+    perms.classList.add("ic-cp-2e5b493332");
     user.permissions.forEach((p) => perms.appendChild(createBadge(p, "neutral")));
     body.appendChild(perms);
 
     const hint = document.createElement("div");
     hint.textContent = "Actions gouvernées disponibles via le Core.";
-    hint.style.cssText = "font-size: 11px; color: var(--ic-mutedText, #a7b0b7); margin-top: 8px;";
+    hint.classList.add("ic-cp-0b274cf39e");
     body.appendChild(hint);
 
     return card;
@@ -136,13 +136,13 @@ export function renderUsers(root: HTMLElement): void {
 
 function createRow(label: string, value: string): HTMLElement {
   const row = document.createElement("div");
-  row.style.cssText = "display:flex; justify-content:space-between; gap:12px; font-size:12px;";
+  row.classList.add("ic-cp-3c6cc2e95d");
   const left = document.createElement("div");
   left.textContent = label;
-  left.style.cssText = "color: var(--ic-mutedText, #a7b0b7);";
+  left.classList.add("ic-cp-9745d7bea4");
   const right = document.createElement("div");
   right.textContent = value;
-  right.style.cssText = "color: var(--ic-text, #e7ecef); font-weight: 600;";
+  right.classList.add("ic-cp-be4987cde3");
   row.appendChild(left);
   row.appendChild(right);
   return row;

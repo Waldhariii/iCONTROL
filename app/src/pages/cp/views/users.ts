@@ -201,9 +201,9 @@ export function renderUsersListCp(root: HTMLElement, model: UsersModelCp): void 
       sortable: true,
       render: (value, row) => {
         const div = document.createElement("div");
-        div.style.cssText = "display: flex; align-items: center; gap: 8px;";
+        div.classList.add("ic-cp-743b0c6402");
         const name = document.createElement("span");
-        name.style.cssText = "font-weight: 600; color: var(--ic-text, #e7ecef);";
+        name.classList.add("ic-cp-be4987cde3");
         name.textContent = String(value);
         div.appendChild(name);
         return div;
@@ -228,7 +228,7 @@ export function renderUsersListCp(root: HTMLElement, model: UsersModelCp): void 
       sortable: false,
       render: (value) => {
         const div = document.createElement("div");
-        div.style.cssText = "color: var(--ic-mutedText, #a7b0b7); font-size: 12px; max-width: 300px; overflow: hidden; text-overflow: ellipsis;";
+        div.classList.add("ic-cp-8f412f8e5b");
         div.textContent = String(value);
         div.title = String(value);
         return div;
@@ -366,7 +366,7 @@ export function renderUsersListCp(root: HTMLElement, model: UsersModelCp): void 
   
   // Créer le tableau avec DataTable
   const tableContainer = document.createElement("div");
-  tableContainer.style.cssText = "margin-top: 0;";
+  tableContainer.classList.add("ic-cp-c312289912");
 
   const renderTable = () => {
     tableContainer.innerHTML = "";
@@ -415,42 +415,38 @@ export function renderUsersListCp(root: HTMLElement, model: UsersModelCp): void 
     const userRole = role || user.role;
     const permissions = getUserPermissions(username, userRole as any);
     const modal = document.createElement("div");
-    modal.setAttribute("style", `
-      position:fixed; inset:0; background:var(--ic-overlay); z-index:1000;
-      display:flex; align-items:center; justify-content:center; padding:20px;
-    `);
-    
-    const allPages: PageId[] = ["dashboard", "account", "users", "management", "settings", "toolbox", "dossiers"];
+    modal.classList.add("ic-cp-90e5d31543");
+const allPages: PageId[] = ["dashboard", "account", "users", "management", "settings", "toolbox", "dossiers"];
     
     // Construire le HTML du modal
     const modalContent = document.createElement("div");
-    modalContent.setAttribute("style", "background:var(--ic-panel); border:1px solid var(--ic-border); border-radius:12px; padding:24px; max-width:600px; width:100%; max-height:90vh; overflow-y:auto;");
+    modalContent.classList.add("ic-cp-users-modalContent");
     
     const header = document.createElement("div");
-    header.setAttribute("style", "display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;");
+    header.classList.add("ic-cp-users-modalHeader");
     header.innerHTML = `
-      <h3 style="font-size:18px; font-weight:700; color:var(--ic-text); margin:0;">Modifier les permissions de ${username}</h3>
-      <button id="close-modal" style="background:transparent; border:none; color:var(--ic-mutedText); font-size:24px; cursor:pointer; padding:0; width:32px; height:32px; display:flex; align-items:center; justify-content:center;">×</button>
+      <h3 class="ic-cp-412ed9be4c">Modifier les permissions de ${username}</h3>
+      <button id="close-modal" class="ic-cp-8280351f95">×</button>
     `;
     
     const pagesSection = document.createElement("div");
-    pagesSection.setAttribute("style", "margin-bottom:20px;");
+    pagesSection.classList.add("ic-cp-users-pagesSection");
     pagesSection.innerHTML = `
-      <label style="display:block; color:var(--ic-mutedText); font-size:13px; margin-bottom:8px;">Pages accessibles</label>
-      <div style="display:grid; gap:8px;" id="pages-list"></div>
+      <label class="ic-cp-0f2473504d">Pages accessibles</label>
+      <div class="ic-cp-76dd8f5d14" id="pages-list"></div>
     `;
     
     const pagesList = pagesSection.querySelector("#pages-list");
     allPages.forEach(page => {
       const label = document.createElement("label");
-      label.setAttribute("style", "display:flex; align-items:center; gap:8px; padding:8px; background:var(--ic-inputBg); border-radius:6px; cursor:pointer;");
+      label.classList.add("ic-cp-users-pageLabel");
       const checkbox = document.createElement("input");
       checkbox.type = "checkbox";
       checkbox.checked = permissions.pages.includes(page);
       checkbox.setAttribute("data-page", page);
       checkbox.style.cursor = "pointer";
       const span = document.createElement("span");
-      span.setAttribute("style", "color:var(--ic-text); text-transform:capitalize;");
+      span.classList.add("ic-cp-users-pageLabelText");
       span.textContent = page;
       label.appendChild(checkbox);
       label.appendChild(span);
@@ -458,10 +454,10 @@ export function renderUsersListCp(root: HTMLElement, model: UsersModelCp): void 
     });
     
     const actions = document.createElement("div");
-    actions.setAttribute("style", "display:flex; gap:12px; justify-content:flex-end;");
+    actions.classList.add("ic-cp-users-modalActions");
     actions.innerHTML = `
-      <button id="cancel-btn" style="padding:10px 20px; background:var(--ic-panel); color:var(--ic-text); border:none; border-radius:8px; cursor:pointer; font-weight:600;">Annuler</button>
-      <button id="save-btn" style="padding:10px 20px; background:var(--ic-inputBg); color:var(--ic-text); border:none; border-radius:8px; cursor:pointer; font-weight:600;">Enregistrer</button>
+      <button id="cancel-btn" class="ic-cp-4ff5b34435">Annuler</button>
+      <button id="save-btn" class="ic-cp-c42a579e18">Enregistrer</button>
     `;
     
     modalContent.appendChild(header);
@@ -543,43 +539,23 @@ export function renderUsersMenuAccessCp(root: HTMLElement, model: UsersModelCp):
 // Modal pour ajouter un utilisateur système
 function showAddSystemUserModal(onSuccess: () => void): void {
   const modal = document.createElement("div");
-  modal.style.cssText = `
-    position: fixed;
-    inset: 0;
-    background: var(--ic-overlay);
-    z-index: 10000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-  `;
-  
-  const modalContent = document.createElement("div");
-  modalContent.style.cssText = `
-    background: var(--ic-panel);
-    border: 1px solid var(--ic-border);
-    border-radius: 12px;
-    padding: 24px;
-    max-width: 500px;
-    width: 100%;
-    max-height: 90vh;
-    overflow-y: auto;
-  `;
-  
-  modalContent.innerHTML = `
-    <div style="font-size: 18px; font-weight: 700; color: var(--ic-text); margin-bottom: 20px;">
+  modal.classList.add("ic-cp-4e0cd0b8fc");
+const modalContent = document.createElement("div");
+  modalContent.classList.add("ic-cp-1207b45b93");
+modalContent.innerHTML = `
+    <div class="ic-cp-47069ae5b8">
       Ajouter un utilisateur système
     </div>
     
-    <div style="display: grid; gap: 16px; margin-bottom: 24px;">
+    <div class="ic-cp-ea4e050ce0">
       <div>
-        <label style="display: block; color: var(--ic-mutedText, #858585); font-size: 13px; margin-bottom: 8px;">Nom d'utilisateur *</label>
-        <input id="newUsernameInput" type="text" placeholder="ex: admin" style="width: 100%; padding: 10px; background: rgba(255,255,255,0.05); border: 1px solid var(--ic-border, #3e3e3e); border-radius: 6px; color: var(--ic-text, #d4d4d4); font-size: 14px; box-sizing: border-box;">
+        <label class="ic-cp-77477863ab">Nom d'utilisateur *</label>
+        <input id="newUsernameInput" type="text" placeholder="ex: admin" class="ic-cp-4d7c3942b8">
       </div>
       
       <div>
-        <label style="display: block; color: var(--ic-mutedText, #858585); font-size: 13px; margin-bottom: 8px;">Rôle *</label>
-        <select id="newRoleSelect" style="width: 100%; padding: 10px; background: rgba(255,255,255,0.05); border: 1px solid var(--ic-border, #3e3e3e); border-radius: 6px; color: var(--ic-text, #d4d4d4); font-size: 14px; box-sizing: border-box;">
+        <label class="ic-cp-77477863ab">Rôle *</label>
+        <select id="newRoleSelect" class="ic-cp-4d7c3942b8">
           <option value="USER">USER</option>
           <option value="ADMIN">ADMIN</option>
           <option value="SYSADMIN">SYSADMIN</option>
@@ -588,16 +564,16 @@ function showAddSystemUserModal(onSuccess: () => void): void {
       </div>
       
       <div>
-        <label style="display: block; color: var(--ic-mutedText, #858585); font-size: 13px; margin-bottom: 8px;">Application</label>
-        <input id="newApplicationInput" type="text" value="Administration (CP)" style="width: 100%; padding: 10px; background: rgba(255,255,255,0.05); border: 1px solid var(--ic-border, #3e3e3e); border-radius: 6px; color: var(--ic-text, #d4d4d4); font-size: 14px; box-sizing: border-box;">
+        <label class="ic-cp-77477863ab">Application</label>
+        <input id="newApplicationInput" type="text" value="Administration (CP)" class="ic-cp-4d7c3942b8">
       </div>
     </div>
     
-    <div style="display: flex; gap: 12px; justify-content: flex-end;">
-      <button id="cancelAddBtn" style="padding: 10px 20px; background: rgba(255,255,255,0.05); color: var(--ic-text, #d4d4d4); border: 1px solid var(--ic-border, #3e3e3e); border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 13px;">
+    <div class="ic-cp-d051cf88e8">
+      <button id="cancelAddBtn" class="ic-cp-53cdf7ee17">
         Annuler
       </button>
-      <button id="confirmAddBtn" style="padding: 10px 20px; background: var(--ic-accent, #7b2cff); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 13px;">
+      <button id="confirmAddBtn" class="ic-cp-9d25861807">
         Ajouter
       </button>
     </div>

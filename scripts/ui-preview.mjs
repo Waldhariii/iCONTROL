@@ -329,7 +329,7 @@ async function main() {
                 }));
               } catch {}
               try {
-                localStorage.setItem("controlx_settings_v1.theme", theme);
+                localStorage.setItem("icontrol_settings_v1.theme", theme);
               } catch {}
             },
             { sessionKey, role, theme }
@@ -339,7 +339,7 @@ async function main() {
           if (__storageShadowHelper) {
             __storageShadowHelper.emit({
               op: "WRITE",
-              keys: [sessionKey, "controlx_settings_v1.theme"],
+              keys: [sessionKey, "icontrol_settings_v1.theme"],
               source: "ui-preview.mjs",
               context: { surface, role, theme }
             });

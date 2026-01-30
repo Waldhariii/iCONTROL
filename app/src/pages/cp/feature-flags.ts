@@ -170,20 +170,20 @@ function createDetailsPanel(flag: FlagRow | null): HTMLElement {
 
   const hint = document.createElement("div");
   hint.textContent = "Toggles visuels uniquement — actions gouvernées via Core.";
-  hint.style.cssText = "font-size: 11px; color: var(--ic-mutedText, #a7b0b7); margin-top: 8px;";
+  hint.classList.add("ic-cp-0b274cf39e");
   body.appendChild(hint);
   return card;
 }
 
 function createRow(label: string, value: string): HTMLElement {
   const row = document.createElement("div");
-  row.style.cssText = "display:flex; justify-content:space-between; gap:12px; font-size:12px;";
+  row.classList.add("ic-cp-3c6cc2e95d");
   const left = document.createElement("div");
   left.textContent = label;
-  left.style.cssText = "color: var(--ic-mutedText, #a7b0b7);";
+  left.classList.add("ic-cp-9745d7bea4");
   const right = document.createElement("div");
   right.textContent = value;
-  right.style.cssText = "color: var(--ic-text, #e7ecef); font-weight: 600;";
+  right.classList.add("ic-cp-be4987cde3");
   row.appendChild(left);
   row.appendChild(right);
   return row;

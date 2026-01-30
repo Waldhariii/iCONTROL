@@ -20,7 +20,7 @@ export const MAIN_SYSTEM_MODULES: MainSystemModule[] = [
       { id: "developer", label: "DEVELOPPEUR", roles: ["SYSADMIN", "DEVELOPER"] }
     ],
     roles: ["SYSADMIN", "DEVELOPER", "ADMIN"],
-    namespaces: ["controlx_*"],
+    namespaces: ["icontrol_*"],
     activeDefault: true
   },
   {
@@ -139,5 +139,5 @@ export const MAIN_SYSTEM_RULES = {
   valueRefs: ["const", "role", "flag:SAFE_MODE", "setting:language", "setting:theme", "field:*", "storage:*"],
   conditions: ["all", "any", "not", "eq", "exists"],
   effects: ["setVisible", "disable"],
-  storageAllow: ["controlx_iam_v1.role", "controlx_settings_v1.language", "controlx_settings_v1.theme"]
+  storageAllow: ["icontrol_iam_v1.role", "icontrol_settings_v1.language", "icontrol_settings_v1.theme"]
 };

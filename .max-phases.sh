@@ -160,8 +160,8 @@ proof_light() {
     echo "=== audit-no-leaks ==="
     if [[ -x ".githooks/pre-commit" ]]; then
       bash .githooks/pre-commit 2>&1 | grep -E "(audit-no-leaks|ERR|OK)" || true
-    elif [[ -f "scripts/audits/audit-no-leaks.zsh" ]]; then
-      bash scripts/audits/audit-no-leaks.zsh 2>&1 || true
+    elif [[ -f "scripts/audit/audit-no-leaks.zsh" ]]; then
+      bash scripts/audit/audit-no-leaks.zsh 2>&1 || true
     fi
     
     echo
@@ -192,8 +192,8 @@ proofs_all() {
   
   {
     echo "=== audit-chemins-non-regression ==="
-    if [[ -f "scripts/audits/audit-chemins-non-regression.sh" ]]; then
-      bash scripts/audits/audit-chemins-non-regression.sh 2>&1 || true
+    if [[ -f "scripts/audit/audit-chemins-non-regression.sh" ]]; then
+      bash scripts/audit/audit-chemins-non-regression.sh 2>&1 || true
     elif [[ -f "docs/reports/audit-chemins-non-regression.sh" ]]; then
       bash docs/reports/audit-chemins-non-regression.sh 2>&1 || true
     fi

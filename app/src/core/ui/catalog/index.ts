@@ -82,7 +82,7 @@ function applyTheme(mode: "light" | "dark"): void {
 
   let wrote = false;
   try {
-    window.localStorage.setItem("controlx_settings_v1.theme", mode);
+    window.localStorage.setItem("icontrol_settings_v1.theme", mode);
     wrote = true;
   } catch {}
 
@@ -95,7 +95,7 @@ function applyTheme(mode: "light" | "dark"): void {
     kind: "UI_CATALOG_WRITE_SHADOW",
     tenantId,
     correlationId,
-    payload: { key: "controlx_settings_v1.theme", bytes: mode.length },
+    payload: { key: "icontrol_settings_v1.theme", bytes: mode.length },
     meta: { shadow: true, source: "ui/catalog" },
   };
 

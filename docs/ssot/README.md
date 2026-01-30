@@ -1,5 +1,7 @@
 # docs/ssot — Documentation SSOT
 
+**Audits (stratégie, ordre d’exécution, rapports)** : voir `docs/audit/README.md` et `scripts/audit/README.md`.
+
 | Fichier | Description |
 |---------|-------------|
 | `PAGE_INVENTORY.md` | Inventaire des pages (core, cp, app), wired/registry, status. |

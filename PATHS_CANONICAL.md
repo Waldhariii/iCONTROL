@@ -37,7 +37,7 @@
 - Module loader: `app/src/moduleLoader.ts` (page loading orchestrator)
 - CP registry: `app/src/pages/cp/registry.ts` (referenced in moduleLoader.ts)
 - APP registry: `app/src/pages/app/registry.ts` (referenced in moduleLoader.ts)
-- Non-regression audit: `scripts/audits/audit-chemins-non-regression.sh`
+- Non-regression audit: `scripts/audit/audit-chemins-non-regression.sh`
 - Routing SSOT gate: `scripts/gates/gate-routing-ssot.mjs`
 
 ## Gates & Hooks
@@ -106,7 +106,7 @@
     "moduleLoader": "app/src/moduleLoader.ts",
     "cpRegistry": "app/src/pages/cp/registry.ts",
     "appRegistry": "app/src/pages/app/registry.ts",
-    "auditScript": "scripts/audits/audit-chemins-non-regression.sh"
+    "auditScript": "scripts/audit/audit-chemins-non-regression.sh"
   }
 }
 ```

@@ -35,9 +35,9 @@ export type RuleDef = {
 };
 
 const STORAGE_ALLOW = new Set([
-  "controlx_iam_v1.role",
-  "controlx_settings_v1.language",
-  "controlx_settings_v1.theme"
+  "icontrol_iam_v1.role",
+  "icontrol_settings_v1.language",
+  "icontrol_settings_v1.theme"
 ]);
 
 export type RuleContext = {

@@ -1,12 +1,40 @@
+;(() => {
+  try {
+    if (typeof window === "undefined") return;
+
+    // Détection CP sans import.meta (compat esbuild)
+    const kind =
+      (globalThis.__icontrolResolveAppKind && globalThis.__icontrolResolveAppKind()) || "";
+    const isCP = (kind === "CP") || (window.location.pathname || "").startsWith("/cp/");
+
+    if (!isCP) return;
+
+    const h = String(window.location.hash || "");
+    if (h === "#/dashboard" || h.startsWith("#/dashboard?") || h.startsWith("#/dashboard&")) {
+      const base = window.location.href.split("#")[0];
+      window.location.replace(base + "#/dashboard");
+      return;
+    }
+  } catch (_) {}
+})(); 
 // === CLIENT_V2_SSOT_BEGIN ===
 // Single Source of Truth: CLIENT_V2 route IDs (APP-only routes with _app suffix)
 // Complete separation: All routes are globally unique with _app/_cp suffix
 const CLIENT_V2_ROUTE_IDS = ['home_app', 'client_disabled_app', 'client_catalog_app', 'pages_inventory_app', 'access_denied_app'] as const;
 
+// Map route IDs to hash paths (route_id -> hash path) - SSOT alignment with ROUTE_CATALOG.json
+const CLIENT_V2_ROUTE_ID_TO_HASH: Record<string, string> = {
+  'home_app': '#/home-app',
+  'client_disabled_app': '#/client-disabled',
+  'client_catalog_app': '#/__ui-catalog-client',
+  'pages_inventory_app': '#/pages-inventory',
+  'access_denied_app': '#/access-denied',
+};
+
 // Generated guards from SSOT (3 variants for different contexts)
-const __CLIENT_V2_ALLOWED_HASH_ROUTES = new Set(CLIENT_V2_ROUTE_IDS.map(r => `#/${r}`));
-const __CLIENT_V2_ALLOW = new Set(CLIENT_V2_ROUTE_IDS.map(r => `#/${r}`));
-const __CLIENT_V2_ALLOWLIST = new Set(CLIENT_V2_ROUTE_IDS.map(r => `/${r}`));
+const __CLIENT_V2_ALLOWED_HASH_ROUTES = new Set(CLIENT_V2_ROUTE_IDS.map(r => CLIENT_V2_ROUTE_ID_TO_HASH[r]));
+const __CLIENT_V2_ALLOW = new Set(CLIENT_V2_ROUTE_IDS.map(r => CLIENT_V2_ROUTE_ID_TO_HASH[r]));
+const __CLIENT_V2_ALLOWLIST = new Set(CLIENT_V2_ROUTE_IDS.map(r => CLIENT_V2_ROUTE_ID_TO_HASH[r].replace('#', '')));
 
 // Self-check: verify no duplicates after normalization (WARN only, non-blocking)
 if (__CLIENT_V2_ALLOWED_HASH_ROUTES.size !== CLIENT_V2_ROUTE_IDS.length) {
@@ -33,6 +61,38 @@ import { applyVersionPolicyBootGuards } from "./policies/version_policy.runtime"
 import { getGlobalWindow, type WindowWithIControl } from "./core/utils/types";
 import { getLogger } from "./core/utils/logger";
 import { ADMIN_ROUTE_ALLOWLIST, CLIENT_ROUTE_ALLOWLIST } from "./core/ssot/routeCatalogLoader";
+import { isDevOnlyAllowed } from "./core/policies/devOnly";
+import { auditWarnOnce } from "./pages/cp/_shared/auditOnce";
+
+import { guardDevOnlyRoute, guardDevOnlyRouteByKey } from "./pages/cp/_shared/devOnlyRouteGuard";
+(() => {
+  try {
+    // S'applique uniquement à l'app CP (path /cp), sans dépendre de import.meta ni d'une API globale.
+    if (typeof window === "undefined") return;
+    const path = String(window.location.pathname || "");
+    if (!path.includes("/cp")) return;
+
+    const h = String(window.location.hash || "");
+    if (h === "#/dashboard" || h.startswith("#/dashboard?") || h.startswith("#/dashboard&")) {
+      // Force le changement d'URL AVANT toute résolution/rendu de routes.
+      navigate("#/dashboard");
+
+    }
+  } catch (_e) {}
+})();
+
+
+// CP: décommissionner définitivement #/dashboard au bootstrap (avant résolution/rendu)
+// Objectif: même sur un load direct / refresh / cache agressif, on retarget vers #/dashboard.
+if (typeof window !== "undefined") {
+  try {
+    const h = String(window.location.hash || "");
+    if (h === "#/dashboard" || h.startsWith("#/dashboard?") || h.startsWith("#/dashboard&")) {
+      navigate("#/dashboard");
+
+    }
+  } catch { /* noop */ }
+}
 
 const logger = getLogger("ROUTER");
 
@@ -55,21 +115,22 @@ function __clientV2FallbackHash(state) {
   return state ? `#/home-app?state=${encodeURIComponent(state)}` : "#/home-app";
 }
 function __clientV2IsAllowed(hash) {
-  return __CLIENT_V2_ALLOW.has(__clientV2NormalizeHash(hash));
+  const normalized = __clientV2NormalizeHash(hash);
+  return __CLIENT_V2_ALLOW.has(normalized);
 }
 
 /**
  * router.ts — minimal hash router with RBAC guard
  * Complete separation: APP routes (_app suffix), CP routes (_cp suffix)
- * Landing: APP => #/home-app, CP => #/home-cp
+ * Landing: APP => #/home-app, CP => #/dashboard
  */
 // Complete separation: All routeIds are globally unique with _cp or _app suffix
 export type RouteId = 
   // CP routes (suffix _cp)
-  "home_cp" | "dashboard_cp" | "account_cp" | "settings_cp" | "settings_branding_cp" | "users_cp" | "system_cp" 
+  "dashboard_cp" | "account_cp" | "settings_cp" | "settings_branding_cp" | "users_cp" | "system_cp" 
   | "developer_cp" | "developer_entitlements_cp" | "access_denied_cp" | "verification_cp" | "blocked_cp" | "notfound_cp"
-  | "toolbox_cp" | "ui_catalog_cp" | "runtime_smoke_cp" | "logs_cp" | "dossiers_cp"
-  | "tenants_cp" | "entitlements_cp" | "pages_cp" | "feature-flags_cp" | "publish_cp" | "audit_cp" | "subscription_cp" | "integrations_cp" | "shell-debug_cp"
+  | "toolbox_cp" | "ui_catalog_cp" | "runtime_smoke_cp" | "logs_cp" | "dossiers_cp" | "login_cp"
+  | "tenants_cp" | "entitlements_cp" | "pages_cp" | "feature-flags_cp" | "publish_cp" | "audit_cp" | "subscription_cp" | "integrations_cp"
   // APP routes (suffix _app)
   | "home_app" | "client_disabled_app" | "client_catalog_app" | "pages_inventory_app" | "access_denied_app" | "notfound_app";
 
@@ -102,14 +163,24 @@ function __icontrolResolveAppKind(): "CP" | "APP" {
   try {
     if (!raw) raw = String((globalThis as any)?.__ICONTROL_APP_KIND__ || "");
   } catch {}
+  
+  // Fallback: détecter depuis le pathname (pour servir les deux apps depuis le même serveur)
+  if (!raw && typeof window !== "undefined") {
+    try {
+      const pathname = window.location.pathname || "";
+      if (pathname.startsWith("/app")) return "APP";
+      if (pathname.startsWith("/cp")) return "CP";
+    } catch {}
+  }
+  
   return __icontrolNormalizeAppKind__(raw);
 }
 
 function __icontrolNormalizeHash__(hash: string): string {
   const h = String(hash || "").trim();
-  // App-scoped fallback: CP uses home-cp, APP uses home-app
+  // App-scoped fallback: CP uses dashboard, APP uses home-app
   const kind = __icontrolResolveAppKind();
-  const defaultHash = kind === "CP" ? "#/home-cp" : "#/home-app";
+  const defaultHash = kind === "CP" ? "#/dashboard" : "#/home-app";
   if (!h) return defaultHash;
   const normalized = h.startsWith("#/") ? h : `#/${h.replace(/^#?\/?/, "")}`;
   const noQuery = normalized.split("?")[0] || normalized;
@@ -118,8 +189,8 @@ function __icontrolNormalizeHash__(hash: string): string {
 
 function __icontrolIsAdminRouteAllowed__(hash: string): boolean {
   const h = __icontrolNormalizeHash__(hash);
-  // Toujours autoriser #/home-cp et #/dashboard sur CP (sécurité si ROUTE_CATALOG manque ou diffère).
-  if (h === "#/home-cp" || h === "#/dashboard") return true;
+  // Toujours autoriser #/dashboard, #/dashboard et #/login sur CP (sécurité si ROUTE_CATALOG manque ou diffère).
+  if (h === "#/dashboard" || h === "#/login") return true;
   return ADMIN_ROUTE_ALLOWLIST.has(h);
 }
 
@@ -145,8 +216,8 @@ export function getRouteId(): RouteId {
     return "notfound_app";
   } else {
     // CP-only routes (suffix _cp)
-    if (!seg) return "home_cp";
-    if (seg === "home-cp" || seg === "home_cp") return "home_cp";
+    if (!seg) return "dashboard_cp";
+    if (seg === "login") return "login_cp";
     if (seg === "dashboard") return "dashboard_cp";
     if (seg === "users") return "users_cp";
     if (seg === "account") return "account_cp";
@@ -158,8 +229,8 @@ export function getRouteId(): RouteId {
     if (seg === "logs") return "logs_cp";
     if (seg === "dossiers") return "dossiers_cp";
     if (seg === "verification" || seg === "verify") return "verification_cp";
-    if (seg === "settings") return canAccessSettings() ? "settings_cp" : "home_cp";
-    if (seg === "settings/branding") return canAccessSettings() ? "settings_branding_cp" : "home_cp";
+    if (seg === "settings") return canAccessSettings() ? "settings_cp" : "dashboard_cp";
+    if (seg === "settings/branding") return canAccessSettings() ? "settings_branding_cp" : "dashboard_cp";
     if (seg === "tenants") return "tenants_cp";
     if (seg === "entitlements") return "entitlements_cp";
     if (seg === "pages") return "pages_cp";
@@ -168,9 +239,20 @@ export function getRouteId(): RouteId {
     if (seg === "audit") return "audit_cp";
     if (seg === "subscription") return "subscription_cp";
     if (seg === "integrations") return "integrations_cp";
-    if (seg === "shell-debug" || seg === "debug-shell") return "shell-debug_cp";
+    if (seg === "__ui-catalog" || seg === "ui-catalog") return "ui_catalog_cp";
     if (seg === "runtime-smoke" || seg === "runtime_smoke") return "runtime_smoke_cp";
     if (seg === "blocked") return "blocked_cp";
+    if (seg === "login-theme") return "login_theme_cp";
+    if (seg === "ui-showcase") {
+  /* ICONTROL_CP_UI_SHOWCASE_ROUTER_GUARD */
+  if (!isDevOnlyAllowed()) {
+    auditWarnOnce("WARN_DEV_ONLY_ROUTE_BLOCKED", { scope: "cp", route: "ui-showcase" });
+    return "dashboard_cp";
+  }
+  const fb = guardDevOnlyRouteByKey("ui-showcase");
+      if (fb) return fb;
+            return "ui_showcase_cp";
+}
     return "notfound_cp";
   }
 }
@@ -193,8 +275,8 @@ export function getRouteIdFromHash(hash: string): RouteId {
     return "notfound_app";
   } else {
     // CP-only routes (suffix _cp)
-    if (!seg) return "home_cp";
-    if (seg === "home-cp" || seg === "home_cp") return "home_cp";
+    if (!seg) return "dashboard_cp";
+    if (seg === "login") return "login_cp";
     if (seg === "dashboard") return "dashboard_cp";
     if (seg === "users") return "users_cp";
     if (seg === "account") return "account_cp";
@@ -216,7 +298,7 @@ export function getRouteIdFromHash(hash: string): RouteId {
     if (seg === "audit") return "audit_cp";
     if (seg === "subscription") return "subscription_cp";
     if (seg === "integrations") return "integrations_cp";
-    if (seg === "shell-debug" || seg === "debug-shell") return "shell-debug_cp";
+    if (seg === "__ui-catalog" || seg === "ui-catalog") return "ui_catalog_cp";
     if (seg === "runtime-smoke" || seg === "runtime_smoke") return "runtime_smoke_cp";
     if (seg === "blocked") return "blocked_cp";
     return "notfound_cp";
@@ -224,7 +306,11 @@ export function getRouteIdFromHash(hash: string): RouteId {
 }
 
 export function navigate(hash: string): void {
-  if (!hash.startsWith("#/")) coreNavigate("#/" + hash.replace(/^#\/?/, ""));
+  // Hard redirect: la landing CP "dashboard" est décommissionnée.
+  if (hash === "#/dashboard" || hash.startsWith("#/dashboard?") || hash.startsWith("#/dashboard&")) {
+    hash = "#/dashboard";
+  }
+if (!hash.startsWith("#/")) coreNavigate("#/" + hash.replace(/^#\/?/, ""));
   else coreNavigate(hash);
 }
 
@@ -232,7 +318,7 @@ function ensureAuth(): boolean {
   const rid = getRouteId();
   // Allow blocked and access_denied pages always (with _cp/_app suffix)
   if (rid === "blocked_cp") return true;
-  if (__icontrolResolveAppKind() === "CP" && rid === "access_denied_cp") return true;
+  if (__icontrolResolveAppKind() === "CP" && (rid === "access_denied_cp" || rid === "login_cp")) return true;
   if (__icontrolResolveAppKind() === "APP" && (rid === "access_denied_app" || rid === "client_disabled_app" || rid === "client_catalog_app" || rid === "home_app")) return true;
 
   // Everything else requires a session
@@ -242,8 +328,8 @@ function ensureAuth(): boolean {
       // APP: redirect to home_app
       navigate("#/home-app?state=disabled");
     } else {
-      // CP: redirect to home_cp
-      navigate("#/home-cp");
+      // CP: redirect to login_cp
+      navigate("#/login");
     }
     return false;
   }
@@ -262,7 +348,7 @@ export function doLogout(): void {
   if (__icontrolResolveAppKind() === "APP") {
     navigate("#/home-app");
   } else {
-    navigate("#/home-cp");
+    navigate("#/dashboard");
   }
 }
 
@@ -305,16 +391,25 @@ export function bootRouter(onRoute: (rid: RouteId) => void): void {
         const allowed = __icontrolIsAdminRouteAllowed__(h);
         if (!allowed) {
           console.warn("ADMIN_ROUTE_GUARD_BLOCK", { route: h });
-          // Redirection vers #/home-cp (sans state=denied pour éviter « Accès refusé »).
-          try { coreNavigate("#/home-cp"); } catch {}
-          return;
+          // Si on est déjà sur login, ne pas rediriger (éviter la boucle)
+          if (h === "#/login" || h.startsWith("#/login")) {
+            // Laisser passer pour permettre le rendu de la page de login
+          } else {
+            // Redirection vers #/login si non connecté, sinon #/dashboard
+            const target = isLoggedIn() ? "#/dashboard" : "#/login";
+            try { coreNavigate(target); } catch {}
+            return;
+          }
         }
       }
     } catch (e) {
-      // Si le guard échoue (exception), rediriger vers #/dashboard (éviter state=denied / « Accès refusé »).
+      // Si le guard échoue (exception), rediriger vers #/login si non connecté
       try {
         console.warn("ADMIN_ROUTE_GUARD_FAILED", String(e));
-        if (__icontrolResolveAppKind() === "CP") coreNavigate("#/home-cp");
+        if (__icontrolResolveAppKind() === "CP") {
+          const target = isLoggedIn() ? "#/dashboard" : "#/login";
+          coreNavigate(target);
+        }
       } catch {}
       return;
     }
@@ -324,6 +419,12 @@ export function bootRouter(onRoute: (rid: RouteId) => void): void {
       if (__icontrolResolveAppKind() === "APP") {
         const allowed = __icontrolIsClientRouteAllowed__(h);
         if (!allowed) {
+          // Anti-boucle: vérifier qu'on n'est pas déjà sur home-app
+          const normalized = __icontrolNormalizeHash__(h);
+          if (normalized === "#/home-app" || normalized === "#/home-app?state=disabled") {
+            // Déjà sur la route de fallback, ne pas rediriger
+            return;
+          }
           console.warn("CLIENT_ROUTE_GUARD_BLOCK", { route: h });
           try { coreNavigate("#/home-app?state=disabled"); } catch {}
           return;
@@ -332,35 +433,51 @@ export function bootRouter(onRoute: (rid: RouteId) => void): void {
     } catch (e) {
       try {
         console.warn("CLIENT_ROUTE_GUARD_FAILED", String(e));
-        if (__icontrolResolveAppKind() === "APP") coreNavigate("#/home-app?state=disabled");
+        const normalized = __icontrolNormalizeHash__(h);
+        if (__icontrolResolveAppKind() === "APP" && normalized !== "#/home-app" && normalized !== "#/home-app?state=disabled") {
+          coreNavigate("#/home-app?state=disabled");
+        }
       } catch {}
       return;
     }
 
     const authed = ensureAuth();
     // Router trace logging removed - use logger if needed
-    if (!authed) return;
-    
-    // ICONTROL_PAGE_ACCESS_GUARD_V1: Check page access policy
-    try {
-      const { guardRouteAccess } = await import("./core/control-plane/guards/pageAccessGuard");
-      const accessCheck = await guardRouteAccess(h);
-      if (!accessCheck.allowed) {
-        logger.warn("ROUTE_ACCESS_DENIED", { route: h, reason: accessCheck.reason });
-        // Redirection vers landing app-scoped sans state=denied (éviter affichage « Accès refusé »).
-        try { 
-          const landing = __icontrolResolveAppKind() === "CP" ? "#/home-cp" : "#/home-app";
-          coreNavigate(landing);
-        } catch (e) {
-          logger.error("ACCESS_DENIED_REDIRECT_FAILED", String(e));
-        }
-        return;
+    // Si l'utilisateur n'est pas authentifié, ensureAuth() a déjà redirigé
+    // Mais on doit quand même rendre la page de login si c'est la route actuelle
+    if (!authed && rid !== "login_cp") {
+      // Debug: logger pour comprendre pourquoi on ne rend pas
+      if (rid !== "login_cp") {
+        logger.debug("ROUTER_SKIP_RENDER", { rid, authed, hash: h });
       }
-    } catch (e) {
-      // If guard fails, allow access (fail open)
-      logger.warn("PAGE_ACCESS_GUARD_FAILED", String(e));
+      return;
     }
     
+    // ICONTROL_PAGE_ACCESS_GUARD_V1: Check page access policy
+    // Skip pour login_cp (accessible sans authentification)
+    if (rid !== "login_cp") {
+      try {
+        const { guardRouteAccess } = await import("./core/control-plane/guards/pageAccessGuard");
+        const accessCheck = await guardRouteAccess(h);
+        if (!accessCheck.allowed) {
+          logger.warn("ROUTE_ACCESS_DENIED", { route: h, reason: accessCheck.reason });
+          // Redirection vers landing app-scoped sans state=denied (éviter affichage « Accès refusé »).
+          try { 
+            const landing = __icontrolResolveAppKind() === "CP" ? "#/dashboard" : "#/home-app";
+            coreNavigate(landing);
+          } catch (e) {
+            logger.error("ACCESS_DENIED_REDIRECT_FAILED", String(e));
+          }
+          return;
+        }
+      } catch (e) {
+        // If guard fails, allow access (fail open)
+        logger.warn("PAGE_ACCESS_GUARD_FAILED", String(e));
+      }
+    }
+    
+    // Debug: logger pour confirmer qu'on appelle onRoute
+    logger.debug("ROUTER_CALL_ONROUTE", { rid, hash: h });
     onRoute(rid);
   };
   window.addEventListener("hashchange", tick);
@@ -372,8 +489,10 @@ export function bootRouter(onRoute: (rid: RouteId) => void): void {
 */
 export function getMountEl(): HTMLElement {
   const w = window as any;
-  const el = w.__ICONTROL_MOUNT__ as HTMLElement | undefined;
-  return el || (document.getElementById("app") as HTMLElement) || document.body;
+  const mount = (w && w.__ICONTROL_MOUNT__) as (HTMLElement | undefined);
+  const cxMain = document.querySelector("#cxMain") as (HTMLElement | null);
+  const app = document.getElementById("app") as (HTMLElement | null);
+  return mount || cxMain || app || document.body;
 }
 /* ===== END ICONTROL_MOUNT_TARGET_V1 ===== */
 
@@ -392,12 +511,33 @@ export function applyClientV2Guards(): void {
     }
   } catch {}
 
-  // Client V2 guard (no extra routes) — fallback after app/cp guard. APP only; CP uses home-cp, dashboard_cp, etc.
+  // Client V2 guard (no extra routes) — fallback after app/cp guard. APP only; CP uses dashboard, dashboard_cp, etc.
   try {
     if (__icontrolResolveAppKind() === "APP") {
-      const __h = window.location.hash || "#/dashboard";
-      if (!__clientV2IsAllowed(__h)) {
-        coreNavigate(__clientV2FallbackHash());
+      const __h = window.location.hash || "";
+      // Ne rediriger que si le hash n'est pas vide et n'est pas autorisé
+      // Si hash vide, laisser le router gérer (il redirigera vers home-app via getRouteId)
+      if (__h) {
+        // Normaliser le hash pour la comparaison
+        const normalized = __clientV2NormalizeHash(__h);
+        const fallbackNormalized = __clientV2NormalizeHash(__clientV2FallbackHash());
+        
+        // Si on est déjà sur la route de fallback, ne pas rediriger (évite la boucle)
+        if (normalized === fallbackNormalized) {
+          return;
+        }
+        
+        // Vérifier si la route est autorisée
+        if (!__clientV2IsAllowed(__h)) {
+          // Anti-boucle: vérifier qu'on n'a pas déjà redirigé récemment
+          const lastRedirect = (globalThis as any).__ICONTROL_LAST_CLIENT_V2_REDIRECT__;
+          const now = Date.now();
+          if (lastRedirect && lastRedirect.hash === fallbackNormalized && (now - lastRedirect.ts) < 2000) {
+            return; // Éviter la boucle
+          }
+          (globalThis as any).__ICONTROL_LAST_CLIENT_V2_REDIRECT__ = { hash: fallbackNormalized, ts: now };
+          coreNavigate(__clientV2FallbackHash());
+        }
       }
     }
   } catch {}
