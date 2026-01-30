@@ -25,9 +25,15 @@ const bundle = latest("RELEASE_BUNDLE_", path.join(cwd,"docs","release"));
 if(!bundle) { console.error("ERR: missing RELEASE_BUNDLE_*"); process.exit(1); }
 
 const notes = (() => {
-  const files = fs.readdirSync(cwd).filter(f=>f.startsWith("RELEASE_NOTES_") && f.endsWith(".md"));
-  files.sort((a,b)=>fs.statSync(path.join(cwd,b)).mtimeMs - fs.statSync(path.join(cwd,a)).mtimeMs);
-  return files[0] ? path.join(cwd, files[0]) : "";
+  const dr = path.join(cwd,"docs","release");
+  const scan = (dir) => {
+    try {
+      const files = fs.readdirSync(dir).filter(f=>f.startsWith("RELEASE_NOTES_") && f.endsWith(".md"));
+      files.sort((a,b)=>fs.statSync(path.join(dir,b)).mtimeMs - fs.statSync(path.join(dir,a)).mtimeMs);
+      return files[0] ? path.join(dir, files[0]) : "";
+    } catch { return ""; }
+  };
+  return scan(dr) || scan(cwd);
 })();
 
 const manifest = path.join(cwd,"ASSETS_MANIFEST_LATEST.json");
