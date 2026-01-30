@@ -153,3 +153,6 @@ app/_audit/
 **/.turbo/
 **/.cache/
 docs/ssot/UI_DRIFT_REPORT.md
+ASSETS_MANIFEST_*.json
+dist_rollback_*.tgz
+docs/release/RELEASE_NOTES_*.md
