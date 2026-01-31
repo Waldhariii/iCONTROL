@@ -1,8 +1,11 @@
 import React from "react";
+import { useMetierDashboardAdapter, useMetierListeAdapter, useMetierFicheAdapter } from "../metier/adapters";
 import { PageShellV2 } from "../PageShellV2";
 import { FiltersBarV2, type FiltersState } from "./FiltersBarV2";
 import { DataTableMetierV2 } from "./DataTableMetierV2";
 import { FormMetierV2 } from "./FormMetierV2";
+
+// __METIER_ADAPTERS_WIRED_V1: mockups consume adapters (do not remove)
 
 const ROWS = [
   { id: "JOB-00021", client: "Safari Park", statut: "planifie" as const, date: "2026-01-30", montant: 420.0 },
@@ -31,3 +34,28 @@ export default function UiMetierSandboxV2() {
     </PageShellV2>
   );
 }
+
+
+function MetierAdaptersDemoV1() {
+  const dashboard = useMetierDashboardAdapter();
+  const liste = useMetierListeAdapter();
+  const fiche = useMetierFicheAdapter();
+
+  return (
+    <div style={{ display: "grid", gap: 16 }}>
+      <section>
+        <h3>Dashboard model</h3>
+        <pre>{JSON.stringify(dashboard, null, 2)}</pre>
+      </section>
+      <section>
+        <h3>Liste model</h3>
+        <pre>{JSON.stringify(liste, null, 2)}</pre>
+      </section>
+      <section>
+        <h3>Fiche model</h3>
+        <pre>{JSON.stringify(fiche, null, 2)}</pre>
+      </section>
+    </div>
+  );
+}
+export { MetierAdaptersDemoV1 };
