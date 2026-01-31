@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import fs from "node:fs";
-import { DEV_ONLY_CP_ROUTES } from "../pages/cp/_shared/devOnlyRoutes";
+import { DEV_ONLY_CP_ROUTES } from "../platform/routing/devOnlyRoutes";
 
 describe("DEV-only routes SSOT (contract)", () => {
   it("registry has stable shape + contains ui-showcase", () => {

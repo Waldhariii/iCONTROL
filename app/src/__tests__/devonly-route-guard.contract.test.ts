@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { guardDevOnlyRoute } from "../pages/cp/_shared/devOnlyRouteGuard";
+import { guardDevOnlyRoute } from "../platform/routing/devOnlyRouteGuard";
 
 describe("DEV-only route guard SSOT (contract)", () => {
   it("exports guardDevOnlyRoute and returns string|null", () => {
