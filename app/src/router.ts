@@ -62,7 +62,7 @@ import { getGlobalWindow, type WindowWithIControl } from "./core/utils/types";
 import { getLogger } from "./core/utils/logger";
 import { ADMIN_ROUTE_ALLOWLIST, CLIENT_ROUTE_ALLOWLIST } from "./core/ssot/routeCatalogLoader";
 import { isDevOnlyAllowed } from "./core/policies/devOnly";
-import { auditWarnOnce } from "./pages/cp/_shared/auditOnce";
+import { auditWarnOnce } from "./platform/audit/auditOnce";
 
 import { guardDevOnlyRoute, guardDevOnlyRouteByKey } from "./pages/cp/_shared/devOnlyRouteGuard";
 (() => {

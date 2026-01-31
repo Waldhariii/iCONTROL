@@ -30,12 +30,12 @@ export function renderRoute(rid: RouteId, root: HTMLElement): void {
   // RUNTIME_SMOKE_ROUTE_V2 (CP only)
   try {
     if ((rid as any) === "runtime_smoke_cp") {
-      import("./pages/runtime-smoke")
+      import("./platform/smoke/runtime-smoke")
         .then((m) => m.renderRuntimeSmoke(root))
         .catch((e) => {
           /* ICONTROL_LOADER_IMPORT_GUARD_V1 */
           console.warn("WARN_ROUTE_IMPORT_FAILED", {
-            spec: "./pages/runtime-smoke",
+            spec: "./platform/smoke/runtime-smoke",
             err: String(e),
           });
         });

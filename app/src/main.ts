@@ -760,7 +760,7 @@ queueMicrotask(() => {
       const __q = new URLSearchParams(window.location.search);
       if (__q.get("runtime") === "1") {
         const mount = __icontrol_resolveMountSSOT__();
-        import("./pages/runtime-smoke").then((m) => m.renderRuntimeSmoke(mount));
+        import("./surfaces/shared/runtime-smoke/Page").then((m) => m.renderRuntimeSmoke(mount));
         return;
       }
     } catch (e) {
