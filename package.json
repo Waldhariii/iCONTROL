@@ -96,7 +96,9 @@
     "release:index": "node scripts/gates/generate-release-index.mjs",
     "gate:release:index": "./scripts/gates/check-release-index.sh",
     "release:consistency": "node scripts/gates/check-release-consistency.mjs",
-    "gate:release:consistency": "npm run -s release:consistency"
+    "gate:release:consistency": "npm run -s release:consistency",
+    "gate:no-tenant-sample-data": "bash scripts/gates/no-tenant-sample-data.sh",
+    "verify:prod:fast": "npm run -s gate:no-tenant-sample-data"
   },
   "devDependencies": {
     "@types/react": "^19.2.10",
