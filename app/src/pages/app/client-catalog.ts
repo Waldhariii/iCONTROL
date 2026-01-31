@@ -1,4 +1,4 @@
 /**
  * LEGACY SHIM — canonical implementation moved to surfaces.
  */
-export * from "../../surfaces/app/client-disabled/Page";
+export * from "../../surfaces/app/client-catalog/Page";
