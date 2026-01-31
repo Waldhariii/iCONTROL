@@ -64,7 +64,7 @@ import { ADMIN_ROUTE_ALLOWLIST, CLIENT_ROUTE_ALLOWLIST } from "./core/ssot/route
 import { isDevOnlyAllowed } from "./core/policies/devOnly";
 import { auditWarnOnce } from "./platform/audit/auditOnce";
 
-import { guardDevOnlyRoute, guardDevOnlyRouteByKey } from "./surfaces/_legacy/cp/_shared/devOnlyRouteGuard";
+import { guardDevOnlyRoute, guardDevOnlyRouteByKey } from "./platform/routing/guards/devOnlyRouteGuard";
 (() => {
   try {
     // S'applique uniquement à l'app CP (path /cp), sans dépendre de import.meta ni d'une API globale.

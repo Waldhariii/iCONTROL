@@ -1,5 +1,5 @@
 import { isDevOnlyAllowed } from "../../../core/policies/devOnly";
-import { auditWarnOnce } from "../../../platform/audit/auditOnce";
+import { auditWarnOnce } from "../../audit/auditOnce";
 import { DEV_ONLY_CP_ROUTES } from "./devOnlyRoutes";
 
 export type DevOnlyGuardInput = {
