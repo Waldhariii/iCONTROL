@@ -160,3 +160,7 @@ docs/release/RELEASE_NOTES_*.md
 # Evidence store (local proofs) — not source
 _EVIDENCE_STORE/
 _EVIDENCE_STORE/**
+
+# Local archives (non-source, non-runtime)
+_ARCHIVES/
+_ARCHIVES/**
