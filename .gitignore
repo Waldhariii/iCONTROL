@@ -157,3 +157,6 @@ ASSETS_MANIFEST_*.json
 !docs/release/ASSETS_MANIFEST_LATEST.json
 dist_rollback_*.tgz
 docs/release/RELEASE_NOTES_*.md
+# Evidence store (local proofs) — not source
+_EVIDENCE_STORE/
+_EVIDENCE_STORE/**
