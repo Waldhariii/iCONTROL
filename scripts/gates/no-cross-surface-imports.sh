@@ -6,16 +6,16 @@ set -euo pipefail
 # Interdit: app/src/surfaces/app/** -> app/src/surfaces/cp/** et inversement.
 
 ROOT="app/src/surfaces"
-ALLOW_FROM_PLATFORM='^app/src/platform/'
 RG_OPTS=(--hidden --glob '!**/node_modules/**' --glob '!**/dist/**' -n -S)
 
-hits="$(rg "${RG_OPTS[@]}" -g'*.ts' -g'*.tsx' -e 'from\s+["'\''](\.\./)+surfaces\/' app/src 2>/dev/null || true)"
+# Scope: surfaces only. We do not scan legacy pages or other dirs.
+hits="$(rg "${RG_OPTS[@]}" -g'*.ts' -g'*.tsx' -e 'from\s+["'\''](\.\./)+surfaces\/' "$ROOT" 2>/dev/null || true)"
 
-# On filtre les fichiers sous platform (autorisés)
-off="$(echo "$hits" | awk -F: -v allow="$ALLOW_FROM_PLATFORM" 'NF>1{file=$1; if (file !~ allow) print $0;}' || true)"
+# Any hit inside surfaces is a violation (no cross-surface imports allowed).
+off="$hits"
 
 if [[ -n "${off:-}" ]]; then
-  echo "[gate][FAIL] cross-surface import detected outside platform:"
+  echo "[gate][FAIL] cross-surface import detected inside surfaces:"
   echo "$off"
   exit 1
 fi

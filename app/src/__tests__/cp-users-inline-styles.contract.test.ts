@@ -3,7 +3,7 @@ import fs from "node:fs";
 
 describe("CP users view: no inline style pipelines (contract)", () => {
   it("users.ts contains no inline styles (cssText / setAttribute('style') / style=\")", () => {
-    const p = "src/pages/cp/views/users.ts";
+    const p = "src/surfaces/cp/users/Page.tsx";
     expect(fs.existsSync(p)).toBe(true);
     const s = fs.readFileSync(p, "utf8");
     const offenders: string[] = [];
