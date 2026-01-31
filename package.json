@@ -98,10 +98,11 @@
     "release:consistency": "node scripts/gates/check-release-consistency.mjs",
     "gate:release:consistency": "npm run -s release:consistency",
     "gate:no-tenant-sample-data": "bash scripts/gates/no-tenant-sample-data.sh",
-    "verify:prod:fast": "npm run -s gate:no-tenant-sample-data && npm run -s gate:no-cross-surface-imports && npm run -s gate:pages-whitelist && npm run -s gate:no-mockups-imports-in-surfaces",
+    "verify:prod:fast": "npm run -s gate:no-tenant-sample-data && npm run -s gate:no-cross-surface-imports && npm run -s gate:pages-whitelist && npm run -s gate:no-mockups-imports-in-surfaces && npm run -s gate:no-legacy-pages-dir",
     "gate:no-cross-surface-imports": "bash scripts/gates/no-cross-surface-imports.sh",
     "gate:pages-whitelist": "bash scripts/gates/pages-whitelist.sh",
-    "gate:no-mockups-imports-in-surfaces": "bash scripts/gates/no-mockups-imports-in-surfaces.sh"
+    "gate:no-mockups-imports-in-surfaces": "bash scripts/gates/no-mockups-imports-in-surfaces.sh",
+    "gate:no-legacy-pages-dir": "bash scripts/gates/no-legacy-pages-dir.sh"
   },
   "devDependencies": {
     "@types/react": "^19.2.10",
