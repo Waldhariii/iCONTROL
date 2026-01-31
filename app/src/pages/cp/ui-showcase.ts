@@ -125,7 +125,7 @@ const root = el("div", {
 
   const tbody = el("tbody");
   const rows = [
-    ["Safari Park", "Actif", "$ 12,450", "2026-01-29"],
+    ["Customer A", "Actif", "$ 12,450", "2026-01-29"],
     ["Groupe Thermique", "En attente", "$ 3,100", "2026-01-27"],
     ["Innovex Extermination", "Actif", "$ 980", "2026-01-26"],
   ];

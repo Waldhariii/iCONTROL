@@ -17,7 +17,7 @@ export function useMetierFicheAdapter(): MetierScreenModel {
             id: "s-client",
             title: "Client",
             fields: [
-              { id: "clientName", label: "Nom", kind: "text", placeholder: "Nom du client", required: true, value: "Safari Park" },
+              { id: "clientName", label: "Nom", kind: "text", placeholder: "Nom du client", required: true, value: "Customer A" },
               { id: "clientPhone", label: "Téléphone", kind: "phone", placeholder: "(514) 000-0000", value: "" },
               { id: "clientEmail", label: "Courriel", kind: "email", placeholder: "client@exemple.com", value: "" },
             ],

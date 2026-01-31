@@ -150,7 +150,7 @@ function buildUI(doc: Document): HTMLElement {
               </tr>
             </thead>
             <tbody>
-              <tr><td>Safari Park</td><td><span class="ic-pill">Actif</span></td><td>2 450$</td><td>2026-01-28</td></tr>
+              <tr><td>Customer A</td><td><span class="ic-pill">Actif</span></td><td>2 450$</td><td>2026-01-28</td></tr>
               <tr><td>Innovex Extermination</td><td><span class="ic-pill">En cours</span></td><td>980$</td><td>2026-01-27</td></tr>
               <tr><td>Groupe Thermique</td><td><span class="ic-pill">Prospect</span></td><td>—</td><td>2026-01-25</td></tr>
               <tr><td>Client Démo</td><td><span class="ic-pill">Suspendu</span></td><td>120$</td><td>2026-01-22</td></tr>

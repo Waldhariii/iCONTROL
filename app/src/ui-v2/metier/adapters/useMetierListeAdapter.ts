@@ -16,9 +16,9 @@ export function useMetierListeAdapter(): MetierScreenModel {
     ];
 
     const rows = [
-      { id: "r1", cells: { ref: "J-1042", client: "Safari Park", ville: "Montréal", statut: "Scheduled", date: "2026-01-31" } },
-      { id: "r2", cells: { ref: "J-1043", client: "Dupont", ville: "Laval", statut: "Open", date: "2026-02-01" } },
-      { id: "r3", cells: { ref: "J-1044", client: "Bouchard", ville: "Longueuil", statut: "Done", date: "2026-01-29" } },
+      { id: "r1", cells: { ref: "REF-0001", client: "Customer A", ville: "City A", statut: "Scheduled", date: "2026-01-31" } },
+      { id: "r2", cells: { ref: "REF-0002", client: "Customer B", ville: "City B", statut: "Open", date: "2026-02-01" } },
+      { id: "r3", cells: { ref: "REF-0003", client: "Customer C", ville: "City C", statut: "Done", date: "2026-01-29" } },
     ];
 
     return {
