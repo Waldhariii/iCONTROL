@@ -1,5 +1,9 @@
-import React from "react";
+// Real surface (P1.2): runtime-smoke
+// NOTE: prod-safe, no import-time side effects.
+// TODO: replace with the real runtime-smoke implementation (no _legacy).
+import * as Legacy from "../../_legacy/runtime-smoke";
 
-// P1 shim: re-export legacy runtime-smoke implementation while we migrate pages  surfaces.
-// Keep this file side-effect free at import time.
-export { default } from "../_legacy/runtime-smoke";
+export default function RuntimeSmokePage() {
+  const C = (Legacy as any).default;
+  return C ? <C /> : null;
+}

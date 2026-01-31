@@ -1,4 +1,4 @@
-// app/src/pages/runtime-smoke.ts
+// app/src/surfaces/shared/runtime-smoke/Page.ts
 import { compilePlan } from "../core/studio/runtime/plan";
 import { executePlan } from "../core/studio/runtime/execute";
 import { safeRender } from "../core/studio/engine";

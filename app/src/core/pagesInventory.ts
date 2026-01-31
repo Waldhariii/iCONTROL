@@ -124,7 +124,7 @@ function getSourceFile(routeId: string, appSurface: "CP" | "CLIENT"): string {
       toolbox_cp: "app/src/pages/cp/registry.ts",
       logs_cp: "app/src/pages/cp/registry.ts",
       dossiers_cp: "app/src/pages/cp/registry.ts",
-      runtime_smoke_cp: "app/src/pages/runtime-smoke.ts"
+      runtime_smoke_cp: "app/src/surfaces/shared/runtime-smoke/Page.ts"
     };
     return fileMap[routeId] || "app/src/pages/cp/registry.ts";
   } else {
