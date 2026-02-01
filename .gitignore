@@ -182,3 +182,6 @@ app/.icontrol_subscriptions.json
 RELEASE_MANIFEST.json
 _artifacts/release/rc/**/prod/
 RELEASE_BUNDLE_*.json
+_artifacts/release/prod/
+PROVENANCE_*.md
+RELEASE_INDEX.md
