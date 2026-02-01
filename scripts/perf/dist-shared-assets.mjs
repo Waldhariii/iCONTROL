@@ -3,7 +3,9 @@ import path from "node:path";
 
 const REPO = process.cwd();
 const ROOT = REPO;
-const DIST = isDir(path.join(REPO, "app", "dist")) ? path.join(REPO, "app", "dist") : path.join(REPO, "dist");
+const DIST = isDir(path.join(REPO, "app", "dist"))
+  ? path.join(REPO, "app", "dist")
+  : path.join(REPO, "_artifacts", "dist", "app");
 const APP = path.join(DIST, "app");
 const CP  = path.join(DIST, "cp");
 const OUT = path.join(DIST, "assets");
@@ -48,6 +50,9 @@ function relFrom(dir, file) {
 }
 
 function ensureInputs() {
+  if (path.resolve(DIST) === path.resolve(path.join(REPO, "dist"))) {
+    throw new Error("ERR: root dist/ is forbidden by cleanroot policy.");
+  }
   if (!isDir(DIST)) throw new Error("ERR: dist/ missing. Run builds first.");
   if (isDir(APP) && isDir(CP)) {
     const a1 = path.join(APP, "index.html");
