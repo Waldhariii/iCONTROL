@@ -126,7 +126,7 @@
     "gate:cp-tenant-overrides-writer-warn": "node scripts/gates/gate-cp-tenant-overrides-writer-warn.js",
     "gate:safe-mode-writer-warn": "node scripts/gates/gate-safe-mode-writer-warn.js",
     "gate:safe-mode-cp-only-warn": "node scripts/gates/gate-safe-mode-cp-only-warn.js",
-    "diag:tenant": "node scripts/diagnostics/export-tenant-runtime.mjs",
+    "diag:tenant": "bash -lc 'cd app && npx vitest run -t \"diagnostic export tenant runtime\" src/__tests__/diagnostic.export-tenant-runtime.evidence.test.ts'",
     "gate:diagnostics-artifacts": "node scripts/gates/gate-diagnostics-artifacts.js"
   },
   "devDependencies": {
