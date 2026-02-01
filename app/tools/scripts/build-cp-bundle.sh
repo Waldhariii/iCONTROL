@@ -20,8 +20,8 @@ if [ -f "docs/CP_COMPLIANCE_REPORT.md" ]; then cp -f "docs/CP_COMPLIANCE_REPORT.
 echo "[cp:bundle] collect artifacts (strict allowlist) into bundle/cp_src.tar.gz..."
 # NOTE: on reste volontairement conservateur pour éviter d’embarquer backups / déchets
 tar -C . -cf "$OUT_DIR/bundle/cp_src.tar" \
-  src/pages/cp \
-  src/pages/cp/_shared \
+  src/surfaces/cp \
+  src/surfaces/cp/_shared \
   src/core/policies \
   src/core/ssot \
   src/dev \

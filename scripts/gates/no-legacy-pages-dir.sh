@@ -10,4 +10,4 @@ if [[ -d "app/src/pages" ]]; then
     exit 0
   fi
 fi
-echo "[gate][OK] no legacy pages content detected."
+echo "[gate][OK] no surfaces baseline content detected."

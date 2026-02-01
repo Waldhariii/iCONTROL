@@ -97,8 +97,8 @@ async function main() {
   const routesApp = readRoutes(ROUTES_APP);
   const routesCp = readRoutes(ROUTES_CP);
 
-  const pagesApp = listFiles(["app/src/pages/app"], ["*.{ts,tsx,js,jsx}"]);
-  const pagesCp = listFiles(["app/src/pages/cp"], ["*.{ts,tsx,js,jsx}"]);
+  const pagesApp = listFiles(["app/src/surfaces/app"], ["*.{ts,tsx,js,jsx}"]);
+  const pagesCp = listFiles(["app/src/surfaces/cp"], ["*.{ts,tsx,js,jsx}"]);
   const pagesModules = listFiles(
     ["modules"],
     ["**/pages/**/*.{ts,tsx,js,jsx}", "**/ui/**/pages/**/*.{ts,tsx,js,jsx}"]

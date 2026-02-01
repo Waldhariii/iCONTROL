@@ -56,8 +56,8 @@ done
 
 echo
 echo "--- 3) vérifier que les pages restantes correspondent au baseline ---"
-APP_PAGES="app/src/pages/app"
-CP_PAGES="app/src/pages/cp"
+APP_PAGES="app/src/surfaces/app"
+CP_PAGES="app/src/surfaces/cp"
 
 echo ">> APP pages (should contain only dashboard/login/account/settings variants)"
 if [[ -d "$APP_PAGES" ]]; then

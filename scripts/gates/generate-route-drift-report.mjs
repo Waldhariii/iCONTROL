@@ -16,7 +16,7 @@ const APP = resolve(ROOT, "app/src");
 function collectCodeRoutes() {
   const codeSet = new Set(); // "route_id|app_surface"
 
-  // 1) CP_PAGES_REGISTRY (app/src/pages/cp/registry.ts)
+  // 1) CP_PAGES_REGISTRY (app/src/surfaces/cp/registry.ts)
   const cpReg = readFileSync(resolve(APP, "pages/cp/registry.ts"), "utf8");
   const cpMatch = cpReg.match(/export const CP_PAGES_REGISTRY[^=]*=\s*\{([\s\S]*?)\n\};/);
   if (cpMatch) {
@@ -28,7 +28,7 @@ function collectCodeRoutes() {
     }
   }
 
-  // 2) APP_PAGES_REGISTRY (app/src/pages/app/registry.ts)
+  // 2) APP_PAGES_REGISTRY (app/src/surfaces/app/registry.ts)
   const appReg = readFileSync(resolve(APP, "pages/app/registry.ts"), "utf8");
   const appMatch = appReg.match(/export const APP_PAGES_REGISTRY[^=]*=\s*\{([\s\S]*?)\n\};/);
   const appRegKeys = new Set();

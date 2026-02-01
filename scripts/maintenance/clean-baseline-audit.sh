@@ -103,8 +103,8 @@ rg -n --hidden --glob '!**/node_modules/**' --glob '!**/dist/**' \
   app/src 2>/dev/null | head -n 400 | tee "$AUD/ROUTING_HINTS_HEAD.txt" || true
 
 # Candidate directories (adjust automatically if absent)
-APP_PAGES_DIR="app/src/pages/app"
-CP_PAGES_DIR="app/src/pages/cp"
+APP_PAGES_DIR="app/src/surfaces/app"
+CP_PAGES_DIR="app/src/surfaces/cp"
 
 echo
 echo "--- 3b) list page dirs if present ---"
