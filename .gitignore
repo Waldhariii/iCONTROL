@@ -171,3 +171,8 @@ _ARCHIVES/**
 app/.icontrol_subscriptions.json
 _artifacts/
 app/_artifacts/
+*.tmp.*
+*.swp
+*.swo
+*~
+*.orig
