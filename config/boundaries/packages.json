@@ -3,35 +3,68 @@
   "packages": {
     "root": {
       "path": ".",
-      "allowImportsFrom": ["root"]
+      "allowImportsFrom": [
+        "root"
+      ]
     },
     "app": {
       "path": "app",
-      "allowImportsFrom": ["app", "modules", "runtime", "shared", "config"]
+      "allowImportsFrom": [
+        "app",
+        "modules",
+        "runtime",
+        "shared",
+        "config"
+      ]
     },
     "server": {
       "path": "server",
-      "allowImportsFrom": ["server", "runtime", "shared", "config"]
+      "allowImportsFrom": [
+        "server",
+        "runtime",
+        "shared",
+        "config"
+      ]
     },
     "runtime": {
       "path": "runtime",
-      "allowImportsFrom": ["runtime", "shared", "config"]
+      "allowImportsFrom": [
+        "runtime",
+        "shared",
+        "config"
+      ]
     },
     "modules": {
       "path": "modules",
-      "allowImportsFrom": ["modules", "shared", "config", "runtime", "app"]
+      "allowImportsFrom": [
+        "modules",
+        "shared",
+        "config",
+        "runtime"
+      ]
     },
     "desktop": {
       "path": "app-desktop-*",
-      "allowImportsFrom": ["desktop", "shared", "config", "runtime", "app"]
+      "allowImportsFrom": [
+        "desktop",
+        "shared",
+        "config",
+        "runtime",
+        "app"
+      ]
     },
     "shared": {
       "path": "shared",
-      "allowImportsFrom": ["shared", "config"]
+      "allowImportsFrom": [
+        "shared",
+        "config"
+      ]
     },
     "config": {
       "path": "config",
-      "allowImportsFrom": ["config"]
+      "allowImportsFrom": [
+        "config"
+      ]
     }
   },
   "notes": [
