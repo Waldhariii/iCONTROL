@@ -1,7 +1,0 @@
-commit 826c4e42fb958350b62144e903015c1dd7940dc1
-Author:     iCONTROL Dev <dev@local.invalid>
-AuthorDate: Sun Feb 1 16:04:34 2026 -0500
-Commit:     iCONTROL Dev <dev@local.invalid>
-CommitDate: Sun Feb 1 16:04:34 2026 -0500
-
-    chore(release): publish hardening pack (provenance + release index)
