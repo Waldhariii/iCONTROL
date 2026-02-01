@@ -6,7 +6,7 @@ import { createLegacyAdapter } from "../../write-gateway/adapters/legacyAdapter"
 import { createPolicyHook } from "../../write-gateway/policyHook";
 import { createCorrelationId, createWriteGateway } from "../../write-gateway/writeGateway";
 import { getLogger } from "../../utils/logger";
-import { getTenantId } from "../../runtime/tenant";
+import { getTenantId } from "../../../runtime/tenant";
 
 const THEME_TOKENS = {
   dark: {

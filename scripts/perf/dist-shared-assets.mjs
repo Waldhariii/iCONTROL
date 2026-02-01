@@ -1,11 +1,13 @@
 import fs from "node:fs";
 import path from "node:path";
 
-const ROOT = process.cwd();
-const DIST = path.join(ROOT, "dist");
+const REPO = process.cwd();
+const ROOT = REPO;
+const DIST = isDir(path.join(REPO, "app", "dist")) ? path.join(REPO, "app", "dist") : path.join(REPO, "dist");
 const APP = path.join(DIST, "app");
 const CP  = path.join(DIST, "cp");
 const OUT = path.join(DIST, "assets");
+let MODE = "multi";
 
 function exists(p) { try { fs.accessSync(p); return true; } catch { return false; } }
 function isDir(p) { try { return fs.statSync(p).isDirectory(); } catch { return false; } }
@@ -47,10 +49,31 @@ function relFrom(dir, file) {
 
 function ensureInputs() {
   if (!isDir(DIST)) throw new Error("ERR: dist/ missing. Run builds first.");
-  if (!isDir(APP) || !isDir(CP)) throw new Error("ERR: dist/app or dist/cp missing. Run build:app + build:cp first.");
-  const a1 = path.join(APP, "index.html");
-  const c1 = path.join(CP, "index.html");
-  if (!exists(a1) || !exists(c1)) throw new Error("ERR: dist/*/index.html missing.");
+  if (isDir(APP) && isDir(CP)) {
+    const a1 = path.join(APP, "index.html");
+    const c1 = path.join(CP, "index.html");
+    if (!exists(a1) || !exists(c1)) throw new Error("ERR: dist/*/index.html missing.");
+    MODE = "multi";
+    return;
+  }
+
+  if (isDir(APP) && !isDir(CP)) {
+    const a1 = path.join(APP, "index.html");
+    const aAssets = path.join(APP, "assets");
+    if (exists(a1) && isDir(aAssets)) {
+      MODE = "single";
+      return;
+    }
+  }
+
+  const singleIndex = path.join(DIST, "index.html");
+  const singleAssets = path.join(DIST, "assets");
+  if (exists(singleIndex) && isDir(singleAssets)) {
+    MODE = "single";
+    return;
+  }
+
+  throw new Error("ERR: dist/app or dist/cp missing. Run build:app + build:cp first.");
 }
 
 function moveAssets() {
@@ -149,6 +172,10 @@ function rewriteIndexHtml() {
 
 function main() {
   ensureInputs();
+  if (MODE === "single") {
+    console.log("OK: single dist layout detected; skipping shared-assets merge.");
+    return;
+  }
   moveAssets();
   rewriteIndexHtml();
 
