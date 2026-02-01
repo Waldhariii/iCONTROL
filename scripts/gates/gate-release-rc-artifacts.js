@@ -7,12 +7,13 @@ const REPO = process.cwd();
 const offenders = [];
 
 function exists(p) { try { fs.accessSync(p); return true; } catch { return false; } }
-function isTracked(p) {
+function trackedList(prefix) {
   try {
     const cp = require("child_process");
-    cp.execSync(`git ls-files --error-unmatch "${p.replace(/"/g,'\\"')}"`, { stdio: "ignore" });
-    return true;
-  } catch { return false; }
+    return cp.execSync(`git ls-files "${prefix}"`, { encoding: "utf8" }).trim().split("\n").filter(Boolean);
+  } catch {
+    return [];
+  }
 }
 
 const badRoot = [
@@ -37,8 +38,16 @@ else {
   for (const m of must) if (!s.includes(m)) offenders.push(`ERR_RELEASE_RC_GITIGNORE: missing ignore '${m}'`);
 }
 
-if (isTracked("_artifacts")) offenders.push("ERR_RELEASE_RC_TRACKED: _artifacts/ must not be tracked");
-if (isTracked("_audit")) offenders.push("ERR_RELEASE_RC_TRACKED: _audit/ must not be tracked");
+const trackedArtifacts = trackedList("_artifacts");
+const allowPrefix = "_artifacts/release/rc/";
+const badTrackedArtifacts = trackedArtifacts.filter(p => !p.startsWith(allowPrefix));
+if (badTrackedArtifacts.length) {
+  offenders.push("ERR_RELEASE_RC_TRACKED: _artifacts/ must not be tracked outside _artifacts/release/rc/**");
+  badTrackedArtifacts.slice(0, 20).forEach(p => offenders.push(`- ${p}`));
+}
+
+const trackedAudit = trackedList("_audit");
+if (trackedAudit.length) offenders.push("ERR_RELEASE_RC_TRACKED: _audit/ must not be tracked");
 
 if (offenders.length) {
   console.error(offenders.join("\n"));

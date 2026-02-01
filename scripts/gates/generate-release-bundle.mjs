@@ -26,8 +26,14 @@ if(!fs.existsSync(stableManifest)){
 }
 
 const rollback = (() => {
-  try { return sh("ls -1t dist_rollback_*.tgz 2>/dev/null | head -n 1"); }
-  catch { return "<none>"; }
+  try {
+    const p = sh("ls -1t dist_rollback_*.tgz 2>/dev/null | head -n 1");
+    if (!p) return "<none>";
+    const full = path.join(cwd, p);
+    return fs.existsSync(full) && fs.statSync(full).isFile() ? p : "<none>";
+  } catch {
+    return "<none>";
+  }
 })();
 
 const nodeV = process.version;
