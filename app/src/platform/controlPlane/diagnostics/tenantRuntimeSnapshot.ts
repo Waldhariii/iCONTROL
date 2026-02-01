@@ -1,6 +1,7 @@
 import { getTenantOverridesSafeModeState, isTenantOverridesSafeMode } from "../../tenantOverrides/safeMode";
 import { readTenantSafeMode } from "../../tenantOverrides/safeModeStore";
 import { getTenantOverridesCache } from "../../tenantOverrides/cache";
+import { getTenantOverridesProvenance } from "../../tenantOverrides/provenance";
 
 function stableHash(input: string): string {
   // lightweight, deterministic hash (no crypto import)
@@ -27,6 +28,8 @@ function stableStringify(value: any): string {
 }
 
 export type TenantRuntimeSnapshot = {
+  provenance?: any;
+
   tenantId: string;
   warnings: string[];
   safeMode: {
@@ -69,8 +72,12 @@ export async function cpTenantRuntimeSnapshot(tenantId: string): Promise<TenantR
   const json = cached ? stableStringify(cached) : "";
   const hash = cached ? stableHash(json) : undefined;
 
+  const prov = getTenantOverridesProvenance(tenantId);
+
   return {
     tenantId,
+    provenance: prov,
+
     warnings,
     safeMode: {
       enabled,
