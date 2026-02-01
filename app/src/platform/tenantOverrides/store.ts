@@ -17,6 +17,7 @@ function sha256BrowserSafe(s: string): string | undefined {
 }
 
 export async function readTenantOverrides(tenantId: string): Promise<{ overrides: TenantOverrides; meta: TenantOverridesMeta }> {
+  // Contract: store is async via VFS + WriteGateway; resolvers stay sync via cache hydrated at bootstrap.
   const scope: VfsScope = { tenantId, namespace: "overrides" };
   const key = "overrides.json";
   void tenantOverridesPath;

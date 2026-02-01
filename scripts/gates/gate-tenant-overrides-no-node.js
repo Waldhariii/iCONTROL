@@ -25,7 +25,13 @@ for (const f of walk(dir)) {
   const rel = path.relative(repo, f).replace(/\\/g,"/");
   const txt = fs.readFileSync(f, "utf8");
   for (const mod of NODE_CORE) {
-    if (new RegExp(`\\bfrom\\s+["']${mod}["']`).test(txt) || new RegExp(`\\brequire\\(["']${mod}["']\\)`).test(txt)) {
+    const modNode = `node:${mod}`;
+    if (
+      new RegExp(`\\bfrom\\s+["']${mod}["']`).test(txt) ||
+      new RegExp(`\\bfrom\\s+["']${modNode}["']`).test(txt) ||
+      new RegExp(`\\brequire\\(["']${mod}["']\\)`).test(txt) ||
+      new RegExp(`\\brequire\\(["']${modNode}["']\\)`).test(txt)
+    ) {
       offenders.push(`${rel} :: ${mod}`);
     }
   }
