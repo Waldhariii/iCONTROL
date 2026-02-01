@@ -77,7 +77,7 @@ export default defineConfig(({ command, mode }) => {
     plugins,
 
     build: {
-      outDir: isCp ? "dist/cp" : "dist/app",
+      outDir: isCp ? "_artifacts/dist/cp" : "_artifacts/dist/app",
       rollupOptions: {
         output: {
           manualChunks(id: string) {
