@@ -169,3 +169,5 @@ _ARCHIVES/**
 *.bak.*
 .icontrol_subscriptions.json
 app/.icontrol_subscriptions.json
+_artifacts/
+app/_artifacts/
