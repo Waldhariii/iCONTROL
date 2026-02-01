@@ -1,4 +1,5 @@
 import "./styles/tokens.generated.css";
+import { hydrateTenantOverrides } from "./platform/tenantOverrides";
 import { getBrandResolved } from "../../platform-services/branding/brandService";
 import "./styles/STYLE_ADMIN_FINAL.css";
 import { installIControlDiagnosticDEVOnly } from "./dev/diagnostic";
@@ -386,7 +387,7 @@ function __icontrol_installAdminStyleGuard__(): void {
       if ((el as any).dataset?.icontrolAllow === "1") return true;
       const href = String(el.getAttribute("href") || "");
       if (!href) return false;
-      if (href.includes("/_ARCHIVES/") || href.includes("/_BACKUPS") || href.includes("/backups/") || href.includes("/dist/")) return false;
+      if (href.includes("/_backups/") || href.includes("/dist/")) return false;
       if (href.includes("/@vite/") || href.includes("/src/") || href.includes("/assets/") || href.includes("/cp/")) return true;
       if (href.endsWith(".css")) return true;
       return false;
@@ -798,3 +799,17 @@ if ((import.meta as any).env?.DEV) {
     // DEV-only hardening: do not break runtime if diagnostic fails
   }
 }
+
+/**
+ * P3.1 bootstrap hook (non-breaking):
+ * If a tenant id is available at runtime, hydrate overrides once.
+ * Future: replace with auth/session-derived tenantId.
+ */
+(async () => {
+  try {
+    const tenantId = (globalThis as any).__ICONTROL_TENANT_ID__ as string | undefined;
+    if (tenantId) await hydrateTenantOverrides({ tenantId });
+  } catch {
+    // ignore (fail-soft)
+  }
+})();
