@@ -104,7 +104,9 @@
     "gate:no-mockups-imports-in-surfaces": "bash scripts/gates/no-mockups-imports-in-surfaces.sh",
     "gate:no-legacy-pages-dir": "bash scripts/gates/no-legacy-pages-dir.sh",
     "gate:no-pages-imports-in-appsrc": "bash scripts/gates/no-pages-imports-in-appsrc.sh",
-    "gate:no-legacy-imports-in-tests": "bash scripts/gates/no-legacy-imports-in-tests.sh"
+    "gate:no-legacy-imports-in-tests": "bash scripts/gates/no-legacy-imports-in-tests.sh",
+    "test:watch": "vitest",
+    "test:ci": "vitest run --reporter=default"
   },
   "devDependencies": {
     "@types/react": "^19.2.10",

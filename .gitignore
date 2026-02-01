@@ -164,3 +164,6 @@ _EVIDENCE_STORE/**
 # Local archives (non-source, non-runtime)
 _ARCHIVES/
 _ARCHIVES/**
+
+# accidental editor/script backups
+*.bak.*

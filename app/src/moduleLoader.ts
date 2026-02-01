@@ -110,11 +110,11 @@ export function renderRoute(rid: RouteId, root: HTMLElement): void {
       // Access denied: use app-scoped page (no shared pages)
       const kind = resolveAppKind();
       if (kind === "CP") {
-        import("./pages/cp/registry").then((m) => m.renderCpPage("access_denied_cp" as RouteId, root)).catch(() => {
+        import("./surfaces/cp/manifest").then((m) => m.renderCpPage("access_denied_cp" as RouteId, root)).catch(() => {
           root.innerHTML = `<div style="max-width:980px;margin:40px auto;padding:0 16px;opacity:.8">Accès refusé.</div>`;
         });
       } else {
-        import("./pages/app/registry").then((m) => m.renderAppPage("access_denied_app" as RouteId, root)).catch(() => {
+        import("./surfaces/app/manifest").then((m) => m.renderAppPage("access_denied_app" as RouteId, root)).catch(() => {
           root.innerHTML = `<div style="max-width:980px;margin:40px auto;padding:0 16px;opacity:.8">Accès refusé.</div>`;
         });
       }
@@ -183,7 +183,7 @@ export function renderRoute(rid: RouteId, root: HTMLElement): void {
   if (resolveAppKind() === "CP") {
     // Ensure routeId has _cp suffix for CP
     const cpRouteId = (rid.endsWith("_cp") ? rid : `${rid}_cp`) as RouteId;
-    import("./pages/cp/registry").then((m) => m.renderCpPage(cpRouteId, root)).catch((e) => {
+    import("./surfaces/cp/manifest").then((m) => m.renderCpPage(cpRouteId, root)).catch((e) => {
       console.warn("WARN_CP_PAGE_FALLBACK", e);
       root.innerHTML = `<div style="max-width:980px;margin:40px auto;padding:0 16px;opacity:.8">Page introuvable.</div>`;
     });
@@ -194,7 +194,7 @@ export function renderRoute(rid: RouteId, root: HTMLElement): void {
   if (resolveAppKind() === "APP") {
     // Ensure routeId has _app suffix for APP
     const appRouteId = (rid.endsWith("_app") ? rid : `${rid}_app`) as RouteId;
-    import("./pages/app/registry").then((m) => m.renderAppPage(appRouteId, root)).catch((e) => {
+    import("./surfaces/app/manifest").then((m) => m.renderAppPage(appRouteId, root)).catch((e) => {
       console.warn("WARN_APP_PAGE_FALLBACK", e);
       root.innerHTML = `<div style="max-width:980px;margin:40px auto;padding:0 16px;opacity:.8">Page introuvable.</div>`;
     });

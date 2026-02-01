@@ -10,8 +10,8 @@ describe("SSOT: entrypoint contract (post-login purge)", () => {
     const ml = readMl();
 
     // Architecture contract: APP/CP separated via registries (no shared visual pages).
-    expect(ml).toContain('./pages/app/registry');
-    expect(ml).toContain('./pages/cp/registry');
+    expect(ml).toContain('./surfaces/app/manifest');
+    expect(ml).toContain('./surfaces/cp/manifest');
 
     // Ensure the legacy login entrypoint is not reintroduced.
     expect(ml).not.toMatch(/["']login["']/);
