@@ -188,3 +188,7 @@ RELEASE_INDEX.md
 !_artifacts/release/
 !_artifacts/release/rc/
 !_artifacts/release/rc/**
+tags.json
+TAGS_SNAPSHOT.md
+_artifacts/release/**
+_artifacts/**/meta/**
