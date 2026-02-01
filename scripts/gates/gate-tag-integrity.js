@@ -64,3 +64,4 @@ if (!(rcSha === head && prodSha === head && baseSha === head)) {
 }
 
 console.log("OK: gate:tag-integrity");
+process.exit(0);

@@ -197,3 +197,5 @@ _artifacts/release/**/meta/TAGS_SNAPSHOT.md
 **/tags.json
 **/TAGS_SNAPSHOT.md
 _artifacts/release/**/meta/**
+_artifacts/release/rc/*/meta/tags.json
+_artifacts/release/rc/*/meta/TAGS_SNAPSHOT.md
