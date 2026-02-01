@@ -38,6 +38,10 @@ import { warn, info, WARN } from "../observability";
  * - On read failure, cache is not mutated and defaults apply.
  */
 export async function hydrateTenantOverrides(input: { tenantId: string; actorId?: string }) {
+  const emitProv = (p: any) => {
+    try { setTenantOverridesProvenance(p); } catch {}
+  };
+
   if (isTenantOverridesSafeMode(input.tenantId)) {
     const sm = getTenantOverridesSafeModeState(input.tenantId);
     setTenantOverridesProvenance({

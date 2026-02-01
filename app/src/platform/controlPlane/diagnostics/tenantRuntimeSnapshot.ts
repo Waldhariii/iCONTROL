@@ -28,7 +28,7 @@ function stableStringify(value: any): string {
 }
 
 export type TenantRuntimeSnapshot = {
-  provenance?: any;
+  provenance?: import("../../tenantOverrides/provenance").TenantOverridesProvenance;
 
   tenantId: string;
   warnings: string[];
