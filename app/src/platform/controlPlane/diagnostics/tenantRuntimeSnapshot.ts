@@ -22,8 +22,6 @@ export type TenantRuntimeSnapshot = {
   overrides: {
     applied: boolean;
     presentInCache: boolean;
-    schemaVersion?: number;
-    updatedAt?: string;
     hash?: string;
   };
 };
@@ -36,11 +34,11 @@ export async function cpTenantRuntimeSnapshot(tenantId: string): Promise<TenantR
   const enabled = isTenantOverridesSafeMode(tenantId);
   const mem = getTenantOverridesSafeModeState(tenantId);
 
-  let persisted = { schemaVersion: 1 as const, enabled: false as boolean } as any;
+  let persisted = { enabled: false as boolean } as any;
   try {
     persisted = await readTenantSafeMode(tenantId);
   } catch {
-    persisted = { schemaVersion: 1, enabled: false, reason: "ERR_SAFE_MODE_READ_FAILED" };
+    persisted = { enabled: false, reason: "ERR_SAFE_MODE_READ_FAILED" };
   }
 
   const cached = getTenantOverridesCache(tenantId);
@@ -64,8 +62,6 @@ export async function cpTenantRuntimeSnapshot(tenantId: string): Promise<TenantR
     overrides: {
       applied: !enabled && presentInCache,
       presentInCache,
-      schemaVersion: cached?.schemaVersion,
-      updatedAt: (cached as any)?.updatedAt,
       hash,
     },
   };
