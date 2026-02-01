@@ -167,3 +167,4 @@ _ARCHIVES/**
 
 # accidental editor/script backups
 *.bak.*
+.icontrol_subscriptions.json
