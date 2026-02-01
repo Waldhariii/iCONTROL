@@ -41,6 +41,9 @@ cat > "${base_dir}/TAGS_SNAPSHOT.md" <<MD
 MD
 
 # Ensure allowlisted evidence is stageable
-git add -f "${base_dir}/tags.json" "${base_dir}/TAGS_SNAPSHOT.md" >/dev/null 2>&1 || true
 
 echo "OK_TAG_SET_ATOMIC head=${head_sha} rc=${rc_tag} prod=${prod_tag} baseline=${base_tag}"
+
+# FAILSAFE_UNSTAGE_TAG_SNAPSHOTS (generated-only)
+# Never stage tag snapshots; they are generated evidence, not source of truth.
+git restore --staged --quiet -- TAGS_SNAPSHOT.md tags.json 2>/dev/null || true
