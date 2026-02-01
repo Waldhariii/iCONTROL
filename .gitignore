@@ -169,8 +169,11 @@ _ARCHIVES/**
 *.bak.*
 .icontrol_subscriptions.json
 app/.icontrol_subscriptions.json
-_artifacts/
-app/_artifacts/
+/_artifacts/*
+!/_artifacts/release/
+!/_artifacts/release/rc/
+!/_artifacts/release/rc/**
+/app/_artifacts/
 *.tmp.*
 *.swp
 *.swo
