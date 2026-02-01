@@ -1,4 +1,6 @@
 import "./styles/tokens.generated.css";
+import { resolveRuntimeContext } from "./platform/runtimeContext";
+import { hydrateTenantRuntime } from "./platform/bootstrap";
 import { hydrateTenantOverrides } from "./platform/tenantOverrides";
 import { getBrandResolved } from "../../platform-services/branding/brandService";
 import "./styles/STYLE_ADMIN_FINAL.css";
@@ -800,16 +802,16 @@ if ((import.meta as any).env?.DEV) {
   }
 }
 
+
 /**
- * P3.1 bootstrap hook (non-breaking):
- * If a tenant id is available at runtime, hydrate overrides once.
- * Future: replace with auth/session-derived tenantId.
+ * Canonical tenant hydration (P3.5).
+ * Future: replace global injection with auth/session provider.
  */
 (async () => {
   try {
-    const tenantId = (globalThis as any).__ICONTROL_TENANT_ID__ as string | undefined;
-    if (tenantId) await hydrateTenantOverrides({ tenantId });
+    const ctx = resolveRuntimeContext();
+    await hydrateTenantRuntime(ctx);
   } catch {
-    // ignore (fail-soft)
+    // fail-soft: app keeps defaults
   }
 })();
