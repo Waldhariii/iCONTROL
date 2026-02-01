@@ -1,15 +1,15 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-02-01T19:54:28.636Z",
+  "updatedAt": "2026-02-01T19:57:05.638Z",
   "budgets": {
     "no-raw-console": {
-      "max": 1
+      "max": 0
     },
     "safe-mode-cp-only": {
-      "max": 4
+      "max": 3
     },
     "hardcoded-colors": {
-      "max": 10
+      "max": 9
     }
   },
   "allowlist": {

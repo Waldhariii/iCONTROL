@@ -27,7 +27,7 @@ export function createAuditEmitter(
   const sink: AuditSink =
     options.sink ??
     ((level, code, meta) => {
-      // default sink: no-op (do not console.log in core)
+      // default sink: no-op (no direct console usage in core)
       void level;
       void code;
       void meta;

@@ -14,14 +14,15 @@ vi.mock("../platform/writeGateway", () => ({
   writeGateway: async (fn: any) => fn(),
 }));
 
-import { enableTenantOverridesSafeMode, clearTenantOverridesSafeMode } from "../platform/tenantOverrides/safeMode";
+import { cpEnableTenantOverridesSafeMode } from "../platform/controlPlane/commands/enableTenantOverridesSafeMode";
+import { cpClearTenantOverridesSafeMode } from "../platform/controlPlane/commands/clearTenantOverridesSafeMode";
 import { setTenantOverridesCache } from "../platform/tenantOverrides/cache";
 import { cpTenantRuntimeSnapshot } from "../platform/controlPlane/diagnostics/tenantRuntimeSnapshot";
 
 describe("CP tenant runtime snapshot (contract)", () => {
   it("reports safe-mode + overrides applied state", async () => {
     const tenantId = "t_snap";
-    await clearTenantOverridesSafeMode(tenantId);
+    await cpClearTenantOverridesSafeMode({ tenantId, actorId: "test" });
 
     setTenantOverridesCache(tenantId, {
       schemaVersion: 1,
@@ -35,7 +36,7 @@ describe("CP tenant runtime snapshot (contract)", () => {
     expect(s1.overrides.applied).toBe(true);
     expect(typeof s1.overrides.hash).toBe("string");
 
-    await enableTenantOverridesSafeMode(tenantId, "test", "admin1");
+    await cpEnableTenantOverridesSafeMode({ tenantId, actorId: "admin1", reason: "test" });
 
     const s2 = await cpTenantRuntimeSnapshot(tenantId);
     expect(s2.safeMode.enabled).toBe(true);

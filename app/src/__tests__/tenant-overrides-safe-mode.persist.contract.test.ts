@@ -15,18 +15,15 @@ vi.mock("../platform/writeGateway", () => ({
   writeGateway: async (fn: any) => fn(),
 }));
 
-import {
-  enableTenantOverridesSafeMode,
-  clearTenantOverridesSafeMode,
-  hydrateTenantOverridesSafeMode,
-  isTenantOverridesSafeMode,
-} from "../platform/tenantOverrides/safeMode";
+import { hydrateTenantOverridesSafeMode, isTenantOverridesSafeMode } from "../platform/tenantOverrides/safeMode";
+import { cpEnableTenantOverridesSafeMode } from "../platform/controlPlane/commands/enableTenantOverridesSafeMode";
+import { cpClearTenantOverridesSafeMode } from "../platform/controlPlane/commands/clearTenantOverridesSafeMode";
 
 describe("tenant overrides SAFE_MODE persisted (contract)", () => {
   it("enable -> hydrate -> still enabled; clear -> hydrate -> disabled", async () => {
     const tenantId = "t_persist";
 
-    await enableTenantOverridesSafeMode(tenantId, "test", "admin1");
+    await cpEnableTenantOverridesSafeMode({ tenantId, actorId: "admin1", reason: "test" });
     expect(isTenantOverridesSafeMode(tenantId)).toBe(true);
 
     // simulate restart: new hydrate should restore from VFS (latch may still be set, but hydrate should also succeed)
@@ -34,7 +31,7 @@ describe("tenant overrides SAFE_MODE persisted (contract)", () => {
     expect(h1.enabled).toBe(true);
     expect(isTenantOverridesSafeMode(tenantId)).toBe(true);
 
-    await clearTenantOverridesSafeMode(tenantId, "admin1");
+    await cpClearTenantOverridesSafeMode({ tenantId, actorId: "admin1", reason: "cleanup" });
     expect(isTenantOverridesSafeMode(tenantId)).toBe(false);
 
     const h2 = await hydrateTenantOverridesSafeMode({ tenantId });
