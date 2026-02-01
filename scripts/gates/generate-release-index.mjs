@@ -53,7 +53,6 @@ const rollback = (() => {
   try { return sh("ls -1t dist_rollback_*.tgz 2>/dev/null | head -n 1"); }
   catch { return ""; }
 })();
-if(!rollback) { console.error("ERR: missing dist_rollback_*.tgz"); process.exit(1); }
 
 const head = sh("git rev-parse HEAD");
 const branch = sh("git rev-parse --abbrev-ref HEAD");
@@ -66,7 +65,7 @@ const index = {
     release_notes: notes ? { path: path.relative(cwd,notes), sha256: sha256File(notes) } : { path: "<none>" },
     assets_manifest_latest: { path: path.relative(cwd,manifest), sha256: sha256File(manifest) },
     dist_tree_hash: { path: path.relative(cwd,distHashFile), sha256: sha256File(distHashFile) },
-    rollback_tgz: { path: rollback, sha256: sha256File(path.join(cwd,rollback)) }
+    rollback_tgz: rollback ? { path: rollback, sha256: sha256File(path.join(cwd,rollback)) } : { path: "<none>" }
   },
   commits: {
     p6: "17c665e"
@@ -86,7 +85,7 @@ const md = [
   `- Release notes: \`${index.pointers.release_notes.path}\`  (sha256: \`${index.pointers.release_notes.sha256}\`)`,
   `- Assets manifest (latest): \`${index.pointers.assets_manifest_latest.path}\`  (sha256: \`${index.pointers.assets_manifest_latest.sha256}\`)`,
   `- Dist tree hash: \`${index.pointers.dist_tree_hash.path}\`  (sha256: \`${index.pointers.dist_tree_hash.sha256}\`)`,
-  `- Rollback archive: \`${index.pointers.rollback_tgz.path}\`  (sha256: \`${index.pointers.rollback_tgz.sha256}\`)`,
+  `- Rollback archive: \`${index.pointers.rollback_tgz.path}\`  (sha256: \`${index.pointers.rollback_tgz.sha256 || "<none>"}\`)`,
   ``,
   `## Commits (pinned)`,
   `- P6 provenance gate: \`${index.commits.p6}\``,

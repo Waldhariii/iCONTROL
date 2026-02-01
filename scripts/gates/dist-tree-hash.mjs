@@ -14,7 +14,11 @@ function walk(dir){
   return out;
 }
 
-const root = path.join(process.cwd(),"dist");
+const root = (() => {
+  const pref = path.join(process.cwd(), "_artifacts", "dist");
+  if (fs.existsSync(pref)) return pref;
+  return path.join(process.cwd(), "dist");
+})();
 if(!fs.existsSync(root)){
   console.error("ERR: dist missing");
   process.exit(1);
