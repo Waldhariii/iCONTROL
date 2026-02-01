@@ -5,3 +5,5 @@ export * from "./validate";
 export * from "./cache";
 export * from "./store";
 export * from "./hydrate";
+export * from "./safeMode";
+export * from "./guard";

@@ -1,4 +1,6 @@
 import { readTenantOverrides } from "./store";
+import { guardTenantOverrides } from "./guard";
+import { enableTenantOverridesSafeMode } from "./safeMode";
 import { setTenantOverridesCache } from "./cache";
 import { warn, info, ERR, WARN } from "../observability";
 
@@ -13,7 +15,9 @@ import { warn, info, ERR, WARN } from "../observability";
 export async function hydrateTenantOverrides(input: { tenantId: string; actorId?: string }) {
   try {
     const { overrides, meta } = await readTenantOverrides(input.tenantId);
-    setTenantOverridesCache(input.tenantId, overrides);
+    const guarded = guardTenantOverrides({ tenantId: input.tenantId, overrides, source: meta.source });
+    if (!guarded) return { ok: false as const };
+    setTenantOverridesCache(input.tenantId, guarded);
     info("OK", "Tenant overrides hydrated", { tenantId: input.tenantId, actorId: input.actorId }, { source: meta.source, schemaVersion: overrides.schemaVersion });
     return { ok: true as const, source: meta.source };
   } catch (e: any) {
