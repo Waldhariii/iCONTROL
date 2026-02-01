@@ -9,8 +9,8 @@ const __LOGS_ROUTE_GREP_ONLY__ = 'window.location.hash = "#/logs"';
  * ICONTROL_CP_DASHBOARD_V5
  * Dashboard SSOT — PageShell + KPI grid + événements récents
  */
-import { coreBaseStyles } from "../../../../modules/core-system/ui/frontend-ts/shared/coreStyles";
-import { getSafeMode } from "../../../../modules/core-system/ui/frontend-ts/pages/_shared/safeMode";
+import { coreBaseStyles } from "../../../../../modules/core-system/ui/frontend-ts/shared/coreStyles";
+import { getSafeMode } from "../../../../../modules/core-system/ui/frontend-ts/pages/_shared/safeMode";
 import { createPageShell } from "/src/core/ui/pageShell";
 import { createSectionCard } from "/src/core/ui/sectionCard";
 import { navigate } from "/src/router";
@@ -20,8 +20,8 @@ import { createCardSkeleton } from "/src/core/ui/skeletonLoader";
 import { createKpiStrip } from "/src/core/ui/kpi";
 import { createLineChart, createAreaChart, createBarChart, createDonutChart } from "/src/core/ui/charts";
 import { createKpiCard } from "/src/core/ui/kpi";
-import { createGovernanceFooter, createDemoDataBanner } from "./_shared/cpLayout";
-import { demoSeries } from "./_shared/cpDemo";
+import { createGovernanceFooter, createDemoDataBanner } from "../_shared/cpLayout";
+import { demoSeries } from "../_shared/cpDemo";
 import { formatRelative } from "/src/core/utils/dateFormat";
 
 type DashboardStatus = "OPERATIONNEL" | "DEGRADE" | "INCIDENT";

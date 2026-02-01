@@ -107,7 +107,9 @@
     "gate:no-legacy-imports-in-tests": "bash scripts/gates/no-legacy-imports-in-tests.sh",
     "test:watch": "vitest",
     "test:ci": "vitest run --reporter=default",
-    "gate:no-src-pages-deps": "bash scripts/gates/no-src-pages-deps.sh"
+    "gate:no-src-pages-deps": "bash scripts/gates/no-src-pages-deps.sh",
+    "gate:preflight:prod": "bash scripts/gates/preflight-prod.sh",
+    "verify:prod": "npm run -s gate:preflight:prod"
   },
   "devDependencies": {
     "@types/react": "^19.2.10",

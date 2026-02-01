@@ -24,11 +24,16 @@ export interface PageRegistryEntry {
  * 
  * Règle: Ces pages sont pour l'administration (pilotage, gouvernance, configuration, supervision)
  */
+const renderNotFound = async (root: HTMLElement) => {
+  const m = await import("../notfound/Page");
+  m.renderNotFoundCp(root);
+};
+
 export const CP_PAGES_REGISTRY: Record<string, PageRegistryEntry> = {
   home_cp: {
     routeId: "home_cp" as RouteId,
     render: async (root) => {
-      const m = await import("./home-cp");
+      const m = await import("../home-cp/Page");
       m.renderHomeCp(root);
     },
     async: true,
@@ -36,113 +41,42 @@ export const CP_PAGES_REGISTRY: Record<string, PageRegistryEntry> = {
   dashboard_cp: {
     routeId: "dashboard_cp" as RouteId,
     render: async (root) => {
-      // Page CP dashboard (différente de APP dashboard)
-      const m = await import("./dashboard");
+      const m = await import("../dashboard/Page");
       m.renderDashboard(root);
-    },
-    async: true,
-  },
-  subscription_cp: {
-    routeId: "subscription_cp" as RouteId,
-    render: async (root) => {
-      // Page CP subscription (gestion abonnements)
-      const m = await import("./subscription");
-      m.renderSubscription(root);
-    },
-    async: true,
-  },
-  // Pages CP spécifiques (à créer)
-  tenants_cp: {
-    routeId: "tenants_cp" as RouteId,
-    render: async (root) => {
-      // Page CP Tenants (composants visuels core)
-      const m = await import("./tenants");
-      await m.renderTenants(root);
-    },
-    async: true,
-  },
-  entitlements_cp: {
-    routeId: "entitlements_cp" as RouteId,
-    render: async (root) => {
-      // Page CP Entitlements (composants visuels core)
-      const m = await import("./entitlements");
-      await m.renderEntitlements(root);
     },
     async: true,
   },
   pages_cp: {
     routeId: "pages_cp" as RouteId,
     render: async (root) => {
-      // Page CP Pages Registry (composants visuels core)
-      const m = await import("./pages");
-      await m.renderPages(root);
+      const m = await import("../pages/Page");
+      m.renderPages(root);
     },
     async: true,
   },
-  "feature-flags_cp": {
-    routeId: "feature-flags_cp" as RouteId,
+  login_theme_cp: {
+    routeId: "login_theme_cp" as RouteId,
     render: async (root) => {
-      // Page CP Feature Flags (composants visuels core)
-      const m = await import("./feature-flags");
-      await m.renderFeatureFlags(root);
-    },
-    async: true,
-  },
-  publish_cp: {
-    routeId: "publish_cp" as RouteId,
-    render: async (root) => {
-      // Page CP Publish Center (composants visuels core)
-      const m = await import("./publish");
-      await m.renderPublish(root);
-    },
-    async: true,
-  },
-  audit_cp: {
-    routeId: "audit_cp" as RouteId,
-    render: async (root) => {
-      const m = await import("./audit");
-      m.renderAudit(root);
-    },
-    async: true,
-  },
-  integrations_cp: {
-    routeId: "integrations_cp" as RouteId,
-    render: async (root) => {
-      const m = await import("./integrations");
-      m.renderIntegrations(root);
+      const m = await import("../login-theme/Page");
+      const render = (m as any).render || (m as any).default?.render;
+      if (typeof render === "function") render(root);
+      else await renderNotFound(root);
     },
     async: true,
   },
   access_denied_cp: {
     routeId: "access_denied_cp" as RouteId,
-    render: async (root) => {
-      const m = await import("./access-denied");
-      m.renderAccessDeniedCp(root);
-    },
+    render: renderNotFound,
     async: true,
   },
   blocked_cp: {
     routeId: "blocked_cp" as RouteId,
-    render: async (root) => {
-      const m = await import("./blocked");
-      m.renderBlockedCp(root);
-    },
+    render: renderNotFound,
     async: true,
   },
   notfound_cp: {
     routeId: "notfound_cp" as RouteId,
-    render: async (root) => {
-      const m = await import("./notfound");
-      m.renderNotFoundCp(root);
-    },
-    async: true,
-  },
-  ui_catalog_cp: {
-    routeId: "ui_catalog_cp" as RouteId,
-    render: async (root) => {
-      const m = await import("./notfound") /* legacy ui-catalog disabled: SSOT-only */;
-      m.renderUiCatalog(root);
-    },
+    render: renderNotFound,
     async: true,
   },
 };

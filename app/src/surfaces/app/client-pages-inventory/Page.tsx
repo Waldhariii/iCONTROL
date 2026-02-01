@@ -2,7 +2,7 @@
  * ICONTROL_APP_PAGES_INVENTORY_V1
  * Pages Inventory — Complete listing of all APP pages (active/inactive) from ROUTE_CATALOG and registry
  */
-import { coreBaseStyles } from "../../../../modules/core-system/ui/frontend-ts/shared/coreStyles";
+import { coreBaseStyles } from "../../../../../modules/core-system/ui/frontend-ts/shared/coreStyles";
 import { createPageShell } from "/src/core/ui/pageShell";
 import { createSectionCard } from "/src/core/ui/sectionCard";
 import { createToolbar } from "/src/core/ui/toolbar";

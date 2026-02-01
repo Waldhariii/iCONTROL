@@ -1,9 +1,9 @@
 // app/src/surfaces/shared/runtime-smoke/Page.ts
-import { compilePlan } from "../core/studio/runtime/plan";
-import { executePlan } from "../core/studio/runtime/execute";
-import { safeRender } from "../core/studio/engine";
-import { createDefaultRegistry } from "../core/studio/registry/defaults";
-import { asRegistryLike } from "../core/studio/runtime/adapters/registry-adapter";
+import { compilePlan } from "../../core/studio/runtime/plan";
+import { executePlan } from "../../core/studio/runtime/execute";
+import { safeRender } from "../../core/studio/engine";
+import { createDefaultRegistry } from "../../core/studio/registry/defaults";
+import { asRegistryLike } from "../../core/studio/runtime/adapters/registry-adapter";
 
 function el<K extends keyof HTMLElementTagNameMap>(
   tag: K,

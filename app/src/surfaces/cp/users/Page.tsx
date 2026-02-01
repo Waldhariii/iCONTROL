@@ -4,7 +4,7 @@
  * Complètement indépendant de APP
  */
 import type { UsersModelCp } from "../models/users";
-import { appendList, appendTable, sectionCard } from "../../../../../modules/core-system/ui/frontend-ts/pages/_shared/uiBlocks";
+import { appendList, appendTable, sectionCard } from "../../../../../../modules/core-system/ui/frontend-ts/pages/_shared/uiBlocks";
 import { getUserPermissions, setUserPermissions, canManagePermissions, type PageId } from "../../../core/permissions/userPermissions";
 import { requireSession } from "../../../localAuth";
 import { getRole } from "../../../runtime/rbac";
@@ -15,7 +15,7 @@ import { addTooltipToElement } from "../../../core/ui/tooltip";
 import { createToolbar } from "../../../core/ui/toolbar";
 import { createContextualEmptyState } from "../../../core/ui/emptyState";
 import { createRoleBadge } from "../../../core/ui/badge";
-import { getSafeMode } from "../../../../../modules/core-system/ui/frontend-ts/pages/_shared/safeMode";
+import { getSafeMode } from "../../../../../../modules/core-system/ui/frontend-ts/pages/_shared/safeMode";
 import { isEnabled } from "../../../policies/feature_flags.enforce";
 import { createAuditHook } from "../../../core/write-gateway/auditHook";
 import { createLegacyAdapter } from "../../../core/write-gateway/adapters/legacyAdapter";

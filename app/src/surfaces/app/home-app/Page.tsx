@@ -3,7 +3,7 @@
  * Landing page for APP (Client Application)
  * Distinct from CP home - no shared components
  */
-import { coreBaseStyles } from "../../../../modules/core-system/ui/frontend-ts/shared/coreStyles";
+import { coreBaseStyles } from "../../../../../modules/core-system/ui/frontend-ts/shared/coreStyles";
 import { createPageShell } from "/src/core/ui/pageShell";
 import { createSectionCard } from "/src/core/ui/sectionCard";
 import { createBadge } from "/src/core/ui/badge";
