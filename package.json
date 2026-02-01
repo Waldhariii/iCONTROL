@@ -147,7 +147,7 @@
     "gate:release-artifacts-location": "node scripts/gates/gate-release-artifacts-location.js",
     "gate:tag-integrity": "node scripts/gates/gate-tag-integrity.js",
     "gate:canonical-structure": "bash scripts/gates/gate-canonical-structure.sh",
-    "gate:kernel-lock": "bash scripts/gates/gate-kernel-lock.sh",
+    "gate:kernel-lock": "bash scripts/gates/gate-kernel-lock.sh"
   },
   "devDependencies": {
     "@types/react": "^19.2.10",
