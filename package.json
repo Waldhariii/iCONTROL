@@ -112,7 +112,8 @@
     "verify:prod": "npm run -s gate:preflight:prod",
     "gate:core-harden": "bash scripts/gates/no-src-pages-allowed.sh && bash scripts/gates/no-cross-surface-imports.sh",
     "gate:no-direct-storage-writes": "bash scripts/gates/no-direct-storage-writes.sh",
-    "gate:core-kernel": "npm run -s gate:no-direct-storage-writes"
+    "gate:core-kernel": "npm run -s gate:no-direct-storage-writes",
+    "release:baseline": "bash scripts/release/tag-prod-baseline.sh"
   },
   "devDependencies": {
     "@types/react": "^19.2.10",
