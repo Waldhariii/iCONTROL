@@ -37,9 +37,9 @@ function ensureStyles(doc: Document): void {
   .ic-showcase {
     position: fixed; inset: 16px; z-index: 2147483000;
     background: color-mix(in srgb, var(--ic-bg, #0f1115) 92%, transparent);
-    border: 1px solid var(--ic-border, rgba(255,255,255,0.12));
+    border: 1px solid var(--ic-border, var(--ic-text-muted));
     border-radius: 16px;
-    box-shadow: var(--ic-shadowToast, 0 18px 46px rgba(0,0,0,0.45));
+    box-shadow: var(--ic-shadowToast, 0 18px 46px var(--ic-text-muted));
     color: var(--ic-text, #e6e8ee);
     font-family: var(--font, var(--ic-font, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial));
     overflow: hidden;
@@ -48,12 +48,12 @@ function ensureStyles(doc: Document): void {
     display:flex; align-items:center; justify-content:space-between;
     padding: 12px 14px;
     background: var(--ic-panel, #151a1f);
-    border-bottom: 1px solid var(--ic-border, rgba(255,255,255,0.12));
+    border-bottom: 1px solid var(--ic-border, var(--ic-text-muted));
   }
   .ic-showcase__title { font-weight: 800; letter-spacing: .3px; font-size: 13px; }
   .ic-showcase__btn {
     padding: 8px 10px; border-radius: 10px;
-    border: 1px solid var(--ic-border, rgba(255,255,255,0.12));
+    border: 1px solid var(--ic-border, var(--ic-text-muted));
     background: transparent; color: inherit; cursor: pointer;
     font-weight: 700; font-size: 12px;
   }
@@ -65,7 +65,7 @@ function ensureStyles(doc: Document): void {
   }
   .ic-showcase__card {
     border-radius: 14px;
-    border: 1px solid var(--ic-border, rgba(255,255,255,0.12));
+    border: 1px solid var(--ic-border, var(--ic-text-muted));
     background: var(--ic-card, #171c22);
     padding: 12px;
   }
@@ -73,8 +73,8 @@ function ensureStyles(doc: Document): void {
   .ic-showcase__row { display:flex; gap: 8px; flex-wrap: wrap; align-items:center; }
   .ic-showcase__input {
     height: 36px; padding: 0 12px; border-radius: 10px;
-    background: var(--ic-inputBg, rgba(255,255,255,0.05));
-    border: 1px solid var(--ic-border, rgba(255,255,255,0.12));
+    background: var(--ic-inputBg, var(--ic-text-muted));
+    border: 1px solid var(--ic-border, var(--ic-text-muted));
     color: var(--ic-text, #e6e8ee);
     outline: none;
     min-width: 240px;
@@ -88,7 +88,7 @@ function ensureStyles(doc: Document): void {
   }
   .ic-showcase__ghost {
     height: 36px; padding: 0 12px; border-radius: 10px;
-    border: 1px solid var(--ic-border, rgba(255,255,255,0.12));
+    border: 1px solid var(--ic-border, var(--ic-text-muted));
     background: transparent;
     color: var(--ic-text, #e6e8ee);
     font-weight: 800; cursor: pointer;
@@ -96,7 +96,7 @@ function ensureStyles(doc: Document): void {
   table.ic-showcase__table { width:100%; border-collapse: collapse; font-size: 12px; }
   table.ic-showcase__table th, table.ic-showcase__table td {
     padding: 10px 10px;
-    border-bottom: 1px solid var(--ic-border, rgba(255,255,255,0.12));
+    border-bottom: 1px solid var(--ic-border, var(--ic-text-muted));
     text-align: left;
   }
   table.ic-showcase__table th {
@@ -106,8 +106,8 @@ function ensureStyles(doc: Document): void {
   .ic-pill {
     display:inline-flex; align-items:center; padding: 4px 8px;
     border-radius: 999px;
-    border: 1px solid var(--ic-accentBorder, rgba(90,143,255,0.35));
-    background: var(--ic-accentBg, rgba(90,143,255,0.18));
+    border: 1px solid var(--ic-accentBorder, var(--ic-text-muted));
+    background: var(--ic-accentBg, var(--ic-text-muted));
     color: var(--ic-accent, #5a8fff);
     font-weight: 800;
     font-size: 11px;
@@ -142,7 +142,7 @@ function buildUI(doc: Document): HTMLElement {
         <div style="height:12px"></div>
 
         <div class="ic-showcase__h">Table (Excel-like)</div>
-        <div style="height: calc(100% - 110px); overflow:auto; border-radius: 12px; border:1px solid var(--ic-border, rgba(255,255,255,0.12));">
+        <div style="height: calc(100% - 110px); overflow:auto; border-radius: 12px; border:1px solid var(--ic-border, var(--ic-text-muted));">
           <table class="ic-showcase__table">
             <thead>
               <tr>

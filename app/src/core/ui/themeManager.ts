@@ -108,7 +108,7 @@ const DEFAULT_TOKENS: ThemeTokens = {
   mono: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace",
   titleSize: 42,
   radius: 18, // Aligné avec coreStyles.ts
-  shadow: "0 18px 50px rgba(0,0,0,.45)" // Aligné avec coreStyles.ts
+  shadow: "0 18px 50px var(--ic-text-primary)" // Aligné avec coreStyles.ts
 };
 
 const LIGHT_TOKENS: ThemeTokens = {
@@ -121,7 +121,7 @@ const LIGHT_TOKENS: ThemeTokens = {
   mutedText: "#666666",
   accent: "#6d28d9", // Garder le violet même en light mode
   accent2: "#7c3aed",
-  shadow: "0 2px 8px rgba(0,0,0,.1)"
+  shadow: "0 2px 8px var(--ic-text-primary)"
 };
 
 class ThemeManager {
