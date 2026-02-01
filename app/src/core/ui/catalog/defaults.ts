@@ -407,9 +407,9 @@ export function registerDefaultCatalogEntries(): void {
       btn.style.cssText = `
         padding: 8px 14px;
         border-radius: 8px;
-        border: 1px solid var(--ic-border, #2b3136);
-        background: var(--ic-card, #1a1d1f);
-        color: var(--ic-text, #e7ecef);
+        border: 1px solid var(--ic-border, var(--icontrol-color-fallback-fg));
+        background: var(--ic-card, var(--icontrol-color-fallback-fg));
+        color: var(--ic-text, var(--icontrol-color-fallback-fg));
         font-size: 12px;
         cursor: pointer;
       `;

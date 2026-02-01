@@ -4,7 +4,7 @@ export function ButtonV2(props:{label:string,onClick?:()=>void}) {
       onClick={props.onClick}
       style={{
         background:"var(--ui-accent)",
-        color:"#fff",
+        color:"var(--icontrol-color-fallback-fg)",
         border:"0",
         borderRadius:"var(--ui-radius)",
         padding:"10px 14px",

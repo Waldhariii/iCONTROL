@@ -40,7 +40,7 @@ export function render(root: HTMLElement) {
   const card = h("div", {
     style: {
       padding: "16px",
-      border: "1px solid rgba(255,255,255,0.12)",
+      border: "1px solid var(--icontrol-color-fallback-border)",
       borderRadius: "12px",
       maxWidth: "860px",
     },
