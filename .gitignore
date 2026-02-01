@@ -180,3 +180,5 @@ app/.icontrol_subscriptions.json
 *~
 *.orig
 RELEASE_MANIFEST.json
+_artifacts/release/rc/**/prod/
+RELEASE_BUNDLE_*.json
