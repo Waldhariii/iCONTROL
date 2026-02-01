@@ -20,7 +20,10 @@ import { isEnabled } from "../../../policies/feature_flags.enforce";
 import { createAuditHook } from "../../../core/write-gateway/auditHook";
 import { createLegacyAdapter } from "../../../core/write-gateway/adapters/legacyAdapter";
 import { createPolicyHook } from "../../../core/write-gateway/policyHook";
-import { createCorrelationId, createWriteGateway } from "../../../core/write-gate
+import { createCorrelationId, createWriteGateway } from "../../../core/write-gateway/writeGateway";
+import { getLogger } from "../../../core/utils/logger";
+import { getTenantId } from "../../../core/runtime/tenant";
+import { Vfs, type VfsScope } from "../../../platform/storage/vfs";
 
 /** WRITE_GATEWAY_WRITE_SURFACE — shadow scaffold (legacy-first; NO-OP adapter). */
 const __wsLogger = getLogger("WRITE_GATEWAY_WRITE_SURFACE");
@@ -53,10 +56,6 @@ function __isWsShadowEnabled(): boolean {
   }
 }
 
-way/writeGateway";
-import { getLogger } from "../../../core/utils/logger";
-import { getTenantId } from "../../../core/runtime/tenant";
-
 // Type pour un utilisateur système
 type SystemUser = {
   id: string;
@@ -68,10 +67,15 @@ type SystemUser = {
 
 const LS_KEY_SYSTEM_USERS = "icontrol_system_users_v1";
 
+function getUsersScope(): VfsScope {
+  const tenantId = (typeof getTenantId === "function" ? getTenantId() : "public") || "public";
+  return { tenantId, namespace: "cp.users" };
+}
+
 // Récupérer les utilisateurs système
 function getSystemUsers(): SystemUser[] {
   try {
-    const stored = localStorage.getItem(LS_KEY_SYSTEM_USERS);
+    const stored = Vfs.get(getUsersScope(), LS_KEY_SYSTEM_USERS);
     if (stored) {
       const parsed = JSON.parse(stored);
       if (Array.isArray(parsed)) return parsed;
@@ -90,7 +94,7 @@ function getSystemUsers(): SystemUser[] {
 
 function saveSystemUsers(users: SystemUser[]): void {
   try {
-    localStorage.setItem(LS_KEY_SYSTEM_USERS, JSON.stringify(users));
+    Vfs.set(getUsersScope(), LS_KEY_SYSTEM_USERS, JSON.stringify(users));
   
     // Shadow path (report-only): emit write intent via gateway (NO-OP adapter; legacy already wrote).
     if (__isWsShadowEnabled()) {
@@ -124,7 +128,7 @@ function saveSystemUsers(users: SystemUser[]): void {
       }
     }
 
-} catch (e) {
+  } catch (e) {
     console.error("Erreur lors de la sauvegarde des utilisateurs système:", e);
   }
 }
@@ -166,7 +170,7 @@ export function renderUsersListCp(root: HTMLElement, model: UsersModelCp): void 
   const safeMode = getSafeMode();
   
   // Liste des utilisateurs du système (Administration seulement)
-  // Récupérer depuis localStorage avec fallback sur les valeurs par défaut
+  // Récupérer depuis VFS avec fallback sur les valeurs par défaut
   const allUsers = getSystemUsers();
   
   // Filtrer selon le rôle de l'utilisateur connecté
