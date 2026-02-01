@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "updatedAt": "2026-02-01T19:50:37.442Z",
+  "budgets": {
+    "no-raw-console": {
+      "max": 1
+    },
+    "safe-mode-cp-only": {
+      "max": 4
+    },
+    "hardcoded-colors": {
+      "max": 10
+    }
+  },
+  "allowlist": {
+    "hardcoded-colors": []
+  }
+}
