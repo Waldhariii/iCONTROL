@@ -14,6 +14,18 @@ function pathFor(tenantId: string) {
   return `tenant/${tenantId}/safe_mode.json`;
 }
 
+function isProdEnv(): boolean {
+  try {
+    const g: any = globalThis as any;
+    if (g.__ICONTROL_PROD__ === true) return true;
+    const im: any = (globalThis as any).import?.meta || (import.meta as any);
+    if (im?.env?.PROD === true) return true;
+  } catch {
+    // ignore
+  }
+  return false;
+}
+
 function validate(rec: any): TenantSafeModeRecord {
   if (!rec || typeof rec !== "object") throw new Error("ERR_SAFE_MODE_INVALID: root");
   if (rec.schemaVersion !== 1) throw new Error("ERR_SAFE_MODE_INVALID: schemaVersion");
@@ -31,7 +43,14 @@ export async function readTenantSafeMode(tenantId: string): Promise<TenantSafeMo
 
   const raw = Vfs.get(scope, key);
   if (!raw) return { schemaVersion: 1, enabled: false };
-  return validate(JSON.parse(raw));
+  try {
+    return validate(JSON.parse(raw));
+  } catch {
+    if (isProdEnv()) {
+      return { schemaVersion: 1, enabled: true, reason: "ERR_SAFE_MODE_CORRUPT_RECORD", at: new Date().toISOString() };
+    }
+    return { schemaVersion: 1, enabled: false };
+  }
 }
 
 export async function writeTenantSafeMode(input: {
