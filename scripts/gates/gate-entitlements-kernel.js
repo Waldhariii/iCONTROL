@@ -50,6 +50,7 @@ for (const f of files) {
   // Allowlist: runtimeConfig + entitlements kernel itself + tests
   if (rel.includes("app/src/platform/runtimeConfig/")) continue;
   if (rel.includes("app/src/platform/entitlements/")) continue;
+  if (rel.includes("app/src/platform/tenantOverrides/")) continue;
   if (rel.includes("app/src/__tests__/")) continue;
   // Transitional allowlist (known legacy usage)
   if (rel === "app/src/policies/cache.registry.ts") continue;

@@ -1,4 +1,5 @@
 import type { AppKind, ResolvedTheme, ThemeMode, ThemeOverrides } from "./types";
+import { getTenantOverridesCache } from "../tenantOverrides/cache";
 import { DEFAULT_THEME_DARK, DEFAULT_THEME_LIGHT } from "./defaultTokens";
 import { applyOverrides } from "./merge";
 
@@ -28,8 +29,11 @@ export function resolveTheme(input: {
   const spec = getDefault(input.mode);
   const all = (globalThis as any).__ICONTROL_THEME_OVERRIDES__ as any | undefined;
 
+  const cached = getTenantOverridesCache(input.tenantId);
+  const cachedTheme = cached?.theme as any;
+
   const tenant = all?.[input.tenantId];
-  const ov = (tenant?.[input.appKind] || tenant?.["CP"] || tenant?.["APP"]) as ThemeOverrides | undefined;
+  const ov = (cachedTheme?.[input.appKind] || cachedTheme?.["CP"] || cachedTheme?.["APP"] || tenant?.[input.appKind] || tenant?.["CP"] || tenant?.["APP"]) as ThemeOverrides | undefined;
 
   const tokens = applyOverrides(spec.tokens, ov);
   const applied = !!ov && Object.keys(ov).length > 0;

@@ -98,7 +98,7 @@
     "release:consistency": "node scripts/gates/check-release-consistency.mjs",
     "gate:release:consistency": "npm run -s release:consistency",
     "gate:no-tenant-sample-data": "bash scripts/gates/no-tenant-sample-data.sh",
-    "verify:prod:fast": "npm run -s gate:no-tenant-sample-data && npm run -s gate:no-cross-surface-imports && npm run -s gate:pages-whitelist && npm run -s gate:no-mockups-imports-in-surfaces && npm run -s gate:no-legacy-pages-dir && npm run -s gate:no-pages-imports-in-appsrc && npm run -s gate:no-legacy-imports-in-tests && npm run -s gate:no-src-pages-deps && npm run -s gate:core-harden && npm run -s gate:core-kernel && npm run -s gate:runtime-config && npm run -s gate:no-node-in-browser && npm run -s gate:runtime-config-example-ssot && npm run -s gate:entitlements-kernel && npm run -s gate:no-raw-console && npm run -s gate:root-clean && npm run -s gate:boundaries-map && npm run -s gate:no-hardcoded-colors-warn",
+    "verify:prod:fast": "npm run -s gate:no-tenant-sample-data && npm run -s gate:no-cross-surface-imports && npm run -s gate:pages-whitelist && npm run -s gate:no-mockups-imports-in-surfaces && npm run -s gate:no-legacy-pages-dir && npm run -s gate:no-pages-imports-in-appsrc && npm run -s gate:no-legacy-imports-in-tests && npm run -s gate:no-src-pages-deps && npm run -s gate:core-harden && npm run -s gate:core-kernel && npm run -s gate:runtime-config && npm run -s gate:no-node-in-browser && npm run -s gate:runtime-config-example-ssot && npm run -s gate:entitlements-kernel && npm run -s gate:no-raw-console && npm run -s gate:root-clean && npm run -s gate:boundaries-map && npm run -s gate:no-hardcoded-colors-warn && npm run -s gate:tenant-overrides-no-node",
     "gate:no-cross-surface-imports": "bash scripts/gates/no-cross-surface-imports.sh",
     "gate:pages-whitelist": "bash scripts/gates/pages-whitelist.sh",
     "gate:no-mockups-imports-in-surfaces": "bash scripts/gates/no-mockups-imports-in-surfaces.sh",
@@ -108,7 +108,7 @@
     "test:watch": "vitest",
     "test:ci": "vitest run --reporter=default",
     "gate:no-src-pages-deps": "bash scripts/gates/no-src-pages-deps.sh",
-    "gate:preflight:prod": "bash scripts/gates/preflight-prod.sh && npm run -s gate:runtime-config && npm run -s gate:no-node-in-browser && npm run -s gate:runtime-config-example-ssot && npm run -s gate:entitlements-kernel && npm run -s gate:no-raw-console && npm run -s gate:root-clean && npm run -s gate:boundaries-map && npm run -s gate:no-hardcoded-colors-warn",
+    "gate:preflight:prod": "bash scripts/gates/preflight-prod.sh && npm run -s gate:runtime-config && npm run -s gate:no-node-in-browser && npm run -s gate:runtime-config-example-ssot && npm run -s gate:entitlements-kernel && npm run -s gate:no-raw-console && npm run -s gate:root-clean && npm run -s gate:boundaries-map && npm run -s gate:no-hardcoded-colors-warn && npm run -s gate:tenant-overrides-no-node",
     "verify:prod": "npm run -s gate:preflight:prod",
     "gate:core-harden": "bash scripts/gates/no-src-pages-allowed.sh && bash scripts/gates/no-cross-surface-imports.sh",
     "gate:no-direct-storage-writes": "bash scripts/gates/no-direct-storage-writes.sh",
@@ -121,7 +121,8 @@
     "gate:no-raw-console": "node scripts/gates/gate-no-raw-console.js",
     "gate:root-clean": "node scripts/gates/gate-root-clean.js",
     "gate:boundaries-map": "node scripts/gates/gate-boundaries-map.js",
-    "gate:no-hardcoded-colors-warn": "node scripts/gates/gate-no-hardcoded-colors-warn.js"
+    "gate:no-hardcoded-colors-warn": "node scripts/gates/gate-no-hardcoded-colors-warn.js",
+    "gate:tenant-overrides-no-node": "node scripts/gates/gate-tenant-overrides-no-node.js"
   },
   "devDependencies": {
     "@types/react": "^19.2.10",
