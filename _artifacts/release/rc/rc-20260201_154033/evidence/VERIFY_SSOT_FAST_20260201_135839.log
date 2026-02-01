@@ -1,0 +1,12 @@
+[13:58:39] verify:ssot mode=fast
+[13:58:39] workspace=/Users/danygaudreault/iCONTROLapp/app
+[13:58:39] ts=20260201_135839
+[13:58:39] --- GOVERNANCE SCANS ---
+[13:58:39] __ICONTROL_MOUNT__ writes in src/main.ts: 1
+487:/* ===== ICONTROL_MOUNT_TARGET_V1 =====
+497:/* ===== END ICONTROL_MOUNT_TARGET_V1 ===== */
+495:  return mount || cxMain || app || document.body;
+11:const rawAppKind = (process.env.ICONTROL_APP_KIND || process.env.APP_KIND || "") as string;
+[13:58:39] --- GOVERNANCE SCANS: PASS ---
+[13:58:39] PASS: verify:ssot:fast
+[13:58:39] Evidence: ../_backups/evidence/VERIFY_SSOT_FAST_20260201_135839.log
