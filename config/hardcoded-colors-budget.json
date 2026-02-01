@@ -1,0 +1,9 @@
+{
+  "budget": 64,
+  "ts": "2026-02-01T19:40:34.339Z",
+  "allowlist": [
+    "app/src/styles/tokens.generated.css",
+    "app/src/ui-v2/tokens/design-tokens.css",
+    "app/src/styles/STYLE_ADMIN_FINAL.css"
+  ]
+}
