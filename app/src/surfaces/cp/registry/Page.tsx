@@ -10,6 +10,7 @@
  */
 
 import type { RouteId } from "../../router";
+import { debug, info, warn, error } from "../../../platform/observability/logger";
 
 export type PageRenderer = (root: HTMLElement) => void | Promise<void>;
 
@@ -96,10 +97,10 @@ export function renderCpPage(routeId: RouteId, root: HTMLElement): void {
     if (entry.async) {
       // Pages async : utiliser then/catch pour gérer les erreurs
       (entry.render(root) as Promise<void>).catch((e) => {
-        console.warn("WARN_ROUTE_IMPORT_FAILED", {
+        void warn("WARN_CONSOLE_MIGRATED","console migrated", { payload: ("WARN_ROUTE_IMPORT_FAILED", {
           routeId,
           err: String(e),
-        });
+        }) });
         CP_PAGES_REGISTRY.notfound_cp.render(root);
       });
     } else {
@@ -107,10 +108,10 @@ export function renderCpPage(routeId: RouteId, root: HTMLElement): void {
       entry.render(root);
     }
   } catch (e) {
-    console.warn("WARN_ROUTE_RENDER_FAILED", {
+    void warn("WARN_CONSOLE_MIGRATED","console migrated", { payload: ("WARN_ROUTE_RENDER_FAILED", {
       routeId,
       err: String(e),
-    });
+    }) });
     CP_PAGES_REGISTRY.notfound_cp.render(root);
   }
 }

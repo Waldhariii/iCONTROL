@@ -1,4 +1,5 @@
 import { navigate } from "./runtime/navigate";
+import { debug, info, warn, error } from "./platform/observability/logger";
 import { isEnabled } from "./policies/feature_flags.enforce";
 import { createAuditHook } from "./core/write-gateway/auditHook";
 import { createLegacyAdapter } from "./core/write-gateway/adapters/legacyAdapter";
@@ -376,7 +377,7 @@ export function registerDevLoginHelper(): void {
       issuedAt: Date.now(),
     };
     if (!setSession(session)) {
-      console.warn("WARN_DEV_LOGIN_FAILED", "setSession_failed");
+      void warn("WARN_CONSOLE_MIGRATED","console migrated", { payload: ("WARN_DEV_LOGIN_FAILED", "setSession_failed") });
       return;
     }
     navigate("#/dashboard");

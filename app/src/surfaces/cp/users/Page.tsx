@@ -4,6 +4,7 @@
  * Complètement indépendant de APP
  */
 import type { UsersModelCp } from "../models/users";
+import { debug, info, warn, error } from "../../../platform/observability/logger";
 import { appendList, appendTable, sectionCard } from "../../../../../../modules/core-system/ui/frontend-ts/pages/_shared/uiBlocks";
 import { getUserPermissions, setUserPermissions, canManagePermissions, type PageId } from "../../../core/permissions/userPermissions";
 import { requireSession } from "../../../localAuth";
@@ -129,7 +130,7 @@ function saveSystemUsers(users: SystemUser[]): void {
     }
 
   } catch (e) {
-    console.error("Erreur lors de la sauvegarde des utilisateurs système:", e);
+    void error("ERR_CONSOLE_MIGRATED","console migrated", { payload: ("Erreur lors de la sauvegarde des utilisateurs système:", e) });
   }
 }
 

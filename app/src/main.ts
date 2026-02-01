@@ -1,4 +1,5 @@
 import "./styles/tokens.generated.css";
+import { debug, info, warn, error } from "./platform/observability/logger";
 import { resolveRuntimeContext } from "./platform/runtimeContext";
 import { hydrateTenantRuntime } from "./platform/bootstrap";
 import { hydrateTenantOverrides } from "./platform/tenantOverrides";
@@ -119,7 +120,7 @@ function __icontrol_mountShellIfNeeded__(navProvider: () => any[], shellFactory:
     __icontrol_setShellGlobal__(shell);
   } catch (e) {
     // fail-open: ne pas casser le boot, mais on log
-    try { console.warn("ICONTROL_SHELL_RECOVERY_V1 failed", e); } catch {}
+    try { void warn("WARN_CONSOLE_MIGRATED","console migrated", { payload: ("ICONTROL_SHELL_RECOVERY_V1 failed", e) }); } catch {}
   }
 }
 
@@ -147,10 +148,10 @@ try {
     b.TITLE_SUFFIX && b.TITLE_SUFFIX.trim() ? " " + b.TITLE_SUFFIX.trim() : "";
   document.title = (b.APP_DISPLAY_NAME || "iCONTROL") + suffix;
   if (__br.warnings && __br.warnings.length) {
-    console.warn("WARN_BRAND_FALLBACK", __br.warnings);
+    void warn("WARN_CONSOLE_MIGRATED","console migrated", { payload: ("WARN_BRAND_FALLBACK", __br.warnings) });
   }
 } catch (e) {
-  console.warn("WARN_BRAND_TITLE_FAILED", String(e));
+  void warn("WARN_CONSOLE_MIGRATED","console migrated", { payload: ("WARN_BRAND_TITLE_FAILED", String(e)) });
 }
 // END ICONTROL_BRAND_TITLE_V1
 
@@ -368,14 +369,14 @@ function __icontrol_installAdminStyleGuard__(): void {
 
     const w = globalThis as any;
     w.__ICONTROL_APP_KIND__ = kind;
-    console.info("ADMIN_STYLE_GUARD_INIT", { kind });
+    void info("OK","console migrated", { payload: ("ADMIN_STYLE_GUARD_INIT", { kind }) });
     if (w.__ICONTROL_ADMIN_STYLE_GUARD__) return;
     w.__ICONTROL_ADMIN_STYLE_GUARD__ = {
       enabled: true,
       disableLocalOverrides: true,
       events: [] as Array<{ type: string; detail: string }>
     };
-    console.info("ADMIN_STYLE_GUARD_INIT", { kind });
+    void info("OK","console migrated", { payload: ("ADMIN_STYLE_GUARD_INIT", { kind }) });
 
     const allowStyle = (el: HTMLStyleElement): boolean => {
       if ((el as any).dataset?.icontrolAllow === "1") return true;
@@ -402,7 +403,7 @@ function __icontrol_installAdminStyleGuard__(): void {
         if (!ok) {
           try { node.remove(); } catch {}
           w.__ICONTROL_ADMIN_STYLE_GUARD__.events.push({ type: "STYLE_BLOCKED", detail: node.outerHTML.slice(0, 200) });
-          console.warn("ADMIN_STYLE_GUARD_BLOCK", { type: "style" });
+          void warn("WARN_CONSOLE_MIGRATED","console migrated", { payload: ("ADMIN_STYLE_GUARD_BLOCK", { type: "style" }) });
         }
       }
       if (node.tagName === "LINK") {
@@ -412,7 +413,7 @@ function __icontrol_installAdminStyleGuard__(): void {
           if (!ok) {
             try { link.remove(); } catch {}
             w.__ICONTROL_ADMIN_STYLE_GUARD__.events.push({ type: "LINK_BLOCKED", detail: link.outerHTML.slice(0, 200) });
-            console.warn("ADMIN_STYLE_GUARD_BLOCK", { type: "link", href: link.href });
+            void warn("WARN_CONSOLE_MIGRATED","console migrated", { payload: ("ADMIN_STYLE_GUARD_BLOCK", { type: "link", href: link.href }) });
           }
         }
       }
@@ -445,7 +446,7 @@ function __icontrol_installAdminStyleGuard__(): void {
     w.__ICONTROL_ADMIN_STYLE_GUARD__.sweep = sweep;
     setInterval(sweep, 2000);
   } catch (e) {
-    console.warn("ADMIN_STYLE_GUARD_FAILED", String(e));
+    void warn("WARN_CONSOLE_MIGRATED","console migrated", { payload: ("ADMIN_STYLE_GUARD_FAILED", String(e)) });
   }
 }
 
@@ -478,7 +479,7 @@ function __icontrol_installClientStyleGuard__(): void {
     const blockNode = (node: Element, reason: string): void => {
       try {
         node.parentNode?.removeChild(node);
-        console.warn("CLIENT_STYLE_GUARD_BLOCK", { reason });
+        void warn("WARN_CONSOLE_MIGRATED","console migrated", { payload: ("CLIENT_STYLE_GUARD_BLOCK", { reason }) });
       } catch {}
     };
 
@@ -509,7 +510,7 @@ function __icontrol_installClientStyleGuard__(): void {
       allowHref,
       allowStyleTag,
     };
-    console.info("CLIENT_STYLE_GUARD_INIT", { kind });
+    void info("OK","console migrated", { payload: ("CLIENT_STYLE_GUARD_INIT", { kind }) });
   } catch {}
 }
 
@@ -617,7 +618,7 @@ if (isLoginPage) {
       };
     };
     if ((import.meta as any)?.env?.DEV) {
-      console.log("💡 Pour diagnostiquer, tapez dans la console: __ICONTROL_DIAGNOSTIC__()");
+      void info("OK","console migrated", { payload: ("💡 Pour diagnostiquer, tapez dans la console: __ICONTROL_DIAGNOSTIC__()") });
     }
   } catch {}
 
@@ -631,7 +632,7 @@ if (isLoginPage) {
       }
     } catch {}
   } catch (e) {
-    console.error("UI_SHELL_NAV_V1 mount failed", e);
+    void error("ERR_CONSOLE_MIGRATED","console migrated", { payload: ("UI_SHELL_NAV_V1 mount failed", e) });
   }
 })();
   /* ICONTROL_SHELL_HASHCHANGE_V1 */
@@ -667,7 +668,7 @@ function renderShell(rid: RouteId): void {
 
     // Si on est sur une page CP et que le shell n'est pas monté, le monter
     if (!shellRoot && mount === document.getElementById("app")) {
-      console.warn("⚠️ Shell non monté, tentative de remontage...");
+      void warn("WARN_CONSOLE_MIGRATED","console migrated", { payload: ("⚠️ Shell non monté, tentative de remontage...") });
       const appRoot = document.getElementById("app") || document.body;
       const __icontrol_kind = __icontrol_resolveAppKind();
       
@@ -678,11 +679,11 @@ function renderShell(rid: RouteId): void {
         appRoot.innerHTML = "";
         appRoot.appendChild(shell.root);
         __icontrol_setMountSSOT__(shell.main);
-        console.log("✅ Shell remonté avec succès");
+        void info("OK","console migrated", { payload: ("✅ Shell remonté avec succès") });
       }
     }
   } catch (e) {
-    console.warn("⚠️ Erreur lors de la vérification du shell:", e);
+    void warn("WARN_CONSOLE_MIGRATED","console migrated", { payload: ("⚠️ Erreur lors de la vérification du shell:", e) });
   }
   
   renderRoute(rid, mount);

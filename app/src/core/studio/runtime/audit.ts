@@ -1,4 +1,5 @@
 import type { AuditLevel, StudioAudit } from "./studioRuntime";
+import { debug, info, warn, error } from "../../../platform/observability/logger";
 
 export type AuditSink = (
   level: AuditLevel,

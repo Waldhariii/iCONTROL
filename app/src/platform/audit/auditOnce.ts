@@ -21,6 +21,7 @@ export function auditWarnOnce(code: string, meta?: Record<string, any>): void {
   // Fallback: console warn (best-effort)
   try {
     // eslint-disable-next-line no-console
-    console.warn(code, meta || {});
+    void warn("WARN_CONSOLE_MIGRATED","console migrated", { payload: (code, meta || {}) });
   } catch {}
 }
+import { debug, info, warn, error } from "../../platform/observability/logger";

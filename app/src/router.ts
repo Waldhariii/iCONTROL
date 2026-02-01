@@ -38,7 +38,7 @@ const __CLIENT_V2_ALLOWLIST = new Set(CLIENT_V2_ROUTE_IDS.map(r => CLIENT_V2_ROU
 
 // Self-check: verify no duplicates after normalization (WARN only, non-blocking)
 if (__CLIENT_V2_ALLOWED_HASH_ROUTES.size !== CLIENT_V2_ROUTE_IDS.length) {
-  console.warn("WARN_CLIENT_V2_DUPLICATES_DETECTED", { expected: CLIENT_V2_ROUTE_IDS.length, actual: __CLIENT_V2_ALLOWED_HASH_ROUTES.size });
+  void warn("WARN_CONSOLE_MIGRATED","console migrated", { payload: ("WARN_CLIENT_V2_DUPLICATES_DETECTED", { expected: CLIENT_V2_ROUTE_IDS.length, actual: __CLIENT_V2_ALLOWED_HASH_ROUTES.size }) });
 }
 
 function __clientV2GuardHashRoute(hashRoute) {
@@ -55,6 +55,7 @@ function __clientV2GuardHashRoute(hashRoute) {
 // === CLIENT_V2_SSOT_END ===
 
 import { getSession, isLoggedIn, logout } from "./localAuth";
+import { debug, info, warn, error } from "./platform/observability/logger";
 import { canAccessSettings } from "./runtime/rbac";
 import { navigate as coreNavigate } from "./runtime/navigate";
 import { applyVersionPolicyBootGuards } from "./policies/version_policy.runtime";
@@ -390,7 +391,7 @@ export function bootRouter(onRoute: (rid: RouteId) => void): void {
       if (__icontrolResolveAppKind() === "CP") {
         const allowed = __icontrolIsAdminRouteAllowed__(h);
         if (!allowed) {
-          console.warn("ADMIN_ROUTE_GUARD_BLOCK", { route: h });
+          void warn("WARN_CONSOLE_MIGRATED","console migrated", { payload: ("ADMIN_ROUTE_GUARD_BLOCK", { route: h }) });
           // Si on est déjà sur login, ne pas rediriger (éviter la boucle)
           if (h === "#/login" || h.startsWith("#/login")) {
             // Laisser passer pour permettre le rendu de la page de login
@@ -405,7 +406,7 @@ export function bootRouter(onRoute: (rid: RouteId) => void): void {
     } catch (e) {
       // Si le guard échoue (exception), rediriger vers #/login si non connecté
       try {
-        console.warn("ADMIN_ROUTE_GUARD_FAILED", String(e));
+        void warn("WARN_CONSOLE_MIGRATED","console migrated", { payload: ("ADMIN_ROUTE_GUARD_FAILED", String(e)) });
         if (__icontrolResolveAppKind() === "CP") {
           const target = isLoggedIn() ? "#/dashboard" : "#/login";
           coreNavigate(target);
@@ -425,14 +426,14 @@ export function bootRouter(onRoute: (rid: RouteId) => void): void {
             // Déjà sur la route de fallback, ne pas rediriger
             return;
           }
-          console.warn("CLIENT_ROUTE_GUARD_BLOCK", { route: h });
+          void warn("WARN_CONSOLE_MIGRATED","console migrated", { payload: ("CLIENT_ROUTE_GUARD_BLOCK", { route: h }) });
           try { coreNavigate("#/home-app?state=disabled"); } catch {}
           return;
         }
       }
     } catch (e) {
       try {
-        console.warn("CLIENT_ROUTE_GUARD_FAILED", String(e));
+        void warn("WARN_CONSOLE_MIGRATED","console migrated", { payload: ("CLIENT_ROUTE_GUARD_FAILED", String(e)) });
         const normalized = __icontrolNormalizeHash__(h);
         if (__icontrolResolveAppKind() === "APP" && normalized !== "#/home-app" && normalized !== "#/home-app?state=disabled") {
           coreNavigate("#/home-app?state=disabled");
