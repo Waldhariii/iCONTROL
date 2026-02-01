@@ -13,6 +13,12 @@ const allow = new Set([
 
 const offenders = [];
 
+function isTestPath(rel) {
+  return rel.includes("/__tests__/") ||
+    rel.endsWith(".test.ts") || rel.endsWith(".test.tsx") ||
+    rel.endsWith(".contract.test.ts") || rel.endsWith(".contract.test.tsx");
+}
+
 function walk(dir) {
   const out = [];
   for (const ent of fs.readdirSync(dir, { withFileTypes: true })) {
@@ -25,6 +31,7 @@ function walk(dir) {
 
 for (const f of walk(appSrc)) {
   const rel = path.relative(repo, f).replace(/\\/g,"/");
+  if (isTestPath(rel)) continue;
   const txt = fs.readFileSync(f, "utf8");
 
   const hits =

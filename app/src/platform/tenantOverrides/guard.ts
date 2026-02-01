@@ -1,12 +1,12 @@
 import type { TenantOverrides } from "./types";
-import { enableTenantOverridesSafeMode } from "./safeMode";
+import { cpEnableTenantOverridesSafeMode } from "../controlPlane/commands/enableTenantOverridesSafeMode";
 import { warn, WARN } from "../observability";
 
 /**
  * Guard overrides before caching.
  * If guard fails: enable SAFE_MODE (best-effort) and return null (caller keeps defaults).
  *
- * NOTE: enableTenantOverridesSafeMode is async (persisted). We intentionally do not await here
+ * NOTE: cpEnableTenantOverridesSafeMode is async (persisted). We intentionally do not await here
  * to keep resolver/hydrator control flow simple; persistence is best-effort.
  */
 export function guardTenantOverrides(input: {
@@ -24,7 +24,7 @@ export function guardTenantOverrides(input: {
     return input.overrides;
   } catch (e: any) {
     const reason = `ERR_OVERRIDES_GUARD_FAIL:${String(e?.message || e)}`;
-    void enableTenantOverridesSafeMode(input.tenantId, reason);
+    void cpEnableTenantOverridesSafeMode({ tenantId: input.tenantId, actorId: undefined, reason });
     warn(WARN.FALLBACK_DEFAULT_CONFIG, "Tenant overrides rejected; SAFE_MODE enabled", { tenantId: input.tenantId }, { reason, source: input.source });
     return null;
   }
