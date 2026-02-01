@@ -185,3 +185,6 @@ RELEASE_BUNDLE_*.json
 _artifacts/release/prod/
 PROVENANCE_*.md
 RELEASE_INDEX.md
+!_artifacts/release/
+!_artifacts/release/rc/
+!_artifacts/release/rc/**
