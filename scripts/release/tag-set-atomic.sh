@@ -38,5 +38,5 @@ MD
 
 echo "OK_TAG_SET_ATOMIC head=${head_sha} rc=${rc_tag} prod=${prod_tag} baseline=${base_tag}"
 
-# FAILSAFE_UNSTAGE_TAG_SNAPSHOTS (generated-only)
+# generated-only safeguard
 git restore --staged --quiet -- "${base_dir}/TAGS_SNAPSHOT.md" "${base_dir}/tags.json" 2>/dev/null || true
