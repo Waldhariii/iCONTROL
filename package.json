@@ -102,7 +102,7 @@
     "release:consistency": "node scripts/gates/check-release-consistency.mjs",
     "gate:release:consistency": "npm run -s release:consistency",
     "gate:no-tenant-sample-data": "bash scripts/gates/no-tenant-sample-data.sh",
-    "verify:prod:fast": "npm run -s gate:no-tenant-sample-data && npm run -s gate:no-cross-surface-imports && npm run -s gate:pages-whitelist && npm run -s gate:no-mockups-imports-in-surfaces && npm run -s gate:no-legacy-pages-dir && npm run -s gate:no-pages-imports-in-appsrc && npm run -s gate:no-legacy-imports-in-tests && npm run -s gate:no-src-pages-deps && npm run -s gate:core-harden && npm run -s gate:core-kernel && npm run -s gate:runtime-config && npm run -s gate:no-node-in-browser && npm run -s gate:runtime-config-example-ssot && npm run -s gate:entitlements-kernel && npm run -s gate:no-raw-console && npm run -s gate:root-clean && npm run -s gate:boundaries-map && npm run -s gate:no-hardcoded-colors-warn && npm run -s gate:tenant-overrides-no-node && npm run -s gate:cp-tenant-overrides-writer-warn && npm run -s gate:safe-mode-writer-warn && npm run -s gate:safe-mode-cp-only-warn && npm run -s gate:diagnostics-artifacts && npm run -s gate:workspaces-boundaries",
+    "verify:prod:fast": "npm run -s gate:no-tenant-sample-data && npm run -s gate:no-cross-surface-imports && npm run -s gate:pages-whitelist && npm run -s gate:no-mockups-imports-in-surfaces && npm run -s gate:no-legacy-pages-dir && npm run -s gate:no-pages-imports-in-appsrc && npm run -s gate:no-legacy-imports-in-tests && npm run -s gate:no-src-pages-deps && npm run -s gate:core-harden && npm run -s gate:core-kernel && npm run -s gate:runtime-config && npm run -s gate:no-node-in-browser && npm run -s gate:runtime-config-example-ssot && npm run -s gate:entitlements-kernel && npm run -s gate:no-raw-console && npm run -s gate:root-clean && npm run -s gate:boundaries-map && npm run -s gate:no-hardcoded-colors-warn && npm run -s gate:tenant-overrides-no-node && npm run -s gate:cp-tenant-overrides-writer-warn && npm run -s gate:safe-mode-writer-warn && npm run -s gate:safe-mode-cp-only-warn && npm run -s gate:diagnostics-artifacts && npm run -s gate:workspaces-boundaries && npm run -s gate:modules-no-app-imports",
     "gate:no-cross-surface-imports": "bash scripts/gates/no-cross-surface-imports.sh",
     "gate:pages-whitelist": "bash scripts/gates/pages-whitelist.sh",
     "gate:no-mockups-imports-in-surfaces": "bash scripts/gates/no-mockups-imports-in-surfaces.sh",
@@ -112,7 +112,7 @@
     "test:watch": "vitest",
     "test:ci": "vitest run --reporter=default",
     "gate:no-src-pages-deps": "bash scripts/gates/no-src-pages-deps.sh",
-    "gate:preflight:prod": "bash scripts/gates/preflight-prod.sh && npm run -s gate:runtime-config && npm run -s gate:no-node-in-browser && npm run -s gate:runtime-config-example-ssot && npm run -s gate:entitlements-kernel && npm run -s gate:no-raw-console && npm run -s gate:root-clean && npm run -s gate:boundaries-map && npm run -s gate:no-hardcoded-colors-warn && npm run -s gate:tenant-overrides-no-node && npm run -s gate:cp-tenant-overrides-writer-warn && npm run -s gate:safe-mode-writer-warn && npm run -s gate:safe-mode-cp-only-warn && npm run -s gate:diagnostics-artifacts && npm run -s gate:workspaces-boundaries",
+    "gate:preflight:prod": "bash scripts/gates/preflight-prod.sh && npm run -s gate:runtime-config && npm run -s gate:no-node-in-browser && npm run -s gate:runtime-config-example-ssot && npm run -s gate:entitlements-kernel && npm run -s gate:no-raw-console && npm run -s gate:root-clean && npm run -s gate:boundaries-map && npm run -s gate:no-hardcoded-colors-warn && npm run -s gate:tenant-overrides-no-node && npm run -s gate:cp-tenant-overrides-writer-warn && npm run -s gate:safe-mode-writer-warn && npm run -s gate:safe-mode-cp-only-warn && npm run -s gate:diagnostics-artifacts && npm run -s gate:workspaces-boundaries && npm run -s gate:modules-no-app-imports",
     "verify:prod": "npm run -s gate:preflight:prod",
     "gate:core-harden": "bash scripts/gates/no-src-pages-allowed.sh && bash scripts/gates/no-cross-surface-imports.sh",
     "gate:no-direct-storage-writes": "bash scripts/gates/no-direct-storage-writes.sh",
@@ -137,7 +137,8 @@
     "ws:app:ssot": "bash -lc 'cd app && npm run -s verify:ssot:fast'",
     "ws:app:build:prod": "bash -lc 'cd app && npm run -s build:prod'",
     "ws:server:test": "bash -lc 'cd server && npm run -s test' || true",
-    "ws:preflight": "npm run -s gate:preflight:prod"
+    "ws:preflight": "npm run -s gate:preflight:prod",
+    "gate:modules-no-app-imports": "node scripts/gates/gate-modules-no-app-imports.js"
   },
   "devDependencies": {
     "@types/react": "^19.2.10",
