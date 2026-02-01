@@ -1,10 +1,13 @@
 import type { TenantOverrides } from "./types";
 import { enableTenantOverridesSafeMode } from "./safeMode";
-import { warn, ERR, WARN } from "../observability";
+import { warn, WARN } from "../observability";
 
 /**
  * Guard overrides before caching.
- * If guard fails: enable SAFE_MODE and return null (caller must keep defaults).
+ * If guard fails: enable SAFE_MODE (best-effort) and return null (caller keeps defaults).
+ *
+ * NOTE: enableTenantOverridesSafeMode is async (persisted). We intentionally do not await here
+ * to keep resolver/hydrator control flow simple; persistence is best-effort.
  */
 export function guardTenantOverrides(input: {
   tenantId: string;
@@ -12,18 +15,16 @@ export function guardTenantOverrides(input: {
   source: string;
 }): TenantOverrides | null {
   try {
-    // Minimal invariants (schema already validated upstream)
     if (input.overrides.schemaVersion !== 1) throw new Error("schemaVersion");
     if (!input.overrides.updatedAt) throw new Error("updatedAt");
 
-    // Hard safety limits (avoid huge payloads)
     const rawSize = JSON.stringify(input.overrides).length;
     if (rawSize > 50_000) throw new Error("payload_too_large");
 
     return input.overrides;
   } catch (e: any) {
     const reason = `ERR_OVERRIDES_GUARD_FAIL:${String(e?.message || e)}`;
-    enableTenantOverridesSafeMode(input.tenantId, reason);
+    void enableTenantOverridesSafeMode(input.tenantId, reason);
     warn(WARN.FALLBACK_DEFAULT_CONFIG, "Tenant overrides rejected; SAFE_MODE enabled", { tenantId: input.tenantId }, { reason, source: input.source });
     return null;
   }
