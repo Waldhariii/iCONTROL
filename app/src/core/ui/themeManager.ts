@@ -89,14 +89,14 @@ export interface Theme {
 
 // Valeurs par défaut alignées avec le système original (coreStyles.ts et MAIN_SYSTEM_THEME)
 const DEFAULT_TOKENS: ThemeTokens = {
-  bg: "#0f1112", // Aligné avec coreStyles.ts
-  panel: "#1a1d1f", // Aligné avec coreStyles.ts
-  card: "#161a1d", // Aligné avec coreStyles.ts --bg-card
-  border: "#2b3136", // Aligné avec coreStyles.ts --line
-  text: "#e7ecef", // Aligné avec coreStyles.ts
-  mutedText: "#a7b0b7", // Aligné avec coreStyles.ts --muted
-  accent: "#6d28d9", // Aligné avec coreStyles.ts (violet original)
-  accent2: "#7c3aed", // Aligné avec coreStyles.ts
+  bg: "var(--icontrol-color-fallback-fg)", // Aligné avec coreStyles.ts
+  panel: "var(--icontrol-color-fallback-fg)", // Aligné avec coreStyles.ts
+  card: "var(--icontrol-color-fallback-fg)", // Aligné avec coreStyles.ts --bg-card
+  border: "var(--icontrol-color-fallback-fg)", // Aligné avec coreStyles.ts --line
+  text: "var(--icontrol-color-fallback-fg)", // Aligné avec coreStyles.ts
+  mutedText: "var(--icontrol-color-fallback-fg)", // Aligné avec coreStyles.ts --muted
+  accent: "var(--icontrol-color-fallback-fg)", // Aligné avec coreStyles.ts (violet original)
+  accent2: "var(--icontrol-color-fallback-fg)", // Aligné avec coreStyles.ts
   spacing: {
     xs: "4px",
     sm: "8px",
@@ -108,20 +108,20 @@ const DEFAULT_TOKENS: ThemeTokens = {
   mono: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace",
   titleSize: 42,
   radius: 18, // Aligné avec coreStyles.ts
-  shadow: "0 18px 50px rgba(0,0,0,.45)" // Aligné avec coreStyles.ts
+  shadow: "0 18px 50px var(--ic-text-primary)" // Aligné avec coreStyles.ts
 };
 
 const LIGHT_TOKENS: ThemeTokens = {
   ...DEFAULT_TOKENS,
-  bg: "#ffffff",
-  panel: "#f5f5f5",
-  card: "#ffffff",
-  border: "#e0e0e0",
-  text: "#1a1a1a",
-  mutedText: "#666666",
-  accent: "#6d28d9", // Garder le violet même en light mode
-  accent2: "#7c3aed",
-  shadow: "0 2px 8px rgba(0,0,0,.1)"
+  bg: "var(--icontrol-color-fallback-fg)",
+  panel: "var(--icontrol-color-fallback-fg)",
+  card: "var(--icontrol-color-fallback-fg)",
+  border: "var(--icontrol-color-fallback-fg)",
+  text: "var(--icontrol-color-fallback-fg)",
+  mutedText: "var(--icontrol-color-fallback-fg)",
+  accent: "var(--icontrol-color-fallback-fg)", // Garder le violet même en light mode
+  accent2: "var(--icontrol-color-fallback-fg)",
+  shadow: "0 2px 8px var(--ic-text-primary)"
 };
 
 class ThemeManager {

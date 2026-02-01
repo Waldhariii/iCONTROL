@@ -6,24 +6,24 @@ import { createLegacyAdapter } from "../../write-gateway/adapters/legacyAdapter"
 import { createPolicyHook } from "../../write-gateway/policyHook";
 import { createCorrelationId, createWriteGateway } from "../../write-gateway/writeGateway";
 import { getLogger } from "../../utils/logger";
-import { getTenantId } from "../../runtime/tenant";
+import { getTenantId } from "../../../runtime/tenant";
 
 const THEME_TOKENS = {
   dark: {
-    bg: "#0f1112",
-    panel: "#1a1d1f",
-    card: "#161a1d",
-    border: "#2b3136",
-    text: "#e7ecef",
-    mutedText: "#a7b0b7",
+    bg: "var(--icontrol-color-fallback-fg)",
+    panel: "var(--icontrol-color-fallback-fg)",
+    card: "var(--icontrol-color-fallback-fg)",
+    border: "var(--icontrol-color-fallback-fg)",
+    text: "var(--icontrol-color-fallback-fg)",
+    mutedText: "var(--icontrol-color-fallback-fg)",
   },
   light: {
-    bg: "#ffffff",
-    panel: "#f5f5f5",
-    card: "#ffffff",
-    border: "#e0e0e0",
-    text: "#1a1a1a",
-    mutedText: "#666666",
+    bg: "var(--icontrol-color-fallback-fg)",
+    panel: "var(--icontrol-color-fallback-fg)",
+    card: "var(--icontrol-color-fallback-fg)",
+    border: "var(--icontrol-color-fallback-fg)",
+    text: "var(--icontrol-color-fallback-fg)",
+    mutedText: "var(--icontrol-color-fallback-fg)",
   },
 };
 
@@ -124,9 +124,9 @@ function buildSelect(options: string[], value: string): HTMLSelectElement {
   select.style.cssText = `
     padding: 6px 10px;
     border-radius: 8px;
-    border: 1px solid var(--ic-border, #2b3136);
-    background: var(--ic-card, #1a1d1f);
-    color: var(--ic-text, #e7ecef);
+    border: 1px solid var(--ic-border, var(--icontrol-color-fallback-fg));
+    background: var(--ic-card, var(--icontrol-color-fallback-fg));
+    color: var(--ic-text, var(--icontrol-color-fallback-fg));
     font-size: 12px;
   `;
   options.forEach((opt) => {
@@ -150,7 +150,7 @@ export function renderCatalog(root: HTMLElement, surface: CatalogSurface): void 
     display: flex;
     flex-direction: column;
     gap: 16px;
-    color: var(--ic-text, #e7ecef);
+    color: var(--ic-text, var(--icontrol-color-fallback-fg));
   `;
 
   const header = document.createElement("div");
@@ -159,8 +159,8 @@ export function renderCatalog(root: HTMLElement, surface: CatalogSurface): void 
     flex-direction: column;
     gap: 12px;
     padding: 16px;
-    border: 1px solid var(--ic-border, #2b3136);
-    background: var(--ic-card, #1a1d1f);
+    border: 1px solid var(--ic-border, var(--icontrol-color-fallback-fg));
+    background: var(--ic-card, var(--icontrol-color-fallback-fg));
     border-radius: 12px;
   `;
 
@@ -182,9 +182,9 @@ export function renderCatalog(root: HTMLElement, surface: CatalogSurface): void 
   searchInput.style.cssText = `
     padding: 6px 10px;
     border-radius: 8px;
-    border: 1px solid var(--ic-border, #2b3136);
-    background: var(--ic-card, #1a1d1f);
-    color: var(--ic-text, #e7ecef);
+    border: 1px solid var(--ic-border, var(--icontrol-color-fallback-fg));
+    background: var(--ic-card, var(--icontrol-color-fallback-fg));
+    color: var(--ic-text, var(--icontrol-color-fallback-fg));
     font-size: 12px;
     min-width: 200px;
   `;
@@ -240,8 +240,8 @@ export function renderCatalog(root: HTMLElement, surface: CatalogSurface): void 
         const card = document.createElement("div");
         card.dataset.catalogCard = entry.id;
         card.style.cssText = `
-          border: 1px solid var(--ic-border, #2b3136);
-          background: var(--ic-card, #1a1d1f);
+          border: 1px solid var(--ic-border, var(--icontrol-color-fallback-fg));
+          background: var(--ic-card, var(--icontrol-color-fallback-fg));
           border-radius: 12px;
           padding: 12px;
           display: flex;
@@ -262,8 +262,8 @@ export function renderCatalog(root: HTMLElement, surface: CatalogSurface): void 
           letter-spacing: 0.4px;
           padding: 2px 6px;
           border-radius: 999px;
-          border: 1px solid var(--ic-border, #2b3136);
-          color: var(--ic-mutedText, #a7b0b7);
+          border: 1px solid var(--ic-border, var(--icontrol-color-fallback-fg));
+          color: var(--ic-mutedText, var(--icontrol-color-fallback-fg));
         `;
         meta.appendChild(name);
         meta.appendChild(badge);

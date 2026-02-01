@@ -15,7 +15,7 @@ const checks = [
   },
   {
     id: "dashboard-cta",
-    file: "app/src/pages/cp/dashboard.ts",
+    file: "app/src/surfaces/cp/dashboard/Page.tsx",
     must: ["window.location.hash = \"#/logs\""]
   },
   {

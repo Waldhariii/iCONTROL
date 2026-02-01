@@ -1,4 +1,5 @@
 import type { RouteId } from "./router";
+import { debug, info, warn, error } from "./platform/observability/logger";
 import { resolveAppKind } from "./runtime/appKind";
 
 // NOTE: Removed shared module imports - APP and CP are now completely separated
@@ -30,19 +31,19 @@ export function renderRoute(rid: RouteId, root: HTMLElement): void {
   // RUNTIME_SMOKE_ROUTE_V2 (CP only)
   try {
     if ((rid as any) === "runtime_smoke_cp") {
-      import("./pages/runtime-smoke")
+      import("./platform/smoke/runtime-smoke")
         .then((m) => m.renderRuntimeSmoke(root))
         .catch((e) => {
           /* ICONTROL_LOADER_IMPORT_GUARD_V1 */
-          console.warn("WARN_ROUTE_IMPORT_FAILED", {
-            spec: "./pages/runtime-smoke",
+          void warn("WARN_CONSOLE_MIGRATED","console migrated", { payload: ("WARN_ROUTE_IMPORT_FAILED", {
+            spec: "./platform/smoke/runtime-smoke",
             err: String(e),
-          });
+          }) });
         });
       return;
     }
   } catch (e) {
-    console.warn("WARN_RUNTIME_SMOKE_ROUTE", String(e));
+    void warn("WARN_CONSOLE_MIGRATED","console migrated", { payload: ("WARN_RUNTIME_SMOKE_ROUTE", String(e)) });
   }
 
   try {
@@ -51,10 +52,10 @@ export function renderRoute(rid: RouteId, root: HTMLElement): void {
         .then((m) => m.renderUsers(root))
         .catch((e) => {
           /* ICONTROL_LOADER_IMPORT_GUARD_V1 */
-          console.warn("WARN_ROUTE_IMPORT_FAILED", {
+          void warn("WARN_CONSOLE_MIGRATED","console migrated", { payload: ("WARN_ROUTE_IMPORT_FAILED", {
             spec: "../../modules/core-system/ui/frontend-ts/pages/users",
             err: String(e),
-          });
+          }) });
         });
       return;
     }
@@ -63,10 +64,10 @@ export function renderRoute(rid: RouteId, root: HTMLElement): void {
         .then((m) => m.renderAccount(root))
         .catch((e) => {
           /* ICONTROL_LOADER_IMPORT_GUARD_V1 */
-          console.warn("WARN_ROUTE_IMPORT_FAILED", {
+          void warn("WARN_CONSOLE_MIGRATED","console migrated", { payload: ("WARN_ROUTE_IMPORT_FAILED", {
             spec: "../../modules/core-system/ui/frontend-ts/pages/account",
             err: String(e),
-          });
+          }) });
         });
       return;
     }
@@ -75,10 +76,10 @@ export function renderRoute(rid: RouteId, root: HTMLElement): void {
         .then((m) => m.renderDossiersPage(root))
         .catch((e) => {
           /* ICONTROL_LOADER_IMPORT_GUARD_V1 */
-          console.warn("WARN_ROUTE_IMPORT_FAILED", {
+          void warn("WARN_CONSOLE_MIGRATED","console migrated", { payload: ("WARN_ROUTE_IMPORT_FAILED", {
             spec: "../../modules/core-system/ui/frontend-ts/pages/dossiers",
             err: String(e),
-          });
+          }) });
         });
       return;
     }
@@ -87,10 +88,10 @@ export function renderRoute(rid: RouteId, root: HTMLElement): void {
         .then((m) => m.renderDeveloper(root))
         .catch((e) => {
           /* ICONTROL_LOADER_IMPORT_GUARD_V1 */
-          console.warn("WARN_ROUTE_IMPORT_FAILED", {
+          void warn("WARN_CONSOLE_MIGRATED","console migrated", { payload: ("WARN_ROUTE_IMPORT_FAILED", {
             spec: "../../modules/core-system/ui/frontend-ts/pages/developer",
             err: String(e),
-          });
+          }) });
         });
       return;
     }
@@ -99,10 +100,10 @@ export function renderRoute(rid: RouteId, root: HTMLElement): void {
         .then((m) => m.renderDeveloperEntitlements(root))
         .catch((e) => {
           /* ICONTROL_LOADER_IMPORT_GUARD_V1 */
-          console.warn("WARN_ROUTE_IMPORT_FAILED", {
+          void warn("WARN_CONSOLE_MIGRATED","console migrated", { payload: ("WARN_ROUTE_IMPORT_FAILED", {
             spec: "../../modules/core-system/ui/frontend-ts/pages/developer/entitlements",
             err: String(e),
-          });
+          }) });
         });
       return;
     }
@@ -110,11 +111,11 @@ export function renderRoute(rid: RouteId, root: HTMLElement): void {
       // Access denied: use app-scoped page (no shared pages)
       const kind = resolveAppKind();
       if (kind === "CP") {
-        import("./pages/cp/registry").then((m) => m.renderCpPage("access_denied_cp" as RouteId, root)).catch(() => {
+        import("./surfaces/cp/manifest").then((m) => m.renderCpPage("access_denied_cp" as RouteId, root)).catch(() => {
           root.innerHTML = `<div style="max-width:980px;margin:40px auto;padding:0 16px;opacity:.8">Accès refusé.</div>`;
         });
       } else {
-        import("./pages/app/registry").then((m) => m.renderAppPage("access_denied_app" as RouteId, root)).catch(() => {
+        import("./surfaces/app/manifest").then((m) => m.renderAppPage("access_denied_app" as RouteId, root)).catch(() => {
           root.innerHTML = `<div style="max-width:980px;margin:40px auto;padding:0 16px;opacity:.8">Accès refusé.</div>`;
         });
       }
@@ -125,10 +126,10 @@ export function renderRoute(rid: RouteId, root: HTMLElement): void {
         .then((m) => m.renderVerification(root))
         .catch((e) => {
           /* ICONTROL_LOADER_IMPORT_GUARD_V1 */
-          console.warn("WARN_ROUTE_IMPORT_FAILED", {
+          void warn("WARN_CONSOLE_MIGRATED","console migrated", { payload: ("WARN_ROUTE_IMPORT_FAILED", {
             spec: "../../modules/core-system/ui/frontend-ts/pages/verification",
             err: String(e),
-          });
+          }) });
         });
       return;
     }
@@ -137,10 +138,10 @@ export function renderRoute(rid: RouteId, root: HTMLElement): void {
         .then((m) => m.renderSystemPage(root))
         .catch((e) => {
           /* ICONTROL_LOADER_IMPORT_GUARD_V1 */
-          console.warn("WARN_ROUTE_IMPORT_FAILED", {
+          void warn("WARN_CONSOLE_MIGRATED","console migrated", { payload: ("WARN_ROUTE_IMPORT_FAILED", {
             spec: "../../modules/core-system/ui/frontend-ts/pages/system",
             err: String(e),
-          });
+          }) });
         });
       return;
     }
@@ -149,10 +150,10 @@ export function renderRoute(rid: RouteId, root: HTMLElement): void {
         .then((m) => m.renderLogsPage(root))
         .catch((e) => {
           /* ICONTROL_LOADER_IMPORT_GUARD_V1 */
-          console.warn("WARN_ROUTE_IMPORT_FAILED", {
+          void warn("WARN_CONSOLE_MIGRATED","console migrated", { payload: ("WARN_ROUTE_IMPORT_FAILED", {
             spec: "../../modules/core-system/ui/frontend-ts/pages/logs",
             err: String(e),
-          });
+          }) });
         });
       return;
     }
@@ -166,15 +167,15 @@ export function renderRoute(rid: RouteId, root: HTMLElement): void {
         .then((m) => m.renderToolbox(root))
         .catch((e) => {
           /* ICONTROL_LOADER_IMPORT_GUARD_V1 */
-          console.warn("WARN_ROUTE_IMPORT_FAILED", {
+          void warn("WARN_CONSOLE_MIGRATED","console migrated", { payload: ("WARN_ROUTE_IMPORT_FAILED", {
             spec: "../../modules/core-system/ui/frontend-ts/pages/toolbox",
             err: String(e),
-          });
+          }) });
         });
       return;
     }
   } catch (e) {
-    console.warn("WARN_MAIN_SYSTEM_ROUTE", String(e));
+    void warn("WARN_CONSOLE_MIGRATED","console migrated", { payload: ("WARN_MAIN_SYSTEM_ROUTE", String(e)) });
   }
 
   // CP fallback: pages du CP_PAGES_REGISTRY (all routes have _cp suffix)
@@ -183,8 +184,8 @@ export function renderRoute(rid: RouteId, root: HTMLElement): void {
   if (resolveAppKind() === "CP") {
     // Ensure routeId has _cp suffix for CP
     const cpRouteId = (rid.endsWith("_cp") ? rid : `${rid}_cp`) as RouteId;
-    import("./pages/cp/registry").then((m) => m.renderCpPage(cpRouteId, root)).catch((e) => {
-      console.warn("WARN_CP_PAGE_FALLBACK", e);
+    import("./surfaces/cp/manifest").then((m) => m.renderCpPage(cpRouteId, root)).catch((e) => {
+      void warn("WARN_CONSOLE_MIGRATED","console migrated", { payload: ("WARN_CP_PAGE_FALLBACK", e) });
       root.innerHTML = `<div style="max-width:980px;margin:40px auto;padding:0 16px;opacity:.8">Page introuvable.</div>`;
     });
     return;
@@ -194,8 +195,8 @@ export function renderRoute(rid: RouteId, root: HTMLElement): void {
   if (resolveAppKind() === "APP") {
     // Ensure routeId has _app suffix for APP
     const appRouteId = (rid.endsWith("_app") ? rid : `${rid}_app`) as RouteId;
-    import("./pages/app/registry").then((m) => m.renderAppPage(appRouteId, root)).catch((e) => {
-      console.warn("WARN_APP_PAGE_FALLBACK", e);
+    import("./surfaces/app/manifest").then((m) => m.renderAppPage(appRouteId, root)).catch((e) => {
+      void warn("WARN_CONSOLE_MIGRATED","console migrated", { payload: ("WARN_APP_PAGE_FALLBACK", e) });
       root.innerHTML = `<div style="max-width:980px;margin:40px auto;padding:0 16px;opacity:.8">Page introuvable.</div>`;
     });
     return;
@@ -203,7 +204,7 @@ export function renderRoute(rid: RouteId, root: HTMLElement): void {
 
   root.innerHTML = `<div style="max-width:980px;margin:40px auto;padding:0 16px;opacity:.8">Page introuvable.</div>`;
   } catch (e) {
-    console.warn("WARN_RENDER_ROUTE_FAILED", String(e));
+    void warn("WARN_CONSOLE_MIGRATED","console migrated", { payload: ("WARN_RENDER_ROUTE_FAILED", String(e)) });
     failSafe(e);
   }
 }

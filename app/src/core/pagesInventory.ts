@@ -100,43 +100,43 @@ function getSourceFile(routeId: string, appSurface: "CP" | "CLIENT"): string {
   if (appSurface === "CP") {
     const fileMap: Record<string, string> = {
       home_cp: null /* LEGACY_DISABLED */,
-      dashboard_cp: "app/src/pages/cp/dashboard.ts",
-      subscription_cp: "app/src/pages/cp/subscription.ts",
-      tenants_cp: "app/src/pages/cp/tenants.ts",
-      entitlements_cp: "app/src/pages/cp/entitlements.ts",
-      pages_cp: "app/src/pages/cp/pages.ts",
-      "feature-flags_cp": "app/src/pages/cp/feature-flags.ts",
-      publish_cp: "app/src/pages/cp/publish.ts",
-      audit_cp: "app/src/pages/cp/audit.ts",
-      integrations_cp: "app/src/pages/cp/integrations.ts",
-      access_denied_cp: "app/src/pages/cp/access-denied.ts",
-      blocked_cp: "app/src/pages/cp/blocked.ts",
-      notfound_cp: "app/src/pages/cp/notfound.ts",
-      ui_catalog_cp: "app/src/pages/cp/ui-catalog.ts",
-      login_cp: "app/src/pages/cp/login.ts",
-      account_cp: "app/src/pages/cp/registry.ts",
-      settings_cp: "app/src/pages/cp/registry.ts",
-      users_cp: "app/src/pages/cp/users.ts",
-      system_cp: "app/src/pages/cp/system.ts",
-      developer_cp: "app/src/pages/cp/registry.ts",
-      developer_entitlements_cp: "app/src/pages/cp/registry.ts",
-      verification_cp: "app/src/pages/cp/registry.ts",
-      toolbox_cp: "app/src/pages/cp/registry.ts",
-      logs_cp: "app/src/pages/cp/registry.ts",
-      dossiers_cp: "app/src/pages/cp/registry.ts",
-      runtime_smoke_cp: "app/src/pages/runtime-smoke.ts"
+      dashboard_cp: "app/src/surfaces/cp/dashboard.ts",
+      subscription_cp: "app/src/surfaces/cp/subscription.ts",
+      tenants_cp: "app/src/surfaces/cp/tenants.ts",
+      entitlements_cp: "app/src/surfaces/cp/entitlements.ts",
+      pages_cp: "app/src/surfaces/cp/pages.ts",
+      "feature-flags_cp": "app/src/surfaces/cp/feature-flags.ts",
+      publish_cp: "app/src/surfaces/cp/publish.ts",
+      audit_cp: "app/src/surfaces/cp/audit.ts",
+      integrations_cp: "app/src/surfaces/cp/integrations.ts",
+      access_denied_cp: "app/src/surfaces/cp/access-denied.ts",
+      blocked_cp: "app/src/surfaces/cp/blocked.ts",
+      notfound_cp: "app/src/surfaces/cp/notfound.ts",
+      ui_catalog_cp: "app/src/surfaces/cp/ui-catalog.ts",
+      login_cp: "app/src/surfaces/cp/login.ts",
+      account_cp: "app/src/surfaces/cp/registry.ts",
+      settings_cp: "app/src/surfaces/cp/registry.ts",
+      users_cp: "app/src/surfaces/cp/users.ts",
+      system_cp: "app/src/surfaces/cp/system.ts",
+      developer_cp: "app/src/surfaces/cp/registry.ts",
+      developer_entitlements_cp: "app/src/surfaces/cp/registry.ts",
+      verification_cp: "app/src/surfaces/cp/registry.ts",
+      toolbox_cp: "app/src/surfaces/cp/registry.ts",
+      logs_cp: "app/src/surfaces/cp/registry.ts",
+      dossiers_cp: "app/src/surfaces/cp/registry.ts",
+      runtime_smoke_cp: "app/src/surfaces/shared/runtime-smoke/Page.ts"
     };
-    return fileMap[routeId] || "app/src/pages/cp/registry.ts";
+    return fileMap[routeId] || "app/src/surfaces/cp/registry.ts";
   } else {
     const fileMap: Record<string, string> = {
-      home_app: "app/src/pages/app/home-app.ts",
-      client_disabled_app: "app/src/pages/app/client-disabled.ts",
-      access_denied_app: "app/src/pages/app/client-access-denied.ts",
-      client_catalog_app: "app/src/pages/app/client-catalog.ts",
-      pages_inventory_app: "app/src/pages/app/client-pages-inventory.ts",
-      notfound_app: "app/src/pages/app/client-disabled.ts"
+      home_app: "app/src/surfaces/app/home-app.ts",
+      client_disabled_app: "app/src/surfaces/app/client-disabled.ts",
+      access_denied_app: "app/src/surfaces/app/client-access-denied.ts",
+      client_catalog_app: "app/src/surfaces/app/client-catalog.ts",
+      pages_inventory_app: "app/src/surfaces/app/client-pages-inventory.ts",
+      notfound_app: "app/src/surfaces/app/client-disabled.ts"
     };
-    return fileMap[routeId] || "app/src/pages/app/registry.ts";
+    return fileMap[routeId] || "app/src/surfaces/app/registry.ts";
   }
 }
 

@@ -13,8 +13,8 @@ FLAGS_JSON="app/src/policies/feature_flags.default.json"
 ROUTER_ACTIVE="app/src/router.ts"
 ROUTER_DEAD="app/src/runtime/router.ts"
 
-CP_DEAD_SYSTEM="app/src/pages/cp/system.ts"
-CP_DEAD_USERS="app/src/pages/cp/users.ts"
+CP_DEAD_SYSTEM="app/src/surfaces/cp/system.ts"
+CP_DEAD_USERS="app/src/surfaces/cp/users.ts"
 
 MODULE_LOADER="app/src/moduleLoader.ts"
 GATE_UI_CONTRACTS="scripts/gates/gate-ui-contracts.mjs"
@@ -89,10 +89,10 @@ if test -f "$CP_DEAD_USERS"; then
 fi
 
 # 3.3 Retirer system/users de CP_PAGES_REGISTRY
-if test -f "app/src/pages/cp/registry.ts"; then
+if test -f "app/src/surfaces/cp/registry.ts"; then
   echo "==[CRIT] Removing system/users from CP_PAGES_REGISTRY..."
   # Utiliser sed pour retirer les blocs system et users
-  perl -i -0777 -pe 's/,\s*system:\s*\{[^}]*routeId:\s*"system"[^}]*\}[^,]*//gs; s/,\s*users:\s*\{[^}]*routeId:\s*"users"[^}]*\}[^,]*//gs;' "app/src/pages/cp/registry.ts" || true
+  perl -i -0777 -pe 's/,\s*system:\s*\{[^}]*routeId:\s*"system"[^}]*\}[^,]*//gs; s/,\s*users:\s*\{[^}]*routeId:\s*"users"[^}]*\}[^,]*//gs;' "app/src/surfaces/cp/registry.ts" || true
   echo "OK: CP_PAGES_REGISTRY cleaned"
 fi
 
@@ -150,7 +150,7 @@ echo "ACTION REQUIRED: Choose ONE canonical guard source, then refactor imports.
 echo ""
 echo "==[HYGIENE] Listing .disabled and dead React files"
 find app/src -type f -name "*.disabled" -maxdepth 12 2>/dev/null | head -10 || true
-find app/src/pages/app -type f -name "client-*.tsx" 2>/dev/null | head -10 || true
+find app/src/surfaces/app -type f -name "client-*.tsx" 2>/dev/null | head -10 || true
 
 # ---- 7) FIX: gate-ui-contracts.mjs (normalisation) ----
 echo ""

@@ -73,7 +73,7 @@ export function createLineChart(data: number[], widthOrOpts: number | LineChartO
 
   const area = document.createElementNS(svg.namespaceURI, "polygon");
   area.setAttribute("points", areaPoints);
-  area.setAttribute("fill", "var(--ic-chartArea, rgba(59,130,246,.2))");
+  area.setAttribute("fill", "var(--ic-chartArea, var(--ic-text-primary))");
   area.setAttribute("stroke", "none");
   svg.appendChild(area);
 

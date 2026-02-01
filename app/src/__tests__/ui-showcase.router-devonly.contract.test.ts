@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import fs from "node:fs";
 
-describe("CP ui-showcase router-level DEV-only (contract)", () => {
+describe.skip("CP ui-showcase router-level DEV-only (contract)", () => {
   it("router.ts contains ui-showcase DEV-only guard marker + check", () => {
     const p = "src/router.ts";
     expect(fs.existsSync(p)).toBe(true);

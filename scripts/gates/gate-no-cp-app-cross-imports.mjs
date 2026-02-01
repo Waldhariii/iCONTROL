@@ -15,7 +15,7 @@ function checkCrossImports() {
   // Check CP files importing APP pages
   try {
     const cpImportsApp = execSync(
-      `rg -n --hidden --glob '!.git' "from\\s+['\"].*pages/app/|import.*pages/app/" app/src/pages/cp app/src/core app/src/router.ts app/src/moduleLoader.ts 2>/dev/null || true`,
+      `rg -n --hidden --glob '!.git' "from\\s+['\"].*pages/app/|import.*pages/app/" app/src/surfaces/cp app/src/core app/src/router.ts app/src/moduleLoader.ts 2>/dev/null || true`,
       { encoding: "utf-8", cwd: REPO_ROOT }
     ).trim();
     
@@ -30,7 +30,7 @@ function checkCrossImports() {
   // Check APP files importing CP pages
   try {
     const appImportsCp = execSync(
-      `rg -n --hidden --glob '!.git' "from\\s+['\"].*pages/cp/|import.*pages/cp/" app/src/pages/app app/src/core app/src/router.ts app/src/moduleLoader.ts 2>/dev/null || true`,
+      `rg -n --hidden --glob '!.git' "from\\s+['\"].*pages/cp/|import.*pages/cp/" app/src/surfaces/app app/src/core app/src/router.ts app/src/moduleLoader.ts 2>/dev/null || true`,
       { encoding: "utf-8", cwd: REPO_ROOT }
     ).trim();
     

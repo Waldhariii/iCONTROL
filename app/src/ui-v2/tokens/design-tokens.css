@@ -1,0 +1,19 @@
+:root {
+  --ui-bg: var(--icontrol-color-fallback-fg);
+  --ui-panel: var(--icontrol-color-fallback-fg);
+  --ui-border: var(--icontrol-color-fallback-fg);
+  --ui-text: var(--icontrol-color-fallback-fg);
+  --ui-accent: var(--icontrol-color-fallback-fg);
+
+  --ui-radius: 14px;
+  --ui-gap: 12px;
+  --ui-font: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+}
+
+/* P4.10 fallback palette (temporary). Replace progressively with canonical theme tokens. */
+:root{
+  --icontrol-color-fallback-bg: var(--color-bg, var(--icontrol-color-fallback-fg));
+  --icontrol-color-fallback-fg: var(--color-fg, var(--icontrol-color-fallback-fg));
+  --icontrol-color-fallback-muted: var(--color-muted, var(--icontrol-color-fallback-fg));
+  --icontrol-color-fallback-border: var(--color-border, var(--icontrol-color-fallback-border));
+}

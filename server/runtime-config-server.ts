@@ -19,10 +19,30 @@ type ServerOptions = {
   dev?: boolean;
 };
 
+// ICONTROL_REPOROOT_RESOLVE_V1: stabilize repoRoot for TS dev mode and built server.
+function resolveRepoRoot(): string {
+  const cwd = process.cwd();
+  const hasRepoMarkers = (dir: string) =>
+    fs.existsSync(path.join(dir, "package.json")) &&
+    fs.existsSync(path.join(dir, "app"));
+
+  if (hasRepoMarkers(cwd)) return cwd;
+  const up = path.resolve(cwd, "..");
+  if (hasRepoMarkers(up)) return up;
+
+  let d = path.resolve(path.dirname(fileURLToPath(import.meta.url)));
+  for (let i = 0; i < 6; i += 1) {
+    if (hasRepoMarkers(d)) return d;
+    d = path.resolve(d, "..");
+  }
+  return cwd;
+}
+
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const serverRoot = path.resolve(__dirname, "..");
-const repoRoot = path.resolve(serverRoot, "..");
+const repoRoot = resolveRepoRoot();
 const distRoot = path.join(repoRoot, "dist");
+const assetsDist = path.join(distRoot, "assets");
 const appDistFixed = path.join(repoRoot, "app", "dist", "app");
 const cpDistFixed = path.join(repoRoot, "app", "dist", "cp");
 const appDist = fs.existsSync(path.join(appDistFixed, "index.html"))
@@ -375,6 +395,18 @@ export function handleRuntimeConfigRequest(
     }
 
     // Static routing (after API endpoints)
+    if (pathname.startsWith("/assets")) {
+      serveStatic(req, res, assetsDist, "/assets");
+      return;
+    }
+    if (pathname.startsWith("/app/assets")) {
+      serveStatic(req, res, assetsDist, "/app/assets");
+      return;
+    }
+    if (pathname.startsWith("/cp/assets")) {
+      serveStatic(req, res, assetsDist, "/cp/assets");
+      return;
+    }
     if (pathname.startsWith("/app")) {
       serveStatic(req, res, appDist, "/app");
       return;

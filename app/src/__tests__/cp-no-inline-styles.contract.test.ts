@@ -13,8 +13,8 @@ function walk(dir: string): string[] {
 }
 
 describe("CP: no inline styles anywhere (contract)", () => {
-  it("no cssText / setAttribute('style') / style=\"...\" under src/pages/cp", () => {
-    const root = path.join(process.cwd(), "src/pages/cp");
+  it("no cssText / setAttribute('style') / style=\"...\" under src/surfaces/cp", () => {
+    const root = path.join(process.cwd(), "src/surfaces/cp");
     expect(fs.existsSync(root)).toBe(true);
 
     const files = walk(root);

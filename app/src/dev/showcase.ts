@@ -36,24 +36,24 @@ function ensureStyles(doc: Document): void {
   style.textContent = `
   .ic-showcase {
     position: fixed; inset: 16px; z-index: 2147483000;
-    background: color-mix(in srgb, var(--ic-bg, #0f1115) 92%, transparent);
-    border: 1px solid var(--ic-border, rgba(255,255,255,0.12));
+    background: color-mix(in srgb, var(--ic-bg) 92%, transparent);
+    border: 1px solid var(--ic-border, var(--ic-text-muted));
     border-radius: 16px;
-    box-shadow: var(--ic-shadowToast, 0 18px 46px rgba(0,0,0,0.45));
-    color: var(--ic-text, #e6e8ee);
+    box-shadow: var(--ic-shadowToast, 0 18px 46px var(--ic-text-muted));
+    color: var(--ic-text);
     font-family: var(--font, var(--ic-font, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial));
     overflow: hidden;
   }
   .ic-showcase__top {
     display:flex; align-items:center; justify-content:space-between;
     padding: 12px 14px;
-    background: var(--ic-panel, #151a1f);
-    border-bottom: 1px solid var(--ic-border, rgba(255,255,255,0.12));
+    background: var(--ic-panel);
+    border-bottom: 1px solid var(--ic-border, var(--ic-text-muted));
   }
   .ic-showcase__title { font-weight: 800; letter-spacing: .3px; font-size: 13px; }
   .ic-showcase__btn {
     padding: 8px 10px; border-radius: 10px;
-    border: 1px solid var(--ic-border, rgba(255,255,255,0.12));
+    border: 1px solid var(--ic-border, var(--ic-text-muted));
     background: transparent; color: inherit; cursor: pointer;
     font-weight: 700; font-size: 12px;
   }
@@ -61,54 +61,54 @@ function ensureStyles(doc: Document): void {
     display:grid; grid-template-columns: 1.2fr .8fr; gap: 12px;
     padding: 12px;
     height: calc(100% - 52px);
-    background: var(--ic-bg, #0f1115);
+    background: var(--ic-bg);
   }
   .ic-showcase__card {
     border-radius: 14px;
-    border: 1px solid var(--ic-border, rgba(255,255,255,0.12));
-    background: var(--ic-card, #171c22);
+    border: 1px solid var(--ic-border, var(--ic-text-muted));
+    background: var(--ic-card);
     padding: 12px;
   }
   .ic-showcase__h { font-weight: 900; font-size: 12px; opacity: .95; margin-bottom: 8px; }
   .ic-showcase__row { display:flex; gap: 8px; flex-wrap: wrap; align-items:center; }
   .ic-showcase__input {
     height: 36px; padding: 0 12px; border-radius: 10px;
-    background: var(--ic-inputBg, rgba(255,255,255,0.05));
-    border: 1px solid var(--ic-border, rgba(255,255,255,0.12));
-    color: var(--ic-text, #e6e8ee);
+    background: var(--ic-inputBg, var(--ic-text-muted));
+    border: 1px solid var(--ic-border, var(--ic-text-muted));
+    color: var(--ic-text);
     outline: none;
     min-width: 240px;
   }
   .ic-showcase__cta {
     height: 36px; padding: 0 12px; border-radius: 10px;
     border: 1px solid transparent;
-    background: var(--ic-accent, #5a8fff);
-    color: var(--ic-textOnAccent, #0f1115);
+    background: var(--ic-accent);
+    color: var(--ic-textOnAccent);
     font-weight: 900; cursor: pointer;
   }
   .ic-showcase__ghost {
     height: 36px; padding: 0 12px; border-radius: 10px;
-    border: 1px solid var(--ic-border, rgba(255,255,255,0.12));
+    border: 1px solid var(--ic-border, var(--ic-text-muted));
     background: transparent;
-    color: var(--ic-text, #e6e8ee);
+    color: var(--ic-text);
     font-weight: 800; cursor: pointer;
   }
   table.ic-showcase__table { width:100%; border-collapse: collapse; font-size: 12px; }
   table.ic-showcase__table th, table.ic-showcase__table td {
     padding: 10px 10px;
-    border-bottom: 1px solid var(--ic-border, rgba(255,255,255,0.12));
+    border-bottom: 1px solid var(--ic-border, var(--ic-text-muted));
     text-align: left;
   }
   table.ic-showcase__table th {
-    background: var(--ic-panel, #151a1f);
+    background: var(--ic-panel);
     position: sticky; top: 0;
   }
   .ic-pill {
     display:inline-flex; align-items:center; padding: 4px 8px;
     border-radius: 999px;
-    border: 1px solid var(--ic-accentBorder, rgba(90,143,255,0.35));
-    background: var(--ic-accentBg, rgba(90,143,255,0.18));
-    color: var(--ic-accent, #5a8fff);
+    border: 1px solid var(--ic-accentBorder, var(--ic-text-muted));
+    background: var(--ic-accentBg, var(--ic-text-muted));
+    color: var(--ic-accent);
     font-weight: 800;
     font-size: 11px;
   }`;
@@ -142,7 +142,7 @@ function buildUI(doc: Document): HTMLElement {
         <div style="height:12px"></div>
 
         <div class="ic-showcase__h">Table (Excel-like)</div>
-        <div style="height: calc(100% - 110px); overflow:auto; border-radius: 12px; border:1px solid var(--ic-border, rgba(255,255,255,0.12));">
+        <div style="height: calc(100% - 110px); overflow:auto; border-radius: 12px; border:1px solid var(--ic-border, var(--ic-text-muted));">
           <table class="ic-showcase__table">
             <thead>
               <tr>
@@ -150,7 +150,7 @@ function buildUI(doc: Document): HTMLElement {
               </tr>
             </thead>
             <tbody>
-              <tr><td>Safari Park</td><td><span class="ic-pill">Actif</span></td><td>2 450$</td><td>2026-01-28</td></tr>
+              <tr><td>Customer A</td><td><span class="ic-pill">Actif</span></td><td>2 450$</td><td>2026-01-28</td></tr>
               <tr><td>Innovex Extermination</td><td><span class="ic-pill">En cours</span></td><td>980$</td><td>2026-01-27</td></tr>
               <tr><td>Groupe Thermique</td><td><span class="ic-pill">Prospect</span></td><td>—</td><td>2026-01-25</td></tr>
               <tr><td>Client Démo</td><td><span class="ic-pill">Suspendu</span></td><td>120$</td><td>2026-01-22</td></tr>
