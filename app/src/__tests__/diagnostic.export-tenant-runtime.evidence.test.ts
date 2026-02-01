@@ -18,7 +18,9 @@ describe("diagnostic export tenant runtime (evidence)", () => {
     const outDir = `${repo}/_artifacts/diagnostics`;
     fs.mkdirSync(outDir, { recursive: true });
 
-    const outFile = `${outDir}/tenant-runtime_${tenantId}_${ts()}.json`;
+    const isCI = String(process.env.CI || "").toLowerCase() === "true";
+    const name = isCI ? `tenant-runtime_${tenantId}_LATEST.json` : `tenant-runtime_${tenantId}_${ts()}.json`;
+    const outFile = `${outDir}/${name}`;
     fs.writeFileSync(outFile, JSON.stringify({ meta: { ts: new Date().toISOString(), tenantId }, snapshot }, null, 2) + "\n");
 
     expect(fs.existsSync(outFile)).toBe(true);
