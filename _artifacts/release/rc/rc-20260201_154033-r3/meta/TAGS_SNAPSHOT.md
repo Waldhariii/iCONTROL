@@ -1,5 +1,0 @@
-# Tags Snapshot (SSOT)
-- head: 468ef0921d503004454a5f12683db408cc6080ce
-- rc: rc-20260201_154033-r3
-- prod-candidate: prod-candidate-20260201_154033-r3
-- baseline: baseline-20260201_154033-r3
