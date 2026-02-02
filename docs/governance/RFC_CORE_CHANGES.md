@@ -140,3 +140,13 @@ Sinon : **BLOCK** (gate).
 - Intent: provide explicit boundary-safe factory exports consumed by CP bootstrap integration.
 - Compatibility: additive exports, no route changes.
 - Governance: preserves no cross-boundary imports rule.
+
+## RFC-2026-02-02-ssot-ports-index-v1 — SSOT Ports Index v1 (Contract-First Export Gate)
+
+- Date: 2026-02-02
+- Scope: app/src/core/ports/** (barrel index) + contract test for exported symbols
+- Motivation (plateforme): réduire la dérive d’exports/imports et fiabiliser le wiring CP/APP via un point d’entrée unique.
+- Gouvernance: aucun import cross-boundary ajouté; consommation des ports uniquement via un SSOT barrel.
+- Risk: faible (refactor import paths). Mitigation: tests contract + gates verify:prod:fast.
+- Notes: prépare le Move5 (enable/deny e2e) en stabilisant le “surface contract” des ports.
+
