@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import * as Ports from "../core/ports";
 
 const EXPECTED = [
+  '__resetForTests',
   'Action',
   'ActivationDecision',
   'ActivationRegistryFacade',
@@ -20,7 +21,6 @@ const EXPECTED = [
   'RuntimeIdentityPort',
   'Subject',
   'TenantId',
-  '__resetForTests',
   'bindActivationRegistry',
   'bindPolicyEngine',
   'bindSnapshot',
