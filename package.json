@@ -151,6 +151,7 @@
     "gate:root-canonical": "bash scripts/gates/gate-root-canonical.sh",
     "gate:generated-only": "bash scripts/gates/gate-generated-only.sh",
     "release:train": "bash scripts/release/release-train.sh",
+    "release:train:vnext": "bash scripts/release/release-train-vnext.sh",
     "gate:pressure-layer": "bash scripts/gates/gate-pressure-layer.sh",
     "gate:pressure-layer-budget0": "bash scripts/gates/gate-pressure-layer-budget0.sh",
     "gate:observability-budget0": "bash scripts/gates/gate-observability-budget0.sh",
