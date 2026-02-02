@@ -328,3 +328,10 @@ Sinon : **BLOCK** (gate).
 - Motif plateforme: éliminer  pour stabiliser la surface publique (determinisme + freeze tests) et corriger la résolution des chemins avec suffixes non-TS (ex: *.facade).
 - Scope: app/src/core/ports/index.ts (remplacement par exports explicites).
 - Rollback: revert + tag-set-atomic.
+
+## RFC-20260202_220249-ports-index-dedupe-tenantid — Ports index de-dup (TenantId canonical)
+- Date (UTC): 2026-02-02
+- Motif plateforme: garantir une surface d’export unique et build-stable (esbuild) en évitant les collisions (ex: TenantId ré-exporté par plusieurs facades/contracts).
+- Décision: TenantId est exporté **une seule fois** via runtimeIdentity.contract (SSOT), retiré des autres re-exports.
+- Scope: app/src/core/ports/index.ts.
+- Rollback: revert + tag-set-atomic.
