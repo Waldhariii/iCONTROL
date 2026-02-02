@@ -1,4 +1,5 @@
 import React from "react";
+import { enforceCpEntitlementsSurface } from "../../core/ports/cpSurfaceEnforcement.entitlements";
 
 export function CpSettingsPage() {
   return (
