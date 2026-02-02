@@ -53,7 +53,10 @@ export const REASON_CODES_V1 = [
   "WARN_POLICY_DEFAULT",
   "WARN_SAFE_RENDER_RECOVERED",
   "WARN_TELEMETRY_PARTIAL",
-] as const;
+  "ERR_VFS_NOT_BOUND",
+  "ERR_SNAPSHOT_NOT_BOUND",
+]
+;
 
 export type ReasonCodeV1 = (typeof REASON_CODES_V1)[number];
 export type ReasonCode = ReasonCodeV1;
