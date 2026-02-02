@@ -2,8 +2,8 @@
  * CP Surface Enforcement — v1
  * Boundary-safe: depends only on app ports index + contracts, never core-kernel concrete impl imports.
  */
-import { getCpEnforcement } from "./cpEnforcement.bootstrap";
-import type { PolicyContext } from "./policyEngine.facade";
+import { bindPolicyEngine, bootstrapCpEnforcement } from "./index";
+import type { PolicyDecision } from "./policyEngine.facade";
 
 /**
  * Enforce access for a CP surface key.
@@ -16,16 +16,25 @@ export async function enforceCpSurfaceAccess(input: {
   action: string;      // ex: "read" | "write"
   resource: string;    // ex: "users"
 }): Promise<{ allow: boolean; reason: string }> {
-  const { policy } = getCpEnforcement();
+  let policy = null as ReturnType<typeof bindPolicyEngine> | null;
+  try {
+    policy = bindPolicyEngine();
+  } catch {
+    // Lazy bootstrap for tests and environments that did not register deps yet.
+    bootstrapCpEnforcement();
+    policy = bindPolicyEngine();
+  }
 
-  // PolicyContext is a facade-level type; keep it minimal and serializable.
-  const ctx: PolicyContext = {
+  const decision: PolicyDecision = policy.evaluate({
     tenantId: input.tenantId,
-    actorId: input.actorId,
-    surface: input.surfaceKey,
+    subject: { actorId: input.actorId, role: "admin" },
     action: input.action,
-    resource: input.resource,
-  };
+    resource: { kind: input.resource, id: input.surfaceKey },
+    context: { surface: input.surfaceKey },
+  });
 
-  return policy.evaluate(ctx);
+  if (decision.allow) {
+    return { allow: true, reason: decision.reasons[0] ?? "OK_POLICY_ALLOW" };
+  }
+  return { allow: false, reason: decision.code || decision.reasons[0] || "ERR_POLICY_DENY" };
 }
