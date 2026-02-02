@@ -359,3 +359,9 @@ Sinon : **BLOCK** (gate).
 - Change: ajoute un test ULTRA invariants + un fichier d'exemptions contrôlé business (MODULE_CATALOG_EXEMPTIONS.json).
 - Risk: faible (tests only) ; bénéfice: gouvernance renforcée (no silent module leakage).
 - Gate impact: verify:prod:fast doit rester GREEN.
+
+## RFC-2026-02-02-phase6-move3-catalog-driven-cp-surface-registry — Phase6 Move3 (Catalog-driven CP surface registry)
+- Status: APPROVED
+- Motivation: éliminer les listes hardcodées de surfaces CP; dériver surfaces/routes/capabilities depuis MODULE_CATALOG SSOT.
+- Change: ajoute un builder ports-only (app boundary) + tests contract déterministes; wiring via accessor non-invasif.
+- Risk: faible (additive). Rollback: retirer accessor + builder/test.

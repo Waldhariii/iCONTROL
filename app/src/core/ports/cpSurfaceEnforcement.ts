@@ -3,6 +3,7 @@
  * Boundary-safe: depends only on app ports index + contracts, never core-kernel concrete impl imports.
  */
 import { bindPolicyEngine, bootstrapCpEnforcement } from "./index";
+import { buildCpSurfaceRegistryFromCatalog } from "./cpSurfaceRegistry.catalog";
 import type { PolicyDecision } from "./policyEngine.facade";
 
 /**
@@ -52,4 +53,12 @@ function _resolveIdentity(): { tenantId: string; actorId: string } {
 export function redirectOnDeny(decision: { allow: boolean; reason: string }, appKind: "CP" | "APP" = "CP"): void {
   if (decision.allow) return;
   governedRedirect({ kind: "blocked", reason: decision.reason });
+}
+
+/**
+ * Move3: CP surface registry source = MODULE_CATALOG SSOT.
+ * Keep this local to ports layer (APP boundary).
+ */
+export function getCpSurfaceRegistry(): readonly { moduleId: string; surfaceId: string; routes: readonly string[]; capabilities: readonly string[] }[] {
+  return buildCpSurfaceRegistryFromCatalog();
 }
