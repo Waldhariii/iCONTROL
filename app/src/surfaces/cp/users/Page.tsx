@@ -25,12 +25,24 @@ import { createCorrelationId, createWriteGateway } from "../../../core/write-gat
 import { getLogger } from "../../../platform/observability/logger";
 import { getTenantId } from "../../../core/runtime/tenant";
 import { Vfs, type VfsScope } from "../../../platform/storage/vfs";
+import { guardCpSurface } from "../../core/runtime/cpSurfaceGuard";
+
 
 /** WRITE_GATEWAY_WRITE_SURFACE — shadow scaffold (legacy-first; NO-OP adapter). */
 const __wsLogger = getLogger("WRITE_GATEWAY_WRITE_SURFACE");
 let __wsGateway: ReturnType<typeof createWriteGateway> | null = null;
 
 function __resolveWsGateway() {
+  // Move14: centralized CP surface guard (tenant matrix first)
+  const tenantId = (globalThis as any).__ICONTROL_RUNTIME__?.tenantId ?? null;
+  const actorId  = (globalThis as any).__ICONTROL_RUNTIME__?.actorId ?? null;
+  const gd = guardCpSurface({ tenantId, actorId, surfaceKey: "cp.users" });
+  if (!gd.allow) {
+    // keep render safe; actual redirect handled by governed redirect strategy
+    return null as any;
+  }
+
+
   if (__wsGateway) return __wsGateway;
   __wsGateway = createWriteGateway({
     policy: createPolicyHook(),
