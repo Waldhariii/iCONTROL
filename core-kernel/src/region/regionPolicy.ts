@@ -1,11 +1,11 @@
-export type Region = string;
+import type { RegionDecision, RegionInput, RegionPolicy } from "./regionPolicy.contract";
 
-export type RegionPolicy = {
-  defaultRegion: Region;
-  allowedRegions: Region[];
-};
-
-export function pickRegion(policy: RegionPolicy, requested?: Region): Region {
-  if (requested && policy.allowedRegions.includes(requested)) return requested;
-  return policy.defaultRegion;
+export function createRegionPolicy(): RegionPolicy {
+  return {
+    decide(input: RegionInput): RegionDecision {
+      if (input.userPrefRegion) return { region: input.userPrefRegion, reason: "user_preference" };
+      if (input.dataResidency) return { region: input.dataResidency, reason: "data_residency" };
+      return { region: "na-east", reason: "default" };
+    },
+  };
 }
