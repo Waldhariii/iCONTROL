@@ -365,3 +365,9 @@ Sinon : **BLOCK** (gate).
 - Motivation: éliminer les listes hardcodées de surfaces CP; dériver surfaces/routes/capabilities depuis MODULE_CATALOG SSOT.
 - Change: ajoute un builder ports-only (app boundary) + tests contract déterministes; wiring via accessor non-invasif.
 - Risk: faible (additive). Rollback: retirer accessor + builder/test.
+
+## RFC-2026-02-02-phase6-move3-module-catalog-cp-surfaces — Phase6 Move3 (MODULE_CATALOG includes CP surfaces)
+- Status: APPROVED
+- Motivation: débloquer la registry CP *catalog-driven* en garantissant des surfaces CP réelles dans MODULE_CATALOG SSOT.
+- Change: regeneration logic excludes internal modules and injects CP surfaces from app/src/surfaces/cp/* into core-system.
+- Risk: faible (SSOT only). Rollback: retirer l’injection synthetic + revenir au catalogue précédent.

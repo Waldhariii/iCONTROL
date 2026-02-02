@@ -1,36 +1,42 @@
 {
-  "schema": "MODULE_CATALOG_V1",
-  "generated_utc": "2026-02-02T22:25:41.518Z",
+  "schema": "module-catalog.v1",
+  "generated_at_utc": "2026-02-02T23:44:49.383Z",
   "modules": [
     {
-      "id": "_manifests",
-      "manifest": "modules/_manifests/manifest/module.json",
+      "id": "core-system",
       "capabilities": [],
       "surfaces": [
-        "both"
+        "cp.account",
+        "cp.dashboard",
+        "cp.home.cp",
+        "cp.login",
+        "cp.login.theme",
+        "cp.notfound",
+        "cp.pages",
+        "cp.registry",
+        "cp.settings",
+        "cp.users"
       ],
-      "routes": []
-    },
-    {
-      "id": "core-system",
-      "manifest": "modules/core-system/manifest/module.json",
-      "capabilities": [],
-      "surfaces": [],
-      "routes": []
+      "routes": [
+        "/cp/#/account",
+        "/cp/#/dashboard",
+        "/cp/#/home-cp",
+        "/cp/#/login",
+        "/cp/#/login-theme",
+        "/cp/#/notfound",
+        "/cp/#/pages",
+        "/cp/#/registry",
+        "/cp/#/settings",
+        "/cp/#/users"
+      ],
+      "source": "modules/core-system/manifest/module.json"
     },
     {
       "id": "inventory",
-      "manifest": "modules/inventory/manifest/module.json",
       "capabilities": [],
       "surfaces": [],
-      "routes": []
-    },
-    {
-      "id": "module-template",
-      "manifest": "modules/_module-template/manifest/module.json",
-      "capabilities": [],
-      "surfaces": [],
-      "routes": []
+      "routes": [],
+      "source": "modules/inventory/manifest/module.json"
     }
   ]
 }
