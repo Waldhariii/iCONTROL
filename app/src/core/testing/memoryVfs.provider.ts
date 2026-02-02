@@ -1,4 +1,4 @@
-import type { VfsPort, VfsRead, VfsWrite, VfsDelete, VfsResult } from "../../../../core-kernel/src/contracts/vfsPort.contract";
+import type { VfsPort, VfsRead, VfsWrite, VfsDelete, VfsResult } from "../contracts/vfsPort.contract";
 
 type Store = Map<string, unknown>;
 
@@ -28,14 +28,9 @@ export function createMemoryVfs(): VfsPort {
       return { ok: true, value: true };
     }
   };
-  port.__store = store;
-  return port as any;
-}
 
-/** Test helper: exposes raw store snapshot for snapshot provider. */
-export function __dumpMemoryVfs(vfs: VfsPort): Record<string, unknown> {
-  // Works only with createMemoryVfs objects; kept in tests for determinism.
-  // @ts-expect-error test-only
-  const s: Map<string, unknown> | undefined = vfs?.__store;
-  return s ? Object.fromEntries(s.entries()) : {};
+  // test-only hook used by memorySnapshot.provider.ts
+  port.__store = store;
+
+  return port as VfsPort;
 }

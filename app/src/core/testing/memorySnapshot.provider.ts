@@ -5,13 +5,10 @@ import type {
   SnapshotList,
   SnapshotMeta,
   SnapshotResult
-} from "../../../../core-kernel/src/contracts/snapshotPort.contract";
-import type { VfsPort } from "../../../../core-kernel/src/contracts/vfsPort.contract";
+} from "../contracts/snapshotPort.contract";
+import type { VfsPort } from "../contracts/vfsPort.contract";
 
-type SnapshotBlob = {
-  meta: SnapshotMeta;
-  dump: Record<string, unknown>;
-};
+type SnapshotBlob = { meta: SnapshotMeta; dump: Record<string, unknown> };
 
 function nowIso(): string {
   return new Date().toISOString();
@@ -25,24 +22,22 @@ export function createMemorySnapshot(vfs: VfsPort): SnapshotPort {
   }
 
   function dumpNamespace(t: string, ns: string): Record<string, unknown> {
-    // @ts-expect-error test-only hook from memory provider
-    const store: Map<string, unknown> | undefined = vfs?.__store;
+    // @ts-expect-error test-only hook from memory VFS
+    const store: Map<string, unknown> | undefined = (vfs as any)?.__store;
     const out: Record<string, unknown> = {};
     if (!store) return out;
     const prefix = `${t}::${ns}::`;
-    for (const [k, v] of store.entries()) {
-      if (k.startsWith(prefix)) out[k] = v;
+    for (const [kk, vv] of store.entries()) {
+      if (kk.startsWith(prefix)) out[kk] = vv;
     }
     return out;
   }
 
-  function restoreDump(dump: Record<string, unknown>): void {
-    // @ts-expect-error test-only hook from memory provider
-    const store: Map<string, unknown> | undefined = vfs?.__store;
+  function applyDump(dump: Record<string, unknown>): void {
+    // @ts-expect-error test-only hook from memory VFS
+    const store: Map<string, unknown> | undefined = (vfs as any)?.__store;
     if (!store) return;
-    for (const [k, v] of Object.entries(dump)) {
-      store.set(k, v);
-    }
+    for (const [kk, vv] of Object.entries(dump)) store.set(kk, vv);
   }
 
   return {
@@ -63,16 +58,16 @@ export function createMemorySnapshot(vfs: VfsPort): SnapshotPort {
       const found = arr.find(s => s.meta.snapshotId === cmd.snapshotId);
       if (!found) return { ok: false, error: "ERR_SNAPSHOT_NOT_FOUND" };
 
-      // Clear current namespace keys then restore dump
-      // @ts-expect-error test-only hook
-      const store: Map<string, unknown> | undefined = vfs?.__store;
+      // Clear current keys for this namespace then restore dump.
+      // @ts-expect-error test-only hook from memory VFS
+      const store: Map<string, unknown> | undefined = (vfs as any)?.__store;
       if (store) {
         const prefix = `${cmd.tenantId}::${cmd.namespace}::`;
         for (const kk of Array.from(store.keys())) {
           if (kk.startsWith(prefix)) store.delete(kk);
         }
       }
-      restoreDump(found.dump);
+      applyDump(found.dump);
       return { ok: true, value: true };
     },
 

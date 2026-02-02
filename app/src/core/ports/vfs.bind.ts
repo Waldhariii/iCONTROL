@@ -1,4 +1,4 @@
-import type { VfsPort } from "../../../../core-kernel/src/contracts/vfsPort.contract";
+import type { VfsPort } from "../contracts/vfsPort.contract";
 import { bindVfsPort } from "./vfs.facade";
 
 export type VfsFactory = () => VfsPort;

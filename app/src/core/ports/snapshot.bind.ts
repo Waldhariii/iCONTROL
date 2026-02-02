@@ -1,4 +1,4 @@
-import type { SnapshotPort } from "../../../../core-kernel/src/contracts/snapshotPort.contract";
+import type { SnapshotPort } from "../contracts/snapshotPort.contract";
 import { bindSnapshotPort } from "./snapshot.facade";
 
 export type SnapshotFactory = () => SnapshotPort;

@@ -317,3 +317,8 @@ Sinon : **BLOCK** (gate).
 - Motif business / plateforme: rendre le storage multi-tenant governable via namespaces + snapshot/rollback contract-first.
 - Changements: ajoute VfsPort + SnapshotPort, ports facades/binders, gate:vfs-namespaces, e2e rollback contract.
 - Risque: faible (tests + gate strict), bénéfice: isolation tenant + opérations de rollback prédictibles.
+
+## RFC-2026-02-02-phase5-1-app-local-contracts-boundary-fix-v1 — Phase5.1 Boundary Hotfix (APP-local VFS/Snapshot contracts)
+- Motif business / plateforme: respecter le boundary map (aucun import app -> core-kernel) tout en conservant les ports VFS/Snapshot.
+- Changements: duplication contrôlée des contracts en  + repoint facades/binders/providers/tests; ajout reason codes bind errors; mise à jour des freeze tests.
+- Risque: faible; duplication explicitement documentée; gates/tests assurent la stabilité.

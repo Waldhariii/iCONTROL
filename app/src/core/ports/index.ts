@@ -22,3 +22,8 @@ export { bindVfsPort, getVfsPort } from "./vfs.facade";
 export { bindSnapshotPort, getSnapshotPort } from "./snapshot.facade";
 export { bindVfs } from "./vfs.bind";
 export { bindSnapshot } from "./snapshot.bind";
+
+// __PHASE5_APP_LOCAL_CONTRACTS_V1__
+// APP-local contracts are public for app-level adapter implementations.
+export type { VfsPort, VfsRead, VfsWrite, VfsDelete, VfsResult } from "../contracts/vfsPort.contract";
+export type { SnapshotPort, SnapshotCreate, SnapshotRestore, SnapshotList, SnapshotMeta, SnapshotResult } from "../contracts/snapshotPort.contract";

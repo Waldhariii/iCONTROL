@@ -1,4 +1,4 @@
-import type { SnapshotPort } from "../../../../core-kernel/src/contracts/snapshotPort.contract";
+import type { SnapshotPort } from "../contracts/snapshotPort.contract";
 
 let _snap: SnapshotPort | null = null;
 
