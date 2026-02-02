@@ -1,0 +1,33 @@
+name: PROD PARITY
+
+on:
+  pull_request:
+    branches: [ main ]
+  push:
+    branches: [ main ]
+
+jobs:
+  prod:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [20]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - run: npm ci
+
+      - run: npm run verify:prod:fast
+
+      - run: npm test
+
+      - run: npm run gate:tag-integrity
+        continue-on-error: false
+
+      - run: npm run gate:preflight:prod
