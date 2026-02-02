@@ -5,17 +5,17 @@
  */
 
 // Facades (boundary-safe factories)
-export * from "./activationRegistry.facade";
-export * from "./policyEngine.facade";
+export { ActivationDecision, ActivationRegistryFacade, ActivationWrite, createActivationRegistryFacade, ModuleId, TenantId } from "./activationRegistry.facade";
+export { Action, createPolicyEngineFacade, PolicyContext, PolicyDecision, PolicyEngineFacade, Resource, Subject, TenantId } from "./policyEngine.facade";
 
 // Bootstrap / wiring
-export * from "./cpEnforcement.bootstrap";
-export * from "./cpEnforcement.wiring";
+export { bootstrapCpEnforcement } from "./cpEnforcement.bootstrap";
+export { __resetForTests, bindActivationRegistry, bindPolicyEngine, EnforcementDeps, registerCpEnforcementDeps, requireCpEnforcementDeps } from "./cpEnforcement.wiring";
 
-export * from "./reasonCodes.v1";
+export { REASON_CODES_V1, ReasonCode, ReasonCodeV1 } from "./reasonCodes.v1";
 
 // Runtime identity (SSOT)
-export * from "./runtimeIdentity.contract";
+export { ActorId, RuntimeIdentity, RuntimeIdentityPort, TenantId } from "./runtimeIdentity.contract";
 
 // ---- VFS + Snapshot (Phase5)
 export { bindVfsPort, getVfsPort } from "./vfs.facade";
