@@ -16,3 +16,9 @@ export * from "./reasonCodes.v1";
 
 // Runtime identity (SSOT)
 export * from "./runtimeIdentity.contract";
+
+// ---- VFS + Snapshot (Phase5)
+export { bindVfsPort, getVfsPort } from "./vfs.facade";
+export { bindSnapshotPort, getSnapshotPort } from "./snapshot.facade";
+export { bindVfs } from "./vfs.bind";
+export { bindSnapshot } from "./snapshot.bind";
