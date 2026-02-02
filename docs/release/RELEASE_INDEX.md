@@ -1,12 +1,12 @@
 # RELEASE INDEX
 
-- Generated: 20260201232457
+- Generated: 20260202041930
 - Branch: main
-- HEAD: 5e283f8e88030211bab2dffce10d76c0019b01a2
+- HEAD: e64b34be1dca6e54a4b1a23a8f0fc6e8e8e1ff3a
 
 ## Artifacts
-- Release bundle: `docs/release/RELEASE_BUNDLE_20260201232457.json`  (sha256: `c9c3d2a57da1e778f9102eb59804af18a310f2ab496b59321d1bd35de4cfdd83`)
-- Release notes: `docs/release/RELEASE_NOTES_20260201205437.md`  (sha256: `c1fafbad70a623ae9185b6f74ae1b9b66bfe6e5ae3b4b9e35149fff259f80087`)
+- Release bundle: `docs/release/RELEASE_BUNDLE_20260202041930.json`  (sha256: `f9e9475aaa85859f7d79bfff3476f2d13590b48aa6901231167096315f103c12`)
+- Release notes: `docs/release/RELEASE_NOTES_20260201232457.md`  (sha256: `972d71f943bcacd9e4c04535076fd056dbff26d733da4a43ba09e5a70132f953`)
 - Assets manifest (latest): `ASSETS_MANIFEST_LATEST.json`  (sha256: `fc7444e73cb0bcd1dd47bae3700d08ba66b1c19f0fd647b212019108153197d5`)
 - Dist tree hash: `_audit/LAST_DIST_TREE_HASH.txt`  (sha256: `5189a3c6b2af333d93e998dac3830499bfa2f1eb3d3a3be5acc19abff84cf16c`)
 - Rollback archive: `<none>`  (sha256: `<none>`)
@@ -14,8 +14,3 @@
 ## Commits (pinned)
 - P6 provenance gate: `17c665e`
 
-
-## v0.2.4
-- Commit: `3c82ee74fdd5b86bad60486b082970065e036835`
-- Date: 2026-02-02T00:07:51Z
-- Notes: see _artifacts/release/prod/v0.2.4/
