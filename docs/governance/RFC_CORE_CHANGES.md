@@ -114,3 +114,22 @@ Sinon : **BLOCK** (gate).
 - Migration: none.
 - Rollback: revert commit(s) introduisant ces fichiers.
 
+
+## RFC-2026-02-02-cp-bootstrap-enforcement — CP bootstrap enforcement integration (contract-first)
+
+**Motif business / plateforme:** compléter la boucle *contract-first* en intégrant le bootstrap CP pour enregistrer les dépendances d’enforcement (ActivationRegistry + PolicyEngine) via *ports/facades* **dans la boundary app**, sans imports cross-boundary. Objectif: enforcement prédictible, stabilité, et conformité aux gates.
+
+**Portée (fichiers / surfaces):**
+- `app/src/core/ports/cpEnforcement.bootstrap.ts` (nouveau) — hook de bootstrap CP (guardé par `VITE_APP_KIND=CP`)
+- `app/src/core/ports/cpEnforcement.wiring.ts` — wiring (DI) sans imports core-kernel
+- `app/src/__tests__/cp-enforcement-enable-deny.e2e.contract.test.ts` — preuve e2e enable/deny
+- `app/src/main.ts` — ajout call bootstrap (guardé)
+
+**Gates / preuves:**
+- `verify:prod:fast` doit rester **GREEN** (boundaries + root-clean + budgets).
+- `npm test` doit rester **GREEN** (contrat e2e enable/deny).
+- `gate:tag-integrity` + `gate:preflight:prod` doivent rester **GREEN**.
+
+**Rollback / risques:**
+- Changement isolé à la boundary app; rollback = revert commit(s) RFC + bootstrap.
+- Aucun impact sur modules métier; aucun ajout de routes sauvages; aucun import module→module.
