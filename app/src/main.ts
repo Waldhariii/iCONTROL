@@ -6,7 +6,7 @@ import { hydrateTenantOverrides } from "./platform/tenantOverrides";
 import { getBrandResolved } from "../../platform-services/branding/brandService";
 import "./styles/STYLE_ADMIN_FINAL.css";
 import { installIControlDiagnosticDEVOnly } from "./dev/diagnostic";
-import { bootstrapCpEnforcement } from "../core/ports/cpEnforcement.bootstrap";
+import { bootstrapCpEnforcement } from "./core/ports/cpEnforcement.bootstrap";
 
 /* ICONTROL_SHELL_RECOVERY_V1 (enterprise-grade guardrail)
  * Objectif: empêcher un dashboard CP "sans menu" même si un rendu/route écrase le DOM.
