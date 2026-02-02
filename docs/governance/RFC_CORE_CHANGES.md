@@ -275,3 +275,14 @@ Sinon : **BLOCK** (gate).
   - Correct malformed reason-code literals introduced by scripted insertion.
   - Use existing tenant-matrix loader API (`getEnabledCapabilitiesForPlan`, `getEnabledPagesForPlan`).
   - Enforce identity guard before tenant-matrix check to keep strict runtime typing and deterministic behavior.
+
+## RFC-2026-02-02-move14-cp-guard-centralize-rollout-users-v1 — Move14 CP guard centralization + cp.users rollout via tenant matrix
+
+- Date: 2026-02-02
+- Scope:
+  - Ajout cpSurfaceGuard (single entry enforcement) pour surfaces CP
+  - Rollout cp.users vers guardCpSurface (tenant matrix pages/capabilities)
+  - Tests contract: guard stable + deny on missing identity
+- Motif business / plateforme:
+  - Réduire le coût marginal d’onboarding d’une nouvelle surface CP (config SSOT → enforcement)
+  - Renforcer la gouvernance: “no inline enforcement” dans les pages
