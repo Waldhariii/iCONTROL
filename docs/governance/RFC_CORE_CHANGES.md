@@ -312,3 +312,8 @@ Sinon : **BLOCK** (gate).
 - Motif business / plateforme: industrialiser l’expansion (routes + modules) avec un SSOT explicite, gates, et contrats stables.
 - Changements: ajoute ROUTE_CATALOG_V1 + gates (route-catalog, module-manifests.v1) + warn-only entitlements scatter evidence.
 - Risque: faible (gates shape-only + warn-only), bénéfice: contrôle et prédictibilité du delivery.
+
+## RFC-2026-02-02-phase5-vfs-snapshots-rollback-v1 — Phase 5 VFS + Snapshots/Rollback (V1)
+- Motif business / plateforme: rendre le storage multi-tenant governable via namespaces + snapshot/rollback contract-first.
+- Changements: ajoute VfsPort + SnapshotPort, ports facades/binders, gate:vfs-namespaces, e2e rollback contract.
+- Risque: faible (tests + gate strict), bénéfice: isolation tenant + opérations de rollback prédictibles.
