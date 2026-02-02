@@ -248,3 +248,9 @@ Sinon : **BLOCK** (gate).
   - étendre l’enforcement contract-first au-delà de cp.users,
   - garantir la cohérence runtime identity + redirect v2 + reason codes gelés,
   - réduire le risque de drift (pages “dumb”, enforcement centralisé).
+
+## RFC-2026-02-02-move12-entitlements-rollout-fix-v1 — Move12 integration fix (ports binding + reason code registry)
+
+- Date: 2026-02-02
+- Scope: `app/src/core/ports/cpSurfaceEnforcement.entitlements.ts`, `app/src/surfaces/cp/settings/Page.tsx`, `app/src/core/ports/reasonCodes.v1.ts`.
+- Motivation: fix runtime binding mismatch (`bindCpEnforcement` unavailable), correct CP settings import path, and register `ERR_RUNTIME_IDENTITY_UNAVAILABLE` in frozen reason codes.

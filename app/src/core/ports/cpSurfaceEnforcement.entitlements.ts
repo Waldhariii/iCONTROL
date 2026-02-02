@@ -6,9 +6,8 @@
  * - Enforce via ports bootstrap/bind flow.
  * - Produce deterministic allow/deny + reasonCode + governed redirect.
  */
-import { bindCpEnforcement } from "./cpEnforcement.wiring";
-import { bootstrapCpEnforcement } from "./cpEnforcement.bootstrap";
-import type { Decision } from "../../policies/feature_flags.types"; // if exists; else we treat as unknown
+import { bindPolicyEngine, bootstrapCpEnforcement } from "./index";
+import { createRuntimeIdentityPort } from "../runtime/runtimeIdentity.impl";
 
 export type CpSurfaceCheckResult = Readonly<{
   allow: boolean;
@@ -21,13 +20,18 @@ export async function enforceCpEntitlementsSurface(params: {
   actorId?: string;
   appKind?: "CP" | "APP";
 }): Promise<CpSurfaceCheckResult> {
-  // Bind (strictly ports bootstrap/bind) — no direct impl imports
-  const deps = bootstrapCpEnforcement();
-  const enforcement = bindCpEnforcement(deps);
+  // Ensure deps are registered before binding policy.
+  try {
+    bindPolicyEngine();
+  } catch {
+    bootstrapCpEnforcement();
+  }
+  const policy = bindPolicyEngine();
+  const identity = createRuntimeIdentityPort().tryGet();
 
-  // Runtime identity (Move11) must be present in strict prod path
-  const tenantId = params.tenantId ?? enforcement.identity.tryGet()?.tenantId ?? null;
-  const actorId = params.actorId ?? enforcement.identity.tryGet()?.actorId ?? null;
+  // Runtime identity (Move11) must be present in strict prod path.
+  const tenantId = params.tenantId ?? identity?.tenantId ?? null;
+  const actorId = params.actorId ?? identity?.actorId ?? null;
 
   if (!tenantId || !actorId) {
     // governedRedirect v2 compliant should be used by caller; here we just signal
@@ -36,13 +40,13 @@ export async function enforceCpEntitlementsSurface(params: {
 
   // Minimal policy: require capability that allows admin entitlements
   // We rely on existing policy capability naming already enforced elsewhere (contract tests exist).
-  const decision = enforcement.policy.evaluate({
+  const decision = policy.evaluate({
     tenantId,
     actorId,
-    appKind: "CP",
-    surface: "settings",
-    action: "admin.entitlements",
-    resource: "entitlements",
+    subject: { actorId, role: "admin" },
+    action: "entitlements.write",
+    resource: { kind: "entitlements", id: "settings" },
+    context: { appKind: params.appKind ?? "CP", surface: "settings" },
   });
 
   if (decision?.allow) {
