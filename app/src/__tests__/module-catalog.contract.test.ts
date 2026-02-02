@@ -1,11 +1,11 @@
 import { describe, it, expect } from "vitest";
 import fs from "node:fs";
 import path from "node:path";
+import { execSync } from "node:child_process";
 
 const REPO_ROOT = execSync("git rev-parse --show-toplevel", { encoding: "utf8" }).trim();
-const MODULE_CATALOG_PATH = path.join(REPO_ROOT, MODULE_CATALOG_PATH);
+const MODULE_CATALOG_PATH = path.join(REPO_ROOT, "config/ssot/MODULE_CATALOG.json");
 
-import { execSync } from "node:child_process";
 function isSorted(arr: string[]) {
   for (let i = 1; i < arr.length; i++) {
     if (String(arr[i - 1]).localeCompare(String(arr[i])) > 0) return false;
@@ -15,10 +15,9 @@ function isSorted(arr: string[]) {
 
 describe("SSOT: MODULE_CATALOG.json (contract)", () => {
   it("is valid, deterministic, and non-empty", () => {
-    const p = path.resolve(process.cwd(), "config/ssot/MODULE_CATALOG.json");
-    expect(fs.existsSync(p)).toBe(true);
+    expect(fs.existsSync(MODULE_CATALOG_PATH)).toBe(true);
 
-    const obj = JSON.parse(fs.readFileSync(p, "utf8"));
+    const obj = JSON.parse(fs.readFileSync(MODULE_CATALOG_PATH, "utf8"));
     expect(obj?.schema).toBe("MODULE_CATALOG_V1");
     expect(Array.isArray(obj?.modules)).toBe(true);
     expect(obj.modules.length).toBeGreaterThan(0);
@@ -39,7 +38,6 @@ describe("SSOT: MODULE_CATALOG.json (contract)", () => {
       }
     }
 
-    // Determinism: modules sorted by id then manifest
     const sorted = [...obj.modules].sort((a: any, b: any) =>
       String(a.id).localeCompare(String(b.id)) || String(a.manifest).localeCompare(String(b.manifest))
     );
