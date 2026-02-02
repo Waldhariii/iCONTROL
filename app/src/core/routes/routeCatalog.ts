@@ -3,7 +3,7 @@
  * Single-source-of-truth for allowed public routes (APP + CP).
  * Governance: gate-route-catalog ensures file shape + non-empty routes.
  */
-import catalog from "../../../config/ssot/ROUTE_CATALOG.json";
+import catalog from "../../../../config/ssot/ROUTE_CATALOG.json";
 
 export type AppKind = "APP" | "CP";
 
