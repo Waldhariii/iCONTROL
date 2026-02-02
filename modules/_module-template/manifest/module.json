@@ -1,0 +1,10 @@
+{
+  "id": "_module-template",
+  "name": "_module-template",
+  "version": "0.0.0",
+  "surfaces": ["both"],
+  "routes": [],
+  "entitlements": [],
+  "storageNamespaces": [],
+  "writes": []
+}

@@ -1,0 +1,10 @@
+{
+  "id": "_manifests",
+  "name": "_manifests",
+  "version": "0.0.0",
+  "surfaces": ["both"],
+  "routes": [],
+  "entitlements": [],
+  "storageNamespaces": [],
+  "writes": []
+}

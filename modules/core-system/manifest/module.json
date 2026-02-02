@@ -1,0 +1,10 @@
+{
+  "id": "core-system",
+  "name": "core-system",
+  "version": "0.0.0",
+  "surfaces": ["both"],
+  "routes": [],
+  "entitlements": [],
+  "storageNamespaces": [],
+  "writes": []
+}

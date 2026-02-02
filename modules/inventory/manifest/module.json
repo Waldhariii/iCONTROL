@@ -1,0 +1,10 @@
+{
+  "id": "inventory",
+  "name": "inventory",
+  "version": "0.0.0",
+  "surfaces": ["both"],
+  "routes": [],
+  "entitlements": [],
+  "storageNamespaces": [],
+  "writes": []
+}
