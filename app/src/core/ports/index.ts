@@ -13,3 +13,6 @@ export * from "./cpEnforcement.bootstrap";
 export * from "./cpEnforcement.wiring";
 
 export * from "./reasonCodes.v1";
+
+// Runtime identity (SSOT)
+export * from "./runtimeIdentity.contract";
