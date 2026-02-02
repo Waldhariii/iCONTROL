@@ -254,3 +254,15 @@ Sinon : **BLOCK** (gate).
 - Date: 2026-02-02
 - Scope: `app/src/core/ports/cpSurfaceEnforcement.entitlements.ts`, `app/src/surfaces/cp/settings/Page.tsx`, `app/src/core/ports/reasonCodes.v1.ts`.
 - Motivation: fix runtime binding mismatch (`bindCpEnforcement` unavailable), correct CP settings import path, and register `ERR_RUNTIME_IDENTITY_UNAVAILABLE` in frozen reason codes.
+
+## RFC-2026-02-02-move13-tenant-matrix-enforcement-v1 — Move13 Tenant Matrix Enforcement (pages + capabilities) for CP surfaces
+
+- Date: 2026-02-02
+- Scope:
+  - Ajout helper ports-only enforceTenantMatrix (SSOT)
+  - Reason codes: ERR_PAGE_DISABLED, ERR_CAPABILITY_DISABLED (freeze-safe)
+  - Wiring: cp entitlements surface enforcement passe par tenant matrix avant policy evaluate
+  - Tests: e2e contract tenant-matrix enforcement
+- Motif business / plateforme:
+  - Standardiser l’activation/désactivation de surfaces par tenant (industrialisation)
+  - Réduire le risque de régression et de logique “inline” dans les pages
