@@ -158,7 +158,8 @@
     "gate:release-rollback-sim": "bash scripts/gates/gate-release-rollback-sim.sh",
     "gate:architecture-freeze": "bash scripts/gates/gate-architecture-freeze.sh",
     "gate:module-manifests": "bash scripts/gates/gate-module-manifests.sh",
-    "gate:schema-drift": "bash scripts/gates/gate-schema-drift.sh"
+    "gate:schema-drift": "bash scripts/gates/gate-schema-drift.sh",
+    "gate:titan-sanity": "bash scripts/gates/gate-titan-sanity.sh"
   },
   "devDependencies": {
     "@types/react": "^19.2.10",
