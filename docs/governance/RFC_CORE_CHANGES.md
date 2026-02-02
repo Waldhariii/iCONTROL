@@ -196,3 +196,12 @@ Sinon : **BLOCK** (gate).
   - Ajout: `cp-enforcement-critical-path.ultra.e2e.contract.test.ts`
   - Ajout: `tenant-matrix.enforcement.invariants.contract.test.ts`
   - Ajout: `cp-enforcement.boundary-scan.ultra.contract.test.ts`
+
+## RFC-2026-02-02-move8-cp-surface-rollout-users-v1 — Move8 CP surface rollout (cp.users) v1
+
+- Date: 2026-02-02
+- Scope: consume CP enforcement ports on a real CP surface (users) with contract tests + reason-codes freeze.
+- Motif business / plateforme:
+  - Passage proof-pack -> production consumption.
+  - Réduction du risque d'accès non-governed sur surfaces sensibles.
+  - Stabilité contractuelle (ports + reason codes) observable via tests.
