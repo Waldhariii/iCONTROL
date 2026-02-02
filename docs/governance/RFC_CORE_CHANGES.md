@@ -347,3 +347,9 @@ Sinon : **BLOCK** (gate).
 - Motif plateforme: stabiliser la discipline d’exports publics (ports/index.ts) via un test freeze reflétant la surface réelle après passage en exports explicites.
 - Décision: rafraîchir la liste EXPECTED (triée, dédupliquée) pour correspondre aux exports publics actuels.
 - Scope: app/src/__tests__/ports-public-surface.freeze.contract.test.ts.
+
+## RFC-2026-02-02-phase6-move1-module-catalog-ssot-v1 — Module Catalog SSOT v1 (MODULE_CATALOG + gate)
+**Motif business / plateforme:** établir un inventaire SSOT des modules (manifest → capabilities/surfaces/routes) pour industrialiser l’onboarding, les entitlements et l’enforcement. Réduit les divergences et rend les gates prédictibles.
+**Changements:** ajout de `config/ssot/MODULE_CATALOG.json`, gate `gate:module-catalog`, et test contract `module-catalog.contract`.
+**Risques:** faible (ajout-only). Impact: verify:prod:fast inclut un gate additionnel.
+**Rollout:** immédiat; maintenir tri/dedup deterministe.

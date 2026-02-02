@@ -169,7 +169,8 @@
     "gate:module-contract-v1": "bash scripts/gates/gate-module-contract-v1.sh",
     "gate:core-lts-freeze": "bash scripts/gates/gate-core-lts-freeze.sh",
     "gate:control-plane-activation": "bash scripts/gates/gate-control-plane-activation.sh",
-    "gate:event-backbone": "bash scripts/gates/gate-event-backbone.sh"
+    "gate:event-backbone": "bash scripts/gates/gate-event-backbone.sh",
+    "gate:module-catalog": "bash ./scripts/gates/gate-module-catalog.sh"
   },
   "devDependencies": {
     "@types/react": "^19.2.10",
