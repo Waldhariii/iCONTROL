@@ -33,7 +33,7 @@ export function renderDeveloperEntitlements(root: HTMLElement): void {
   const desc = document.createElement("p");
   desc.style.cssText = "opacity:.85";
   desc.innerHTML = `Objectif: activer/désactiver des capacités PRO/ENTERPRISE sans billing externe. ` +
-    `Les entitlements sont stockés localement (localStorage) pour le tenant <code>${tenantId}</code>.`;
+    `Les entitlements sont stockés localement (web storage) pour le tenant <code>${tenantId}</code>.`;
   wrap.appendChild(desc);
 
   const card = document.createElement("section");

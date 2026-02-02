@@ -73,7 +73,7 @@ export function renderBrandingSettings(root: HTMLElement): void {
         <div style="font-size:22px;font-weight:900">Parametres — Identité & marque</div>
         <a id="back_settings" href="#/settings" style="color:var(--ic-mutedText);text-decoration:underline">Retour parametres</a>
       </div>
-      <div style="color:var(--ic-mutedText);margin-top:8px">Changer le nom affiche sans toucher au code (localStorage).</div>
+      <div style="color:var(--ic-mutedText);margin-top:8px">Changer le nom affiche sans toucher au code (web storage).</div>
 
       <div style="margin-top:16px;max-width:520px;display:flex;flex-direction:column;gap:10px">
         <label style="color:var(--ic-mutedText)">Nom de l'application</label>

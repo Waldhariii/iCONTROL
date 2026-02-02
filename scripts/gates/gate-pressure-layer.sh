@@ -26,8 +26,8 @@ if [[ -n "$violations" ]]; then
   if [[ "$(echo "$violations" | wc -l)" -gt 20 ]]; then
     echo "... and more (warn-only for now)"
   fi
-  # Phase 27: warn-only; set PRESSURE_LAYER_STRICT=1 to fail
-  if [[ "${PRESSURE_LAYER_STRICT:-0}" = "1" ]]; then
+  # Phase 30: strict by default; set PRESSURE_LAYER_STRICT=0 to warn-only
+  if [[ "${PRESSURE_LAYER_STRICT:-1}" = "1" ]]; then
     echo "ERR_PRESSURE_BYPASS (STRICT)"
     exit 1
   fi
