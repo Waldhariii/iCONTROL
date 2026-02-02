@@ -149,7 +149,8 @@
     "gate:canonical-structure": "bash scripts/gates/gate-canonical-structure.sh",
     "gate:kernel-lock": "bash scripts/gates/gate-kernel-lock.sh",
     "gate:root-canonical": "bash scripts/gates/gate-root-canonical.sh",
-    "gate:generated-only": "bash scripts/gates/gate-generated-only.sh"
+    "gate:generated-only": "bash scripts/gates/gate-generated-only.sh",
+    "release:train": "bash scripts/release/release-train.sh"
   },
   "devDependencies": {
     "@types/react": "^19.2.10",
