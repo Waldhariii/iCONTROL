@@ -159,7 +159,7 @@ import { applyClientV2Guards, bootRouter, RouteId, getMountEl } from "./router";
 
 /* ICONTROL_THEME_BOOTSTRAP_V1 — SSOT tokens -> CSS vars (generated) */
 import { renderRoute } from "./moduleLoader";
-import { getLogger } from "./core/utils/logger";
+import { getLogger } from "./platform/observability/logger";
 
 const logger = getLogger("MAIN");
 

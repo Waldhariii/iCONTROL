@@ -6,7 +6,7 @@ import { createAuditHook } from "./core/write-gateway/auditHook";
 import { createLegacyAdapter } from "./core/write-gateway/adapters/legacyAdapter";
 import { createPolicyHook } from "./core/write-gateway/policyHook";
 import { createCorrelationId, createWriteGateway } from "./core/write-gateway/writeGateway";
-import { getLogger } from "./core/utils/logger";
+import { getLogger } from "./platform/observability/logger";
 import { getTenantId } from "./core/runtime/tenant";
 /**
  * localAuth.ts — bootstrap auth for dev/local use

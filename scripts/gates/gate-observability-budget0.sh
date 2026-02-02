@@ -9,7 +9,8 @@ cd "$ROOT" || exit 1
 
 BAD=0
 OUT="$(mktemp)"
-trap 'rm -f "$OUT"' EXIT
+OUT2="$(mktemp)"
+trap 'rm -f "$OUT" "$OUT2"' EXIT
 
 # 1) Error code naming convention (heuristic)
 rg -n --no-heading --hidden \
@@ -26,10 +27,20 @@ if [ -s "$OUT" ]; then
   BAD=1
 fi
 
-# 2) Logger import boundary — warn only for now (migration backlog)
-# Full enforcement would require all app/src to use platform/observability facade.
-# Disabled for PH35; re-enable when migration complete.
-: "logger boundary check skipped (warn-only)"
+# 2) Logger import boundary — fail if app code outside allowed paths imports core/utils/logger
+# Allowed: platform/observability, core (owns logger), dev, __tests__
+rg -l --no-heading --hidden \
+  -g '!**/node_modules/**' -g '!**/_artifacts/**' -g '!**/_audit/**' \
+  'from\s+["\x27].*core/utils/logger["\x27]' \
+  app/src 2>/dev/null \
+  | rg -v '^(app/src/platform/observability/|app/src/core/|app/src/dev/|app/src/__tests__/)' \
+  | tee "$OUT2" || true
+
+if [ -s "$OUT2" ]; then
+  echo "ERR_OBS_BUDGET0: core/utils/logger imported from disallowed path (use platform/observability/logger)"
+  cat "$OUT2" | head -20
+  BAD=1
+fi
 
 if [ "$BAD" -ne 0 ]; then
   exit 1

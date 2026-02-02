@@ -44,3 +44,24 @@ export function error(code: AnyCode, message: string, ctx?: LogBaseContext, deta
 export function debug(code: AnyCode, message: string, ctx?: LogBaseContext, details?: Record<string, unknown>) {
   log("debug", code, message, ctx, details);
 }
+
+export interface Logger {
+  debug: (...args: unknown[]) => void;
+  info: (...args: unknown[]) => void;
+  warn: (...args: unknown[]) => void;
+  error: (...args: unknown[]) => void;
+}
+
+export function createLogger(prefix = "app"): Logger {
+  const p = `[${prefix}]`;
+  return {
+    debug: (...a) => void debug("OK", p, {}, { payload: a }),
+    info: (...a) => void info("OK", p, {}, { payload: a }),
+    warn: (...a) => void warn("WARN_CONSOLE_MIGRATED", p, {}, { payload: a }),
+    error: (...a) => void error("ERR_CONSOLE_MIGRATED", p, {}, { payload: a }),
+  };
+}
+
+export function getLogger(prefix = "app"): Logger {
+  return createLogger(prefix);
+}

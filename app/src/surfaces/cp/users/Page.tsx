@@ -22,7 +22,7 @@ import { createAuditHook } from "../../../core/write-gateway/auditHook";
 import { createLegacyAdapter } from "../../../core/write-gateway/adapters/legacyAdapter";
 import { createPolicyHook } from "../../../core/write-gateway/policyHook";
 import { createCorrelationId, createWriteGateway } from "../../../core/write-gateway/writeGateway";
-import { getLogger } from "../../../core/utils/logger";
+import { getLogger } from "../../../platform/observability/logger";
 import { getTenantId } from "../../../core/runtime/tenant";
 import { Vfs, type VfsScope } from "../../../platform/storage/vfs";
 

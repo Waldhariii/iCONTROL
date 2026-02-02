@@ -60,7 +60,7 @@ import { canAccessSettings } from "./runtime/rbac";
 import { navigate as coreNavigate } from "./runtime/navigate";
 import { applyVersionPolicyBootGuards } from "./policies/version_policy.runtime";
 import { getGlobalWindow, type WindowWithIControl } from "./core/utils/types";
-import { getLogger } from "./core/utils/logger";
+import { getLogger } from "./platform/observability/logger";
 import { ADMIN_ROUTE_ALLOWLIST, CLIENT_ROUTE_ALLOWLIST } from "./core/ssot/routeCatalogLoader";
 import { isDevOnlyAllowed } from "./core/policies/devOnly";
 import { auditWarnOnce } from "./platform/audit/auditOnce";
