@@ -4,9 +4,9 @@
  * Goal: register enforcement deps during CP startup without cross-boundary imports.
  * This stays in app boundary and only imports local facades + wiring.
  */
-import { registerCpEnforcementDeps } from "./cpEnforcement.wiring";
-import { createActivationRegistryFacade } from "./activationRegistry.facade";
-import { createPolicyEngineFacade } from "./policyEngine.facade";
+import { registerCpEnforcementDeps } from "./index";
+import { createActivationRegistryFacade } from "./index";
+import { createPolicyEngineFacade } from "./index";
 
 /**
  * Called by CP entrypoint when appKind === "CP".

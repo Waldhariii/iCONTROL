@@ -6,8 +6,8 @@
  * ActivationRegistry + PolicyEngine implementations without cross-boundary imports.
  */
 
-import type { ActivationRegistryFacade } from "./activationRegistry.facade";
-import type { PolicyEngineFacade } from "./policyEngine.facade";
+import type { ActivationRegistryFacade } from "./index";
+import type { PolicyEngineFacade } from "./index";
 
 export type EnforcementDeps = Readonly<{
   activationRegistry: ActivationRegistryFacade;
