@@ -1,10 +1,31 @@
 {
-  "id": "_module-template",
-  "name": "_module-template",
-  "version": "0.0.0",
-  "surfaces": ["both"],
-  "routes": [],
+  "schema_version": "MODULE_MANIFEST_SCHEMA_V1",
+  "id": "module-template",
+  "display_name": "Module Template",
+  "owner": "platform",
+  "surface": "both",
+  "entrypoints": {
+    "ui": [],
+    "api": []
+  },
+  "capabilities": [],
   "entitlements": [],
-  "storageNamespaces": [],
-  "writes": []
+  "data_namespaces": [],
+  "contracts": {
+    "provided": [],
+    "required": []
+  },
+  "policy": {
+    "rbac_scopes": [],
+    "safe_mode": "allowed"
+  },
+  "lifecycle": {
+    "install": "idempotent",
+    "uninstall": "idempotent",
+    "migrations": "none"
+  },
+  "compat": {
+    "min_core": "0.0.0",
+    "tested_with": []
+  }
 }

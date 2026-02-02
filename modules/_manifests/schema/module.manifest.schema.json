@@ -1,0 +1,77 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "MODULE_MANIFEST_SCHEMA_V1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "id",
+    "display_name",
+    "owner",
+    "surface",
+    "entrypoints",
+    "capabilities",
+    "entitlements",
+    "data_namespaces",
+    "contracts",
+    "policy",
+    "lifecycle",
+    "compat"
+  ],
+  "properties": {
+    "schema_version": { "const": "MODULE_MANIFEST_SCHEMA_V1" },
+    "id": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" },
+    "display_name": { "type": "string", "minLength": 2 },
+    "owner": { "type": "string", "minLength": 2 },
+    "surface": { "type": "string", "enum": ["app", "cp", "both"] },
+    "entrypoints": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ui", "api"],
+      "properties": {
+        "ui": { "type": "array", "items": { "type": "string" } },
+        "api": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "capabilities": { "type": "array", "items": { "type": "string" } },
+    "entitlements": { "type": "array", "items": { "type": "string" } },
+    "data_namespaces": { "type": "array", "items": { "type": "string" } },
+    "contracts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["provided", "required"],
+      "properties": {
+        "provided": { "type": "array", "items": { "type": "string" } },
+        "required": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["rbac_scopes", "safe_mode"],
+      "properties": {
+        "rbac_scopes": { "type": "array", "items": { "type": "string" } },
+        "safe_mode": { "type": "string", "enum": ["allowed", "cp-only", "blocked"] }
+      }
+    },
+    "lifecycle": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["install", "uninstall", "migrations"],
+      "properties": {
+        "install": { "const": "idempotent" },
+        "uninstall": { "const": "idempotent" },
+        "migrations": { "type": "string", "enum": ["append-only", "none"] }
+      }
+    },
+    "compat": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["min_core", "tested_with"],
+      "properties": {
+        "min_core": { "type": "string", "minLength": 1 },
+        "tested_with": { "type": "array", "items": { "type": "string" } }
+      }
+    }
+  }
+}
