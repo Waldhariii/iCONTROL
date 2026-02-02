@@ -23,17 +23,16 @@ describe("Governance: Ports public surface freeze (v1)", () => {
     // If this fails, copy the printed list into EXPECTED (sorted),
     // then add an RFC entry explaining the change.
     const EXPECTED: string[] = [
-      // NOTE: auto-filled once, then manually curated.
-      // If empty on first run, paste from console output.
+      "REASON_CODES_V1",
+      "__resetForTests",
+      "bindActivationRegistry",
+      "bindPolicyEngine",
+      "bootstrapCpEnforcement",
+      "createActivationRegistryFacade",
+      "createPolicyEngineFacade",
+      "registerCpEnforcementDeps",
+      "requireCpEnforcementDeps",
     ];
-
-    if (EXPECTED.length === 0) {
-      // High-signal failure mode: prints keys for quick paste.
-      throw new Error(
-        "EXPECTED ports exports list is empty. Paste this list into EXPECTED (sorted):\n" +
-          keys.map((k) => `- ${k}`).join("\n")
-      );
-    }
 
     expect(keys).toEqual(EXPECTED);
   });
