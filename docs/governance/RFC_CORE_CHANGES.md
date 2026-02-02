@@ -33,3 +33,14 @@ Sinon : **BLOCK** (gate).
 - Migration steps:
 - Evidence pack paths (_artifacts/...):
 - Gate updates (if any):
+
+### RFC-20260202-control-plane-policy-engine-v1
+- Owner: platform
+- Motivation: activate Control Plane feature toggles and centralize authorization decisions behind a PolicyEngine boundary.
+- Scope: activation registry SSOT, policy engine v1 skeleton, cp activation gate, contract tests.
+- API impact (contracts): introduces policy types/engine/rules contracts and app platform facade evaluatePolicy.
+- Risks: deny-by-default behavior can block flows if actions are not explicitly covered.
+- Rollback plan: revert commit `feat(cp+policy): activation registry + policy engine v1 (gates+contract tests)` and re-run tag-set-atomic.
+- Migration steps: keep module actions mapped to `module.<ns>` convention; expand ruleset incrementally.
+- Evidence pack paths (_artifacts/...): _artifacts/dist/** from preflight build + vitest outputs in CI logs.
+- Gate updates (if any): adds `gate:control-plane-activation` into `verify:prod:fast`.
