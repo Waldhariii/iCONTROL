@@ -1,0 +1,21 @@
+{
+  "version": "1.0.0",
+  "surfaces": [
+    { "id": "app", "base": "/app/#", "dashboard": "/dashboard" },
+    { "id": "cp",  "base": "/cp/#",  "dashboard": "/dashboard" }
+  ],
+  "routes": [
+    { "id": "app.dashboard", "surface": "app", "path": "/dashboard" },
+    { "id": "cp.dashboard",  "surface": "cp",  "path": "/dashboard" }
+  ],
+  "storageNamespaces": [
+    { "id": "auth.session", "keys": ["icontrol_session_v1"] }
+  ],
+  "entitlements": [
+    { "id": "core.free", "default": true }
+  ],
+  "modules": [
+    { "id": "core-system", "pages": ["app.dashboard", "cp.dashboard"] }
+  ],
+  "extensions": []
+}
