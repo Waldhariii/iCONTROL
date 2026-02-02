@@ -25,7 +25,7 @@ import { createCorrelationId, createWriteGateway } from "../../../core/write-gat
 import { getLogger } from "../../../platform/observability/logger";
 import { getTenantId } from "../../../core/runtime/tenant";
 import { Vfs, type VfsScope } from "../../../platform/storage/vfs";
-import { guardCpSurface } from "../../core/runtime/cpSurfaceGuard";
+import { guardCpSurface } from "../../../core/runtime/cpSurfaceGuard";
 
 
 /** WRITE_GATEWAY_WRITE_SURFACE — shadow scaffold (legacy-first; NO-OP adapter). */

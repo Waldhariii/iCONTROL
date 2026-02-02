@@ -286,3 +286,14 @@ Sinon : **BLOCK** (gate).
 - Motif business / plateforme:
   - Réduire le coût marginal d’onboarding d’une nouvelle surface CP (config SSOT → enforcement)
   - Renforcer la gouvernance: “no inline enforcement” dans les pages
+
+## RFC-2026-02-02-move15-cp-surface-registry-ssot-v1 — Move15 CP surface registry SSOT (surfaceKey -> capability) + registry-driven guard
+
+- Date: 2026-02-02
+- Scope:
+  - Ajout cpSurfaceRegistry (SSOT surfaces CP + requiredCapability)
+  - cpSurfaceGuard consomme le registry (plus de regles hardcodees dans pages)
+  - Migration cp.users/cp.settings/cp.entitlements vers guard base registry
+  - Tests contract: freeze keys + guard registry consumption
+- Motif business / plateforme:
+  - Standardiser l'enforcement CP via un catalogue central -> onboarding accelere + auditabilite

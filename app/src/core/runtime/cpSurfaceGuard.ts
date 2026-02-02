@@ -10,6 +10,8 @@
  */
 import { enforceTenantMatrix } from "../ports/tenantMatrix.enforcement";
 import type { ReasonCode } from "../ports/reasonCodes.v1";
+import { CP_SURFACE_REGISTRY } from "./cpSurfaceRegistry";
+
 
 export type CpSurfaceGuardDecision = Readonly<{
   allow: boolean;
@@ -28,18 +30,23 @@ export function guardCpSurface(params: {
   surfaceKey: string;              // e.g. "cp.users"
   requiredCapability?: string;     // e.g. "canAdminEntitlements"
 }): CpSurfaceGuardDecision {
+  const spec = (CP_SURFACE_REGISTRY as any)[params.surfaceKey] as { requiredCapability?: string; denyRedirectTo?: string } | undefined;
+  const requiredCapability = params.requiredCapability ?? spec?.requiredCapability;
+  const denyRedirectTo = spec?.denyRedirectTo ?? "/cp/#/blocked";
+
+
   if (!params.tenantId || !params.actorId) {
-    return { allow: false, reasonCode: "ERR_RUNTIME_IDENTITY_UNAVAILABLE", redirectTo: "/cp/#/blocked" };
+    return { allow: false, reasonCode: "ERR_RUNTIME_IDENTITY_UNAVAILABLE", redirectTo: denyRedirectTo };
   }
 
   const tm = enforceTenantMatrix({
     tenantId: params.tenantId,
     requiredPage: params.surfaceKey,
-    requiredCapability: params.requiredCapability,
+    requiredCapability: requiredCapability,
   });
 
   if (!tm.allow) {
-    return { allow: false, reasonCode: tm.reasonCode, redirectTo: "/cp/#/blocked" };
+    return { allow: false, reasonCode: tm.reasonCode, redirectTo: denyRedirectTo };
   }
 
   return { allow: true, reasonCode: "OK_POLICY_ALLOW", redirectTo: null };
