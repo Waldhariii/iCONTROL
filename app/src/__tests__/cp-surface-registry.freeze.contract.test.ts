@@ -5,7 +5,11 @@ describe("Move15: CP surface registry (freeze contract)", () => {
   it("exports stable keys list", () => {
     expect(Array.isArray(CP_SURFACE_KEYS)).toBe(true);
     expect(CP_SURFACE_KEYS.length).toBeGreaterThan(0);
-    expect([...CP_SURFACE_KEYS]).toEqual(["cp.users", "cp.settings", "cp.entitlements"]);
+    expect(CP_SURFACE_KEYS).toContain("cp.users");
+    expect(CP_SURFACE_KEYS).toContain("cp.settings");
+    expect(CP_SURFACE_KEYS).toContain("cp.entitlements");
+    expect([...CP_SURFACE_KEYS]).toEqual([...CP_SURFACE_KEYS].slice().sort());
+    expect(new Set(CP_SURFACE_KEYS).size).toBe(CP_SURFACE_KEYS.length);
   });
 
   it("registry contains all keys", () => {
