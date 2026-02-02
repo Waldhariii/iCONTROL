@@ -8,6 +8,7 @@
  */
 import { bindPolicyEngine, bootstrapCpEnforcement } from "./index";
 import { createRuntimeIdentityPort } from "../runtime/runtimeIdentity.impl";
+import { enforceTenantMatrix } from "./tenantMatrix.enforcement";
 
 export type CpSurfaceCheckResult = Readonly<{
   allow: boolean;
@@ -33,7 +34,18 @@ export async function enforceCpEntitlementsSurface(params: {
   const tenantId = params.tenantId ?? identity?.tenantId ?? null;
   const actorId = params.actorId ?? identity?.actorId ?? null;
 
-  if (!tenantId || !actorId) {
+  
+  // Move13: tenant matrix enforcement (SSOT)
+  const tm = enforceTenantMatrix({
+    tenantId,
+    requiredPage: "cp.settings",
+    requiredCapability: "canAdminEntitlements",
+  });
+  if (!tm.allow) {
+    return { allow: false, reasonCode: tm.reasonCode, redirectTo: "/cp/#/blocked" };
+  }
+
+if (!tenantId || !actorId) {
     // governedRedirect v2 compliant should be used by caller; here we just signal
     return { allow: false, reasonCode: "ERR_RUNTIME_IDENTITY_UNAVAILABLE", redirectTo: "/cp/#/login" };
   }
