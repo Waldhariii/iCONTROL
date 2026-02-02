@@ -150,3 +150,14 @@ Sinon : **BLOCK** (gate).
 - Risk: faible (refactor import paths). Mitigation: tests contract + gates verify:prod:fast.
 - Notes: prépare le Move5 (enable/deny e2e) en stabilisant le “surface contract” des ports.
 
+
+## RFC-2026-02-02-move5-reasoncodes-freeze-v1 — Reason Codes Freeze v1 (Enforcement Critical Path)
+
+- Date: 2026-02-02
+- Scope: enforcement layer (ports/bootstrap/write-gateway/contracts/policy surface)
+- Motivation: verrouiller le vocabulaire des reason-codes pour stabiliser l'observabilité + l'audit + les contrats e2e.
+- Decision:
+  - Ajout de `app/src/core/ports/reasonCodes.v1.ts` comme SSOT.
+  - Ajout d'un test contract `reason-codes.enforcement-freeze.contract.test.ts` qui échoue si un nouveau code apparaît sans mise à jour du registry + RFC.
+- Guardrails:
+  - Toute introduction d'un nouveau reason-code dans la surface scannée doit: (1) être ajoutée au registry, (2) être justifiée ici.
