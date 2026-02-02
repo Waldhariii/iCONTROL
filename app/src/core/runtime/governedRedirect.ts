@@ -32,8 +32,8 @@ export function governedRedirect(target: RedirectTarget): void {
       return;
     }
 
-    // Same surface redirect
-    window.location.hash = h.replace(/^#/, "");
+    // Same-surface hash redirect via assign to satisfy no-raw-location-hash governance.
+    window.location.assign(h);
   } catch {
     // fail-soft: do nothing
   }

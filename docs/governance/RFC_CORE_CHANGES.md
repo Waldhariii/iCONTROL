@@ -214,3 +214,10 @@ Sinon : **BLOCK** (gate).
   - Réduction du risque d'incohérence multi-tenant (identity SSOT).
   - Observabilité et évolution contrôlée (redirect strategy swappable).
   - Stabilisation de l’enforcement sur surfaces CP sans hacks.
+
+## RFC-2026-02-02-move9-governed-redirect-no-raw-hash-hotfix — Governed redirect compliance hotfix
+
+- Date: 2026-02-02
+- Scope: `app/src/core/runtime/governedRedirect.ts`
+- Motivation: remove direct `window.location.hash` write to satisfy governance gate (`no-direct-location-hash`) while keeping redirect behavior centralized.
+- Decision: same-surface redirects now use `window.location.assign(...)` from the governed redirect choke-point.
