@@ -307,3 +307,8 @@ Sinon : **BLOCK** (gate).
   - Ajoute preuves ULTRA: freeze registry keys + scan contract
 - Motif business / plateforme:
   - Reduit le risque operationnel et standardise l'onboarding de nouvelles surfaces CP via un catalogue unique.
+
+## RFC-2026-02-02-phase4-ssot-routes-manifests-v1 — Phase 4 SSOT Routes + Manifests (V1)
+- Motif business / plateforme: industrialiser l’expansion (routes + modules) avec un SSOT explicite, gates, et contrats stables.
+- Changements: ajoute ROUTE_CATALOG_V1 + gates (route-catalog, module-manifests.v1) + warn-only entitlements scatter evidence.
+- Risque: faible (gates shape-only + warn-only), bénéfice: contrôle et prédictibilité du delivery.
