@@ -7,7 +7,7 @@
  *
  * Must stay ports-only (no cross-boundary imports).
  */
-import { getEnabledCapabilitiesForTenant } from "../ssot/tenantMatrixLoader";
+import { getEnabledCapabilitiesForPlan, getEnabledPagesForPlan } from "../ssot/tenantMatrixLoader";
 import type { ReasonCode } from "./reasonCodes.v1";
 
 export type TenantMatrixDecision = Readonly<{
@@ -19,22 +19,29 @@ function has(arr: readonly string[] | null | undefined, key: string): boolean {
   return Array.isArray(arr) && arr.includes(key);
 }
 
+function planFromTenantId(tenantId: string): "FREE" | "PRO" | "ENTERPRISE" {
+  const t = String(tenantId || "").toLowerCase();
+  if (t.includes("enterprise")) return "ENTERPRISE";
+  if (t.includes("pro")) return "PRO";
+  return "FREE";
+}
+
 export function enforceTenantMatrix(params: {
   tenantId: string;
   requiredPage?: string;       // e.g. "cp.settings"
   requiredCapability?: string; // e.g. "canAdminEntitlements"
 }): TenantMatrixDecision {
-  const caps = getEnabledCapabilitiesForTenant(params.tenantId);
+  const plan = planFromTenantId(params.tenantId);
+  const caps = getEnabledCapabilitiesForPlan(plan);
+  const pages = getEnabledPagesForPlan(plan);
 
   // Capability gate (strongest, deterministic)
   if (params.requiredCapability && !has(caps, params.requiredCapability)) {
     return { allow: false, reasonCode: "ERR_CAPABILITY_DISABLED" };
   }
 
-  // Page gate: we intentionally map page requirement to a capability if project prefers cap-only.
-  // If you already model pages in matrix, wire it here later; for now we treat page as capability alias.
-  if (params.requiredPage && !has(caps, params.requiredPage)) {
-    // If pages are not yet in caps, keep reason explicit
+  // Page gate.
+  if (params.requiredPage && !has(pages, params.requiredPage)) {
     return { allow: false, reasonCode: "ERR_PAGE_DISABLED" };
   }
 

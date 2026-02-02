@@ -8,11 +8,8 @@
  * This file is SSOT for reason codes used by: ports/bootstrap/write-gateway/contracts/policy.
  */
 export const REASON_CODES_V1 = [
-  
-  
-  \"ERR_CAPABILITY_DISABLED",
-\"ERR_PAGE_DISABLED",
-"ERR_ADAPTER_APPLY",
+  "ERR_ADAPTER_APPLY",
+  "ERR_CAPABILITY_DISABLED",
   "ERR_CODES",
   "ERR_CONTRACT_MISSING",
   "ERR_CP_ENFORCEMENT_DEPS_NOT_REGISTERED",
@@ -26,6 +23,7 @@ export const REASON_CODES_V1 = [
   "ERR_MODULE_DISABLED",
   "ERR_NETWORK_FAILURE",
   "ERR_NOT_FOUND",
+  "ERR_PAGE_DISABLED",
   "ERR_POLICY_DENY",
   "ERR_POLICY_DENY_DEFAULT",
   "ERR_POLICY_DENY_DISABLED",
@@ -58,3 +56,4 @@ export const REASON_CODES_V1 = [
 ] as const;
 
 export type ReasonCodeV1 = (typeof REASON_CODES_V1)[number];
+export type ReasonCode = ReasonCodeV1;

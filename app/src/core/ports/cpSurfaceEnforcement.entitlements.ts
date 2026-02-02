@@ -34,8 +34,12 @@ export async function enforceCpEntitlementsSurface(params: {
   const tenantId = params.tenantId ?? identity?.tenantId ?? null;
   const actorId = params.actorId ?? identity?.actorId ?? null;
 
-  
-  // Move13: tenant matrix enforcement (SSOT)
+  if (!tenantId || !actorId) {
+    // governedRedirect v2 compliant should be used by caller; here we just signal
+    return { allow: false, reasonCode: "ERR_RUNTIME_IDENTITY_UNAVAILABLE", redirectTo: "/cp/#/login" };
+  }
+
+  // Move13: tenant matrix enforcement (SSOT).
   const tm = enforceTenantMatrix({
     tenantId,
     requiredPage: "cp.settings",
@@ -43,11 +47,6 @@ export async function enforceCpEntitlementsSurface(params: {
   });
   if (!tm.allow) {
     return { allow: false, reasonCode: tm.reasonCode, redirectTo: "/cp/#/blocked" };
-  }
-
-if (!tenantId || !actorId) {
-    // governedRedirect v2 compliant should be used by caller; here we just signal
-    return { allow: false, reasonCode: "ERR_RUNTIME_IDENTITY_UNAVAILABLE", redirectTo: "/cp/#/login" };
   }
 
   // Minimal policy: require capability that allows admin entitlements

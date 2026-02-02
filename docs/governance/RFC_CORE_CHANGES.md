@@ -266,3 +266,12 @@ Sinon : **BLOCK** (gate).
 - Motif business / plateforme:
   - Standardiser l’activation/désactivation de surfaces par tenant (industrialisation)
   - Réduire le risque de régression et de logique “inline” dans les pages
+
+## RFC-2026-02-02-move13-tenant-matrix-enforcement-fix-v1 — Build/runtime fix for Move13
+
+- Date: 2026-02-02
+- Scope: `app/src/core/ports/reasonCodes.v1.ts`, `app/src/core/ports/tenantMatrix.enforcement.ts`, `app/src/core/ports/cpSurfaceEnforcement.entitlements.ts`.
+- Fixes:
+  - Correct malformed reason-code literals introduced by scripted insertion.
+  - Use existing tenant-matrix loader API (`getEnabledCapabilitiesForPlan`, `getEnabledPagesForPlan`).
+  - Enforce identity guard before tenant-matrix check to keep strict runtime typing and deterministic behavior.
