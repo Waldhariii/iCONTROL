@@ -183,3 +183,16 @@ Sinon : **BLOCK** (gate).
   - Ajout test sanity reason codes: `reason-codes.registry.sanity.contract.test.ts`
 - Règle de changement:
   - Toute modification des exports ports => mise à jour explicite de la liste EXPECTED + justification RFC.
+
+## RFC-2026-02-02-move7-critical-path-harden-v1 — Critical Path Harden v1 (CP enable/deny ULTRA proofs)
+
+- Date: 2026-02-02
+- Scope: CP enforcement bootstrap + ports surface + tenant matrix invariants
+- Motif business / plateforme:
+  - Verrouiller le chemin critique (enable/deny) avec un test e2e unique, ultra-signal.
+  - Garantir que chaque décision expose un reason code figé (REASON_CODES_V1) et reste traçable via correlationId.
+  - Renforcer la conformité multi-tenant (TENANT_FEATURE_MATRIX invariants) sans dépendances cross-boundary.
+- Décision:
+  - Ajout: `cp-enforcement-critical-path.ultra.e2e.contract.test.ts`
+  - Ajout: `tenant-matrix.enforcement.invariants.contract.test.ts`
+  - Ajout: `cp-enforcement.boundary-scan.ultra.contract.test.ts`
