@@ -44,3 +44,14 @@ Sinon : **BLOCK** (gate).
 - Migration steps: keep module actions mapped to `module.<ns>` convention; expand ruleset incrementally.
 - Evidence pack paths (_artifacts/...): _artifacts/dist/** from preflight build + vitest outputs in CI logs.
 - Gate updates (if any): adds `gate:control-plane-activation` into `verify:prod:fast`.
+
+### RFC-20260202-event-backbone-v1
+- Owner: @platform
+- Motivation: Introduire une dorsale d'evenements contract-first (outbox + replay) dans le core.
+- Scope: core-kernel/src/events/*, gate:event-backbone, tests de contrat.
+- API impact (contracts): ajout de EventEnvelope/EventStore/EventBus (additif).
+- Risks: derive contractuelle / replay non deterministe.
+- Rollback plan: revert commit event-backbone + retag canonical.
+- Migration steps: none (additif).
+- Evidence pack paths (_artifacts/...): _artifacts/release/rc/rc-20260201_154033-r3/hardening/event-backbone/
+- Gate updates (if any): gate:event-backbone ajoute a verify:prod:fast.
