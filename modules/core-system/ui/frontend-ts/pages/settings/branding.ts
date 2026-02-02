@@ -1,4 +1,4 @@
-import { getSession } from "/src/localAuth";
+import { getSession } from "../_shared/localAuth";
 import type { Role } from "/src/runtime/rbac";
 import { navigate } from "/src/router";
 import { safeRender } from "../_shared/mainSystem.shared";

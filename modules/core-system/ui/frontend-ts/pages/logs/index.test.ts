@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 // @vitest-environment-options { "url": "http://localhost" }
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { clearSession, setSession } from "/src/localAuth";
+import { clearSession, setSession } from "../_shared/localAuth";
 import { renderLogsPage, logsSections } from "./index";
 import { recordObs, getAuditLog, clearAuditLog } from "../_shared/audit";
 import { OBS } from "../_shared/obsCodes";

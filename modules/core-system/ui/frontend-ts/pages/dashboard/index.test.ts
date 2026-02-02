@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 // @vitest-environment-options { "url": "http://localhost" }
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { clearSession, setSession } from "/src/localAuth";
+import { clearSession, setSession } from "../_shared/localAuth";
 import { dashboardSections, renderDashboard } from "../dashboard";
 
 function createLocalStorageMock() {

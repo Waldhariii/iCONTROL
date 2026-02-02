@@ -1,4 +1,17 @@
-import { authenticate, authenticateManagement } from "/src/localAuth";
+import {
+  authenticate as authApp,
+  authenticateManagement as authMgmt,
+} from "../../../../../platform-services/security/auth/localAuth";
+
+function toResult(
+  s: { username: string; role: string; fullName?: string } | null
+): { ok: true; session: typeof s } | { ok: false; error: string } {
+  return s
+    ? { ok: true as const, session: s }
+    : { ok: false as const, error: "Identifiant invalide." };
+}
+const authenticate = (u: string, p: string) => toResult(authApp(u, p));
+const authenticateManagement = (u: string, p: string) => toResult(authMgmt(u, p));
 import { navigate } from "/src/router";
 const CARD_STYLE =
   `max-width:520px;margin:40px auto;padding:18px;border-radius:18px;` +

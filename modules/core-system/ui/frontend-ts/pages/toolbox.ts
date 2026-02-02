@@ -1,6 +1,6 @@
 import { getRole, canAccessToolbox } from "/src/runtime/rbac";
 import { getSafeMode } from "./_shared/safeMode";
-import { getSession } from "/src/localAuth";
+import { getSession } from "./_shared/localAuth";
 import { renderAccessDenied, safeRender } from "./_shared/mainSystem.shared";
 import { mountSections, type SectionSpec } from "./_shared/sections";
 import type { ToolboxCtx } from "./toolbox/contracts";

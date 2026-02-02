@@ -15,6 +15,7 @@ export type Session = {
 };
 
 const LS_SESSION = "icontrol_session_v1";
+const LS_MGMT = "icontrol_mgmt_session_v1";
 
 type BootstrapUser = { username: string; password: string; role: Role; fullName?: string };
 
@@ -172,4 +173,31 @@ export function requireSession(): Session {
   const s = getSession();
   if (!s) throw new Error("NO_SESSION");
   return s;
+}
+
+/** Management (CP) session — separate storage key. */
+export function authenticateManagement(username: string, password: string): Session | null {
+  const u = BOOTSTRAP_USERS.find(x => x.username === username && x.password === password);
+  if (!u) return null;
+  const s: Session = { username: u.username, role: u.role, fullName: u.fullName };
+  try {
+    localStorage.setItem(LS_MGMT, JSON.stringify(s));
+  } catch (_) {}
+  return s;
+}
+
+export function getManagementSession(): Session | null {
+  try {
+    const raw = localStorage.getItem(LS_MGMT);
+    if (!raw) return null;
+    return JSON.parse(raw) as Session;
+  } catch (_) {
+    return null;
+  }
+}
+
+export function clearManagementSession(): void {
+  try {
+    localStorage.removeItem(LS_MGMT);
+  } catch (_) {}
 }
