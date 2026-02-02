@@ -205,3 +205,12 @@ Sinon : **BLOCK** (gate).
   - Passage proof-pack -> production consumption.
   - Réduction du risque d'accès non-governed sur surfaces sensibles.
   - Stabilité contractuelle (ports + reason codes) observable via tests.
+
+## RFC-2026-02-02-move9-runtime-identity-redirect-governed-v1 — Move9 Runtime identity SSOT + governed redirect v1
+
+- Date: 2026-02-02
+- Scope: centraliser tenantId/actorId resolution + redirection dans un choke-point gouverné (no scattered location.hash).
+- Motif business / plateforme:
+  - Réduction du risque d'incohérence multi-tenant (identity SSOT).
+  - Observabilité et évolution contrôlée (redirect strategy swappable).
+  - Stabilisation de l’enforcement sur surfaces CP sans hacks.
