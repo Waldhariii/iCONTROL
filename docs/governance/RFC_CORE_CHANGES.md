@@ -161,3 +161,10 @@ Sinon : **BLOCK** (gate).
   - Ajout d'un test contract `reason-codes.enforcement-freeze.contract.test.ts` qui échoue si un nouveau code apparaît sans mise à jour du registry + RFC.
 - Guardrails:
   - Toute introduction d'un nouveau reason-code dans la surface scannée doit: (1) être ajoutée au registry, (2) être justifiée ici.
+
+## RFC-2026-02-02-move5-reasoncodes-registry-quoting-fix — Fix reasonCodes.v1 literal quoting
+
+- Date: 2026-02-02
+- Scope: `app/src/core/ports/reasonCodes.v1.ts`
+- Motivation: repair TS runtime failure caused by unquoted registry entries; restore enforcement path stability.
+- Decision: registry values are frozen as string literals only.
