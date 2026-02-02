@@ -341,3 +341,9 @@ Sinon : **BLOCK** (gate).
 - Motif plateforme: stabiliser la discipline d’exports publics (ports/index.ts) via un test freeze reflétant la surface réelle après passage en exports explicites.
 - Décision: rafraîchir la liste EXPECTED (triée, dédupliquée) pour correspondre aux exports publics actuels.
 - Scope: app/src/__tests__/ports-public-surface.freeze.contract.test.ts.
+
+## RFC-20260202_220836-ports-freeze-expected-refresh — Ports public surface freeze EXPECTED refresh
+- Date (UTC): 2026-02-02
+- Motif plateforme: stabiliser la discipline d’exports publics (ports/index.ts) via un test freeze reflétant la surface réelle après passage en exports explicites.
+- Décision: rafraîchir la liste EXPECTED (triée, dédupliquée) pour correspondre aux exports publics actuels.
+- Scope: app/src/__tests__/ports-public-surface.freeze.contract.test.ts.
