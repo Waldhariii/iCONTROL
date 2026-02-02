@@ -21,3 +21,22 @@ export interface PolicyEngineFacade {
     context?: PolicyContext;
   }): PolicyDecision;
 }
+
+/**
+ * Default APP-boundary facade factory used by CP bootstrap wiring.
+ * Conservative baseline: deny writes for non-admin roles.
+ */
+export function createPolicyEngineFacade(): PolicyEngineFacade {
+  return {
+    evaluate(input): PolicyDecision {
+      const role = String(input.subject?.role || "").toLowerCase();
+      const action = String(input.action || "").toLowerCase();
+      const isWrite = action.includes("write") || action.includes("set") || action.includes("toggle");
+
+      if (isWrite && role !== "admin" && role !== "owner") {
+        return { allow: false, reasons: ["ERR_POLICY_DENY_ROLE"], code: "ERR_POLICY_DENY_ROLE" };
+      }
+      return { allow: true, reasons: ["OK_POLICY_ALLOW"] };
+    },
+  };
+}

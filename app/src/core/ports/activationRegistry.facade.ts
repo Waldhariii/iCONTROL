@@ -22,3 +22,34 @@ export interface ActivationRegistryFacade {
   setEnabled(cmd: ActivationWrite): Promise<void>;
   listEnabled(tenantId: TenantId): Promise<ModuleId[]>;
 }
+
+const activationState = new Map<string, boolean>();
+
+function keyOf(tenantId: TenantId, moduleId: ModuleId): string {
+  return `${tenantId}::${moduleId}`;
+}
+
+/**
+ * Default APP-boundary facade factory used by CP bootstrap wiring.
+ * This in-memory implementation is deterministic and side-effect local.
+ */
+export function createActivationRegistryFacade(): ActivationRegistryFacade {
+  return {
+    async isEnabled(tenantId: TenantId, moduleId: ModuleId): Promise<ActivationDecision> {
+      const enabled = activationState.get(keyOf(tenantId, moduleId)) === true;
+      return { enabled, reason: enabled ? "OK_ENABLED" : "ERR_DISABLED" };
+    },
+    async setEnabled(cmd: ActivationWrite): Promise<void> {
+      activationState.set(keyOf(cmd.tenantId, cmd.moduleId), !!cmd.enabled);
+    },
+    async listEnabled(tenantId: TenantId): Promise<ModuleId[]> {
+      const out: ModuleId[] = [];
+      for (const [k, enabled] of activationState.entries()) {
+        if (!enabled) continue;
+        const [t, m] = k.split("::");
+        if (t === tenantId && m) out.push(m);
+      }
+      return out;
+    },
+  };
+}
