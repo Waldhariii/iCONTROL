@@ -221,3 +221,12 @@ Sinon : **BLOCK** (gate).
 - Scope: `app/src/core/runtime/governedRedirect.ts`
 - Motivation: remove direct `window.location.hash` write to satisfy governance gate (`no-direct-location-hash`) while keeping redirect behavior centralized.
 - Decision: same-surface redirects now use `window.location.assign(...)` from the governed redirect choke-point.
+
+## RFC-2026-02-02-move10-redirect-strategy-v2-compliant-v1 — Move10 Redirect Strategy v2 (policy-compliant)
+
+- Date: 2026-02-02
+- Scope: suppression totale des writes directs ; redirection via RedirectAdapter unique.
+- Motif business / plateforme:
+  - conformité aux gates (no direct location.hash writes outside platform),
+  - évolution contrôlée (router/telemetry swap),
+  - réduction du risque de régression cross-surface.
