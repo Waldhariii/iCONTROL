@@ -38,3 +38,18 @@ export async function enforceCpSurfaceAccess(input: {
   }
   return { allow: false, reason: decision.code || decision.reasons[0] || "ERR_POLICY_DENY" };
 }
+import { getRuntimeIdentity } from "../runtime/identity";
+import { governedRedirect } from "../runtime/governedRedirect";
+
+function _resolveIdentity(): { tenantId: string; actorId: string } {
+  const id = getRuntimeIdentity();
+  return { tenantId: id.tenantId, actorId: id.actorId };
+}
+
+/**
+ * Helper for surfaces: apply redirect on deny using governed redirect strategy.
+ */
+export function redirectOnDeny(decision: { allow: boolean; reason: string }, appKind: "CP" | "APP" = "CP"): void {
+  if (decision.allow) return;
+  governedRedirect({ kind: "blocked", reason: decision.reason });
+}
