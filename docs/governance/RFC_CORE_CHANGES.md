@@ -133,3 +133,10 @@ Sinon : **BLOCK** (gate).
 **Rollback / risques:**
 - Changement isolé à la boundary app; rollback = revert commit(s) RFC + bootstrap.
 - Aucun impact sur modules métier; aucun ajout de routes sauvages; aucun import module→module.
+
+## RFC-2026-02-02-cp-bootstrap-facade-factories — Facade factories for CP bootstrap wiring
+
+- Scope: `app/src/core/ports/activationRegistry.facade.ts`, `app/src/core/ports/policyEngine.facade.ts`
+- Intent: provide explicit boundary-safe factory exports consumed by CP bootstrap integration.
+- Compatibility: additive exports, no route changes.
+- Governance: preserves no cross-boundary imports rule.
