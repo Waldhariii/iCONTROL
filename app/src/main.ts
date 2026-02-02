@@ -6,6 +6,7 @@ import { hydrateTenantOverrides } from "./platform/tenantOverrides";
 import { getBrandResolved } from "../../platform-services/branding/brandService";
 import "./styles/STYLE_ADMIN_FINAL.css";
 import { installIControlDiagnosticDEVOnly } from "./dev/diagnostic";
+import { bootstrapCpEnforcement } from "../core/ports/cpEnforcement.bootstrap";
 
 /* ICONTROL_SHELL_RECOVERY_V1 (enterprise-grade guardrail)
  * Objectif: empêcher un dashboard CP "sans menu" même si un rendu/route écrase le DOM.
@@ -137,6 +138,8 @@ import {
   getDefaultNavItems,
 } from "../../platform-services/ui-shell/layout/shell";
 // getDefaultNavItems() route automatiquement vers getDefaultNavItemsApp() ou getDefaultNavItemsCp() selon VITE_APP_KIND
+
+try { if (String(import.meta?.env?.VITE_APP_KIND||"").toUpperCase()==="CP") bootstrapCpEnforcement(); } catch {}
 import { registerRuntimeConfigEndpoint } from "./core/runtime/runtimeConfigEndpoint";
 import { getGlobalWindow, getImportMeta } from "./core/utils/types";
 /* UI_SHELL_NAV_V1 */
