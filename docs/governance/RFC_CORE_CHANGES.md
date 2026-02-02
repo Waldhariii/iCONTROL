@@ -353,3 +353,9 @@ Sinon : **BLOCK** (gate).
 **Changements:** ajout de `config/ssot/MODULE_CATALOG.json`, gate `gate:module-catalog`, et test contract `module-catalog.contract`.
 **Risques:** faible (ajout-only). Impact: verify:prod:fast inclut un gate additionnel.
 **Rollout:** immédiat; maintenir tri/dedup deterministe.
+
+## RFC-2026-02-02-phase6-move2-module-catalog-invariants — Phase6 Move2 (Module Catalog ULTRA invariants)
+- Motivation: empêcher le drift silencieux entre MODULE_CATALOG SSOT et les manifest modules/*/manifest/module.json (contract-first, high-signal).
+- Change: ajoute un test ULTRA invariants + un fichier d'exemptions contrôlé business (MODULE_CATALOG_EXEMPTIONS.json).
+- Risk: faible (tests only) ; bénéfice: gouvernance renforcée (no silent module leakage).
+- Gate impact: verify:prod:fast doit rester GREEN.
