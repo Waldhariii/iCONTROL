@@ -11,3 +11,5 @@ export * from "./policyEngine.facade";
 // Bootstrap / wiring
 export * from "./cpEnforcement.bootstrap";
 export * from "./cpEnforcement.wiring";
+
+export * from "./reasonCodes.v1";
