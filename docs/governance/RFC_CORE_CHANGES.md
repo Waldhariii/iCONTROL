@@ -55,3 +55,32 @@ Sinon : **BLOCK** (gate).
 - Migration steps: none (additif).
 - Evidence pack paths (_artifacts/...): _artifacts/release/rc/rc-20260201_154033-r3/hardening/event-backbone/
 - Gate updates (if any): gate:event-backbone ajoute a verify:prod:fast.
+
+---
+
+## RFC-2026-02-02-contract-first-ports-v1 — Contract-First Ports v1 (ActivationRegistry + PolicyEngine)
+
+**Date (UTC):** 2026-02-02  
+**Type:** Core contract surface addition (non-breaking)  
+**Motif business / plateforme:** renforcer la boucle *contract-first* pour l’Activation Registry (enable/disable module par tenant) et le Policy Engine v1 (évaluation pure). Objectif: stabilité, isolation, et enforcement prédictible via ports/adapters, sans imports cross-boundary.
+
+### Portée
+- Ajout de contracts stables:
+  - `core-kernel/src/contracts/activationRegistry.contract.ts`
+  - `core-kernel/src/contracts/policyEngine.contract.ts`
+- Ajout de tests de stabilité de contract dans le boundary core:
+  - `core-kernel/src/__tests__/contract-first.activationRegistry.contract.test.ts`
+  - `core-kernel/src/__tests__/contract-first.policyEngine.contract.test.ts`
+
+### Compatibilité
+- **Non-breaking**: ajout uniquement (aucune API existante modifiée).
+- Aucun impact runtime immédiat: contracts consommés plus tard via adapters CP/runtime.
+
+### Sécurité / Gouvernance
+- Respect strict des boundaries: tests moved into `core-kernel` (aucun import direct `core-kernel` depuis `app/`).
+- Zéro side effects: contracts type-first, tests compile-time conceptuels.
+
+### Migration / Rollback
+- Migration: none.
+- Rollback: revert commit introduisant ces fichiers.
+
