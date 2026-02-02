@@ -5,8 +5,8 @@
  */
 
 // Facades (boundary-safe factories)
-export { ActivationDecision, ActivationRegistryFacade, ActivationWrite, createActivationRegistryFacade, ModuleId, TenantId } from "./activationRegistry.facade";
-export { Action, createPolicyEngineFacade, PolicyContext, PolicyDecision, PolicyEngineFacade, Resource, Subject, TenantId } from "./policyEngine.facade";
+export { ActivationDecision, ActivationRegistryFacade, ActivationWrite, createActivationRegistryFacade, ModuleId } from "./activationRegistry.facade";
+export { Action, createPolicyEngineFacade, PolicyContext, PolicyDecision, PolicyEngineFacade, Resource, Subject } from "./policyEngine.facade";
 
 // Bootstrap / wiring
 export { bootstrapCpEnforcement } from "./cpEnforcement.bootstrap";
