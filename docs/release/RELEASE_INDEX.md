@@ -14,3 +14,8 @@
 ## Commits (pinned)
 - P6 provenance gate: `17c665e`
 
+
+## v0.2.4
+- Commit: `3c82ee74fdd5b86bad60486b082970065e036835`
+- Date: 2026-02-02T00:07:51Z
+- Notes: see _artifacts/release/prod/v0.2.4/
