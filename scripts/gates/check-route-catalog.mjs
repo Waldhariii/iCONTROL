@@ -1,64 +1,37 @@
-#!/usr/bin/env node
-/**
- * Gate — Route catalog (route drift)
- * Vérifie: config/ssot/ROUTE_CATALOG.json existe, JSON valide, routes[] non vide,
- * chaque entrée a route_id et app_surface.
- */
-import { readFileSync } from "node:fs";
-import { resolve } from "node:path";
+import fs from "node:fs";
 
-const PATH = resolve(process.cwd(), "config/ssot/ROUTE_CATALOG.json");
+const file = "config/ssot/ROUTE_CATALOG.json";
+if (!fs.existsSync(file)) {
+  console.error("ERR_ROUTE_CATALOG_MISSING:", file);
+  process.exit(1);
+}
 
-let raw;
+let obj;
 try {
-  raw = readFileSync(PATH, "utf8");
+  obj = JSON.parse(fs.readFileSync(file, "utf8"));
 } catch (e) {
-  if (e.code === "ENOENT") {
-    console.error("[FAIL] ROUTE_CATALOG.json manquant: " + PATH);
-    process.exit(1);
-  }
-  throw e;
-}
-
-let catalog;
-try {
-  catalog = JSON.parse(raw);
-} catch (e) {
-  console.error("[FAIL] ROUTE_CATALOG.json JSON invalide:", e.message);
+  console.error("ERR_ROUTE_CATALOG_INVALID_JSON:", String(e?.message || e));
   process.exit(1);
 }
 
-if (!catalog || typeof catalog !== "object") {
-  console.error("[FAIL] ROUTE_CATALOG.json: racine doit être un objet.");
+function isStr(x) { return typeof x === "string" && x.length > 0; }
+function isArr(x) { return Array.isArray(x); }
+
+if (obj?.schema !== "ROUTE_CATALOG_V1") {
+  console.error("ERR_ROUTE_CATALOG_SCHEMA:", obj?.schema);
   process.exit(1);
 }
-
-const routes = catalog.routes;
-if (!Array.isArray(routes)) {
-  console.error("[FAIL] ROUTE_CATALOG.json: 'routes' doit être un tableau.");
-  process.exit(1);
-}
-
-if (routes.length === 0) {
-  console.error("[FAIL] ROUTE_CATALOG.json: 'routes' ne doit pas être vide.");
-  process.exit(1);
-}
-
-for (let i = 0; i < routes.length; i++) {
-  const r = routes[i];
-  if (!r || typeof r !== "object") {
-    console.error("[FAIL] ROUTE_CATALOG.json: routes[" + i + "] invalide.");
+for (const k of ["app", "cp"]) {
+  const node = obj[k];
+  if (!node || !isStr(node.base) || !isArr(node.routes) || node.routes.length === 0) {
+    console.error("ERR_ROUTE_CATALOG_SHAPE:", k);
     process.exit(1);
   }
-  if (typeof r.route_id !== "string" || !r.route_id) {
-    console.error("[FAIL] ROUTE_CATALOG.json: routes[" + i + "] doit avoir route_id (string non vide).");
-    process.exit(1);
-  }
-  if (typeof r.app_surface !== "string" || !r.app_surface) {
-    console.error("[FAIL] ROUTE_CATALOG.json: routes[" + i + "] doit avoir app_surface (string non vide).");
-    process.exit(1);
+  for (const r of node.routes) {
+    if (!isStr(r)) {
+      console.error("ERR_ROUTE_CATALOG_ROUTE_INVALID:", k, r);
+      process.exit(1);
+    }
   }
 }
-
-console.log("OK: ROUTE_CATALOG.json valide (" + routes.length + " routes).");
-process.exit(0);
+console.log("OK: gate:route-catalog");
