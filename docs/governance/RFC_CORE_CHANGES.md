@@ -168,3 +168,18 @@ Sinon : **BLOCK** (gate).
 - Scope: `app/src/core/ports/reasonCodes.v1.ts`
 - Motivation: repair TS runtime failure caused by unquoted registry entries; restore enforcement path stability.
 - Decision: registry values are frozen as string literals only.
+
+## RFC-2026-02-02-move6-critical-path-proof-pack-v1 — Critical Path Proof Pack v1 (Ports + CP Enforcement)
+
+- Date: 2026-02-02
+- Scope: app/src/core/ports (barrel index + CP enforcement wiring/bootstrap/facades) + reason-codes registry
+- Motif business / plateforme:
+  - Stabiliser le "contract surface" des ports (API interne) pour réduire le churn et sécuriser les intégrations CP/APP.
+  - Verrouiller la posture boundary-safe (zéro import direct core-kernel depuis la couche app wiring).
+  - Ajouter une couche de preuves automatisées (tests contract) pour rendre la gouvernance prédictive et industrialisable.
+- Décision:
+  - Ajout test freeze exports: `ports-public-surface.freeze.contract.test.ts`
+  - Ajout test boundary scan: `cp-enforcement.boundary-scan.contract.test.ts`
+  - Ajout test sanity reason codes: `reason-codes.registry.sanity.contract.test.ts`
+- Règle de changement:
+  - Toute modification des exports ports => mise à jour explicite de la liste EXPECTED + justification RFC.
