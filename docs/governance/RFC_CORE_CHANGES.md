@@ -239,3 +239,12 @@ Sinon : **BLOCK** (gate).
   - stabiliser tenant/actor comme SSOT runtime (pré-requis multi-tenant),
   - réduire les accès implicites (bugs/privilege confusion),
   - faciliter audit/provenance et hardening CP.
+
+## RFC-2026-02-02-move12-cp-surface2-entitlements-rollout-v1 — Move12 CP Surface Rollout #2 (entitlements/settings) via ports-only enforcement
+
+- Date: 2026-02-02
+- Scope: ajout wrapper enforcement surface entitlements + test e2e contract + patch page CP cible (non-invasive).
+- Motif business / plateforme:
+  - étendre l’enforcement contract-first au-delà de cp.users,
+  - garantir la cohérence runtime identity + redirect v2 + reason codes gelés,
+  - réduire le risque de drift (pages “dumb”, enforcement centralisé).
