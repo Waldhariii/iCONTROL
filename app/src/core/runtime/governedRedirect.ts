@@ -1,40 +1,17 @@
 /**
- * Governed Redirect — SSOT v1
- * Centralizes redirect behavior so we can later swap implementation
- * (router push, safe render, telemetry) without touching surfaces.
+ * Governed Redirect — v2 (compliant)
+ * - No direct window.location.hash writes.
+ * - Delegates to RedirectAdapter implementation.
  */
-export type RedirectTarget =
-  | { kind: "blocked"; reason?: string }
-  | { kind: "dashboard"; appKind: "CP" | "APP"; reason?: string };
+import type { RedirectTarget } from "../ports/redirect.adapter";
+import { createRedirectAdapter } from "./redirectAdapter.impl";
 
-function toHash(target: RedirectTarget): string {
-  switch (target.kind) {
-    case "blocked":
-      return "#/blocked";
-    case "dashboard":
-      return target.appKind === "CP" ? "/cp/#/dashboard" : "/app/#/dashboard";
-  }
+let _adapter = createRedirectAdapter();
+
+export function _setRedirectAdapterForTests(next: ReturnType<typeof createRedirectAdapter>): void {
+  _adapter = next;
 }
 
 export function governedRedirect(target: RedirectTarget): void {
-  // Minimal v1: use location.href assignment only here (single choke-point).
-  // Future: integrate router + SafeRender + audit event.
-  const h = toHash(target);
-
-  try {
-    // If the hash already matches, no-op.
-    const cur = String(window.location.href || "");
-    if (cur.includes(h)) return;
-
-    if (h.startsWith("/cp/") || h.startsWith("/app/")) {
-      // Cross-app kind redirect (absolute-ish within same origin)
-      window.location.assign(h);
-      return;
-    }
-
-    // Same-surface hash redirect via assign to satisfy no-raw-location-hash governance.
-    window.location.assign(h);
-  } catch {
-    // fail-soft: do nothing
-  }
+  _adapter.redirect(target);
 }
