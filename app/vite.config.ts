@@ -116,6 +116,7 @@ export default defineConfig(({ command, mode }) => {
       include: [
         "src/**/*.{test,spec}.ts",
         "../modules/core-system/ui/frontend-ts/pages/**/*.test.ts",
+        "../core-kernel/src/**/*.contract.test.ts",
       ],
       setupFiles: ["./vitest.setup.ts", "src/vitest.setup.ts"],
     },
