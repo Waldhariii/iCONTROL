@@ -2,6 +2,10 @@ import { describe, it, expect } from "vitest";
 import fs from "node:fs";
 import path from "node:path";
 
+const REPO_ROOT = execSync("git rev-parse --show-toplevel", { encoding: "utf8" }).trim();
+const MODULE_CATALOG_PATH = path.join(REPO_ROOT, MODULE_CATALOG_PATH);
+
+import { execSync } from "node:child_process";
 function isSorted(arr: string[]) {
   for (let i = 1; i < arr.length; i++) {
     if (String(arr[i - 1]).localeCompare(String(arr[i])) > 0) return false;
