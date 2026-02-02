@@ -297,3 +297,13 @@ Sinon : **BLOCK** (gate).
   - Tests contract: freeze keys + guard registry consumption
 - Motif business / plateforme:
   - Standardiser l'enforcement CP via un catalogue central -> onboarding accelere + auditabilite
+
+## RFC-2026-02-02-phase3-completion-pack-v1 — Phase3 completion pack (registry coverage + registry-only CP pages + ultra proofs)
+
+- Date: 2026-02-02
+- Scope:
+  - Etend le registry SSOT pour couvrir toutes les surfaces CP presentes (cp/*)
+  - Interdit requiredCapability inline dans les Pages CP (registry is source of truth)
+  - Ajoute preuves ULTRA: freeze registry keys + scan contract
+- Motif business / plateforme:
+  - Reduit le risque operationnel et standardise l'onboarding de nouvelles surfaces CP via un catalogue unique.
