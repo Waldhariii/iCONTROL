@@ -230,3 +230,12 @@ Sinon : **BLOCK** (gate).
   - conformité aux gates (no direct location.hash writes outside platform),
   - évolution contrôlée (router/telemetry swap),
   - réduction du risque de régression cross-surface.
+
+## RFC-2026-02-02-move11-runtime-identity-ssot-v1 — Move11 Runtime Identity SSOT (tenant/actor session-bound)
+
+- Date: 2026-02-02
+- Scope: ajout du port RuntimeIdentityPort + impl strict (no implicit fallback prod).
+- Motif business / plateforme:
+  - stabiliser tenant/actor comme SSOT runtime (pré-requis multi-tenant),
+  - réduire les accès implicites (bugs/privilege confusion),
+  - faciliter audit/provenance et hardening CP.
