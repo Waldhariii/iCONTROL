@@ -5,6 +5,7 @@
  *   1) window.__ICONTROL_SAFE_MODE__ (runtime override)
  *   2) localStorage flag "icontrol.runtime.safeMode.v1"
  */
+import { webStorage } from "../../platform/storage/webStorage";
 import { isEnabled } from "../../policies/feature_flags.enforce";
 import { createAuditHook } from "../write-gateway/auditHook";
 import { createLegacyAdapter } from "../write-gateway/adapters/legacyAdapter";
@@ -50,7 +51,7 @@ export function isSafeMode(): boolean {
   try {
     const w: any = window as any;
     if (typeof w.__ICONTROL_SAFE_MODE__ === "boolean") return w.__ICONTROL_SAFE_MODE__;
-    const v = localStorage.getItem(SAFE_KEY);
+    const v = webStorage.get(SAFE_KEY);
     return v === "1" || v === "true";
   } catch {
     return false;
@@ -59,15 +60,13 @@ export function isSafeMode(): boolean {
 
 /** Dev-only helper */
 export function setSafeMode(on: boolean): void {
-  // SSR guard (OK)
-  if (typeof window === "undefined" || !window.localStorage) return;
-
+  if (typeof window === "undefined") return;
   const value = on ? "1" : "0";
 
   // Legacy-first write (OK même si erreur)
   let wrote = false;
   try {
-    window.localStorage.setItem(SAFE_KEY, value);
+    webStorage.set(SAFE_KEY, value);
     wrote = true;
   } catch {
     return;

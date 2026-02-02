@@ -1,3 +1,4 @@
+import { asStorage } from "../../../../../../shared/storage/webStorage";
 import type { Role } from "/src/runtime/rbac";
 import { getSafeMode } from "../_shared/safeMode";
 import { recordObs } from "../_shared/audit";
@@ -31,7 +32,7 @@ export type Dossier = {
 
 const STORAGE_KEY = "icontrol_dossiers_v1";
 
-export function listDossiers(storage: Storage = window.localStorage): Dossier[] {
+export function listDossiers(storage: Storage = asStorage()): Dossier[] {
   try {
     const raw = storage.getItem(STORAGE_KEY);
     if (!raw) return [];
@@ -53,7 +54,7 @@ function writeAll(storage: Storage, rows: Dossier[]): void {
 export function createDossier(
   role: Role,
   payload: Omit<Dossier, "id" | "createdAt" | "updatedAt">,
-  storage: Storage = window.localStorage
+  storage: Storage = asStorage()
 ): { ok: true; dossier: Dossier } | { ok: false; reason: string } {
   if (!canWrite(role)) {
     recordObs({ code: OBS.WARN_ACTION_BLOCKED, actionId: "dossier.create", detail: "rbac" });
@@ -84,7 +85,7 @@ export function updateDossier(
   role: Role,
   id: string,
   patch: Partial<Dossier>,
-  storage: Storage = window.localStorage
+  storage: Storage = asStorage()
 ): { ok: true; dossier: Dossier } | { ok: false; reason: string } {
   const rows = listDossiers(storage);
   const idx = rows.findIndex((d) => d.id === id);
@@ -115,7 +116,7 @@ export function setDossierState(
   role: Role,
   id: string,
   nextState: DossierState,
-  storage: Storage = window.localStorage
+  storage: Storage = asStorage()
 ): { ok: true; dossier: Dossier } | { ok: false; reason: string } {
   return transitionDossier(role, id, nextState, storage);
 }
@@ -124,7 +125,7 @@ export function transitionDossier(
   role: Role,
   id: string,
   nextState: DossierState,
-  storage: Storage = window.localStorage
+  storage: Storage = asStorage()
 ): { ok: true; dossier: Dossier } | { ok: false; reason: string } {
   const rows = listDossiers(storage);
   const idx = rows.findIndex((d) => d.id === id);
@@ -166,11 +167,11 @@ export function appendHistory(
   dossier.history = [...(dossier.history || []), entry];
 }
 
-export function getDossier(id: string, storage: Storage = window.localStorage): Dossier | undefined {
+export function getDossier(id: string, storage: Storage = asStorage()): Dossier | undefined {
   return listDossiers(storage).find((d) => d.id === id);
 }
 
-export function getStorageUsage(storage: Storage = window.localStorage): { key: string; bytes: number } {
+export function getStorageUsage(storage: Storage = asStorage()): { key: string; bytes: number } {
   const raw = storage.getItem(STORAGE_KEY) || "";
   return { key: STORAGE_KEY, bytes: raw.length };
 }
@@ -181,7 +182,7 @@ export function getStorageKey(): string {
 
 export function resetDossiers(
   role: Role,
-  storage: Storage = window.localStorage
+  storage: Storage = asStorage()
 ): { ok: true } | { ok: false; reason: string } {
   if (!canWrite(role)) {
     recordObs({ code: OBS.WARN_ACTION_BLOCKED, actionId: "dossier.reset", detail: "rbac" });
@@ -197,7 +198,7 @@ export function resetDossiers(
   return { ok: true };
 }
 
-export function createDossiersModel(storage: Storage = window.localStorage): {
+export function createDossiersModel(storage: Storage = asStorage()): {
   dossiers: Dossier[];
   storageKey: string;
   storageBytes: number;

@@ -1,3 +1,4 @@
+import { webStorage } from "../../../shared/storage/webStorage";
 import { getLogger } from "../../../app/src/core/utils/logger";
 import { isEnabled } from "../../../app/src/policies/feature_flags.enforce";
 import { createAuditHook } from "../../../app/src/core/write-gateway/auditHook";
@@ -118,7 +119,7 @@ export function authenticate(username: string, password: string): Session | null
   const serialized = JSON.stringify(s);
   let wrote = false;
   try {
-    localStorage.setItem(LS_SESSION, serialized);
+    webStorage.set(LS_SESSION, serialized);
     wrote = true;
   } catch (_) {}
 
@@ -157,7 +158,7 @@ export function authenticate(username: string, password: string): Session | null
 
 export function getSession(): Session | null {
   try {
-    const raw = localStorage.getItem(LS_SESSION);
+    const raw = webStorage.get(LS_SESSION);
     if (!raw) return null;
     return JSON.parse(raw) as Session;
   } catch (_) {
@@ -166,7 +167,7 @@ export function getSession(): Session | null {
 }
 
 export function logout(): void {
-  try { localStorage.removeItem(LS_SESSION); } catch (_) {}
+  try { webStorage.del(LS_SESSION); } catch (_) {}
 }
 
 export function requireSession(): Session {
@@ -181,14 +182,14 @@ export function authenticateManagement(username: string, password: string): Sess
   if (!u) return null;
   const s: Session = { username: u.username, role: u.role, fullName: u.fullName };
   try {
-    localStorage.setItem(LS_MGMT, JSON.stringify(s));
+    webStorage.set(LS_MGMT, JSON.stringify(s));
   } catch (_) {}
   return s;
 }
 
 export function getManagementSession(): Session | null {
   try {
-    const raw = localStorage.getItem(LS_MGMT);
+    const raw = webStorage.get(LS_MGMT);
     if (!raw) return null;
     return JSON.parse(raw) as Session;
   } catch (_) {
@@ -198,6 +199,6 @@ export function getManagementSession(): Session | null {
 
 export function clearManagementSession(): void {
   try {
-    localStorage.removeItem(LS_MGMT);
+    webStorage.del(LS_MGMT);
   } catch (_) {}
 }

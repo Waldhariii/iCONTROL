@@ -1,3 +1,5 @@
+import { webStorage } from "../platform/storage/webStorage";
+
 /**
  * DEV-only UI Showcase (SSOT-friendly)
  * - Aucun routing
@@ -20,10 +22,8 @@ function hasBrowser(): boolean {
 }
 
 function isEnabled(): boolean {
-  const g = getGlobal();
-  const w = g.window as any;
   try {
-    return w?.localStorage?.getItem("icontrol_showcase") === "1";
+    return webStorage.get("icontrol_showcase") === "1";
   } catch {
     return false;
   }

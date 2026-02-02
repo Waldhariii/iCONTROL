@@ -10,15 +10,16 @@ export function vfsKey(scope: VfsScope, key: string): string {
   return `tenant:${t}::ns:${ns}::${key}`;
 }
 
-// Baseline provider = localStorage (can be swapped later)
+import { webStorage } from "./webStorage";
+
 export const Vfs = {
   get(scope: VfsScope, key: string): string | null {
-    return localStorage.getItem(vfsKey(scope, key));
+    return webStorage.get(vfsKey(scope, key));
   },
   set(scope: VfsScope, key: string, value: string): void {
-    localStorage.setItem(vfsKey(scope, key), value);
+    webStorage.set(vfsKey(scope, key), value);
   },
   del(scope: VfsScope, key: string): void {
-    localStorage.removeItem(vfsKey(scope, key));
+    webStorage.del(vfsKey(scope, key));
   },
 };

@@ -1,6 +1,8 @@
+import { webStorage } from "../../../../../../shared/storage/webStorage";
+
 export function readStorage(key: string): string | null {
   try {
-    return window.localStorage.getItem(key);
+    return webStorage.get(key);
   } catch {
     return null;
   }

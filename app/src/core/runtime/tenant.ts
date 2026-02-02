@@ -3,6 +3,7 @@
  * - Default: "public" (single-tenant fallback)
  * - Future: derive from auth/session/hostname/route param
  */
+import { webStorage } from "../../platform/storage/webStorage";
 import { isEnabled } from "../../policies/feature_flags.enforce";
 import { createAuditHook } from "../write-gateway/auditHook";
 import { createLegacyAdapter } from "../write-gateway/adapters/legacyAdapter";
@@ -43,7 +44,7 @@ function isTenantShadowEnabled(): boolean {
 
 export function getTenantId(): string {
   try {
-    const v = localStorage.getItem(TENANT_KEY);
+    const v = webStorage.get(TENANT_KEY);
     return (v && v.trim()) ? v.trim() : "public";
   } catch {
     return "public";
@@ -53,7 +54,7 @@ export function getTenantId(): string {
 /** Dev-only helper: allows manual switching in local/dev. */
 export function setTenantId(id: string) {
   const v = (id || "").trim() || "public";
-  localStorage.setItem(TENANT_KEY, v);
+  webStorage.set(TENANT_KEY, v);
 
   if (!isTenantShadowEnabled()) return;
 

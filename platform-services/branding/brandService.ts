@@ -1,4 +1,5 @@
 import type { Brand, BrandResolved, BrandOverrideResult } from "../../core-kernel/contracts/BrandingPort";
+import { webStorage } from "../../shared/storage/webStorage";
 import { getLogger } from "../../app/src/core/utils/logger";
 import { isEnabled } from "../../app/src/policies/feature_flags.enforce";
 import { createAuditHook } from "../../app/src/core/write-gateway/auditHook";
@@ -54,7 +55,7 @@ const FALLBACK: Brand = {
 
 function readLocalOverride(): Record<string, unknown> | null {
   try {
-    const raw = localStorage.getItem(LS_KEY);
+    const raw = webStorage.get(LS_KEY);
     if (!raw) return null;
     return JSON.parse(raw) as Record<string, unknown>;
   } catch {
@@ -149,14 +150,8 @@ export function setBrandLocalOverride(patch: Partial<Brand>): BrandOverrideResul
   if (!v.ok) return { ok: false, warnings: v.warnings };
   const serialized = JSON.stringify(next);
 
-  // SSR guard explicite (comportement: OK)
-  if (typeof window === "undefined" || !window.localStorage) {
-    return { ok: true };
-  }
-
-  // Legacy-first write (comportement: OK même si erreur)
   try {
-    window.localStorage.setItem(LS_KEY, serialized);
+    webStorage.set(LS_KEY, serialized);
   } catch {
     return { ok: true };
   }
@@ -199,5 +194,5 @@ export function setBrandLocalOverride(patch: Partial<Brand>): BrandOverrideResul
 }
 
 export function clearBrandLocalOverride(): void {
-  try { localStorage.removeItem(LS_KEY); } catch {}
+  try { webStorage.del(LS_KEY); } catch {}
 }

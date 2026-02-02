@@ -1,3 +1,4 @@
+import { webStorage } from "../../../platform/storage/webStorage";
 import { isEnabled } from "../../policies/feature_flags.enforce";
 import { getTenantId } from "../runtime/tenant";
 import { createAuditHook } from "../write-gateway/auditHook";
@@ -40,7 +41,7 @@ export class LocalStorageProvider {
   constructor(public readonly prefix: string) {}
   getItem(key: string): string | null {
     try {
-      return window.localStorage.getItem(this.prefix + key);
+      return webStorage.get(this.prefix + key);
     } catch {
       return null;
     }
@@ -48,7 +49,7 @@ export class LocalStorageProvider {
   setItem(key: string, value: string): void {
     const fullKey = this.prefix + key;
     try {
-      window.localStorage.setItem(fullKey, value);
+      webStorage.set(fullKey, value);
     } catch {
       return;
     }

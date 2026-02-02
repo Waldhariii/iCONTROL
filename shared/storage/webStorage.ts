@@ -3,13 +3,15 @@
  * Single implementation used by app, modules, platform-services.
  */
 function safe(): Storage | null {
-  if (typeof window === "undefined") return null;
-  return window.localStorage;
+  if (typeof window !== "undefined" && window.localStorage) return window.localStorage;
+  if (typeof globalThis !== "undefined") return (globalThis as any).localStorage ?? null;
+  return null;
 }
 
 function safeSession(): Storage | null {
-  if (typeof window === "undefined") return null;
-  return window.sessionStorage;
+  if (typeof window !== "undefined" && window.sessionStorage) return window.sessionStorage;
+  if (typeof globalThis !== "undefined") return (globalThis as any).sessionStorage ?? null;
+  return null;
 }
 
 export const webStorage = {
@@ -38,3 +40,16 @@ export const webStorage = {
     if (s) s.removeItem(key);
   },
 };
+
+/** Storage-compatible adapter for functions that accept Storage. */
+export function asStorage(): Pick<Storage, "getItem" | "setItem" | "removeItem" | "clear"> {
+  return {
+    getItem: (k) => webStorage.get(k),
+    setItem: (k, v) => webStorage.set(k, v ?? ""),
+    removeItem: (k) => webStorage.del(k),
+    clear: () => {
+      const s = safe();
+      if (s) s.clear();
+    },
+  };
+}

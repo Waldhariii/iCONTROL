@@ -1,3 +1,4 @@
+import { asStorage } from "../../../../../../shared/storage/webStorage";
 import { getSafeMode } from "../_shared/safeMode";
 import { listFlags, setFlag, FLAG_DEFS } from "../../shared/featureFlags";
 import { MAIN_SYSTEM_LAYOUT } from "../_shared/mainSystem.data";
@@ -22,7 +23,7 @@ export type SystemModel = {
   };
 };
 
-export function createSystemModel(storage: Storage = window.localStorage): SystemModel {
+export function createSystemModel(storage: Storage = asStorage()): SystemModel {
   const safeMode = getSafeMode();
   const flags = listFlags(storage).map((f) => ({
     id: f.def.id,
@@ -44,14 +45,14 @@ export function createSystemModel(storage: Storage = window.localStorage): Syste
   };
 }
 
-export function updateFlag(id: string, next: boolean, storage: Storage = window.localStorage): void {
+export function updateFlag(id: string, next: boolean, storage: Storage = asStorage()): void {
   setFlag(id as any, next, storage);
 }
 
-export function setAllFlags(next: boolean, storage: Storage = window.localStorage): void {
+export function setAllFlags(next: boolean, storage: Storage = asStorage()): void {
   listFlags(storage).forEach((f) => setFlag(f.def.id, next, storage));
 }
 
-export function resetFlags(storage: Storage = window.localStorage): void {
+export function resetFlags(storage: Storage = asStorage()): void {
   FLAG_DEFS.forEach((f) => setFlag(f.id, f.defaultValue, storage));
 }

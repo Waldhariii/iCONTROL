@@ -1,3 +1,4 @@
+import { asStorage } from "../../../../../shared/storage/webStorage";
 import { recordObs } from "../pages/_shared/audit";
 import { OBS } from "../pages/_shared/obsCodes";
 import { getSafeMode } from "../pages/_shared/safeMode";
@@ -72,7 +73,7 @@ function keyOf(id: FlagId): string {
   return PREFIX + id;
 }
 
-export function getFlag(id: FlagId, storage: Storage = window.localStorage): boolean {
+export function getFlag(id: FlagId, storage: Storage = asStorage()): boolean {
   const raw = storage.getItem(keyOf(id));
   if (raw === "true") return true;
   if (raw === "false") return false;
@@ -80,7 +81,7 @@ export function getFlag(id: FlagId, storage: Storage = window.localStorage): boo
   return def ? def.defaultValue : false;
 }
 
-export function setFlag(id: FlagId, value: boolean, storage: Storage = window.localStorage): void {
+export function setFlag(id: FlagId, value: boolean, storage: Storage = asStorage()): void {
   if (getSafeMode() === "STRICT") {
     recordObs({ code: OBS.WARN_SAFE_MODE_WRITE_BLOCKED, actionId: `flag:${id}`, detail: "safeModeStrict" });
     return;
@@ -89,7 +90,7 @@ export function setFlag(id: FlagId, value: boolean, storage: Storage = window.lo
   recordObs({ code: OBS.INFO_WRITE_OK, actionId: `flag:${id}`, detail: `set:${value}` });
 }
 
-export function listFlags(storage: Storage = window.localStorage): Array<{
+export function listFlags(storage: Storage = asStorage()): Array<{
   def: FlagDef;
   value: boolean;
   effective: boolean;

@@ -1,3 +1,4 @@
+import { webStorage } from "../../../../platform/storage/webStorage";
 import { listCatalogEntries, type CatalogState, type CatalogSurface } from "./registry";
 import { registerDefaultCatalogEntries } from "./defaults";
 import { isEnabled } from "../../../policies/feature_flags.enforce";
@@ -78,11 +79,9 @@ function applyTheme(mode: "light" | "dark"): void {
   root.style.setProperty("--ic-text", tokens.text);
   root.style.setProperty("--ic-mutedText", tokens.mutedText);
 
-  if (typeof window === "undefined" || !window.localStorage) return;
-
   let wrote = false;
   try {
-    window.localStorage.setItem("icontrol_settings_v1.theme", mode);
+    webStorage.set("icontrol_settings_v1.theme", mode);
     wrote = true;
   } catch {}
 

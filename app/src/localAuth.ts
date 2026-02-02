@@ -1,3 +1,4 @@
+import { asStorage } from "./platform/storage/webStorage";
 import { navigate } from "./runtime/navigate";
 import { debug, info, warn, error } from "./platform/observability/logger";
 import { isEnabled } from "./policies/feature_flags.enforce";
@@ -189,11 +190,7 @@ function getStorage(): Pick<
   Storage,
   "getItem" | "setItem" | "removeItem" | "clear"
 > {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const ls = (globalThis as any)?.localStorage;
-  if (ls && typeof ls.getItem === "function") return ls;
-  if (typeof window !== "undefined" && window.localStorage)
-    return window.localStorage;
+  if (typeof window !== "undefined") return asStorage();
   return mem;
 }
 

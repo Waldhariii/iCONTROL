@@ -1,3 +1,4 @@
+import { webStorage } from "../../platform/storage/webStorage";
 import { nsKey } from "../runtime/storageNs";
 import { isSafeMode } from "../runtime/safeMode";
 import { isEnabled } from "../../policies/feature_flags.enforce";
@@ -71,16 +72,14 @@ export function entitlementsKey(tenantId: string): string {
 }
 
 export function loadEntitlements(tenantId: string): Entitlements {
-  if (typeof window === "undefined" || !window.localStorage) return DEFAULT_ENTITLEMENTS;
-  const raw = window.localStorage.getItem(entitlementsKey(tenantId));
+  const raw = webStorage.get(entitlementsKey(tenantId));
   if (!raw) return DEFAULT_ENTITLEMENTS;
   return coerceEntitlements(safeParse(raw));
 }
 
 export function saveEntitlements(tenantId: string, e: Entitlements): void {
   if (isSafeMode()) return;
-  if (typeof window === "undefined" || !window.localStorage) return;
-  window.localStorage.setItem(entitlementsKey(tenantId), JSON.stringify(e));
+  webStorage.set(entitlementsKey(tenantId), JSON.stringify(e));
 
   if (!isEntitlementsStorageShadowEnabled()) return;
 
@@ -115,6 +114,5 @@ export function saveEntitlements(tenantId: string, e: Entitlements): void {
 
 export function clearEntitlements(tenantId: string): void {
   if (isSafeMode()) return;
-  if (typeof window === "undefined" || !window.localStorage) return;
-  window.localStorage.removeItem(entitlementsKey(tenantId));
+  webStorage.del(entitlementsKey(tenantId));
 }

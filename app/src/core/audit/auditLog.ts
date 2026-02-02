@@ -1,3 +1,4 @@
+import { webStorage } from "../../platform/storage/webStorage";
 import { nsKey } from "../runtime/storageNs";
 import { isSafeMode } from "../runtime/safeMode";
 import { isEnabled } from "../../policies/feature_flags.enforce";
@@ -61,7 +62,7 @@ function key(): string {
 
 export function readAuditLog(): AuditEvent[] {
   try {
-    const raw = localStorage.getItem(key());
+    const raw = webStorage.get(key());
     if (!raw) return [];
     const parsed = JSON.parse(raw);
     return Array.isArray(parsed) ? parsed : [];
@@ -73,7 +74,7 @@ export function readAuditLog(): AuditEvent[] {
 export function writeAuditLog(events: AuditEvent[]) {
   if (isSafeMode()) return; // governance: read-only
   const trimmed = events.slice(-MAX);
-  localStorage.setItem(key(), JSON.stringify(trimmed));
+  webStorage.set(key(), JSON.stringify(trimmed));
 }
 
 export function appendAuditEvent(ev: Omit<AuditEvent, "ts"> & { ts?: string }) {
@@ -122,5 +123,5 @@ export function exportAuditLogJson(): string {
 
 export function clearAuditLog() {
   if (isSafeMode()) return; // governance: read-only
-  localStorage.removeItem(key());
+  webStorage.del(key());
 }

@@ -1,3 +1,4 @@
+import { webStorage } from "../../../../../../shared/storage/webStorage";
 import type { AccountModel } from "./model";
 import { appendParagraph, appendTable, sectionCard } from "../_shared/uiBlocks";
 
@@ -40,7 +41,7 @@ export function renderAccountStorageAllow(root: HTMLElement, model: AccountModel
 export function renderAccountStorageUsage(root: HTMLElement, model: AccountModel): void {
   const card = sectionCard("Storage usage (read-only)");
   const rows = model.storageUsageKeys.map((key) => {
-    const hasValue = typeof localStorage !== "undefined" && localStorage.getItem(key) !== null;
+    const hasValue = webStorage.get(key) !== null;
     return { Key: key, Status: hasValue ? "present" : "empty" };
   });
   appendTable(card, ["Key", "Status"], rows);

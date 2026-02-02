@@ -1,3 +1,5 @@
+import { webStorage } from "../../../../../../shared/storage/webStorage";
+
 /**
  * Module-local auth shim.
  * Modules must not depend on app/src/localAuth.
@@ -18,9 +20,9 @@ let _session: LocalSession | null = null;
 
 function syncToStorage(s: LocalSession | null) {
   try {
-    if (typeof window !== "undefined" && window.localStorage) {
-      if (s) window.localStorage.setItem(LS_SESSION, JSON.stringify(s));
-      else window.localStorage.removeItem(LS_SESSION);
+    if (typeof window !== "undefined") {
+      if (s) webStorage.set(LS_SESSION, JSON.stringify(s));
+      else webStorage.del(LS_SESSION);
     }
   } catch {
     /* storage disabled */
@@ -40,8 +42,8 @@ export function clearSession() {
 export function getSession(): LocalSession | null {
   if (_session) return { ..._session };
   try {
-    if (typeof window !== "undefined" && window.localStorage) {
-      const raw = window.localStorage.getItem(LS_SESSION);
+    if (typeof window !== "undefined") {
+      const raw = webStorage.get(LS_SESSION);
       if (raw) {
         _session = JSON.parse(raw) as LocalSession;
         return _session ? { ..._session } : null;

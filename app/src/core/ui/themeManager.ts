@@ -10,6 +10,7 @@
  * - Tokens SSOT (Single Source Of Truth)
  */
 
+import { webStorage } from "../../../platform/storage/webStorage";
 import { getLogger } from "../utils/logger";
 import { isEnabled } from "../../policies/feature_flags.enforce";
 import { createAuditHook } from "../write-gateway/auditHook";
@@ -259,7 +260,7 @@ class ThemeManager {
     try {
       const guard = (globalThis as any).__ICONTROL_CLIENT_STYLE_GUARD__;
       if (guard?.disableLocalOverrides) return;
-      localStorage.setItem("icontrol_theme", JSON.stringify(theme));
+      webStorage.set("icontrol_theme", JSON.stringify(theme));
     } catch (e) {
       logger.warn("THEME_MANAGER_SAVE_FAILED", String(e));
     }
@@ -300,7 +301,7 @@ class ThemeManager {
     try {
       const guard = (globalThis as any).__ICONTROL_CLIENT_STYLE_GUARD__;
       if (guard?.disableLocalOverrides) return null;
-      const saved = localStorage.getItem("icontrol_theme");
+      const saved = webStorage.get("icontrol_theme");
       if (saved) {
         return JSON.parse(saved) as Theme;
       }
