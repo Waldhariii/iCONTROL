@@ -322,3 +322,9 @@ Sinon : **BLOCK** (gate).
 - Motif business / plateforme: respecter le boundary map (aucun import app -> core-kernel) tout en conservant les ports VFS/Snapshot.
 - Changements: duplication contrôlée des contracts en  + repoint facades/binders/providers/tests; ajout reason codes bind errors; mise à jour des freeze tests.
 - Risque: faible; duplication explicitement documentée; gates/tests assurent la stabilité.
+
+## RFC-20260202_215012-ports-index-explicit-exports-v2 — Ports index: explicit exports only (resolver v2)
+- Date (UTC): 2026-02-02
+- Motif plateforme: éliminer  pour stabiliser la surface publique (determinisme + freeze tests) et corriger la résolution des chemins avec suffixes non-TS (ex: *.facade).
+- Scope: app/src/core/ports/index.ts (remplacement par exports explicites).
+- Rollback: revert + tag-set-atomic.
