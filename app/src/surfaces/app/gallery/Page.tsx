@@ -18,7 +18,7 @@ export default function Page(){
 
         <div style={{ marginTop: 16, display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(260px,1fr))", gap: 12 }}>
           {LINKS.map(l => (
-            <a key={l.href} href={l.href} style={{ display:"block", padding: 16, border: "1px solid rgba(0,0,0,0.12)", borderRadius: 12, textDecoration: "none", color: "inherit" }}>
+            <a key={l.href} href={l.href} style={{ display:"block", padding: 16, border: "1px solid var(--color-border-subtle, #d9d9d9)", borderRadius: 12, textDecoration: "none", color: "inherit" }}>
               <div style={{ fontSize: 18, fontWeight: 600 }}>{l.label}</div>
               <div style={{ marginTop: 6, opacity: 0.8 }}>{l.href}</div>
               {l.note ? <div style={{ marginTop: 10, opacity: 0.65 }}>{l.note}</div> : null}
