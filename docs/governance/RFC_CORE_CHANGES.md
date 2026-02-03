@@ -448,3 +448,9 @@ Sinon : **BLOCK** (gate).
 - Status: APPROVED
 - Change: Ajout port billing sink (idempotent), no-op core (free), extensible par module payant (provider).
 - Risk: faible (ports-only). Rollback: retirer port + test.
+
+## phase9-move0-releaseops-invariants — Phase9 Move0 (ReleaseOps invariants gate)
+- Status: APPROVED
+- Motivation: verrouiller les invariants de productisation (MODULE_CATALOG trié, manifest non vide, marker RFC présent).
+- Change: ajout gate:releaseops-invariants + contract test + script npm.
+- Risk: faible (gate-only). Rollback: retirer le gate et le test.
