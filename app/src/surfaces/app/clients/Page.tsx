@@ -4,8 +4,8 @@ import { withSpan } from "../_shared/telemetry";
 type ClientRow = { id: string; name: string; phone?: string; email?: string; city?: string; status?: string; };
 
 const SAMPLE: ClientRow[] = [
-  { id:"c-001", name:"Client Démo 1", phone:"555-0101", email:"demo1@example.com", city:"Montréal", status:"Actif" },
-  { id:"c-002", name:"Client Démo 2", phone:"555-0102", email:"demo2@example.com", city:"Laval", status:"Prospect" },
+  { id:"c-001", name:"Client Démo 1", phone:"555-0101", email:"demo1@example.com", city:"Ville A", status:"Actif" },
+  { id:"c-002", name:"Client Démo 2", phone:"555-0102", email:"demo2@example.com", city:"Ville B", status:"Prospect" },
 ];
 
 export default function Page(){
