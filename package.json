@@ -171,7 +171,8 @@
     "gate:control-plane-activation": "bash scripts/gates/gate-control-plane-activation.sh",
     "gate:event-backbone": "bash scripts/gates/gate-event-backbone.sh",
     "gate:module-catalog": "bash ./scripts/gates/gate-module-catalog.sh",
-    "gate:no-hardcoded-cp-nav": "CP_NAV_ALLOWLIST=app/src/core/nav/cpNav.catalog.ts,app/src/core/ports/cpSurfaceRegistry.catalog.ts bash ./scripts/gates/gate-no-hardcoded-cp-nav.sh"
+    "gate:no-hardcoded-cp-nav": "CP_NAV_ALLOWLIST=app/src/core/nav/cpNav.catalog.ts,app/src/core/ports/cpSurfaceRegistry.catalog.ts bash ./scripts/gates/gate-no-hardcoded-cp-nav.sh",
+    "gate:generated-only:audit-untracked": "bash ./scripts/gates/gate-no-audit-tracking.sh"
   },
   "devDependencies": {
     "@types/react": "^19.2.10",

@@ -403,3 +403,9 @@ Sinon : **BLOCK** (gate).
 - Motivation: verrouiller l’operating model release-train + runbook canonique + artefacts de clôture Phase6.
 - Change: ajout RUNBOOK_RELEASE_TRAIN.md + pack de clôture + trace RFC.
 - Risk: faible (doc/process). Rollback: supprimer runbook/pack et garder le pipeline existant.
+
+## RFC-2026-02-03-phase7-move0-generated-only-audit-untracked — Phase7 Move0 (generated-only enforcement for _audit)
+- Status: APPROVED
+- Motivation: prévenir la re-pollution Git via artefacts d’exécution et stabiliser le pipeline de gouvernance.
+- Change: ajout gate + test contrat qui échoue si _audit est tracké.
+- Risk: faible. Rollback: retirer gate/test + conserver .gitignore (non recommandé).

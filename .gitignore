@@ -206,3 +206,6 @@ _artifacts/**/tags.json
 
 # Tool artifacts (must not be treated as repo roots)
 .claude-dev-helper/
+
+# Generated-only: local execution artifacts
+/_audit/
