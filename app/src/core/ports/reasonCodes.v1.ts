@@ -8,11 +8,13 @@
  * This file is SSOT for reason codes used by: ports/bootstrap/write-gateway/contracts/policy.
  */
 export const REASON_CODES_V1 = [
-          "ERR_ACTOR_ID_MISSING",
+            "ERR_ACTOR_ID_MISSING",
   "ERR_ADAPTER_APPLY",
   "ERR_BILLING_BIND_FAILED",
+  "ERR_BILLING_EVENT_ID_REQUIRED",
   "ERR_BILLING_HOOK_FAILED",
   "ERR_BILLING_NOT_CONFIGURED",
+  "ERR_BILLING_SINK_EMIT_FAILED",
   "ERR_CAPABILITY_DISABLED",
   "ERR_CODES",
   "ERR_CONTRACT_MISSING",
@@ -78,6 +80,7 @@ export const REASON_CODES_V1 = [
   "WARN_SNAPSHOT_BEGIN_FAILED",
   "WARN_SNAPSHOT_COMMIT_FAILED",
   "WARN_TELEMETRY_PARTIAL",
+
 
 
 

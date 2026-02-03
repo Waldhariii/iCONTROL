@@ -43,3 +43,6 @@ export { makeTenantOnboardingOrchestratorFacade } from "./tenantOnboardingOrches
 export { TENANT_ONBOARDING_PERSIST_CONTRACT_ID } from "./tenantOnboardingPersist.contract";
 export type { TenantOnboardingPersistPort } from "./tenantOnboardingPersist.contract";
 export { makeTenantOnboardingPersistedFacade } from "./tenantOnboardingPersist.facade";
+export { BILLING_SINK_CONTRACT_ID } from "./billingSink.contract";
+export type { BillingEventV1, BillingSinkPort } from "./billingSink.contract";
+export { makeBillingSinkFacade } from "./billingSink.facade";

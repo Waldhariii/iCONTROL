@@ -443,3 +443,8 @@ Sinon : **BLOCK** (gate).
 - Status: APPROVED
 - Change: Ajout du port persisted onboarding (VFS + Snapshot) et test e2e rollback contract-first.
 - Risk: faible (ports-only). Rollback: retirer le port + test.
+
+## RFC-2026-02-03-phase8-waveb-move1-billing-sink-idempotent — Phase8 WaveB Move1 (Billing sink idempotent; core no-op)
+- Status: APPROVED
+- Change: Ajout port billing sink (idempotent), no-op core (free), extensible par module payant (provider).
+- Risk: faible (ports-only). Rollback: retirer port + test.
