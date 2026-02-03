@@ -20,6 +20,7 @@ const EXPECTED = [
   'EnforcementDeps',
   'getSnapshotPort',
   'getVfsPort',
+  'makeTenantOnboardingPersistedFacade',
   'ModuleId',
   'PolicyContext',
   'PolicyDecision',
