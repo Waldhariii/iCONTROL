@@ -5,7 +5,6 @@ function uniqSorted(arr: string[]): string[] {
 }
 
 const FREE_CORE_BASELINE: string[] = uniqSorted([
-  // Keep minimal and future-proof: core navigation + governance surfaces
   "core.access",
   "cp.nav",
   "cp.users.read",
