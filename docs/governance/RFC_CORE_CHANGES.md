@@ -490,3 +490,8 @@ Sinon : **BLOCK** (gate).
 - Motivation: démarrer les pages métier seulement quand release discipline + SSOT + obs baseline sont GREEN.
 - Change: gate:business-pages-go-nogo.
 - Decision: pages métier autorisées uniquement si gate passe.
+
+## phase10-observability-min-gate-tuned — Hotfix (observability-min gate repo-aware)
+- Status: APPROVED
+- Change: observability-min gate now checks canonical files OR scoped repo signals; falls back to minimal telemetry port stubs.
+- Rationale: avoid false negatives / unblock Phase10-11 gating without runtime coupling.
