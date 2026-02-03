@@ -1,60 +1,24 @@
-import { useMemo, useState } from "react";
-import { withSpan } from "../_shared/telemetry";
+import React from "react";
+import { definePageSpec } from "../_governance/pageSpec";
+import { obsInfo } from "../../../core/ports/telemetry.contract"; // must exist (observability-min)
 
-type ClientRow = { id: string; name: string; phone?: string; email?: string; city?: string; status?: string; };
+export const PAGE_SPEC = definePageSpec({
+  id: "clients",
+  title: "Clients",
+  route: "/app/#/clients",
+  moduleKey: "core-system",
+});
 
-const SAMPLE: ClientRow[] = [
-  { id:"c-001", name:"Client Démo 1", phone:"555-0101", email:"demo1@example.com", city:"Ville A", status:"Actif" },
-  { id:"c-002", name:"Client Démo 2", phone:"555-0102", email:"demo2@example.com", city:"Ville B", status:"Prospect" },
-];
-
-export default function Page(){
-  return withSpan("clients", () => {
-    const [q, setQ] = useState("");
-    const rows = useMemo(()=>{
-      const s = q.trim().toLowerCase();
-      if(!s) return SAMPLE;
-      return SAMPLE.filter(r => JSON.stringify(r).toLowerCase().includes(s));
-    }, [q]);
-
-    return (
-      <div style={{ padding: 24 }}>
-        <h1>Clients</h1>
-        <p>Wave 1 — table style Excel. Datasource réelle au sprint suivant (VFS/Snapshot + module catalog).</p>
-
-        <div style={{ marginTop: 12, display:"flex", gap: 12 }}>
-          <input placeholder="Recherche..." value={q} onChange={(e)=>setQ(e.target.value)} style={{ flex: 1, padding: 10 }} />
-          <button style={{ padding: "10px 14px" }}>Nouveau client</button>
-        </div>
-
-        <div style={{ marginTop: 16, overflow:"auto", border:"1px solid var(--color-border-muted)", borderRadius: 12 }}>
-          <table style={{ width:"100%", borderCollapse:"collapse" }}>
-            <thead>
-              <tr>
-                {["ID","Nom","Téléphone","Email","Ville","Statut"].map(h=>(
-                  <th key={h} style={{ textAlign:"left", padding: 10, borderBottom:"1px solid var(--color-border-muted)", position:"sticky", top:0, background:"var(--color-surface-elevated)" }}>{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map(r=>(
-                <tr key={r.id}>
-                  <td style={cell()}>{r.id}</td>
-                  <td style={cell()}>{r.name}</td>
-                  <td style={cell()}>{r.phone || "—"}</td>
-                  <td style={cell()}>{r.email || "—"}</td>
-                  <td style={cell()}>{r.city || "—"}</td>
-                  <td style={cell()}>{r.status || "—"}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    );
-  });
-}
-
-function cell(){
-  return { padding: 10, borderBottom:"1px solid var(--color-border-subtle)", whiteSpace:"nowrap" } as const;
+export default function Page() {
+  // Correlation can be injected via your runtime; keep safe fallback.
+  const correlationId = "corr_" + Math.random().toString(16).slice(2);
+  try {
+    obsInfo({ correlationId, code: "OK", message: "page_view", details: { pageId: PAGE_SPEC.id } });
+  } catch {}
+  return (
+    <div style={{ padding: 16 }}>
+      <h1>Clients</h1>
+      <p>Page métier MVP (governed). id={PAGE_SPEC.id}</p>
+    </div>
+  );
 }
