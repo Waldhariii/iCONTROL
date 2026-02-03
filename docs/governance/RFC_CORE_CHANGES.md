@@ -427,3 +427,8 @@ Sinon : **BLOCK** (gate).
 - Motivation: productiser un flux onboarding end-to-end (entitlements + billing hook + persistance snapshot) en contract-first.
 - Change: ajout de ports orchestrator + tests e2e; reason codes alignés; exports index complétés.
 - Risk: faible (ports-only). Rollback: retirer orchestrator + tests; reason codes restent compatibles.
+
+## RFC-2026-02-03-phase8-wavea-mvp-exploitable — Phase8 WaveA (MVP exploitable)
+- Status: APPROVED
+- Change: Ajout d’une roadmap/runbook Wave A + RFC de cadrage (contract-first).
+- Risk: faible (docs only).
