@@ -1,6 +1,6 @@
 {
   "schema": "MODULE_CATALOG_V1",
-  "generated_at_utc": "2026-02-02T23:44:49.383Z",
+  "generated_at_utc": "2026-02-03T21:23:02.940Z",
   "modules": [
     {
       "id": "core-system",
@@ -8,6 +8,7 @@
       "surfaces": [
         "cp.account",
         "cp.dashboard",
+        "cp.gallery",
         "cp.home.cp",
         "cp.login",
         "cp.login.theme",
@@ -26,6 +27,7 @@
         "/#/login",
         "/cp/#/account",
         "/cp/#/dashboard",
+        "/cp/#/gallery",
         "/cp/#/home-cp",
         "/cp/#/login",
         "/cp/#/login-theme",
