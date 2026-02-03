@@ -421,3 +421,9 @@ Sinon : **BLOCK** (gate).
 - Motivation: remplacer l’onboarding in-memory par une persistance déterministe via VFS/Snapshot, contract-first, runtime-safe.
 - Change: onboardingStore (layout /ssot/tenants/<key>/tenant.json), persisted facade + providers tests-only.
 - Risk: faible. Rollback: revert commit; l’ancien facade in-memory reste disponible si nécessaire.
+
+## RFC-2026-02-03-phase7-move3-onboarding-orchestrator — Phase7 Move3 (Tenant onboarding orchestrator; ports-only)
+- Status: APPROVED
+- Motivation: productiser un flux onboarding end-to-end (entitlements + billing hook + persistance snapshot) en contract-first.
+- Change: ajout de ports orchestrator + tests e2e; reason codes alignés; exports index complétés.
+- Risk: faible (ports-only). Rollback: retirer orchestrator + tests; reason codes restent compatibles.

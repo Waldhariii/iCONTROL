@@ -35,4 +35,5 @@ export * from "./billingHook.contract";
 export * from "./vfs.contract";
 export * from "./snapshot.contract";
 export * from "./tenantOnboarding.persisted.facade";
-
+export * from "./tenantOnboarding.orchestrator.contract";
+export * from "./tenantOnboarding.orchestrator.facade";
