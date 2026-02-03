@@ -377,3 +377,9 @@ Sinon : **BLOCK** (gate).
 - Motivation: éliminer les listes hardcodées de surfaces CP et dériver menus/routes depuis SSOT (MODULE_CATALOG + registry catalog-driven).
 - Change: ajout provider getCpNavCatalogDriven() + tests contract.
 - Risk: faible. Rollback: revenir à nav statique (non recommandé).
+
+## RFC-2026-02-03-phase6-move4-cp-nav-catalog-driven — Phase6 Move4 (CP nav catalog-driven; legacy lists deprecated)
+- Status: APPROVED
+- Motivation: supprimer la duplication (hardcoded nav arrays) et forcer la consommation SSOT via cpSurfaceRegistry.catalog-driven.
+- Change: ajout provider getCpNavCatalogDriven() + tests contract.
+- Risk: faible. Rollback: revenir à nav statique (non recommandé).
