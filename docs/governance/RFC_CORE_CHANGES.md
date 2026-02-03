@@ -511,3 +511,9 @@ Sinon : **BLOCK** (gate).
 - Motivation: livrer les surfaces APP `login`, `dashboard`, `clients`, `jobs` en mode skeleton avec télémétrie no-op, tout en gardant la discipline de gates.
 - Change: ajout pages APP Wave1 + helper telemetry + routes catalog + update `pages-whitelist` pour `clients/jobs`.
 - Risk: faible (UI skeleton, no auth/data side-effects). Rollback: revert commits Wave1.
+
+## phase11-wave1-gallery-page — Add APP gallery page (catalog route)
+- Status: APPROVED
+- Change: add `app/src/surfaces/app/gallery/Page.tsx` and catalog route `/#/gallery`.
+- Governance: pages whitelist updated to include gallery.
+- Risk: low (read-only navigation surface).
