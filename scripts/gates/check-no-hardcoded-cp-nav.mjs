@@ -10,8 +10,8 @@
  *    - fail when "cp." appears near "[" or "{" or "new Map(" literals
  *    - fail when array literals contain "cp."
  */
-const fs = require("fs");
-const path = require("path");
+import fs from "fs";
+import path from "path";
 
 const repoRoot = process.cwd();
 const appRoot = path.join(repoRoot, "app", "src");
