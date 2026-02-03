@@ -54,3 +54,11 @@ export async function getCpNavCatalogDriven(): Promise<CpNavItem[]> {
   deduped.sort((a, b) => (a.label + a.route).localeCompare(b.label + b.route));
   return deduped;
 }
+
+// Phase9: operator-only CP nav entry (read-only)
+export const CP_NAV_OPERATOR_ENTRY = {
+  id: "cp.operator",
+  label: "Operator",
+  href: "/cp/#/operator",
+  kind: "operator" as const,
+};

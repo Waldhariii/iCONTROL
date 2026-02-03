@@ -173,7 +173,9 @@
     "gate:module-catalog": "bash ./scripts/gates/gate-module-catalog.sh",
     "gate:no-hardcoded-cp-nav": "CP_NAV_ALLOWLIST=app/src/core/nav/cpNav.catalog.ts,app/src/core/ports/cpSurfaceRegistry.catalog.ts bash ./scripts/gates/gate-no-hardcoded-cp-nav.sh",
     "gate:generated-only:audit-untracked": "bash ./scripts/gates/gate-no-audit-tracking.sh",
-    "gate:releaseops-invariants": "bash ./scripts/gates/gate-releaseops-invariants.sh ."
+    "gate:releaseops-invariants": "bash ./scripts/gates/gate-releaseops-invariants.sh .",
+    "gate:ssot-surface-route-map": "bash ./scripts/gates/gate-ssot-surface-route-map.sh .",
+    "gen:releaseops-checklist": "node ./scripts/gates/gen-releaseops-checklist.mjs"
   },
   "devDependencies": {
     "@types/react": "^19.2.10",

@@ -454,3 +454,27 @@ Sinon : **BLOCK** (gate).
 - Motivation: verrouiller les invariants de productisation (MODULE_CATALOG trié, manifest non vide, marker RFC présent).
 - Change: ajout gate:releaseops-invariants + contract test + script npm.
 - Risk: faible (gate-only). Rollback: retirer le gate et le test.
+
+## phase9-move1-cp-operator-surface — Phase9 Move1 (CP operator surface, read-only)
+- Status: APPROVED
+- Motivation: surface opérateur pour visibilité onboarding/billing (read-only, sans pages métier).
+- Change: ajout cp.operator + route /cp/#/operator via MODULE_CATALOG + surface CP minimale.
+- Risk: faible (exposition UI read-only). Rollback: retirer surface + entrées catalog.
+
+## phase9-move2-ssot-surface-route-map — Phase9 Move2 (SSOT surface↔route mapping invariants)
+- Status: APPROVED
+- Motivation: éviter les surfaces CP “fantômes” sans route correspondante.
+- Change: gate + contract test vérifiant mapping cp.* -> /cp/#/*.
+- Risk: faible (gate-only). Rollback: retirer gate/test.
+
+## phase9-move3-releaseops-checklist-generator — Phase9 Move3 (ReleaseOps checklist generator -> _audit only)
+- Status: APPROVED
+- Motivation: produire un artefact opératoire sans polluer Git.
+- Change: générateur checklist sous _audit (untracked) + contract test.
+- Risk: faible (tool-only). Rollback: retirer script/test.
+
+## phase9-move4-closeout — Phase9 Move4 (Closeout evidence)
+- Status: APPROVED
+- Motivation: tracer l’état Phase9 (gates + surfaces opérateur + invariants SSOT).
+- Change: ajout PHASE9_CLOSEOUT.md.
+- Risk: nul (doc-only).
