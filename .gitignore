@@ -203,3 +203,6 @@ _artifacts/**/meta/TAGS_SNAPSHOT.md
 _artifacts/**/meta/tags.json
 _artifacts/**/TAGS_SNAPSHOT.md
 _artifacts/**/tags.json
+
+# Tool artifacts (must not be treated as repo roots)
+.claude-dev-helper/
