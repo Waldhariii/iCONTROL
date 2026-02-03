@@ -9,7 +9,7 @@ export default function Page() {
       </p>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 12 }}>
         {Array.from({ length: 9 }).map((_, i) => (
-          <div key={i} style={{ border: "1px solid rgba(255,255,255,0.08)", borderRadius: 10, padding: 16 }}>
+          <div key={i} style={{ border: "1px solid var(--line)", borderRadius: 10, padding: 16 }}>
             <div style={{ fontWeight: 600, marginBottom: 6 }}>Card {i + 1}</div>
             <div style={{ opacity: 0.7 }}>Placeholder content</div>
           </div>
