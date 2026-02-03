@@ -523,3 +523,8 @@ Sinon : **BLOCK** (gate).
 - Change: add `app/src/surfaces/cp/gallery/Page.tsx`, add `cp.gallery` + `/cp/#/gallery` in `config/ssot/MODULE_CATALOG.json`, and allow CP gallery in `scripts/gates/pages-whitelist.sh`.
 - Governance: keeps catalog-first routing and pages whitelist aligned.
 - Risk: low (read-only placeholder surface).
+
+## 2026-02-03 — Hotfix core: vfsGet export (LTS compliance)
+- Change: restore missing export `vfsGet` (no port widening).
+- Evidence: RFC-2026-02-03-phase11-hotfix-vfsget-export.md
+- Scope: core writeGateway export only.

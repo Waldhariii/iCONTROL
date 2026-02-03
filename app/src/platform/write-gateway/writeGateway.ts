@@ -41,3 +41,8 @@ export async function vfsDel(ctx: PolicyContext, scope: VfsScope, key: string): 
     Vfs.del(scope, key);
   });
 }
+
+// Read path is intentionally policy-free in this adapter and kept for legacy compatibility.
+export function vfsGet(scope: VfsScope, key: string): string | null {
+  return Vfs.get(scope, key);
+}
