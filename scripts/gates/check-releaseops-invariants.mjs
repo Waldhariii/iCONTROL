@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import fs from "node:fs";
 import path from "node:path";
+import { execSync } from "node:child_process";
 
 function fail(code, msg){
   const e = new Error(msg);
@@ -16,7 +17,15 @@ function stableSort(arr){
   return [...arr].sort((a,b)=>String(a).localeCompare(String(b)));
 }
 
-const repoRoot = process.cwd();
+function resolveRepoRoot() {
+  try {
+    return execSync("git rev-parse --show-toplevel", { encoding: "utf8" }).trim();
+  } catch {
+    return process.cwd();
+  }
+}
+
+const repoRoot = resolveRepoRoot();
 const catPath = path.join(repoRoot, "config", "ssot", "MODULE_CATALOG.json");
 const coreRfc = path.join(repoRoot, "docs", "governance", "RFC_CORE_CHANGES.md");
 
