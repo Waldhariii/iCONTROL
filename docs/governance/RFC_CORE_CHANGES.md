@@ -438,3 +438,8 @@ Sinon : **BLOCK** (gate).
 - Motivation: corriger l'implémentation orchestrateur pour garder un flux déterministe, compilable, sans side-effects.
 - Change: correction facade orchestrator + alignement reason codes minimal (ERR_TENANT_ID_MISSING / ERR_ACTOR_ID_MISSING).
 - Risk: faible. Rollback: revert commit Move1 hotfix.
+
+## RFC-2026-02-03-phase8-wavea-move2-onboarding-persist-rollback — Phase8 WaveA Move2 (Persist + Snapshot/Rollback)
+- Status: APPROVED
+- Change: Ajout du port persisted onboarding (VFS + Snapshot) et test e2e rollback contract-first.
+- Risk: faible (ports-only). Rollback: retirer le port + test.

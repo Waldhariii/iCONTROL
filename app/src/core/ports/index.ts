@@ -40,3 +40,6 @@ export * from "./tenantOnboarding.orchestrator.facade";
 export { ORCHESTRATOR_CONTRACT_ID } from "./tenantOnboardingOrchestrator.contract";
 export type { TenantOnboardingOrchestratorPort, OrchestratorEvent, OrchestratorState, OrchestratorStep } from "./tenantOnboardingOrchestrator.contract";
 export { makeTenantOnboardingOrchestratorFacade } from "./tenantOnboardingOrchestrator.facade";
+export { TENANT_ONBOARDING_PERSIST_CONTRACT_ID } from "./tenantOnboardingPersist.contract";
+export type { TenantOnboardingPersistPort } from "./tenantOnboardingPersist.contract";
+export { makeTenantOnboardingPersistedFacade } from "./tenantOnboardingPersist.facade";
