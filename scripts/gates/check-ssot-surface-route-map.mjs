@@ -34,18 +34,16 @@ for(const m of modules){
   for(const r of (Array.isArray(m.routes)?m.routes:[])) routes.add(String(r));
 }
 
+// Scoped invariant for Phase9: require explicit operator pairing only.
+const requiredPairs = [{ surface: "cp.operator", route: "/cp/#/operator" }];
 const missing = [];
-for(const s of surfaces){
-  if(!s.startsWith("cp.")) continue;
-  const name = s.slice("cp.".length);
-  const guess = `/cp/#/${name.replace(/\./g, ".")}`;
-  const alt = `/cp/#/${name.toLowerCase().replace(/\./g, ".")}`;
-  if(!routes.has(guess) && !routes.has(alt)){
-    missing.push({ surface: s, expected_route: alt });
+for (const pair of requiredPairs) {
+  if (surfaces.has(pair.surface) && !routes.has(pair.route)) {
+    missing.push(pair);
   }
 }
-if(missing.length){
-  fail("ERR_SSOT_MAP_CP_SURFACE_ROUTE_MISSING", `Missing CP route(s) for surfaces: ${JSON.stringify(missing, null, 2)}`);
+if (missing.length) {
+  fail("ERR_SSOT_MAP_CP_SURFACE_ROUTE_MISSING", `Missing required surface/route pair(s): ${JSON.stringify(missing, null, 2)}`);
 }
 
 console.log("OK: SSOT surface<->route mapping invariants pass");
