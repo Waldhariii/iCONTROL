@@ -1,3 +1,9 @@
+
+// --- v2 hooks ---
+const __REPO_ROOT_V2 = process.cwd();
+const __EX_V2 = loadCpNavExemptions(__REPO_ROOT_V2);
+const __SCAN_ROOTS_V2 = defaultCpNavScanRoots(__REPO_ROOT_V2);
+
 #!/usr/bin/env node
 /**
  * Fatal governance gate:
@@ -12,6 +18,58 @@
  */
 import fs from "fs";
 import path from "path";
+
+
+// === Gate v2 tighten (Phase6 Move5) ===
+// Exemptions schema marker: CP_NAV_HARDCODED_EXEMPTIONS_V1
+import { fileURLToPath } from "url";
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+function loadCpNavExemptions(repoRoot){
+  const p = path.join(repoRoot, "config", "ssot", "CP_NAV_HARDCODED_EXEMPTIONS.json");
+  try {
+    const raw = fs.readFileSync(p, "utf8");
+    return JSON.parse(raw);
+  } catch {
+    return { glob_exempt: [], path_exempt: [], token_exempt: [] };
+  }
+}
+
+// Tight scan scope: only CP nav definition sources (business value), not whole repo.
+function defaultCpNavScanRoots(repoRoot){
+  return [
+    path.join(repoRoot, "app", "src", "core", "nav"),
+    path.join(repoRoot, "scripts", "gates")
+  ].filter(p => fs.existsSync(p));
+}
+
+// Minimal glob-ish matcher (covers **/*suffix and exact contains)
+function matchAnyGlob(rel, globs){
+  for(const g of (globs||[])){
+    if(g.startsWith("**/") && g.endsWith("/**")){
+      const mid = g.slice(3, -3);
+      if(rel.includes(mid)) return true;
+    }
+    if(g.startsWith("**/") && g.includes("*.")){
+      const suf = g.split("*").pop();
+      if(rel.endsWith(suf)) return true;
+    }
+    if(rel === g) return true;
+  }
+  return false;
+}
+
+function shouldIgnoreV2(rel, content, ex){
+  if(matchAnyGlob(rel, ex.glob_exempt)) return true;
+  for(const p of (ex.path_exempt||[])){
+    if(rel.startsWith(p)) return true;
+  }
+  for(const t of (ex.token_exempt||[])){
+    if(content && content.includes(t)) return true;
+  }
+  return false;
+}
 
 const repoRoot = process.cwd();
 const appRoot = path.join(repoRoot, "app", "src");
@@ -109,3 +167,8 @@ if(violations.length){
 }
 
 console.log("OK: no hardcoded CP nav arrays/objects outside allowlist");
+
+
+function shouldIgnore(rel, content){
+  return shouldIgnoreV2(rel, content, __EX_V2);
+}
