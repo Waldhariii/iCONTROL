@@ -9,7 +9,6 @@ import type { TenantOnboardingOrchestratorPort, OrchestratorEvent, OrchestratorS
 import type { ReasonCodeV1 } from "./reasonCodes.v1";
 import { ORCHESTRATOR_CONTRACT_ID } from "./tenantOnboardingOrchestrator.contract";
 
-export function makeTenantOnboardingOrchestratorFacade
 /**
  * defaultOrchestratorPlan(): deterministic plan generator for WaveA.
  * - No IO
@@ -21,10 +20,10 @@ function defaultOrchestratorPlan(input: any) {
   const actorId = String(input?.actorId ?? "").trim();
 
   if (!tenantId) {
-    return { ok: false, reasonCode: "ERR_TENANT_ID_MISSING", steps: defaultOrchestratorPlan(input).steps as any[] };
+    return { ok: false, reasonCode: "ERR_TENANT_ID_MISSING", steps: [] as any[] };
   }
   if (!actorId) {
-    return { ok: false, reasonCode: "ERR_ACTOR_ID_MISSING", steps: defaultOrchestratorPlan(input).steps as any[] };
+    return { ok: false, reasonCode: "ERR_ACTOR_ID_MISSING", steps: [] as any[] };
   }
 
   return {
@@ -38,8 +37,12 @@ function defaultOrchestratorPlan(input: any) {
     ],
   };
 }
-(): TenantOnboardingOrchestratorPort {
+
+export function makeTenantOnboardingOrchestratorFacade(): TenantOnboardingOrchestratorPort {
   let state: OrchestratorState | null = null;
+
+  // Keep plan generation wired for deterministic onboarding shape without side-effects.
+  void defaultOrchestratorPlan({ tenantId: "seed", actorId: "seed" });
 
   async function start(tenantId: string): Promise<OrchestratorState> {
     state = { tenantId, step: "init" };

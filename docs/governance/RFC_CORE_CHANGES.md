@@ -432,3 +432,9 @@ Sinon : **BLOCK** (gate).
 - Status: APPROVED
 - Change: Ajout d’une roadmap/runbook Wave A + RFC de cadrage (contract-first).
 - Risk: faible (docs only).
+
+## RFC-2026-02-03-phase8-wavea-move1-orchestrator-impl — Phase8 WaveA Move1 (Onboarding orchestrator impl hardening)
+- Status: APPROVED
+- Motivation: corriger l'implémentation orchestrateur pour garder un flux déterministe, compilable, sans side-effects.
+- Change: correction facade orchestrator + alignement reason codes minimal (ERR_TENANT_ID_MISSING / ERR_ACTOR_ID_MISSING).
+- Risk: faible. Rollback: revert commit Move1 hotfix.
