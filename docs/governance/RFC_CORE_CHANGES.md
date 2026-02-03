@@ -390,3 +390,10 @@ Sinon : **BLOCK** (gate).
 - Change: ajout gate:no-hardcoded-cp-nav (fatal) + wrappers legacy qui délèguent vers getCpNavCatalogDriven().
 - Risk: moyen (peut casser du code legacy); mitigation: allowlist minimale + wrappers.
 - Rollback: revert du gate + revert wrappers (non recommandé).
+
+## RFC-2026-02-03-phase6-move6-arch-freeze-harden-tool-roots — Phase6 Move6 (arch-freeze hardening)
+- Status: APPROVED
+- Motivation: réduire le bruit des artefacts d'outils (Claude/Cursor/IDE/OS) tout en gardant un signal fort sur les nouveaux roots metier.
+- Change: gate:architecture-freeze ajoute un IGNORE_ROOTS canonique au niveau gate (pas seulement .gitignore).
+- Risk: faible (ignore uniquement des artefacts techniques connus); les nouveaux roots metier restent bloquants.
+- Rollback: revert du commit Move6, puis tag-set-atomic.

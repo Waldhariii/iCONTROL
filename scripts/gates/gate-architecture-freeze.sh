@@ -5,21 +5,56 @@ set -euo pipefail
 # Goal: prevent new roots, cross-layer leakage, and circular imports drift.
 # Strict: FAIL on violations.
 
-ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+# Optional test override to run the gate against temp fixtures.
+ROOT="${ARCH_FREEZE_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)}"
 cd "$ROOT"
 
 DENY_ROOTS_REGEX='^(app2|backend|frontend|main_system|system|temp|old|legacy|copy|duplicate|_tmp|_old|_legacy)$'
+IGNORE_ROOTS=(
+  .git
+  .claude-dev-helper
+  .claude
+  .cursor
+  .vscode
+  .idea
+  .DS_Store
+  node_modules
+  dist
+  build
+  out
+  _audit
+)
 
 viol=0
 
+is_ignored_root () {
+  local name="$1"
+  local ignored
+  for ignored in "${IGNORE_ROOTS[@]}"; do
+    if [ "$name" = "$ignored" ]; then
+      return 0
+    fi
+  done
+  return 1
+}
+
+list_top_level_dirs () {
+  find . -maxdepth 1 -type d -not -path './.git' -not -path '.' -print \
+    | sed 's#^\./##' \
+    | LC_ALL=C sort
+}
+
 # 1) No forbidden parallel roots at repo root
-while IFS= read -r d; do
-  base="$(basename "$d")"
+while IFS= read -r base; do
+  [ -z "$base" ] && continue
+  if is_ignored_root "$base"; then
+    continue
+  fi
   if [[ "$base" =~ $DENY_ROOTS_REGEX ]]; then
     echo "ERR_ARCH_FREEZE: forbidden root detected: $base"
     viol=1
   fi
-done < <(find . -maxdepth 1 -type d -not -path './.git' -not -path '.' -print | sed 's#^\./##')
+done < <(list_top_level_dirs)
 
 # 2) No new top-level roots outside allowlist (soft allowlist)
 ALLOW_ROOTS=(
@@ -50,11 +85,15 @@ allow_re="^($(IFS='|'; echo "${ALLOW_ROOTS[*]}"))$"
 
 while IFS= read -r d; do
   base="$(basename "$d")"
+  [ -z "$base" ] && continue
+  if is_ignored_root "$base"; then
+    continue
+  fi
   if [[ ! "$base" =~ $allow_re ]] && [[ "$base" != ".git" ]]; then
     echo "ERR_ARCH_FREEZE: unknown root detected: $base (add to allowlist only by explicit governance decision)"
     viol=1
   fi
-done < <(find . -maxdepth 1 -type d -not -path './.git' -not -path '.' -print | sed 's#^\./##')
+done < <(list_top_level_dirs)
 
 # 3) No cross-layer imports: modules and shared must NOT import from app/src or server/src
 # (platform-services may bridge to app; core-kernel must not depend on app)
