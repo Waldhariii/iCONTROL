@@ -49,5 +49,23 @@
       "source": "modules/inventory/manifest/module.json",
       "manifest": "modules/inventory/manifest/module.json"
     }
-  ]
+  ],
+  "surfaces": {
+    "app": {
+      "routes": [
+        {
+          "route": "/app/#/clients",
+          "pagePath": "surfaces/app/clients/Page.tsx"
+        },
+        {
+          "route": "/app/#/dashboard",
+          "pagePath": "surfaces/app/dashboard/Page.tsx"
+        },
+        {
+          "route": "/app/#/jobs",
+          "pagePath": "surfaces/app/jobs/Page.tsx"
+        }
+      ]
+    }
+  }
 }
