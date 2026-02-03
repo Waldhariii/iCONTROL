@@ -1,33 +1,24 @@
-import { withSpan } from "../_shared/telemetry";
+import React from "react";
+import { definePageSpec } from "../_governance/pageSpec";
+import { obsInfo } from "../../../core/ports/telemetry.contract"; // must exist (observability-min)
 
-export default function Page(){
-  return withSpan("dashboard", () => {
-    return (
-      <div style={{ padding: 24 }}>
-        <h1>Dashboard</h1>
-        <p>Wave 1 — KPIs et graphiques branchables via ports (Finance/Jobs/Clients).</p>
+export const PAGE_SPEC = definePageSpec({
+  id: "dashboard",
+  title: "Dashboard",
+  route: "/app/#/dashboard",
+  moduleKey: "core-system",
+});
 
-        <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(220px,1fr))", gap: 12, marginTop: 16 }}>
-          <Card title="Revenus (jour)" value="—" />
-          <Card title="Jobs (jour)" value="—" />
-          <Card title="Taux acceptation" value="—" />
-          <Card title="Appels" value="—" />
-        </div>
-
-        <div style={{ marginTop: 20, padding: 16, border: "1px solid var(--color-border-muted)", borderRadius: 12 }}>
-          <h2>Graphique</h2>
-          <p>Placeholder — intégration chart au Sprint suivant (catalog-driven widgets).</p>
-        </div>
-      </div>
-    );
-  });
-}
-
-function Card({ title, value }: { title: string; value: string }){
+export default function Page() {
+  // Correlation can be injected via your runtime; keep safe fallback.
+  const correlationId = "corr_" + Math.random().toString(16).slice(2);
+  try {
+    obsInfo({ correlationId, code: "OK", message: "page_view", details: { pageId: PAGE_SPEC.id } });
+  } catch {}
   return (
-    <div style={{ padding: 16, border: "1px solid var(--color-border-muted)", borderRadius: 12 }}>
-      <div style={{ opacity: 0.7 }}>{title}</div>
-      <div style={{ fontSize: 28, marginTop: 8 }}>{value}</div>
+    <div style={{ padding: 16 }}>
+      <h1>Dashboard</h1>
+      <p>Page métier MVP (governed). id={PAGE_SPEC.id}</p>
     </div>
   );
 }
