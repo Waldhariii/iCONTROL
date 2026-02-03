@@ -175,7 +175,9 @@
     "gate:generated-only:audit-untracked": "bash ./scripts/gates/gate-no-audit-tracking.sh",
     "gate:releaseops-invariants": "bash ./scripts/gates/gate-releaseops-invariants.sh .",
     "gate:ssot-surface-route-map": "bash ./scripts/gates/gate-ssot-surface-route-map.sh .",
-    "gen:releaseops-checklist": "node ./scripts/gates/gen-releaseops-checklist.mjs"
+    "gen:releaseops-checklist": "node ./scripts/gates/gen-releaseops-checklist.mjs",
+    "gate:observability-min": "bash ./scripts/gates/gate-observability-min.sh .",
+    "gate:business-pages-go-nogo": "bash ./scripts/gates/gate-business-pages-go-nogo.sh ."
   },
   "devDependencies": {
     "@types/react": "^19.2.10",

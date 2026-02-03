@@ -478,3 +478,15 @@ Sinon : **BLOCK** (gate).
 - Motivation: tracer l’état Phase9 (gates + surfaces opérateur + invariants SSOT).
 - Change: ajout PHASE9_CLOSEOUT.md.
 - Risk: nul (doc-only).
+
+## phase10-observability-min-gate — Phase10 (Observability baseline gate)
+- Status: APPROVED
+- Motivation: readiness prod (telemetry/logging baseline) avant pages métier.
+- Change: gate:observability-min + contract test.
+- Risk: faible (gate-only).
+
+## phase11-business-pages-go-nogo-gate — Phase11 (Go/No-Go pages métier gate)
+- Status: APPROVED
+- Motivation: démarrer les pages métier seulement quand release discipline + SSOT + obs baseline sont GREEN.
+- Change: gate:business-pages-go-nogo.
+- Decision: pages métier autorisées uniquement si gate passe.
