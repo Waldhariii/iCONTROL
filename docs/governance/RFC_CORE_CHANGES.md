@@ -495,3 +495,13 @@ Sinon : **BLOCK** (gate).
 - Status: APPROVED
 - Change: observability-min gate now checks canonical files OR scoped repo signals; falls back to minimal telemetry port stubs.
 - Rationale: avoid false negatives / unblock Phase10-11 gating without runtime coupling.
+
+## RFC-2026-02-03-phase11-move0-observability-real-baseline — Observability real baseline (ports+facade)
+- Status: APPROVED
+- Change: canonical observability/telemetry ports+facades, binders, and safe emit/span helpers.
+- Risk: low (no-op by default). Enables real tracing/metrics integration later.
+
+## RFC-2026-02-03-phase11-pages-wave1-governed — Pages metier Wave 1 (catalog-first)
+- Status: APPROVED
+- Change: scaffolding pages app/login + app/dashboard stubs; app-nav catalog-driven helper; gate forbids hardcoded app nav arrays.
+- Rollout: progressive (stubs replaced by real UI under same routes).
