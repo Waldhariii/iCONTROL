@@ -21,6 +21,7 @@
       "routes": [
         "/#/clients",
         "/#/dashboard",
+        "/#/gallery",
         "/#/jobs",
         "/#/login",
         "/cp/#/account",
