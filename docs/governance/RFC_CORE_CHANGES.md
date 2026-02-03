@@ -371,3 +371,9 @@ Sinon : **BLOCK** (gate).
 - Motivation: débloquer la registry CP *catalog-driven* en garantissant des surfaces CP réelles dans MODULE_CATALOG SSOT.
 - Change: regeneration logic excludes internal modules and injects CP surfaces from app/src/surfaces/cp/* into core-system.
 - Risk: faible (SSOT only). Rollback: retirer l’injection synthetic + revenir au catalogue précédent.
+
+## RFC-2026-02-02-phase6-move3-2-cp-nav-catalog-driven — Phase6 Move3.2 (CP navigation catalog-driven)
+- Status: APPROVED
+- Motivation: éliminer les listes hardcodées de surfaces CP et dériver menus/routes depuis SSOT (MODULE_CATALOG + registry catalog-driven).
+- Change: ajout provider getCpNavCatalogDriven() + tests contract.
+- Risk: faible. Rollback: revenir à nav statique (non recommandé).

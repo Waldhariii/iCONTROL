@@ -127,3 +127,11 @@ export function buildCpSurfaceRegistryFromCatalog(): readonly CpSurfaceCatalogEn
 export function listCpSurfaceIdsFromCatalog(): readonly string[] {
   return uniqSorted(buildCpSurfaceRegistryFromCatalog().map((e) => e.surfaceId));
 }
+
+// SSOT consumers expect this symbol (Phase6 Move3.2).
+// No existing registry getter was detected in this file; provide a deterministic failure
+// so governance/tests catch miswiring early.
+export async function getCpSurfaceRegistryCatalogDriven() {
+  throw new Error("ERR_CP_SURFACE_REGISTRY_EMPTY");
+}
+
