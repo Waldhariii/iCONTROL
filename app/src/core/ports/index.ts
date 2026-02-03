@@ -37,3 +37,6 @@ export * from "./snapshot.contract";
 export * from "./tenantOnboarding.persisted.facade";
 export * from "./tenantOnboarding.orchestrator.contract";
 export * from "./tenantOnboarding.orchestrator.facade";
+export { ORCHESTRATOR_CONTRACT_ID } from "./tenantOnboardingOrchestrator.contract";
+export type { TenantOnboardingOrchestratorPort, OrchestratorEvent, OrchestratorState, OrchestratorStep } from "./tenantOnboardingOrchestrator.contract";
+export { makeTenantOnboardingOrchestratorFacade } from "./tenantOnboardingOrchestrator.facade";
