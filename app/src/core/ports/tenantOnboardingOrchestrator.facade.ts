@@ -9,7 +9,36 @@ import type { TenantOnboardingOrchestratorPort, OrchestratorEvent, OrchestratorS
 import type { ReasonCodeV1 } from "./reasonCodes.v1";
 import { ORCHESTRATOR_CONTRACT_ID } from "./tenantOnboardingOrchestrator.contract";
 
-export function makeTenantOnboardingOrchestratorFacade(): TenantOnboardingOrchestratorPort {
+export function makeTenantOnboardingOrchestratorFacade
+/**
+ * defaultOrchestratorPlan(): deterministic plan generator for WaveA.
+ * - No IO
+ * - No global reads
+ * - Safe in Node/Vitest
+ */
+function defaultOrchestratorPlan(input: any) {
+  const tenantId = String(input?.tenantId ?? "").trim();
+  const actorId = String(input?.actorId ?? "").trim();
+
+  if (!tenantId) {
+    return { ok: false, reasonCode: "ERR_TENANT_ID_MISSING", steps: defaultOrchestratorPlan(input).steps as any[] };
+  }
+  if (!actorId) {
+    return { ok: false, reasonCode: "ERR_ACTOR_ID_MISSING", steps: defaultOrchestratorPlan(input).steps as any[] };
+  }
+
+  return {
+    ok: true,
+    reasonCode: "OK",
+    steps: [
+      { id: "createTenant", status: "planned" },
+      { id: "applyDefaultEntitlements", status: "planned" },
+      { id: "emitBillingHook", status: "planned" },
+      { id: "auditTrail", status: "planned" },
+    ],
+  };
+}
+(): TenantOnboardingOrchestratorPort {
   let state: OrchestratorState | null = null;
 
   async function start(tenantId: string): Promise<OrchestratorState> {
