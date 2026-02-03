@@ -1,5 +1,5 @@
 {
-  "schema": "module-catalog.v1",
+  "schema": "MODULE_CATALOG_V1",
   "generated_at_utc": "2026-02-02T23:44:49.383Z",
   "modules": [
     {
@@ -29,14 +29,16 @@
         "/cp/#/settings",
         "/cp/#/users"
       ],
-      "source": "modules/core-system/manifest/module.json"
+      "source": "modules/core-system/manifest/module.json",
+      "manifest": "modules/core-system/manifest/module.json"
     },
     {
       "id": "inventory",
       "capabilities": [],
       "surfaces": [],
       "routes": [],
-      "source": "modules/inventory/manifest/module.json"
+      "source": "modules/inventory/manifest/module.json",
+      "manifest": "modules/inventory/manifest/module.json"
     }
   ]
 }
