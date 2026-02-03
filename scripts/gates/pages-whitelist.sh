@@ -4,7 +4,7 @@ set -euo pipefail
 # Only these pages are allowed in the baseline.
 # APP pages under app/src/surfaces/app/*/Page.tsx
 # CP  pages under app/src/surfaces/cp/*/Page.tsx
-ALLOW_APP_RE='^app/src/surfaces/app/(dashboard|login|clients|jobs|account|settings|home-app|client-access-denied|client-catalog|client-disabled|client-pages-inventory|registry)/Page\.tsx$'
+ALLOW_APP_RE='^app/src/surfaces/app/(dashboard|login|clients|jobs|gallery|account|settings|home-app|client-access-denied|client-catalog|client-disabled|client-pages-inventory|registry)/Page\.tsx$'
 ALLOW_CP_RE='^app/src/surfaces/cp/(dashboard|login|account|settings|home-cp|login-theme|notfound|pages|registry|users)/Page\.tsx$'
 
 # List candidate page entrypoints
