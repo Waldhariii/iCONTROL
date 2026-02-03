@@ -505,3 +505,9 @@ Sinon : **BLOCK** (gate).
 - Status: APPROVED
 - Change: scaffolding pages app/login + app/dashboard stubs; app-nav catalog-driven helper; gate forbids hardcoded app nav arrays.
 - Rollout: progressive (stubs replaced by real UI under same routes).
+
+## RFC-2026-02-03-wave1-pages-metier-sprintpack — Wave1 APP pages + whitelist update
+- Status: APPROVED
+- Motivation: livrer les surfaces APP `login`, `dashboard`, `clients`, `jobs` en mode skeleton avec télémétrie no-op, tout en gardant la discipline de gates.
+- Change: ajout pages APP Wave1 + helper telemetry + routes catalog + update `pages-whitelist` pour `clients/jobs`.
+- Risk: faible (UI skeleton, no auth/data side-effects). Rollback: revert commits Wave1.
