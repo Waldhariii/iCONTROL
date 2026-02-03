@@ -27,3 +27,7 @@ export { bindSnapshot } from "./snapshot.bind";
 // APP-local contracts are public for app-level adapter implementations.
 export type { VfsPort, VfsRead, VfsWrite, VfsDelete, VfsResult } from "../contracts/vfsPort.contract";
 export type { SnapshotPort, SnapshotCreate, SnapshotRestore, SnapshotList, SnapshotMeta, SnapshotResult } from "../contracts/snapshotPort.contract";
+export * from "./tenantOnboarding.contract";
+export * from "./defaultEntitlements.contract";
+export * from "./billingHook.contract";
+

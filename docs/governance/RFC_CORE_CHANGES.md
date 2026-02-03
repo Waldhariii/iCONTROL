@@ -409,3 +409,9 @@ Sinon : **BLOCK** (gate).
 - Motivation: prévenir la re-pollution Git via artefacts d’exécution et stabiliser le pipeline de gouvernance.
 - Change: ajout gate + test contrat qui échoue si _audit est tracké.
 - Risk: faible. Rollback: retirer gate/test + conserver .gitignore (non recommandé).
+
+## RFC-2026-02-03-phase7-move1-tenant-onboarding-entitlements-billing-stub — Phase7 Move1 (Tenant onboarding + default entitlements + billing hook stub)
+- Status: APPROVED
+- Motivation: établir un flux d’onboarding tenant déterministe + baseline entitlements (free-core) + boundary billing stub (remplaçable).
+- Change: nouveaux ports/contracts + tests contract; aucune I/O externe; pas de persistance ajoutée (facade in-memory).
+- Risk: faible. Rollback: revert commit; aucun impact infra.
