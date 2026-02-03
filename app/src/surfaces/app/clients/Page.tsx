@@ -1,24 +1,53 @@
 import React from "react";
-import { definePageSpec } from "../_governance/pageSpec";
-import { obsInfo } from "../../../core/ports/telemetry.contract"; // must exist (observability-min)
+import { ClientsGrid } from "../../../ui/clients/ClientsGrid";
+import { clientsPortStub } from "../../../platform/adapters/clients/clientsAdapter.stub";
+import type { ClientRow } from "../../../core/domain/clients/types";
 
-export const PAGE_SPEC = definePageSpec({
-  id: "clients",
-  title: "Clients",
-  route: "/app/#/clients",
-  moduleKey: "core-system",
-});
+function getTenantId(): string {
+  return "default";
+}
+function getCorrelationId(): string {
+  return "corr_" + Math.random().toString(16).slice(2);
+}
 
 export default function Page() {
-  // Correlation can be injected via your runtime; keep safe fallback.
-  const correlationId = "corr_" + Math.random().toString(16).slice(2);
-  try {
-    obsInfo({ correlationId, code: "OK", message: "page_view", details: { pageId: PAGE_SPEC.id } });
-  } catch {}
+  const [q, setQ] = React.useState("");
+  const [status, setStatus] = React.useState<"active" | "inactive" | "all">("all");
+  const [rows, setRows] = React.useState<ClientRow[]>([]);
+  const [total, setTotal] = React.useState(0);
+  const [sortKey, setSortKey] = React.useState<keyof ClientRow>("name");
+  const [sortDir, setSortDir] = React.useState<"asc" | "desc">("asc");
+
+  React.useEffect(() => {
+    let alive = true;
+    clientsPortStub.queryClients({
+      tenantId: getTenantId(),
+      correlationId: getCorrelationId(),
+      query: { q, status, limit: 50, offset: 0, sort: { key: sortKey, dir: sortDir } },
+    }).then((res) => {
+      if (!alive) return;
+      setRows(res.rows);
+      setTotal(res.total);
+    });
+    return () => { alive = false; };
+  }, [q, status, sortKey, sortDir]);
+
+  const onSort = (k: keyof ClientRow) => {
+    if (k === sortKey) setSortDir(sortDir === "asc" ? "desc" : "asc");
+    else { setSortKey(k); setSortDir("asc"); }
+  };
+
   return (
-    <div style={{ padding: 16 }}>
-      <h1>Clients</h1>
-      <p>Page métier MVP (governed). id={PAGE_SPEC.id}</p>
-    </div>
+    <ClientsGrid
+      rows={rows}
+      total={total}
+      q={q}
+      status={status}
+      onQChange={setQ}
+      onStatusChange={setStatus}
+      onSort={onSort}
+      sortKey={sortKey}
+      sortDir={sortDir}
+    />
   );
 }
