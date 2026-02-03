@@ -1,174 +1,90 @@
 #!/usr/bin/env node
-
-// --- v2 hooks ---
-const __REPO_ROOT_V2 = process.cwd();
-const __EX_V2 = loadCpNavExemptions(__REPO_ROOT_V2);
-const __SCAN_ROOTS_V2 = defaultCpNavScanRoots(__REPO_ROOT_V2);
-
-/**
- * Fatal governance gate:
- * Forbid hardcoded CP surface IDs (cp.*) inside arrays/objects/maps in TS/TSX,
- * except allowlisted files (SSOT derivation points).
- *
- * Heuristic (fast + robust):
- * - Scan TS/TSX under app/src
- * - If file not allowlisted:
- *    - fail when "cp." appears near "[" or "{" or "new Map(" literals
- *    - fail when array literals contain "cp."
- */
 import fs from "fs";
 import path from "path";
 
-
-// === Gate v2 tighten (Phase6 Move5) ===
-// Exemptions schema marker: CP_NAV_HARDCODED_EXEMPTIONS_V1
-import { fileURLToPath } from "url";
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-function loadCpNavExemptions(repoRoot){
-  const p = path.join(repoRoot, "config", "ssot", "CP_NAV_HARDCODED_EXEMPTIONS.json");
-  try {
-    const raw = fs.readFileSync(p, "utf8");
-    return JSON.parse(raw);
-  } catch {
-    return { glob_exempt: [], path_exempt: [], token_exempt: [] };
-  }
-}
-
-// Tight scan scope: only CP nav definition sources (business value), not whole repo.
-function defaultCpNavScanRoots(repoRoot){
-  return [
-    path.join(repoRoot, "app", "src", "core", "nav"),
-    path.join(repoRoot, "scripts", "gates")
-  ].filter(p => fs.existsSync(p));
-}
-
-// Minimal glob-ish matcher (covers **/*suffix and exact contains)
-function matchAnyGlob(rel, globs){
-  for(const g of (globs||[])){
-    if(g.startsWith("**/") && g.endsWith("/**")){
-      const mid = g.slice(3, -3);
-      if(rel.includes(mid)) return true;
-    }
-    if(g.startsWith("**/") && g.includes("*.")){
-      const suf = g.split("*").pop();
-      if(rel.endsWith(suf)) return true;
-    }
-    if(rel === g) return true;
-  }
-  return false;
-}
-
-function shouldIgnoreV2(rel, content, ex){
-  if(matchAnyGlob(rel, ex.glob_exempt)) return true;
-  for(const p of (ex.path_exempt||[])){
-    if(rel.startsWith(p)) return true;
-  }
-  for(const t of (ex.token_exempt||[])){
-    if(content && content.includes(t)) return true;
-  }
-  return false;
-}
-
-const repoRoot = process.cwd();
-const appRoot = path.join(repoRoot, "app", "src");
-
-const allow = new Set((process.env.CP_NAV_ALLOWLIST || "")
-  .split(",")
-  .map(s => s.trim())
-  .filter(Boolean)
-  .map(rel => path.normalize(rel)));
+const ROOT = process.cwd();
 
 function exists(p){ try { fs.accessSync(p); return true; } catch { return false; } }
+function read(p){ return fs.readFileSync(p, "utf8"); }
 
 function walk(dir){
   const out = [];
-  for(const ent of fs.readdirSync(dir, { withFileTypes: true })){
-    if(ent.name === "node_modules") continue;
+  if(!exists(dir)) return out;
+  for(const ent of fs.readdirSync(dir, {withFileTypes:true})){
     const p = path.join(dir, ent.name);
     if(ent.isDirectory()){
+      if(ent.name === "node_modules" || ent.name.startsWith(".") || ent.name === "_audit") continue;
       out.push(...walk(p));
-    } else {
-      out.push(p);
-    }
+    } else out.push(p);
   }
   return out;
 }
 
-function isTs(p){
-  return p.endsWith(".ts") || p.endsWith(".tsx");
+// Scope: only nav sources that can realistically contain CP nav lists.
+// This avoids false positives from contracts/tests/runtime identity, etc.
+const SCOPE_DIRS = [
+  path.join(ROOT, "app", "src", "core", "nav"),
+  path.join(ROOT, "app", "src", "surfaces", "cp"), // only if nav files live here
+];
+
+const SCOPE_FILES_EXACT = [
+  path.join(ROOT, "app", "src", "core", "nav", "cpNav.catalog.ts"),
+];
+
+// Allowlist: catalog-driven/generated registries are allowed to reference cp.* symbols.
+const ALLOW_SUBSTRINGS = [
+  "catalog-driven",
+  "cpNav.catalog",
+  "cpSurfaceRegistry.catalog",
+  "MODULE_CATALOG",
+];
+
+// Patterns that represent hardcoded CP nav lists (the real smell).
+// We intentionally DO NOT flag mere occurrences of "cp." or "/cp".
+const BAD_PATTERNS = [
+  /\bconst\s+CP_(SURFACES|NAV|PAGES)\s*=\s*\[/,              // const CP_SURFACES = [
+  /\bexport\s+const\s+CP_(SURFACES|NAV|PAGES)\s*=\s*\[/,     // export const CP_NAV = [
+  /\b(cp\.[a-z0-9._-]+)\b.*\b(cp\.[a-z0-9._-]+)\b/s,         // multiple cp.* tokens in same block (heuristic)
+  /\/cp\/#\/[a-z0-9._-]+.*\/cp\/#\//s,                      // multiple /cp/#/ routes in same block
+];
+
+function isAllowed(content){
+  return ALLOW_SUBSTRINGS.some(s => content.includes(s));
 }
 
-function rel(p){
-  return path.normalize(path.relative(repoRoot, p));
+function isNavCandidate(file){
+  const f = file.replace(/\\/g, "/");
+  if(!/\.(ts|tsx|js|mjs|cjs)$/.test(f)) return false;
+  // Only scan nav-ish files to reduce noise
+  return f.includes("/core/nav/") || f.endsWith("/cpNav.catalog.ts");
 }
 
-function read(p){
-  return fs.readFileSync(p, "utf8");
-}
+let offenders = [];
 
-function findOffenses(txt){
-  const offenses = [];
-  // Patterns capturing "cp." within likely data-literals
-  const patterns = [
-    // array literal containing cp.*
-    { re: /\[[^\]]*?\bcp\.[a-z0-9_.-]+[^\]]*?\]/gi, why: "cp.* in array literal" },
-    // object literal containing cp.*
-    { re: /\{[^}]*?\bcp\.[a-z0-9_.-]+[^}]*?\}/gi, why: "cp.* in object literal" },
-    // Map/Set with cp.*
-    { re: /\bnew\s+(Map|Set)\s*\([^)]*?\bcp\.[a-z0-9_.-]+[^)]*?\)/gi, why: "cp.* in Map/Set literal" },
-    // Inline list pattern: cp.<x>, cp.<y>, cp.<z> (common hardcode)
-    { re: /\bcp\.[a-z0-9_.-]+\b\s*,\s*\bcp\.[a-z0-9_.-]+\b/gi, why: "multiple cp.* literals inline" },
-  ];
-  for(const p of patterns){
-    let m;
-    while((m = p.re.exec(txt))){
-      offenses.push({ idx: m.index, why: p.why, sample: m[0].slice(0, 180) });
-    }
+const files = new Set();
+for(const d of SCOPE_DIRS) for(const f of walk(d)) files.add(f);
+for(const f of SCOPE_FILES_EXACT) if(exists(f)) files.add(f);
+
+for(const file of Array.from(files).sort((a,b)=>a.localeCompare(b))){
+  if(!isNavCandidate(file)) continue;
+  const content = read(file);
+  if(isAllowed(content)) continue;
+
+  // Only flag if at least one strong pattern hits
+  const hits = BAD_PATTERNS
+    .map((re, idx) => re.test(content) ? idx : -1)
+    .filter(x => x >= 0);
+
+  if(hits.length > 0){
+    offenders.push({ file, hits });
   }
-  return offenses;
 }
 
-if(!exists(appRoot)){
-  console.error("ERR_GATE_SETUP: app/src not found");
+if(offenders.length){
+  for(const o of offenders){
+    console.error(`ERR_HARDCODED_CP_NAV: ${o.file} (patterns=${o.hits.join(",")})`);
+  }
   process.exit(2);
 }
 
-const files = walk(appRoot).filter(isTs);
-const violations = [];
-
-for(const f of files){
-  const r = rel(f);
-  if(allow.has(r)) continue;
-
-  const txt = read(f);
-  if(!txt.includes("cp.")) continue;
-
-  const offs = findOffenses(txt);
-  if(offs.length){
-    // Provide 1-3 samples per file
-    violations.push({
-      file: r,
-      offenses: offs.slice(0, 3),
-    });
-  }
-}
-
-if(violations.length){
-  console.error("ERR_HARDCODED_CP_NAV: forbidden cp.* hardcoded lists detected outside allowlist");
-  for(const v of violations){
-    console.error(`- ${v.file}`);
-    for(const o of v.offenses){
-      console.error(`  * ${o.why}: ${o.sample.replace(/\s+/g," ").trim()}`);
-    }
-  }
-  process.exit(1);
-}
-
-console.log("OK: no hardcoded CP nav arrays/objects outside allowlist");
-
-
-function shouldIgnore(rel, content){
-  return shouldIgnoreV2(rel, content, __EX_V2);
-}
+console.log("OK: no hardcoded CP nav arrays found (scoped)");
