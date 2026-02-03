@@ -397,3 +397,9 @@ Sinon : **BLOCK** (gate).
 - Change: gate:architecture-freeze ajoute un IGNORE_ROOTS canonique au niveau gate (pas seulement .gitignore).
 - Risk: faible (ignore uniquement des artefacts techniques connus); les nouveaux roots metier restent bloquants.
 - Rollback: revert du commit Move6, puis tag-set-atomic.
+
+## RFC-2026-02-03-phase6-move7-closeout-completion-pack — Phase6 Move7 (Closeout Completion Pack)
+- Status: APPROVED
+- Motivation: verrouiller l’operating model release-train + runbook canonique + artefacts de clôture Phase6.
+- Change: ajout RUNBOOK_RELEASE_TRAIN.md + pack de clôture + trace RFC.
+- Risk: faible (doc/process). Rollback: supprimer runbook/pack et garder le pipeline existant.
