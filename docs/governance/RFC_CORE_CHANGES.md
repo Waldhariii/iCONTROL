@@ -383,3 +383,10 @@ Sinon : **BLOCK** (gate).
 - Motivation: supprimer la duplication (hardcoded nav arrays) et forcer la consommation SSOT via cpSurfaceRegistry.catalog-driven.
 - Change: ajout provider getCpNavCatalogDriven() + tests contract.
 - Risk: faible. Rollback: revenir à nav statique (non recommandé).
+
+## RFC-2026-02-03-phase6-move5-forbid-hardcoded-cp-nav — Phase6 Move5 (fatal gate forbids hardcoded CP nav arrays)
+- Status: APPROVED
+- Motivation: prévenir la réintroduction de duplication/drift (listes cp.* hardcodées) après Move4 catalog-driven.
+- Change: ajout gate:no-hardcoded-cp-nav (fatal) + wrappers legacy qui délèguent vers getCpNavCatalogDriven().
+- Risk: moyen (peut casser du code legacy); mitigation: allowlist minimale + wrappers.
+- Rollback: revert du gate + revert wrappers (non recommandé).
