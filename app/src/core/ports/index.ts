@@ -32,3 +32,7 @@ export * from "./defaultEntitlements.contract";
 export * from "./billingHook.contract";
 
 
+export * from "./vfs.contract";
+export * from "./snapshot.contract";
+export * from "./tenantOnboarding.persisted.facade";
+

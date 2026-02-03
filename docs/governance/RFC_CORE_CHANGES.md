@@ -415,3 +415,9 @@ Sinon : **BLOCK** (gate).
 - Motivation: établir un flux d’onboarding tenant déterministe + baseline entitlements (free-core) + boundary billing stub (remplaçable).
 - Change: nouveaux ports/contracts + tests contract; aucune I/O externe; pas de persistance ajoutée (facade in-memory).
 - Risk: faible. Rollback: revert commit; aucun impact infra.
+
+## RFC-2026-02-03-phase7-move2-onboarding-persist-vfs-snapshot — Phase7 Move2 (Onboarding persistence via VFS/Snapshot)
+- Status: APPROVED
+- Motivation: remplacer l’onboarding in-memory par une persistance déterministe via VFS/Snapshot, contract-first, runtime-safe.
+- Change: onboardingStore (layout /ssot/tenants/<key>/tenant.json), persisted facade + providers tests-only.
+- Risk: faible. Rollback: revert commit; l’ancien facade in-memory reste disponible si nécessaire.
