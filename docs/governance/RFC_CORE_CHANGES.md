@@ -517,3 +517,9 @@ Sinon : **BLOCK** (gate).
 - Change: add `app/src/surfaces/app/gallery/Page.tsx` and catalog route `/#/gallery`.
 - Governance: pages whitelist updated to include gallery.
 - Risk: low (read-only navigation surface).
+
+## phase11-cp-gallery-unblock — Add CP gallery surface + whitelist update
+- Status: APPROVED
+- Change: add `app/src/surfaces/cp/gallery/Page.tsx`, add `cp.gallery` + `/cp/#/gallery` in `config/ssot/MODULE_CATALOG.json`, and allow CP gallery in `scripts/gates/pages-whitelist.sh`.
+- Governance: keeps catalog-first routing and pages whitelist aligned.
+- Risk: low (read-only placeholder surface).
