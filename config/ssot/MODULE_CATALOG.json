@@ -19,6 +19,10 @@
         "cp.users"
       ],
       "routes": [
+        "/#/clients",
+        "/#/dashboard",
+        "/#/jobs",
+        "/#/login",
         "/cp/#/account",
         "/cp/#/dashboard",
         "/cp/#/home-cp",
