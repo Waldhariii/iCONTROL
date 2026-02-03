@@ -1,10 +1,10 @@
+#!/usr/bin/env node
 
 // --- v2 hooks ---
 const __REPO_ROOT_V2 = process.cwd();
 const __EX_V2 = loadCpNavExemptions(__REPO_ROOT_V2);
 const __SCAN_ROOTS_V2 = defaultCpNavScanRoots(__REPO_ROOT_V2);
 
-#!/usr/bin/env node
 /**
  * Fatal governance gate:
  * Forbid hardcoded CP surface IDs (cp.*) inside arrays/objects/maps in TS/TSX,
