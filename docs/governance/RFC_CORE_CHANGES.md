@@ -528,3 +528,9 @@ Sinon : **BLOCK** (gate).
 - Change: restore missing export `vfsGet` (no port widening).
 - Evidence: RFC-2026-02-03-phase11-hotfix-vfsget-export.md
 - Scope: core writeGateway export only.
+
+## phase11-wave3-1-1-clients-vfs-persistence — Wave3.1.1 (Clients VFS create flow)
+- Status: APPROVED
+- Change: add tenant-scoped VFS adapter for clients list + create action from APP clients page.
+- Governance: no sample data seeded; persistence through write-gateway (`vfsSet`/`vfsGet`) with observability events.
+- Risk: low (feature branch scope).

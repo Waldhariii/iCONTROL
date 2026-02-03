@@ -15,3 +15,8 @@ Data source uses a stub adapter (in-memory) with telemetryInfo for correlation.
 
 ## Next
 Replace stub with real persistence via WriteGateway/VFS+domain rules, CP-controlled.
+
+## Wave3.1.1 Addendum
+- Replace empty stub-only flow with VFS-backed adapter (tenant scoped).
+- Add create action to generate first real records (no hardcoded sample data).
+- Storage key: clients/index.json in tenant namespace.
