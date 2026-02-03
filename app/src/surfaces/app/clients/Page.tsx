@@ -27,12 +27,12 @@ export default function Page(){
           <button style={{ padding: "10px 14px" }}>Nouveau client</button>
         </div>
 
-        <div style={{ marginTop: 16, overflow:"auto", border:"1px solid rgba(0,0,0,0.12)", borderRadius: 12 }}>
+        <div style={{ marginTop: 16, overflow:"auto", border:"1px solid var(--color-border-muted)", borderRadius: 12 }}>
           <table style={{ width:"100%", borderCollapse:"collapse" }}>
             <thead>
               <tr>
                 {["ID","Nom","Téléphone","Email","Ville","Statut"].map(h=>(
-                  <th key={h} style={{ textAlign:"left", padding: 10, borderBottom:"1px solid rgba(0,0,0,0.12)", position:"sticky", top:0, background:"#fff" }}>{h}</th>
+                  <th key={h} style={{ textAlign:"left", padding: 10, borderBottom:"1px solid var(--color-border-muted)", position:"sticky", top:0, background:"var(--color-surface-elevated)" }}>{h}</th>
                 ))}
               </tr>
             </thead>
@@ -56,5 +56,5 @@ export default function Page(){
 }
 
 function cell(){
-  return { padding: 10, borderBottom:"1px solid rgba(0,0,0,0.06)", whiteSpace:"nowrap" } as const;
+  return { padding: 10, borderBottom:"1px solid var(--color-border-subtle)", whiteSpace:"nowrap" } as const;
 }
