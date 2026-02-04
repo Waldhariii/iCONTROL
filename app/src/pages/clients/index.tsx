@@ -52,8 +52,6 @@ function pickClientsPort(): ClientsPort {
 
 export default function ClientsPage(){
   const [clientsPort, setClientsPort] = React.useState<ClientsPort | null>(null);
-  
-  const port = clientsPort ?? clientsPortStub;
 useEffect(() => {
     let alive = true;
     resolveClientsPort().then((p) => { if (alive) setClientsPort(p); });
