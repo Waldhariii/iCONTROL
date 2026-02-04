@@ -5,3 +5,103 @@
 .ic-toolbar { display: flex; gap: 12px; align-items: center; padding-bottom: 0; margin-bottom: 12px; }
 .ic-btn { padding: 10px 12px; }
 .ic-note { opacity: 0.65; }
+
+/* ICONTROL_SURFACES_BASELINE_V1 */
+.ic-page{ padding:16px; }
+.ic-row{ display:flex; gap:12px; align-items:center; }
+.ic-row--tight{ padding-bottom:0px; }
+.ic-btn{ padding:10px 12px; }
+.ic-muted{ opacity:0.65; }
+.ic-stack{ display:flex; flex-direction:column; gap:12px; }
+.ic-center{ display:flex; align-items:center; justify-content:center; }
+
+/* ICONTROL_SURFACES_LOGIN_GALLERY_V1 */
+.ic-toolbar{ padding:16px; padding-bottom:0px; display:flex; gap:12px; align-items:center; }
+.ic-toolbar__note{ opacity:0.65; }
+
+.ic-login{ min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px; }
+.ic-login__card{ width:min(420px, 92vw); }
+.ic-login__stack{ display:flex; flex-direction:column; gap:12px; }
+.ic-login__row{ display:flex; gap:12px; align-items:center; }
+.ic-login__actions{ display:flex; gap:10px; align-items:center; justify-content:space-between; }
+.ic-login__muted{ opacity:0.65; }
+
+/* ICONTROL_INLINE_EXTRACT_V1 */
+
+.icx-gallery-page-5-980b16c94c {
+  margin-top: 10px;
+  opacity: 0.65;
+}
+
+.icx-gallery-page-4-5bfaf1f9a8 {
+  margin-top: 6px;
+  opacity: 0.8;
+}
+
+.icx-gallery-page-3-d6b6ae3df2 {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.icx-gallery-page-2-30199e1be8 {
+  display: block;
+  padding: 16px;
+  border: "1px solid var(--color-border-subtle;
+  border-radius: 12px;
+  text-decoration: none;
+  color: inherit;
+}
+
+.icx-gallery-page-1-6099a3814d {
+  margin-top: 16px;
+  display: grid;
+  grid-template-columns: "repeat(auto-fit;
+  gap: 12px;
+}
+
+.icx-gallery-page-0-4fceb9e82e {
+  padding: 24px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.icx-login-page-6-f3f0814cd5 {
+  margin-top: 16px;
+  opacity: 0.8;
+}
+
+.icx-login-page-5-21b6df7206 {
+  margin-top: 16px;
+  padding: 10px 14px;
+}
+
+.icx-login-page-4-cfbb0d6e90 {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  margin-top: 6px;
+}
+
+.icx-login-page-3-510086163b {
+  display: block;
+  margin-top: 12px;
+}
+
+.icx-login-page-2-c2558552a0 {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  margin-top: 6px;
+}
+
+.icx-login-page-1-414cab0ddd {
+  display: block;
+  margin-top: 16px;
+}
+
+.icx-login-page-0-26f2f9cd00 {
+  padding: 24px;
+  max-width: 520px;
+  margin: 0 auto;
+}
+

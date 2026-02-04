@@ -12,16 +12,16 @@ const LINKS: Link[] = [
 export default function Page(){
   return withSpan("gallery", () => {
     return (
-      <div style={{ padding: 24, maxWidth: 900, margin: "0 auto" }}>
+      <div className="icx-gallery-page-0-4fceb9e82e">
         <h1>Galerie — Pages métier</h1>
         <p>Vue de pilotage pour QA visuel / review. Les pages restent surfaces-first, ports-driven.</p>
 
-        <div style={{ marginTop: 16, display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(260px,1fr))", gap: 12 }}>
+        <div className="icx-gallery-page-1-6099a3814d">
           {LINKS.map(l => (
-            <a key={l.href} href={l.href} style={{ display:"block", padding: 16, border: "1px solid var(--color-border-subtle, #d9d9d9)", borderRadius: 12, textDecoration: "none", color: "inherit" }}>
-              <div style={{ fontSize: 18, fontWeight: 600 }}>{l.label}</div>
-              <div style={{ marginTop: 6, opacity: 0.8 }}>{l.href}</div>
-              {l.note ? <div style={{ marginTop: 10, opacity: 0.65 }}>{l.note}</div> : null}
+            <a key={l.href} href={l.href} className="icx-gallery-page-2-30199e1be8">
+              <div className="icx-gallery-page-3-d6b6ae3df2">{l.label}</div>
+              <div className="icx-gallery-page-4-5bfaf1f9a8">{l.href}</div>
+              {l.note ? <div className="icx-gallery-page-5-980b16c94c">{l.note}</div> : null}
             </a>
           ))}
         </div>
