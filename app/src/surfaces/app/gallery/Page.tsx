@@ -1,3 +1,5 @@
+import { getTenantIdSSOT } from "../../../core/tenant/tenantContext";
+import { newCorrelationIdSSOT } from "../../../core/observability/correlation";
 import { withSpan } from "../_shared/telemetry";
 
 type Link = { label: string; href: string; note?: string };
@@ -10,7 +12,11 @@ const LINKS: Link[] = [
 ];
 
 export default function Page(){
-  return withSpan("gallery", () => {
+  
+  const tenantId = getTenantIdSSOT();
+  void tenantId;
+  void newCorrelationIdSSOT;
+return withSpan("gallery", () => {
     return (
       <div className="icx-gallery-page-0-4fceb9e82e">
         <h1>Galerie — Pages métier</h1>
