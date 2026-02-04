@@ -71,3 +71,10 @@ export function isRouteAllowed(kind: AppKind, route: string): boolean {
   const routes = listPublicRoutes(kind);
   return Array.isArray(routes) && routes.includes(route);
 }
+
+/**
+ * PHASE11/WAVE3.2.1
+ * SSOT_ROUTE_MARKER: "/clients"
+ * TODO: Wire this into the canonical route map (strict schema may require proper insertion).
+ */
+// SSOT_ROUTE_CANDIDATE: "/clients"
