@@ -33,3 +33,7 @@ export function createEventBus(store: EventStore): EventBus {
     },
   };
 }
+
+export type EventHandler<T=any> = (evt: T) => void;
+
+export type EventName = string;
