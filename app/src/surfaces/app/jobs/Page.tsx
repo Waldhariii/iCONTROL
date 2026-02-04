@@ -1,4 +1,6 @@
 import React from "react";
+import { newCorrelationIdSSOT } from "../../../core/observability/correlation";
+import { getTenantIdSSOT } from "../../../core/tenant/tenantContext";
 import { definePageSpec } from "../_governance/pageSpec";
 import { obsInfo } from "../../../core/ports/telemetry.contract"; // must exist (observability-min)
 
@@ -11,7 +13,7 @@ export const PAGE_SPEC = definePageSpec({
 
 export default function Page() {
   // Correlation can be injected via your runtime; keep safe fallback.
-  const correlationId = "corr_" + Math.random().toString(16).slice(2);
+  const correlationId = newCorrelationIdSSOT();
   try {
     obsInfo({ correlationId, code: "OK", message: "page_view", details: { pageId: PAGE_SPEC.id } });
   } catch {}

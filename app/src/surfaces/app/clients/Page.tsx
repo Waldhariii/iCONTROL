@@ -38,7 +38,7 @@ type ClientsPort = {
 function safeCorrelationId(): string {
   // Prefer any existing correlation helper if it exists in runtime (best-effort).
   // Keep deterministic-ish prefix for observability filtering.
-  return "corr_" + (globalThis.crypto?.randomUUID?.() ?? Math.random().toString(16).slice(2));
+  return "corr_" + (globalThis.crypto?.randomUUID?.() ?? newCorrelationIdSSOT());
 }
 
 function safeTenantId(): string {
