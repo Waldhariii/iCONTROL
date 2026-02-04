@@ -8,7 +8,7 @@ import { useClientsQuery } from "../../core/domain/clients/useClientsQuery";
 // PHASE11_WAVE3_2_1_REAL_PORT: prefer real ClientsPort(VFS) with fail-soft fallback
 // Import-safe: dynamic imports only; no side effects at module load.
 import type { ClientsPort } from "../../core/ports/clients.contract";
-import { clientsPort ?? clientsPortStub } from "../../platform/adapters/clients/clientsAdapter.stub";
+import { clientsPortStub } from "../../platform/adapters/clients/clientsAdapter.stub";
 
 async function resolveClientsPort(): Promise<ClientsPort> {
   // 1) Prefer an existing singleton export if present (surfaces already wired).
@@ -52,7 +52,9 @@ function pickClientsPort(): ClientsPort {
 
 export default function ClientsPage(){
   const [clientsPort, setClientsPort] = React.useState<ClientsPort | null>(null);
-  useEffect(() => {
+  
+  const port = clientsPort ?? clientsPortStub;
+useEffect(() => {
     let alive = true;
     resolveClientsPort().then((p) => { if (alive) setClientsPort(p); });
     return () => { alive = false; };
