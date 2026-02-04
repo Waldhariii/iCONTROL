@@ -16,7 +16,7 @@ export default function Page() {
     obsInfo({ correlationId, code: "OK", message: "page_view", details: { pageId: PAGE_SPEC.id } });
   } catch {}
   return (
-    <div style={{ padding: 16 }}>
+    <div className="ic-page">
       <h1>Dashboard</h1>
       <p>Page métier MVP (governed). id={PAGE_SPEC.id}</p>
     </div>
