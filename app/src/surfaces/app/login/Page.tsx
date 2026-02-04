@@ -1,8 +1,14 @@
+import { getTenantIdSSOT } from "../../../core/tenant/tenantContext";
+import { newCorrelationIdSSOT } from "../../../core/observability/correlation";
 import { useMemo, useState } from "react";
 import { withSpan } from "../_shared/telemetry";
 
 export default function Page(){
-  return withSpan("login", () => {
+  
+  const tenantId = getTenantIdSSOT();
+  void tenantId;
+  void newCorrelationIdSSOT;
+return withSpan("login", () => {
     const [email, setEmail] = useState("");
     const [pwd, setPwd] = useState("");
     const canSubmit = useMemo(()=> email.trim().length>3 && pwd.length>5, [email,pwd]);
