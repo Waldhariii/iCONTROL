@@ -77,4 +77,3 @@ export function isRouteAllowed(kind: AppKind, route: string): boolean {
  * SSOT_ROUTE_MARKER: "/clients"
  * TODO: Wire this into the canonical route map (strict schema may require proper insertion).
  */
-// SSOT_ROUTE_CANDIDATE: "/clients"
