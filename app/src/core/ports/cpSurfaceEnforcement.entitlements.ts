@@ -46,14 +46,13 @@ export async function enforceCpEntitlementsSurface(params: {
     requiredCapability: "canAdminEntitlements",
   });
   if (!tm.allow) {
-    return { allow: false, reasonCode: tm.reasonCode, redirectTo: "/cp/#/blocked" };
+    return { allow: false, reasonCode: String(tm.reasonCode), redirectTo: "/cp/#/blocked" };
   }
 
   // Minimal policy: require capability that allows admin entitlements
   // We rely on existing policy capability naming already enforced elsewhere (contract tests exist).
   const decision = policy.evaluate({
     tenantId,
-    actorId,
     subject: { actorId, role: "admin" },
     action: "entitlements.write",
     resource: { kind: "entitlements", id: "settings" },
@@ -61,12 +60,12 @@ export async function enforceCpEntitlementsSurface(params: {
   });
 
   if (decision?.allow) {
-    return { allow: true, reasonCode: decision.reason ?? "OK_POLICY_ALLOW", redirectTo: null };
+    return { allow: true, reasonCode: String(decision.reasons[0] ?? "OK_POLICY_ALLOW"), redirectTo: null };
   }
 
   return {
     allow: false,
-    reasonCode: decision?.reason ?? "ERR_POLICY_DENY",
+    reasonCode: String(decision?.reasons[0] ?? "ERR_POLICY_DENY"),
     redirectTo: "/cp/#/blocked",
   };
 }

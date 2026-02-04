@@ -2,8 +2,9 @@
 //
 // ERR_* : hard failures
 // WARN_*: non-fatal signals
-export const CODES = {
-  // Rendering / safety
+export const CODES = {  WARN_CONSOLE_MIGRATED: "WARN_CONSOLE_MIGRATED",
+  ERR_CONSOLE_MIGRATED: "ERR_CONSOLE_MIGRATED",
+// Rendering / safety
   ERR_RENDER_BLOCKED: "ERR_RENDER_BLOCKED",
   ERR_INVALID_INPUT: "ERR_INVALID_INPUT",
   ERR_INTERNAL: "ERR_INTERNAL",

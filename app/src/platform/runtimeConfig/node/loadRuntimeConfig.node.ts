@@ -1,7 +1,7 @@
 import fs from "fs";
 import path from "path";
-import type { LoadedRuntimeConfig, RuntimeMode } from "./types";
-import { resolveRuntimeConfigPath, resolveExampleConfigPath } from "./paths";
+import type { LoadedRuntimeConfig, RuntimeMode } from "../types";
+import { resolveRuntimeConfigPath, resolveExampleConfigPath } from "../paths";
 import { sha256 } from "./hash";
 import { validateRuntimeConfig } from "./validateRuntimeConfig";
 

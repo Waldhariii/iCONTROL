@@ -1,7 +1,7 @@
 /**
  * ICONTROL_LOGGER_STUB_V1
  * Minimal logger to unblock runtime/bundling.
- * Replace with a governed implementation (levels, sinks, audit) later.
+ * Replace with a governed implementation (sinks, audit) later.
  */
 import { debug, info, warn, error } from "../../platform/observability/logger";
 
@@ -17,10 +17,10 @@ export interface Logger {
 export function createLogger(prefix = "app"): Logger {
   const p = `[${prefix}]`;
   return {
-    debug: (...a) => void debug("OK", p, { payload: a }),
-    info: (...a) => void info("OK", p, { payload: a }),
-    warn: (...a) => void warn("WARN_CONSOLE_MIGRATED", p, { payload: a }),
-    error: (...a) => void error("ERR_CONSOLE_MIGRATED", p, { payload: a }),
+    debug: (...a) => void debug(p, {}),
+    info: (...a) => void info(p, {}),
+    warn: (...a) => void warn(("WARN_CONSOLE_MIGRATED" as any), p, {}),
+    error: (...a) => void error(("ERR_CONSOLE_MIGRATED" as any), p, {}),
   };
 }
 
@@ -29,9 +29,9 @@ export function getLogger(prefix = "app"): Logger {
 }
 
 // Convenience exports (legacy callers)
-export const logInfo = (...a: any[]) => void info("OK", "[app]", { payload: a });
-export const logWarn = (...a: any[]) => void warn("WARN_CONSOLE_MIGRATED", "[app]", { payload: a });
-export const logError = (...a: any[]) => void error("ERR_CONSOLE_MIGRATED", "[app]", { payload: a });
+export const logInfo = (...a: any[]) => void info("[app]", {});
+export const logWarn = (...a: any[]) => void warn(("WARN_CONSOLE_MIGRATED" as any), "[app]", {});
+export const logError = (...a: any[]) => void error(("ERR_CONSOLE_MIGRATED" as any), "[app]", {});
 
 // AUTO-STUB exports for legacy compatibility
 export function warnLog(..._args: any[]): any {

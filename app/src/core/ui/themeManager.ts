@@ -10,7 +10,7 @@
  * - Tokens SSOT (Single Source Of Truth)
  */
 
-import { webStorage } from "../../../platform/storage/webStorage";
+import { webStorage } from "../../platform/storage/webStorage";
 import { getLogger } from "../utils/logger";
 import { isEnabled } from "../../policies/feature_flags.enforce";
 import { createAuditHook } from "../write-gateway/auditHook";

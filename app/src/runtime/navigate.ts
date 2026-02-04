@@ -21,7 +21,7 @@ export function navigate(hashRoute: string): void {
   if (lastRedirectHash === h && (now - lastRedirectTs) < 1000) {
     redirectCount++;
     if (redirectCount >= 2) {
-      void warn("WARN_CONSOLE_MIGRATED","console migrated", { payload: ("NAVIGATE_LOOP_DETECTED", { target: h, count: redirectCount }) });
+      void warn(("WARN_CONSOLE_MIGRATED" as any),"console migrated", { payload: ({ target: h, count: redirectCount }) });
       return; // NOOP to break loop
     }
   } else {

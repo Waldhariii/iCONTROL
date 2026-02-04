@@ -1,9 +1,12 @@
 import type { Claims, Role } from "../../governance/rbac";
 import type { ComponentRegistry } from "../registry";
-import type { DataSources } from "../datasources";
+import type { DataSource } from "../datasources";
 import type { BlueprintDoc } from "../blueprints/types";
 import type { Rule } from "../rules/types";
 import type { Permission } from "../internal/rbac";
+
+// FOUNDATION: alias until datasources barrel exports DataSources
+export type DataSources = Record<string, DataSource>;
 
 export type RuntimeDeps = {
   claims: Claims;

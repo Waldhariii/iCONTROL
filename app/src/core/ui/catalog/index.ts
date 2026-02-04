@@ -1,4 +1,4 @@
-import { webStorage } from "../../../../platform/storage/webStorage";
+import { webStorage } from "../../../platform/storage/webStorage";
 import { listCatalogEntries, type CatalogState, type CatalogSurface } from "./registry";
 import { registerDefaultCatalogEntries } from "./defaults";
 import { isEnabled } from "../../../policies/feature_flags.enforce";
@@ -7,7 +7,7 @@ import { createLegacyAdapter } from "../../write-gateway/adapters/legacyAdapter"
 import { createPolicyHook } from "../../write-gateway/policyHook";
 import { createCorrelationId, createWriteGateway } from "../../write-gateway/writeGateway";
 import { getLogger } from "../../utils/logger";
-import { getTenantId } from "../../../runtime/tenant";
+import { getTenantId } from "../../runtime/tenant";
 
 const THEME_TOKENS = {
   dark: {

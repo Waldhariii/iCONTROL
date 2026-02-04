@@ -21,4 +21,6 @@ export const WARN = {
 
 export type ErrCode = (typeof ERR)[keyof typeof ERR];
 export type WarnCode = (typeof WARN)[keyof typeof WARN];
-export type AnyCode = ErrCode | WarnCode | "OK";
+export type AnyCode = ErrCode | WarnCode | "OK"
+  | "WARN_CONSOLE_MIGRATED"
+  | "ERR_CONSOLE_MIGRATED";

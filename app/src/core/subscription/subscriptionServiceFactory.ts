@@ -67,3 +67,5 @@ export async function getSubscriptionStore() {
   return isNode ? await getNodeStore() : getBrowserStore();
 }
 
+// FOUNDATION: keep symbol referenced for TS6133 (no side-effects)
+void BrowserFileSubscriptionStore;

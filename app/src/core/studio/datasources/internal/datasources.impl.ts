@@ -50,8 +50,8 @@ export function applyQuery(records: Record<string, unknown>[], query?: QueryDef)
     out.sort((a, b) => {
       const av = a[s.field];
       const bv = b[s.field];
-      if (av === bv) return 0;
-      const res = av > bv ? 1 : -1;
+      if (String(av) === String(bv)) return 0;
+      const res = String(av) > String(bv) ? 1 : -1;
       return s.dir === "desc" ? -res : res;
     });
   });

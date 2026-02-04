@@ -58,7 +58,7 @@ function extractCpSurfaceFromCpHashRoute(route: string): string | null {
   const r = route.trim();
   const m = r.match(/\/cp\/#\/([a-z0-9._-]+)/i) || r.match(/cp\/#\/([a-z0-9._-]+)/i);
   if (!m) return null;
-  const seg = (m[1] || "").split("/")[0].trim();
+  const seg = (((m?.[1] ?? "").split("/")[0]) ?? "").trim();
   if (!seg) return null;
   return "cp." + seg.toLowerCase().replace(/[_-]/g, ".");
 }

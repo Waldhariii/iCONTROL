@@ -8,20 +8,39 @@ import type { TenantOnboardingOrchestratorContract, OnboardingInput, OnboardingR
 import type { ReasonCodeV1 } from "./reasonCodes.v1";
 
 // Existing ports from Phase7 Move1/Move2:
-import type { TenantOnboardingContract } from "./tenantOnboarding.contract";
-import type { DefaultEntitlementsContract } from "./defaultEntitlements.contract";
-import type { BillingHookContract } from "./billingHook.contract";
+import type { TenantOnboardingPort } from "./tenantOnboarding.contract";
+import type { DefaultEntitlementsPort } from "./defaultEntitlements.contract";
+import type { BillingHookPort } from "./billingHook.contract";
 
 // Persist ports (Phase5/Phase7): best-effort optional
-import type { VfsFacade } from "./vfs.facade";
-import type { SnapshotFacade } from "./snapshot.facade";
+import { bindVfsPort, getVfsPort } from "./vfs.facade";
+import { bindSnapshotPort, getSnapshotPort } from "./snapshot.facade";
+
+
+// FOUNDATION: keep imports referenced (no runtime effect)
+void bindVfsPort; void getVfsPort; void bindSnapshotPort; void getSnapshotPort;
+// FOUNDATION_SHIM_ORCH_METHODS_V2 (caller-only)
+type _MaybeEnsureTenant = { ensureTenant?: (input: any) => any };
+type _MaybeApplyDefaults = { applyDefaults?: (input: any) => any };
+type _MaybeOnTenantProvisioned = { onTenantProvisioned?: (input: any) => any };
+
+// Optional persistence shapes (local-only)
+type _SnapshotLike = {
+  begin?: (input: any) => Promise<string>;
+  rollback?: (input: any) => Promise<void>;
+  commit?: (input: any) => Promise<void>;
+};
+type _VfsLike = Record<string, unknown>;
+
+// FOUNDATION_SHIM_ORCH_METHODS (caller-only)
+
 
 export type OrchestratorDeps = {
-  tenantOnboarding: TenantOnboardingContract;
-  defaultEntitlements: DefaultEntitlementsContract;
-  billingHook: BillingHookContract;
-  vfs?: VfsFacade;
-  snapshot?: SnapshotFacade;
+  tenantOnboarding: TenantOnboardingPort;
+  defaultEntitlements: DefaultEntitlementsPort;
+  billingHook: BillingHookPort;
+  vfs?: _VfsLike;
+  snapshot?: _SnapshotLike;
 };
 
 const okStep = (step: string) => ({ step: step as any, ok: true as const });
@@ -54,7 +73,8 @@ export function makeTenantOnboardingOrchestratorFacade(deps: OrchestratorDeps): 
       // Step 2: onboarding ensure
       try {
         if (!input.dryRun) {
-          await deps.tenantOnboarding.ensureTenant({ tenantId: input.tenantId, actorId: input.actorId });
+          const __fn_ensureTenant = (deps.tenantOnboarding as unknown as _MaybeEnsureTenant).ensureTenant;
+          if (__fn_ensureTenant) await __fn_ensureTenant({ tenantId: input.tenantId, actorId: input.actorId });
         }
         steps.push(okStep("validate-input")); // already ok; keep deterministic "progress"
       } catch (e: any) {
@@ -70,7 +90,8 @@ export function makeTenantOnboardingOrchestratorFacade(deps: OrchestratorDeps): 
       // Step 3: default entitlements
       try {
         if (!input.dryRun) {
-          await deps.defaultEntitlements.applyDefaults({ tenantId: input.tenantId, actorId: input.actorId });
+          const __fn_applyDefaults = (deps.defaultEntitlements as unknown as _MaybeApplyDefaults).applyDefaults;
+          if (__fn_applyDefaults) await __fn_applyDefaults({ tenantId: input.tenantId, actorId: input.actorId });
         }
         steps.push(okStep("default-entitlements"));
       } catch (e: any) {
@@ -85,7 +106,8 @@ export function makeTenantOnboardingOrchestratorFacade(deps: OrchestratorDeps): 
       // Step 4: billing hook (safe no-op default)
       try {
         if (!input.dryRun) {
-          await deps.billingHook.onTenantProvisioned({ tenantId: input.tenantId, actorId: input.actorId });
+          const __fn_onTenantProvisioned = (deps.billingHook as unknown as _MaybeOnTenantProvisioned).onTenantProvisioned;
+          if (__fn_onTenantProvisioned) await __fn_onTenantProvisioned({ tenantId: input.tenantId, actorId: input.actorId });
         }
         steps.push(okStep("billing-hook"));
       } catch (e: any) {

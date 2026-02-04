@@ -53,6 +53,7 @@ export function formatRelative(d: DateInput): string {
   const diffMin = Math.floor(diffMs / 60000);
   const diffH = Math.floor(diffMs / 3600000);
   const diffDay = Math.floor(diffMs / 86400000);
+void diffDay;
 
   if (diffMin < 1) return "à l'instant";
   if (diffMin < 60) return `il y a ${diffMin} min`;

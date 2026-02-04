@@ -68,7 +68,9 @@ export function resolveValue(ref: RuleValueRef, ctx: RuleContext): unknown {
   if (ref.type === "field") return ctx.fields ? ctx.fields[ref.path] : undefined;
   if (ref.type === "storage") {
     if (!STORAGE_ALLOW.has(ref.path)) return undefined;
-    const [key, field] = ref.path.split(".");
+    const parts = ref.path.split(".");
+    const key = parts[0] ?? "";
+    const field = parts[1];
     const raw = ctx.storageGet(key);
     if (!raw) return undefined;
     try {

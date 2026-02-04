@@ -51,6 +51,7 @@ function _resolveIdentity(): { tenantId: string; actorId: string } {
  * Helper for surfaces: apply redirect on deny using governed redirect strategy.
  */
 export function redirectOnDeny(decision: { allow: boolean; reason: string }, appKind: "CP" | "APP" = "CP"): void {
+  void appKind;
   if (decision.allow) return;
   governedRedirect({ kind: "blocked", reason: decision.reason });
 }
@@ -62,3 +63,6 @@ export function redirectOnDeny(decision: { allow: boolean; reason: string }, app
 export function getCpSurfaceRegistry(): readonly { moduleId: string; surfaceId: string; routes: readonly string[]; capabilities: readonly string[] }[] {
   return buildCpSurfaceRegistryFromCatalog();
 }
+
+// FOUNDATION: keep symbol referenced for TS6133 without widening contracts
+void _resolveIdentity;

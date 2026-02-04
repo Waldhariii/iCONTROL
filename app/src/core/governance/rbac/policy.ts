@@ -7,7 +7,9 @@ export function hasRole(userRole: Role, required: Role): boolean {
 
 export function highestRole(roles: Role[]): Role {
   if (!roles.length) return "USER_READONLY";
-  let best: Role = roles[0];
+  const first = roles[0];
+  if (!first) return "USER_READONLY";
+  let best: Role = first;
   for (const r of roles) {
     if (roleRank[r] > roleRank[best]) best = r;
   }

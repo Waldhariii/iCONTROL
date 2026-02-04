@@ -86,3 +86,8 @@ export const REASON_CODES_V1 = [
 
 
 ] as const;
+
+
+// ---- Foundation shim: keep legacy type names stable (minimal, no behavior change)
+export type ReasonCodeV1 = typeof REASON_CODES_V1[keyof typeof REASON_CODES_V1];
+export type ReasonCode = ReasonCodeV1;

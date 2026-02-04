@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
-import type { ClientsPort, ClientsListRequest, ClientsListResponse, ClientRow } from "../../ports/clients.contract";
+import type { ClientListQueryV1, ClientV1, ClientWriteMeta } from "./types";
+import type { ClientsPort } from "../../ports/clients.contract";
 
 function mkCorrelationId(){
   return `corr_ui_${Math.random().toString(16).slice(2)}_${Date.now()}`;
@@ -10,7 +11,7 @@ export type UseClientsQueryArgs = {
   tenantId: string;
   limit?: number;
   offset?: number;
-  sortBy?: string;
+  sortBy?: "name" | "updatedAt" | "createdAt" | "status";
   sortDir?: "asc" | "desc";
 };
 
@@ -21,29 +22,32 @@ export function useClientsQuery(args: UseClientsQueryArgs){
   const sortBy = args.sortBy ?? "name";
   const sortDir = args.sortDir ?? "asc";
 
-  const [rows, setRows] = useState<ClientRow[]>([]);
+  const [rows, setRows] = useState<ClientV1[]>([]);
   const [total, setTotal] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  const req: ClientsListRequest = useMemo(() => ({
-    tenantId,
+  const req: ClientListQueryV1 = useMemo(() => ({
     limit,
-    offset,
+    cursor: offset > 0 ? String(offset) : null,
     sort: { by: sortBy, dir: sortDir },
-    correlationId: mkCorrelationId(),
   }), [tenantId, limit, offset, sortBy, sortDir]);
+
+  const meta: ClientWriteMeta = useMemo(() => ({
+    tenantId,
+    correlationId: mkCorrelationId(),
+  }), [tenantId]);
 
   useEffect(() => {
     let alive = true;
     setLoading(true);
     setError(null);
 
-    port.list(req)
-      .then((res: ClientsListResponse) => {
+    port.list(req, meta)
+      .then((res) => {
         if (!alive) return;
-        setRows(res.rows ?? []);
-        setTotal(res.total ?? (res.rows?.length ?? 0));
+        setRows(res.items ?? []);
+        setTotal(res.items?.length ?? 0);
         setLoading(false);
       })
       .catch((e: any) => {
@@ -54,7 +58,7 @@ export function useClientsQuery(args: UseClientsQueryArgs){
       });
 
     return () => { alive = false; };
-  }, [port, req]);
+  }, [port, req, meta]);
 
   return { rows, total, loading, error, req };
 }

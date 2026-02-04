@@ -1,13 +1,10 @@
 import { InMemoryAuditTrail } from "../../../../modules/core-system/subscription/AuditTrail";
 import { getSubscriptionService } from "./subscriptionServiceFactory";
-import { SubscriptionService } from "../../../../modules/core-system/subscription/SubscriptionService";
-import { getSubscriptionService } from "./subscriptionServiceFactory";
+import type { SubscriptionService } from "../../../../modules/core-system/subscription/SubscriptionService";
 
-const store = /*removed*/ null;
 const audit = new InMemoryAuditTrail();
-const svc = new SubscriptionService({ store, audit });
 
-export type EntitlementsReadModel = Awaited<ReturnType<typeof svc.resolve>>;
+export type EntitlementsReadModel = Awaited<ReturnType<SubscriptionService["resolve"]>>;
 
 export async function getEntitlementsForTenant(tenantId: string, nowIso: string) {
   const svc = await getSubscriptionService();
@@ -35,6 +32,8 @@ export async function getEntitlementsDiagnosticsForTenant(tenantId: string, nowI
     reason: resolved.reason,
     entitlements: resolved.entitlements,
     // optional: include raw subscription record for admin UI if needed
-    subscription: resolved.subscription ?? null,
+    // FOUNDATION_SHIM: ResolveOutput may not expose subscription in this build
+    subscription: ((resolved as any)?.subscription ?? null),
+
   };
 }

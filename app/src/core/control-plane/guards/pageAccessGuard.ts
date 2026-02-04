@@ -20,7 +20,7 @@ export async function filterNavigationItems<T extends { pageId?: string; route?:
   return items;
 }
 
-export async function guardRouteAccess(route: string): Promise<{ allowed: boolean; reason?: string }> {
+export async function guardRouteAccess(_route: string): Promise<{ allowed: boolean; reason?: string }> {
   // Désactivé pour l'instant: contourner isPageEnabledForTenant pour éviter "Accès refusé" / #/dashboard?state=denied.
   // Réactiver la vérification quand la gouvernance (TENANT_FEATURE_MATRIX) sera en place.
   return { allowed: true };

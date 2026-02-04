@@ -31,3 +31,6 @@ function safeSet(ls: Storage, k: string, v: string): void {
 export function readStrict(ls: Storage, newKey: string): string | null {
   return safeGet(ls, newKey);
 }
+
+// FOUNDATION: keep symbol referenced for TS6133 without widening contracts
+void safeSet;

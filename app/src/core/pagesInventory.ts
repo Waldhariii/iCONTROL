@@ -79,6 +79,7 @@ function assignDuplicateNumbers(entries: PageInventoryEntry[]): PageInventoryEnt
     
     for (let i = 0; i < sorted.length; i++) {
       const entry = sorted[i];
+      if (!entry) continue;
       const idx = result.indexOf(entry);
       if (idx >= 0) {
         const suffix = sorted.length > 1 ? `${i + 1}` : "";
@@ -99,7 +100,7 @@ function getSourceFile(routeId: string, appSurface: "CP" | "CLIENT"): string {
   // All routeIds now have _cp or _app suffix
   if (appSurface === "CP") {
     const fileMap: Record<string, string> = {
-      home_cp: null /* LEGACY_DISABLED */,
+      home_cp: "app/src/surfaces/cp/registry.ts",
       dashboard_cp: "app/src/surfaces/cp/dashboard.ts",
       subscription_cp: "app/src/surfaces/cp/subscription.ts",
       tenants_cp: "app/src/surfaces/cp/tenants.ts",
@@ -183,7 +184,9 @@ export function getPagesInventory(appSurface: "CP" | "CLIENT"): PageInventoryEnt
   
   // Assign indices
   for (let i = 0; i < entries.length; i++) {
-    entries[i].index = i + 1;
+    const entry = entries[i];
+    if (!entry) continue;
+    entry.index = i + 1;
   }
   
   // Assign duplicate numbers

@@ -1,5 +1,11 @@
-import type { AuditLevel, StudioAudit } from "./studioRuntime";
 import { debug, info, warn, error } from "../../../platform/observability/logger";
+import type { AuditLevel, StudioAudit } from "./studioRuntime";
+
+// FOUNDATION: keep imports referenced (no console side-effects)
+void debug;
+void info;
+void warn;
+void error;
 
 export type AuditSink = (
   level: AuditLevel,
@@ -24,6 +30,7 @@ export function createAuditEmitter(
 ): StudioAudit {
   const options: AuditEmitterOptions =
     typeof opts === "function" ? { sink: opts } : opts;
+
   const sink: AuditSink =
     options.sink ??
     ((level, code, meta) => {

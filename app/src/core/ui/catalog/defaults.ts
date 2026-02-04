@@ -114,15 +114,15 @@ export function registerDefaultCatalogEntries(): void {
     kind: "widget",
     app: "shared",
     render: (host) => {
-      const { element } = createToolbar({
+      const { element } = createToolbar(({
         searchPlaceholder: "Search items",
         filters: [
-          { label: "Status", options: ["Active", "Paused", "Draft"], value: "" },
-          { label: "Owner", options: ["Team A", "Team B"], value: "" },
+          { label: "Status", options: [ { label: "Active", value: "Active" }, { label: "Paused", value: "Paused" }, { label: "Draft", value: "Draft" } ], value: "" , onChange: () => {} },
+          { label: "Owner", options: [ { label: "Team A", value: "Team A" }, { label: "Team B", value: "Team B" } ], value: "" , onChange: () => {} },
         ],
         onSearch: () => {},
         onFilterChange: () => {},
-      });
+      } as any));
       host.appendChild(element);
     },
   });

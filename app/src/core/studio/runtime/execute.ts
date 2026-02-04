@@ -82,6 +82,7 @@ function renderOp(op: RenderOp, registry?: RegistryLike): string {
   }
 
   const _never: never = op;
+  void _never;
   return `<pre>invalid_op</pre>`;
 }
 
@@ -215,3 +216,6 @@ function safeCall<T>(fn: () => T): T | undefined {
 function isObj(v: unknown): v is Record<string, unknown> {
   return typeof v === "object" && v !== null && !Array.isArray(v);
 }
+
+// FOUNDATION: keep symbol referenced for TS6133
+void applyVersionPolicyBootGuards;

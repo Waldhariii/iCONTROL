@@ -22,6 +22,6 @@ export function stableStringify(x: JsonValue): string {
   if (Array.isArray(x)) return `[${x.map(stableStringify).join(",")}]`;
   const obj = x as Record<string, JsonValue>;
   const keys = Object.keys(obj).sort();
-  const body = keys.map(k => `${JSON.stringify(k)}:${stableStringify(obj[k])}`).join(",");
+  const body = keys.map(k => `${JSON.stringify(k)}:${stableStringify((obj[k] ?? null) as JsonValue)}`).join(",");
   return `{${body}}`;
 }

@@ -1,0 +1,34 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "types": [
+      "node"
+    ],
+    "noPropertyAccessFromIndexSignature": false,
+    "exactOptionalPropertyTypes": false,
+    "jsx": "react-jsx",
+    "lib": [
+      "DOM",
+      "ES2022"
+    ],
+    "isolatedModules": false
+  },
+  "include": [
+    "src/core/**/*",
+    "src/platform/**/*",
+    "src/policies/**/*",
+    "src/runtime/**/*"
+  ],
+  "exclude": [
+    "src/__tests__/**/*",
+    "src/ui-v2/**/*",
+    "src/ui-v2-mockups/**/*",
+    "src/ui/**/*",
+    "src/pages/**/*",
+    "src/surfaces/**/*",
+    "node_modules",
+    "**/*.spec.*",
+    "**/*.test.*"
+  ]
+}

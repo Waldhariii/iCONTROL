@@ -1,4 +1,4 @@
-import { webStorage } from "../../../platform/storage/webStorage";
+import { webStorage } from "../../platform/storage/webStorage";
 import { isEnabled } from "../../policies/feature_flags.enforce";
 import { createAuditHook } from "../write-gateway/auditHook";
 import { createLegacyAdapter } from "../write-gateway/adapters/legacyAdapter";

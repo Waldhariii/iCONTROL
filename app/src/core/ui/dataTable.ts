@@ -120,6 +120,8 @@ export function createDataTable<T extends Record<string, unknown>>(
   const tbody = document.createElement("tbody");
 
   function renderTable(): void {
+  const pageSize = currentPageSize ?? 25;
+
     tbody.innerHTML = "";
 
     // Filter
@@ -149,8 +151,8 @@ export function createDataTable<T extends Record<string, unknown>>(
     // Paginate
     let paginatedData = filteredData;
     if (pagination) {
-      const start = (currentPage - 1) * currentPageSize;
-      const end = start + currentPageSize;
+      const start = (currentPage - 1) * pageSize;
+      const end = start + pageSize;
       paginatedData = filteredData.slice(start, end);
     }
 
@@ -212,6 +214,8 @@ export function createDataTable<T extends Record<string, unknown>>(
   let paginationContainer: HTMLElement | null = null;
 
   function updatePagination(): void {
+  const pageSize = currentPageSize ?? 25;
+
     if (!pagination) return;
 
     if (!paginationContainer) {
@@ -220,9 +224,9 @@ export function createDataTable<T extends Record<string, unknown>>(
       container.appendChild(paginationContainer);
     }
 
-    const totalPages = Math.ceil(filteredData.length / currentPageSize);
-    const start = (currentPage - 1) * currentPageSize + 1;
-    const end = Math.min(currentPage * currentPageSize, filteredData.length);
+    const totalPages = Math.ceil(filteredData.length / pageSize);
+    const start = (currentPage - 1) * pageSize + 1;
+    const end = Math.min(currentPage * pageSize, filteredData.length);
 
     paginationContainer.innerHTML = "";
     const left = document.createElement("div");
@@ -234,7 +238,7 @@ export function createDataTable<T extends Record<string, unknown>>(
     const pageSizeSel = document.createElement("select");
     pageSizeSel.className = "ic-table__select";
     pageSizeSel.setAttribute("aria-label", "Lignes par page");
-    pageSizeSel.innerHTML = PAGE_SIZE_OPTS.map((n) => `<option value="${n}" ${n === currentPageSize ? "selected" : ""}>${n}</option>`).join("");
+    pageSizeSel.innerHTML = PAGE_SIZE_OPTS.map((n) => `<option value="${n}" ${n === pageSize ? "selected" : ""}>${n}</option>`).join("");
     pageSizeSel.onchange = () => {
       currentPageSize = parseInt(pageSizeSel.value, 10);
       currentPage = 1;

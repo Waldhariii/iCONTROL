@@ -1,5 +1,4 @@
-import { applyQuery, resolveDatasource, DatasourceDef, QueryDef } from "./datasources";
-
+import { applyQuery, resolveDatasource, type DatasourceDef, type QueryDef } from "./datasources";
 export type ColumnDef = {
   id: string;
   key: string;
@@ -33,6 +32,7 @@ export function resolveTableData(
   query: QueryDef | undefined,
   storage: Storage
 ): Record<string, unknown>[] {
+  void table;
   const ds = datasources[datasourceId];
   if (!ds) return [];
   return applyQuery(resolveDatasource(ds, storage), query);

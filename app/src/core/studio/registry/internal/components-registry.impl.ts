@@ -1,5 +1,5 @@
-import Form from "./components/Form";
-import Table from "./components/Table";
+import { Form } from "../builtins/form";
+import { Table } from "../builtins/table";
 
 export const componentsRegistry = {
   Form,

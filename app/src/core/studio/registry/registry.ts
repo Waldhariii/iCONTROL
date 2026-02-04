@@ -1,4 +1,10 @@
-import type { ComponentId, RegisteredComponent, RegistrySnapshot } from "./types";
+import type { ComponentId, RegisteredComponent } from "./types";
+
+// FOUNDATION: local snapshot shape (caller-only), avoids contract churn in ./types
+export type RegistrySnapshot = {
+  ids: ComponentId[];
+  get: (id: ComponentId) => RegisteredComponent | undefined;
+};
 
 export class ComponentRegistry {
   private readonly map = new Map<ComponentId, RegisteredComponent>();

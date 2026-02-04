@@ -1,4 +1,4 @@
-import { webStorage } from "../../../platform/storage/webStorage";
+import { webStorage } from "../../platform/storage/webStorage";
 import { isEnabled } from "../../policies/feature_flags.enforce";
 import { getTenantId } from "../runtime/tenant";
 import { createAuditHook } from "../write-gateway/auditHook";

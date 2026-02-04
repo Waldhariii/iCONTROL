@@ -6,7 +6,7 @@ export function createMemoryDataSource(id: string, seed?: Record<string, JsonVal
 
   function read(key: string): DataSourceReadResult {
     if (!isNonEmptyString(key)) return { ok: false, reason: "invalid_key" };
-    return key in store ? { ok: true, value: store[key] } : { ok: false, reason: "not_found" };
+    return (key in store ? { ok: true, value: (store[key] ?? null) } : { ok: false, reason: "not_found" });
   }
 
   function write(key: string, value: JsonValue): DataSourceWriteResult {

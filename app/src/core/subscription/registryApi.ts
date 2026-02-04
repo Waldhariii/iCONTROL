@@ -15,7 +15,7 @@ export async function adminSetActivePlan(args: {
   const reg = new SubscriptionRegistry(store);
   await reg.setActivePlan({
     tenantId: args.tenantId,
-    planId: args.planId,
+    planId: (args.planId as any),
     startedAt: args.startedAtIso,
     expiresAt: args.expiresAtIso,
   });

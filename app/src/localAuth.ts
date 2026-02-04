@@ -186,13 +186,28 @@ const mem = (() => {
   } satisfies Pick<Storage, "getItem" | "setItem" | "removeItem" | "clear">;
 })();
 
-function getStorage(): Pick<
-  Storage,
-  "getItem" | "setItem" | "removeItem" | "clear"
-> {
-  if (typeof window !== "undefined") return asStorage();
+function getStorage(): Pick<Storage, "getItem" | "setItem" | "removeItem" | "clear"> {
+  // Canonical storage selector:
+  // - Browser: localStorage if available
+  // - Non-browser / tests: in-memory storage
+  const mem = (() => {
+    const m = new Map<string, string>();
+    return {
+      getItem: (k: string) => (m.has(k) ? m.get(k)! : null),
+      setItem: (k: string, v: string) => void m.set(k, String(v)),
+      removeItem: (k: string) => void m.delete(k),
+      clear: () => void m.clear(),
+    } satisfies Pick<Storage, "getItem" | "setItem" | "removeItem" | "clear">;
+  })();
+
+  try {
+    const w = globalThis as any;
+    if (typeof w?.window !== "undefined" && w.window?.localStorage) return w.window.localStorage;
+  } catch {}
+
   return mem;
 }
+
 
 export function getSession(
   scope: AuthScope = resolveAuthScope(),
@@ -239,32 +254,38 @@ function normalizeRole(input: unknown): Role | null {
   const r = String(input || "").toUpperCase();
   if (r === "USER" || r === "ADMIN" || r === "SYSADMIN" || r === "DEVELOPER") return r as Role;
   return null;
-}
-
-function coerceUsers(input: unknown): Record<string, { password: string; role: Role }> {
+}function coerceUsers(input: unknown): Record<string, { password: string; role: Role }> {
   if (!input) return {};
+
+  // Array form: [{ username, password, role }]
   if (Array.isArray(input)) {
     return input.reduce<Record<string, { password: string; role: Role }>>((acc, u) => {
-      const username = typeof u?.username === "string" ? u.username.trim() : "";
-      const password = typeof u?.password === "string" ? u.password : "";
-      const role = normalizeRole(u?.role);
+      const username = typeof (u as any)?.username === "string" ? (u as any).username.trim() : "";
+      const password = typeof (u as any)?.password === "string" ? (u as any).password : "";
+      const role = normalizeRole((u as any)?.role);
       if (username && password && role) acc[username] = { password, role };
       return acc;
     }, {});
   }
+
+  // Object form: { "user": { password, role }, ... }
   if (typeof input === "object") {
     return Object.entries(input as Record<string, unknown>).reduce<Record<string, { password: string; role: Role }>>(
       (acc, [username, value]) => {
-        const password = typeof (value as any)?.password === "string" ? (value as any).password : "";
-        const role = normalizeRole((value as any)?.role);
+        const v = value as any;
+        const password = typeof v?.password === "string" ? v.password : "";
+        const role = normalizeRole(v?.role);
         if (username && password && role) acc[username] = { password, role };
         return acc;
       },
       {},
     );
   }
+
   return {};
 }
+
+
 
 const FALLBACK_BOOTSTRAP: Record<string, { password: string; role: Role }> = {
   master: { password: "1234", role: "SYSADMIN" },
