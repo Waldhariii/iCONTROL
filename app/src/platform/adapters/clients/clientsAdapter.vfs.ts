@@ -214,3 +214,12 @@ export function makeClientsAdapterVfs(vfs: VfsFacade): ClientsPort {
     },
   };
 }
+
+/**
+ * PHASE11/WAVE3.2.1
+ * Convenience export for UI surfaces that want the real port.
+ * Keep this import-safe: no side effects at import time.
+ */
+export function createClientsPortVfs(vfs: VfsFacade): ClientsPort {
+  return makeClientsAdapterVfs(vfs);
+}
