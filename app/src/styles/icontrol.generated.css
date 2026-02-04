@@ -1,0 +1,7 @@
+
+
+/* PHASE11_WAVE3_2_4: minimal utility classes for Clients surface (no inline styles) */
+.ic-page { padding: 16px; }
+.ic-toolbar { display: flex; gap: 12px; align-items: center; padding-bottom: 0; margin-bottom: 12px; }
+.ic-btn { padding: 10px 12px; }
+.ic-note { opacity: 0.65; }
