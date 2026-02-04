@@ -1,4 +1,6 @@
 import React from "react";
+import { getTenantIdSSOT } from "../../../core/tenant/tenantContext";
+import { newCorrelationIdSSOT } from "../../../core/observability/correlation";
 import { ClientsGrid } from "../../../ui/clients/ClientsGrid";
 import type { ClientRow } from "../../../core/domain/clients/types";
 
