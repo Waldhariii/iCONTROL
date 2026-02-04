@@ -26,7 +26,6 @@ const EXPECTED = [
   "makeTenantOnboardingPersistedFacade",
   "ModuleId",
   "ORCHESTRATOR_CONTRACT_ID",
-  "PolicyContext",
   "PolicyDecision",
   "PolicyEngineFacade",
   "REASON_CODES_V1",
