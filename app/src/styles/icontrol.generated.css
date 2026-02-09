@@ -105,3 +105,14 @@
   margin: 0 auto;
 }
 
+
+/* Error states */
+.error-state {
+  padding: 2rem;
+  color: #f85149;
+}
+
+.page-not-found {
+  padding: 2rem;
+  color: #9198a1;
+}
