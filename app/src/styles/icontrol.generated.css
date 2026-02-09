@@ -119,6 +119,30 @@
   color: var(--color-text-secondary, #9198a1);
 }
 
+/* ICONTROL_THEME_ADMIN_V1 */
+.ic-theme-page { padding: 24px; max-width: 980px; margin: 0 auto; display: grid; gap: 16px; }
+.ic-theme-header { display: grid; gap: 6px; }
+.ic-theme-title { font-size: 22px; font-weight: 700; margin: 0; color: var(--ic-text, var(--text-primary)); }
+.ic-theme-subtitle { margin: 0; opacity: 0.7; color: var(--ic-text, var(--text-primary)); }
+.ic-theme-card { background: var(--ic-panel, var(--bg-panel)); border: 1px solid var(--ic-border, var(--surface-border)); border-radius: 12px; padding: 16px; display: grid; gap: 16px; }
+.ic-theme-card--note { background: var(--ic-bg, var(--bg-app)); }
+.ic-theme-row { display: flex; gap: 16px; flex-wrap: wrap; }
+.ic-theme-stack { display: grid; gap: 6px; min-width: 180px; }
+.ic-theme-label { font-size: 12px; font-weight: 600; opacity: 0.7; }
+.ic-theme-select { height: 36px; padding: 0 12px; border-radius: 8px; border: 1px solid var(--ic-border, var(--surface-border)); background: var(--ic-inputBg, rgba(16,20,25,0.6)); color: var(--ic-text, var(--text-primary)); }
+.ic-theme-pill { padding: 8px 12px; border-radius: 999px; border: 1px solid var(--ic-border, var(--surface-border)); background: var(--ic-panel, var(--bg-panel)); color: var(--ic-text, var(--text-primary)); font-size: 12px; }
+.ic-theme-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+.ic-theme-field { display: grid; gap: 6px; }
+.ic-theme-field-label { font-size: 13px; font-weight: 600; color: var(--ic-text, var(--text-primary)); }
+.ic-theme-input { height: 36px; padding: 0 12px; border-radius: 8px; border: 1px solid var(--ic-border, var(--surface-border)); background: var(--ic-inputBg, rgba(16,20,25,0.6)); color: var(--ic-text, var(--text-primary)); font-size: 13px; }
+.ic-theme-field-hint { font-size: 11px; opacity: 0.6; }
+.ic-theme-actions { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+.ic-theme-btn { padding: 10px 16px; border-radius: 8px; border: 1px solid var(--ic-border, var(--surface-border)); background: var(--ic-panel, var(--bg-panel)); color: var(--ic-text, var(--text-primary)); font-weight: 600; cursor: pointer; }
+.ic-theme-btn--primary { background: var(--accent-primary); color: var(--ic-textOnAccent, #0b0d10); border-color: transparent; }
+.ic-theme-status { font-size: 12px; opacity: 0.75; }
+.ic-theme-section-title { margin: 0; font-size: 16px; font-weight: 700; color: var(--ic-text, var(--text-primary)); }
+.ic-theme-note { margin: 0; opacity: 0.7; color: var(--ic-text, var(--text-primary)); }
+
 .loading-state {
   padding: var(--spacing-4, 2rem);
   text-align: center;
@@ -216,6 +240,62 @@
 
 .gallery-card-body {
   color: var(--color-text-secondary, #9198a1);
+}
+
+/* Login (CP dev) */
+.login-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3, 1.5rem);
+}
+
+.login-title {
+  margin: 0;
+}
+
+.login-subtitle {
+  margin: 0;
+  color: var(--color-text-secondary, #9198a1);
+}
+
+.login-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3, 1.5rem);
+  max-width: 420px;
+  padding: var(--spacing-4, 2rem);
+  border: 1px solid var(--line, #2d333b);
+  border-radius: var(--radius-md, 8px);
+  background: var(--bg-surface, transparent);
+}
+
+.login-label {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-1, 0.5rem);
+  font-weight: 500;
+}
+
+.login-input {
+  padding: var(--spacing-2, 0.75rem);
+  border-radius: var(--radius-sm, 4px);
+  border: 1px solid var(--line, #2d333b);
+  background: transparent;
+  color: inherit;
+}
+
+.login-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.login-error {
+  color: var(--color-error, #f85149);
+}
+
+.login-hint {
+  color: var(--color-text-secondary, #9198a1);
+  font-size: 0.875rem;
 }
 
 /* UI states */

@@ -15,6 +15,11 @@
       window.location.replace(base + "#/dashboard");
       return;
     }
+    if (h === "#/login-theme" || h.startsWith("#/login-theme?") || h.startsWith("#/login-theme&")) {
+      const base = window.location.href.split("#")[0];
+      window.location.replace(base + "#/theme-studio");
+      return;
+    }
   } catch (_) {}
 })(); 
 // === CLIENT_V2_SSOT_BEGIN ===
@@ -130,7 +135,7 @@ export type RouteId =
   // CP routes (suffix _cp)
   "dashboard_cp" | "account_cp" | "settings_cp" | "settings_branding_cp" | "users_cp" | "system_cp" 
   | "developer_cp" | "developer_entitlements_cp" | "access_denied_cp" | "verification_cp" | "blocked_cp" | "notfound_cp"
-  | "toolbox_cp" | "ui_catalog_cp" | "runtime_smoke_cp" | "logs_cp" | "dossiers_cp" | "dynamic_test_cp" | "login_cp"
+  | "toolbox_cp" | "ui_catalog_cp" | "runtime_smoke_cp" | "logs_cp" | "dossiers_cp" | "dynamic_test_cp" | "login_cp" | "login_theme_cp"
   | "tenants_cp" | "entitlements_cp" | "pages_cp" | "feature-flags_cp" | "publish_cp" | "audit_cp" | "subscription_cp" | "integrations_cp"
   // APP routes (suffix _app)
   | "home_app" | "client_disabled_app" | "client_catalog_app" | "pages_inventory_app" | "access_denied_app" | "notfound_app";
@@ -244,7 +249,7 @@ export function getRouteId(): RouteId {
     if (seg === "__ui-catalog" || seg === "ui-catalog") return "ui_catalog_cp";
     if (seg === "runtime-smoke" || seg === "runtime_smoke") return "runtime_smoke_cp";
     if (seg === "blocked") return "blocked_cp";
-    if (seg === "login-theme") return "login_theme_cp";
+    if (seg === "login-theme" || seg === "theme-studio") return "login_theme_cp";
     if (seg === "ui-showcase") {
   /* ICONTROL_CP_UI_SHOWCASE_ROUTER_GUARD */
   if (!isDevOnlyAllowed()) {

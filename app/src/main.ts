@@ -162,6 +162,8 @@ import { applyClientV2Guards, bootRouter, RouteId } from "./router";
 /* ICONTROL_THEME_BOOTSTRAP_V1 — SSOT tokens -> CSS vars (generated) */
 import { renderRoute } from "./moduleLoader";
 import { getLogger } from "./platform/observability/logger";
+import { applyStoredThemeMode, installAutoThemeModeListener } from "./platform/theme/themeMode";
+import { applyGlobalThemeOverrides, readGlobalThemeOverrides } from "./platform/theme/globalThemeOverrides";
 
 const logger = getLogger("MAIN");
 
@@ -175,7 +177,7 @@ async function __ICONTROL_APPLY_THEME_SSOT__(): Promise<void> {
       : "CP";
     const root = document.documentElement;
     const themeId = kind === "CP" ? "cp-dashboard-charcoal" : "app-foundation-slate";
-    const themeMode = "dark";
+    const themeMode = applyStoredThemeMode(root);
     root.dataset["icThemeId"] = themeId;
     root.dataset["icThemeMode"] = themeMode;
     root.dataset["icThemeScope"] = kind === "CP" ? "cp.dashboard" : "app.foundation";
@@ -184,6 +186,8 @@ async function __ICONTROL_APPLY_THEME_SSOT__(): Promise<void> {
     } else {
       delete root.dataset["appKind"];
     }
+    installAutoThemeModeListener(root);
+    applyGlobalThemeOverrides(kind === "CP" ? "CP" : "APP", readGlobalThemeOverrides());
   } catch (e) {
     logger.warn("THEME_SSOT_BOOTSTRAP_FAILED", String(e));
   }

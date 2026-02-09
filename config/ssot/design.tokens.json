@@ -59,27 +59,50 @@
   "presets": {
     "cp-dashboard-charcoal": {
       "id": "cp-dashboard-charcoal",
-      "modes": ["dark"],
+      "modes": ["dark", "light"],
       "scope": "cp.dashboard",
-      "tokens": {
-        "appBgPrimary": "#0c0f12",
-        "appBgSecondary": "#12161b",
-        "appBgGradient": "#0c0f12",
-        "surface0": "#151a1f",
-        "surface1": "#171c22",
-        "surfaceBorder": "#262d35",
-        "textPrimary": "#e6e9ee",
-        "textMuted": "#9aa3ad",
-        "accentPrimary": "#5a8fff",
-        "accentGlow": "rgba(90,143,255,0.25)",
-        "shadowMd": "0 4px 14px rgba(0,0,0,0.28)",
-        "shadowLg": "0 8px 22px rgba(0,0,0,0.32)",
-        "cpLogin": {
-          "pageBg": "var(--app-bg-primary)",
-          "panelBg": "var(--surface-0)",
-          "cardBg": "var(--surface-1)",
-          "inputBg": "#101419",
-          "buttonBg": "var(--accent-primary)"
+      "tokensByMode": {
+        "dark": {
+          "appBgPrimary": "#0c0f12",
+          "appBgSecondary": "#12161b",
+          "appBgGradient": "#0c0f12",
+          "surface0": "#151a1f",
+          "surface1": "#171c22",
+          "surfaceBorder": "#262d35",
+          "textPrimary": "#e6e9ee",
+          "textMuted": "#9aa3ad",
+          "accentPrimary": "#5a8fff",
+          "accentGlow": "rgba(90,143,255,0.25)",
+          "shadowMd": "0 4px 14px rgba(0,0,0,0.28)",
+          "shadowLg": "0 8px 22px rgba(0,0,0,0.32)",
+          "cpLogin": {
+            "pageBg": "var(--app-bg-primary)",
+            "panelBg": "var(--surface-0)",
+            "cardBg": "var(--surface-1)",
+            "inputBg": "#101419",
+            "buttonBg": "var(--accent-primary)"
+          }
+        },
+        "light": {
+          "appBgPrimary": "#f7f8fb",
+          "appBgSecondary": "#eef1f6",
+          "appBgGradient": "linear-gradient(180deg, #f7f8fb 0%, #eef1f6 55%, #e6ebf3 100%)",
+          "surface0": "#ffffff",
+          "surface1": "#f6f8fc",
+          "surfaceBorder": "rgba(15,23,42,0.12)",
+          "textPrimary": "#0f172a",
+          "textMuted": "rgba(71,85,105,0.85)",
+          "accentPrimary": "#2b6bff",
+          "accentGlow": "rgba(43,107,255,0.18)",
+          "shadowMd": "0 10px 28px rgba(15,23,42,0.12)",
+          "shadowLg": "0 16px 40px rgba(15,23,42,0.14)",
+          "cpLogin": {
+            "pageBg": "var(--app-bg-gradient)",
+            "panelBg": "var(--surface-0)",
+            "cardBg": "var(--surface-1)",
+            "inputBg": "rgba(15,23,42,0.06)",
+            "buttonBg": "var(--accent-primary)"
+          }
         }
       }
     },

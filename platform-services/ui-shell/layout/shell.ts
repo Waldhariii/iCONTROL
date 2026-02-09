@@ -148,6 +148,7 @@ export function getDefaultNavItems(): NavItem[] {
     { id:"developer", label:"Outils", hash:"#/developer", show: ()=> isLoggedIn() },
     { id:"verification", label:"Audit", hash:"#/verification", show: ()=> isLoggedIn() },
     { id:"toolbox", label:"Diagnostic", hash:"#/toolbox", show: ()=> canAccessToolbox() },
+    { id:"theme-studio", label:"Theme Studio", hash:"#/theme-studio", show: ()=> canSeeSettings() },
     { id:"settings", label:"Paramètres", hash:"#/settings", show: ()=> canSeeSettings() },
   ];
 }

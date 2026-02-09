@@ -35,6 +35,19 @@ export async function renderCpPage(rid: RouteId, root: HTMLElement): Promise<voi
     return;
   }
 
+  if (rid === "login_theme_cp") {
+    root.innerHTML = '<div class="loading-state">Chargement...</div>';
+    try {
+      const module = await import("./login-theme/Page");
+      const Page = module.default;
+      await renderReactPage(root, Page);
+    } catch (err) {
+      root.innerHTML = '<div class="error-state">Error loading page</div>';
+      console.error("Failed to load login-theme page:", err);
+    }
+    return;
+  }
+
   if (rid === "login_cp") {
     try {
       const module = await import("./login/Page");
