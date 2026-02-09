@@ -1,6 +1,5 @@
-import { asStorage } from "./platform/storage/webStorage";
 import { navigate } from "./runtime/navigate";
-import { debug, info, warn, error } from "./platform/observability/logger";
+import { warn } from "./platform/observability/logger";
 import { isEnabled } from "./policies/feature_flags.enforce";
 import { createAuditHook } from "./core/write-gateway/auditHook";
 import { createLegacyAdapter } from "./core/write-gateway/adapters/legacyAdapter";
@@ -175,17 +174,6 @@ function clearSessionCookie(scope: AuthScope): void {
   }
 }
 
-// ICONTROL_LOCALAUTH_STORAGE_V1: test-safe storage fallback without core deps
-const mem = (() => {
-  const m = new Map<string, string>();
-  return {
-    getItem: (k: string) => (m.has(k) ? m.get(k)! : null),
-    setItem: (k: string, v: string) => void m.set(k, String(v)),
-    removeItem: (k: string) => void m.delete(k),
-    clear: () => void m.clear(),
-  } satisfies Pick<Storage, "getItem" | "setItem" | "removeItem" | "clear">;
-})();
-
 function getStorage(): Pick<Storage, "getItem" | "setItem" | "removeItem" | "clear"> {
   // Canonical storage selector:
   // - Browser: localStorage if available
@@ -248,13 +236,13 @@ export function isLoggedIn(scope: AuthScope = resolveAuthScope()): boolean {
   return !!getSession(scope);
 }
 
-type BootstrapUser = { username: string; password: string; role: Role };
-
 function normalizeRole(input: unknown): Role | null {
   const r = String(input || "").toUpperCase();
   if (r === "USER" || r === "ADMIN" || r === "SYSADMIN" || r === "DEVELOPER") return r as Role;
   return null;
-}function coerceUsers(input: unknown): Record<string, { password: string; role: Role }> {
+}
+
+function coerceUsers(input: unknown): Record<string, { password: string; role: Role }> {
   if (!input) return {};
 
   // Array form: [{ username, password, role }]
@@ -395,7 +383,7 @@ export function registerDevLoginHelper(): void {
       issuedAt: Date.now(),
     };
     if (!setSession(session)) {
-      void warn("WARN_CONSOLE_MIGRATED","console migrated", { payload: ("WARN_DEV_LOGIN_FAILED", "setSession_failed") });
+      void warn("WARN_CONSOLE_MIGRATED","console migrated", { payload: ["WARN_DEV_LOGIN_FAILED", "setSession_failed"] });
       return;
     }
     navigate("#/dashboard");

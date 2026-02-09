@@ -13,11 +13,11 @@ const TEMPLATES = (matrix as { templates: Record<string, Template> }).templates 
 export function getEnabledPagesForPlan(plan: string): string[] {
   const t = TEMPLATES[String(plan).toUpperCase() as Plan];
   if (t && Array.isArray(t.enabled_pages)) return t.enabled_pages;
-  return (TEMPLATES.FREE as Template)?.enabled_pages || ["home_app","pages_inventory_app","client_catalog_app","access_denied_app","notfound_app","login_cp","dashboard_cp","access_denied_cp","blocked_cp","notfound_cp"];
+  return (TEMPLATES["FREE"] as Template)?.enabled_pages || ["home_app","pages_inventory_app","client_catalog_app","access_denied_app","notfound_app","login_cp","dashboard_cp","access_denied_cp","blocked_cp","notfound_cp"];
 }
 
 export function getEnabledCapabilitiesForPlan(plan: string): string[] {
   const t = TEMPLATES[String(plan).toUpperCase() as Plan];
   if (t && Array.isArray(t.enabled_capabilities)) return t.enabled_capabilities;
-  return (TEMPLATES.FREE as Template)?.enabled_capabilities || ["CORE_SYSTEM"];
+  return (TEMPLATES["FREE"] as Template)?.enabled_capabilities || ["CORE_SYSTEM"];
 }

@@ -41,16 +41,19 @@ export async function cpWriteTenantOverrides(input: {
     await writeTenantOverrides({
       tenantId: input.tenantId,
       overrides: input.overrides,
-      actorId: input.actorId,
+      ...(input.actorId ? { actorId: input.actorId } : {}),
     });
 
-    const hyd = await hydrateTenantOverrides({ tenantId: input.tenantId, actorId: input.actorId });
+    const hyd = await hydrateTenantOverrides({
+      tenantId: input.tenantId,
+      ...(input.actorId ? { actorId: input.actorId } : {}),
+    });
 
     info("OK", "CP wrote tenant overrides + hydrated", { tenantId: input.tenantId, actorId: input.actorId }, { hydrated: hyd.ok, source: (hyd as any).source });
     setTenantOverridesProvenance({
       tenantId: input.tenantId,
       at: new Date().toISOString(),
-      actorId: input.actorId,
+      ...(input.actorId ? { actorId: input.actorId } : {}),
       safeMode: { enabled: false },
       overrides: {
         attempted: true,

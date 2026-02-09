@@ -1,4 +1,6 @@
 /* import "./client-foundation.css"; — désactivé: styles visuels retirés */
+import { useTenantContext } from '@/core/tenant/tenantContext';
+
 export function renderClientDisabled(root: HTMLElement): void {
   root.innerHTML = `
     <div data-scope="client-foundation">

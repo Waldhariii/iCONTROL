@@ -86,7 +86,7 @@ export function createPageShell(options: PageShellOptions): {
         label: action.label,
         variant: action.primary ? "primary" : "secondary",
         size: "small",
-        icon: action.icon,
+        ...(action.icon ? { icon: action.icon } : {}),
         onClick: () => action.onClick()
       });
       actions.appendChild(btn);

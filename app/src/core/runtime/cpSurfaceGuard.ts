@@ -42,7 +42,7 @@ export function guardCpSurface(params: {
   const tm = enforceTenantMatrix({
     tenantId: params.tenantId,
     requiredPage: params.surfaceKey,
-    requiredCapability: requiredCapability,
+    ...(requiredCapability ? { requiredCapability } : {}),
   });
 
   if (!tm.allow) {

@@ -19,8 +19,6 @@ export function getRuntimeConfigSnapshot(): LoadedRuntimeConfig {
 
   const metaBase = {
     source: "default" as const,
-    filePath: undefined as string | undefined,
-    sha256: undefined as string | undefined,
     loadedAt,
     mode: "dev" as const, // browser-side; prod fail-closed happens server-side
   };

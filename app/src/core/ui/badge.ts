@@ -8,7 +8,7 @@ export function createBadge(label: string, tone: BadgeTone = "neutral"): HTMLEle
   const badge = document.createElement("span");
   badge.textContent = label;
   badge.className = "ic-badge";
-  badge.dataset.tone = tone;
+  badge.dataset["tone"] = tone;
   return badge;
 }
 

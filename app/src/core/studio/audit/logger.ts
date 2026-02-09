@@ -14,15 +14,33 @@ export class AuditLogger {
   }
 
   info(category: string, action: string, message?: string, meta?: Record<string, unknown>): void {
-    this.emit({ level: "INFO", category, action, message, meta });
+    this.emit({
+      level: "INFO",
+      category,
+      action,
+      ...(message !== undefined ? { message } : {}),
+      ...(meta !== undefined ? { meta } : {}),
+    });
   }
 
   warn(category: string, action: string, message?: string, meta?: Record<string, unknown>): void {
-    this.emit({ level: "WARN", category, action, message, meta });
+    this.emit({
+      level: "WARN",
+      category,
+      action,
+      ...(message !== undefined ? { message } : {}),
+      ...(meta !== undefined ? { meta } : {}),
+    });
   }
 
   error(category: string, action: string, message?: string, meta?: Record<string, unknown>): void {
-    this.emit({ level: "ERROR", category, action, message, meta });
+    this.emit({
+      level: "ERROR",
+      category,
+      action,
+      ...(message !== undefined ? { message } : {}),
+      ...(meta !== undefined ? { meta } : {}),
+    });
   }
 }
 

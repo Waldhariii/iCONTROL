@@ -65,15 +65,15 @@ export async function writeTenantSafeMode(input: {
   const rec: TenantSafeModeRecord = {
     schemaVersion: 1,
     enabled: input.enabled,
-    reason: input.reason,
     at: new Date().toISOString(),
-    updatedBy: input.actorId,
+    ...(input.reason ? { reason: input.reason } : {}),
+    ...(input.actorId ? { updatedBy: input.actorId } : {}),
   };
 
   const ctx: PolicyContext = {
     appKind: "CP",
     tenantId: input.tenantId,
-    userId: input.actorId,
+    ...(input.actorId ? { userId: input.actorId } : {}),
     roles: [],
     entitlements: {},
     safeMode: false,

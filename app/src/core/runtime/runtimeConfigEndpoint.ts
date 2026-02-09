@@ -44,8 +44,8 @@ export function registerRuntimeConfigEndpoint(): void {
   registered = true;
 
   const w = window as unknown as Record<string, unknown>;
-  if (!w.__ICONTROL_RUNTIME_CONFIG_SHIM__) {
-    w.__ICONTROL_RUNTIME_CONFIG_SHIM__ = {
+  if (!w["__ICONTROL_RUNTIME_CONFIG_SHIM__"]) {
+    w["__ICONTROL_RUNTIME_CONFIG_SHIM__"] = {
       v: 1,
       devOnly: true,
       installed_at: Date.now(),

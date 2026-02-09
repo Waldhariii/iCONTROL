@@ -4,6 +4,7 @@ import { executePlan } from "../../core/studio/runtime/execute";
 import { safeRender } from "../../core/studio/engine";
 import { createDefaultRegistry } from "../../core/studio/registry/defaults";
 import { asRegistryLike } from "../../core/studio/runtime/adapters/registry-adapter";
+import type { BlueprintDoc } from "../../core/studio/blueprints/types";
 
 function el<K extends keyof HTMLElementTagNameMap>(
   tag: K,
@@ -20,8 +21,8 @@ export function renderRuntimeSmoke(mount: HTMLElement): void {
   mount.innerHTML = "";
   mount.appendChild(el("h2", {}, "Runtime Smoke Test"));
 
-  const blueprint = {
-    meta: { kind: "studio", version: 1 },
+  const blueprint: BlueprintDoc = {
+    meta: { kind: "presentation", version: 1 },
     data: {
       blocks: [
         { type: "text", text: "Hello iCONTROL runtime" },

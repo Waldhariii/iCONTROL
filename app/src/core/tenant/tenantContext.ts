@@ -1,3 +1,5 @@
+import React, { createContext, useContext, type ReactNode } from "react";
+
 /**
  * SSOT tenant context resolver.
  * - Import-safe: no side effects at module load.
@@ -25,4 +27,37 @@ export function getTenantIdSSOT(): string {
     // ignore
   }
   return "default";
+}
+
+interface TenantContextValue {
+  tenantId: string;
+  tenantName?: string;
+}
+
+const TenantContext = createContext<TenantContextValue | null>(null);
+
+interface TenantProviderProps {
+  children: ReactNode;
+  tenantId: string;
+  tenantName?: string;
+}
+
+export function TenantProvider({ children, tenantId, tenantName }: TenantProviderProps) {
+  const value = {
+    tenantId,
+    ...(typeof tenantName === "string" ? { tenantName } : {}),
+  };
+  return React.createElement(
+    TenantContext.Provider,
+    { value },
+    children,
+  );
+}
+
+export function useTenantContext(): TenantContextValue {
+  const context = useContext(TenantContext);
+  if (!context) {
+    throw new Error("useTenantContext must be used within TenantProvider");
+  }
+  return context;
 }

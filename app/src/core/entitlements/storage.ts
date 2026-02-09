@@ -51,13 +51,19 @@ function isObject(v: unknown): v is Record<string, unknown> {
 function coerceEntitlements(v: unknown): Entitlements {
   if (!isObject(v)) return DEFAULT_ENTITLEMENTS;
 
-  const plan = (v.plan === "PRO" || v.plan === "ENTERPRISE" || v.plan === "FREE") ? v.plan : "FREE";
-  const modules = isObject(v.modules) ? Object.fromEntries(
-    Object.entries(v.modules).map(([k, val]) => [k, Boolean(val)])
+  const planValue = v["plan"];
+  const plan = (planValue === "PRO" || planValue === "ENTERPRISE" || planValue === "FREE") ? planValue : "FREE";
+  const modulesValue = v["modules"];
+  const modules = isObject(modulesValue) ? Object.fromEntries(
+    Object.entries(modulesValue).map(([k, val]) => [k, Boolean(val)])
   ) : {};
-  const expiresAtMs = typeof v.expiresAtMs === "number" ? v.expiresAtMs : undefined;
+  const expiresAtMs = typeof v["expiresAtMs"] === "number" ? v["expiresAtMs"] : undefined;
 
-  const e: Entitlements = { plan, modules, expiresAtMs };
+  const e: Entitlements = {
+    plan,
+    modules,
+    ...(typeof expiresAtMs === "number" ? { expiresAtMs } : {}),
+  };
   // expiry governance
   if (typeof e.expiresAtMs === "number" && Date.now() > e.expiresAtMs) {
     return DEFAULT_ENTITLEMENTS;

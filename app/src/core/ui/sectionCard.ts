@@ -70,7 +70,7 @@ export function createSectionCard(options: SectionCardOptions): {
         label: action.label,
         variant: action.primary ? "primary" : "secondary",
         size: "small",
-        icon: action.icon,
+        ...(action.icon ? { icon: action.icon } : {}),
         onClick: (e) => { e.stopPropagation(); action.onClick(); }
       });
       actions.appendChild(btn);

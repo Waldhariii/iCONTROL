@@ -19,7 +19,7 @@ export function resolveDatasource(def: DatasourceDef, storage: Storage): Record<
     }
   }
   if (def.type === "localStorage") {
-    const key = String(def.config?.key || "");
+    const key = String(def.config?.["key"] || "");
     if (!key) return [];
     try {
       return JSON.parse(storage.getItem(key) || "[]");
@@ -28,7 +28,7 @@ export function resolveDatasource(def: DatasourceDef, storage: Storage): Record<
     }
   }
   if (def.type === "static") {
-    return (def.config?.records as Record<string, unknown>[]) || [];
+    return (def.config?.["records"] as Record<string, unknown>[]) || [];
   }
   return [];
 }

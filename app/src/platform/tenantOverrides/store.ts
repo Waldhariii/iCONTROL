@@ -5,7 +5,7 @@ import type { PolicyContext } from "../policy/types";
 import { vfsSet } from "../vfs-write/writeGateway";
 import { Vfs, type VfsScope } from "../storage/vfs";
 
-function sha256BrowserSafe(s: string): string | undefined {
+function sha256BrowserSafe(_s: string): string | undefined {
   // Avoid Node imports; this is best-effort. Hash is optional metadata.
   try {
     const g: any = globalThis as any;
@@ -31,9 +31,10 @@ export async function readTenantOverrides(tenantId: string): Promise<{ overrides
   }
 
   const parsed = validateTenantOverrides(JSON.parse(raw));
+  const hash = sha256BrowserSafe(raw);
   return {
     overrides: parsed,
-    meta: { tenantId, source: "vfs", sha256: sha256BrowserSafe(raw) },
+    meta: { tenantId, source: "vfs", ...(hash ? { sha256: hash } : {}) },
   };
 }
 
@@ -53,7 +54,7 @@ export async function writeTenantOverrides(input: {
   const ctx: PolicyContext = {
     appKind: "CP",
     tenantId: input.tenantId,
-    userId: input.actorId,
+    ...(input.actorId ? { userId: input.actorId } : {}),
     roles: [],
     entitlements: {},
     safeMode: false,

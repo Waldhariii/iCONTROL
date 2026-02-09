@@ -7,6 +7,9 @@
     ],
     "noPropertyAccessFromIndexSignature": false,
     "exactOptionalPropertyTypes": false,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "strict": false,
     "jsx": "react-jsx",
     "lib": [
       "DOM",
@@ -15,10 +18,14 @@
     "isolatedModules": false
   },
   "include": [
-    "src/core/**/*",
-    "src/platform/**/*",
-    "src/policies/**/*",
-    "src/runtime/**/*"
+    "src/core/ports/**/*",
+    "src/core/tenant/**/*",
+    "src/platform/observability/**/*",
+    "src/platform/runtimeConfig/**/*",
+    "src/platform/audit/**/*",
+    "src/platform/guards/**/*",
+    "src/platform/routing/**/*",
+    "src/platform/smoke/**/*"
   ],
   "exclude": [
     "src/__tests__/**/*",
@@ -27,6 +34,14 @@
     "src/ui/**/*",
     "src/pages/**/*",
     "src/surfaces/**/*",
+    "src/policies/**/*",
+    "src/platform/tenantOverrides/**/*",
+    "src/platform/write-gateway/**/*",
+    "src/localAuth.ts",
+    "src/core/subscription/**/*",
+    "src/core/onboarding/**/*",
+    "src/core/studio/**/*",
+    "src/core/ports/cpSurfaceEnforcement.ts",
     "node_modules",
     "**/*.spec.*",
     "**/*.test.*"

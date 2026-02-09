@@ -1,3 +1,5 @@
+import { useTenantContext } from '@/core/tenant/tenantContext';
+
 /**
  * ICONTROL_APP_PAGES_INVENTORY_V1
  * Pages Inventory — Complete listing of all APP pages (active/inactive) from ROUTE_CATALOG and registry

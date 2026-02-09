@@ -57,13 +57,6 @@
     var h = String(location.hash || "");
     var u = String(location.href || "");
 
-    // Badge persistant (preuve d'exécution)
-    var b = document.createElement("div");
-    b.id = "icontrol-cp-v3";
-    b.style.cssText = "position:fixed;z-index:2147483647;top:10px;right:10px;padding:8px 10px;border-radius:10px;background:#b00020;color:#fff;font:12px -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Arial,sans-serif;box-shadow:0 8px 24px rgba(0,0,0,.35)";
-    b.textContent = "CP V3 running • hash=" + h;
-    document.documentElement.appendChild(b);
-
     console.log("[CP_V3] running", {href:u, hash:h, ts:ts});
 
     function goDash(reason){
@@ -77,7 +70,6 @@
         var t = setInterval(function(){
           n++;
           var hh = String(location.hash||"");
-          b.textContent = "CP V3 running • hash=" + hh + " • n=" + n;
           if (hh === "#/dashboard" || hh.indexOf("#/dashboard?")===0 || hh.indexOf("#/dashboard&")===0) {
             clearInterval(t);
             console.log("[CP_V3] dashboard confirmed");

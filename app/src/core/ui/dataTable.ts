@@ -92,9 +92,9 @@ export function createDataTable<T extends Record<string, unknown>>(
               : " ↕";
             h.textContent = c.label + icon;
             if (currentSort?.key === c.key) {
-              h.dataset.sortActive = "1";
+              h.dataset["sortActive"] = "1";
             } else {
-              delete h.dataset.sortActive;
+              delete h.dataset["sortActive"];
             }
           }
         });

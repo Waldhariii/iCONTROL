@@ -25,7 +25,6 @@ import { readTenantOverrides } from "./store";
 import { guardTenantOverrides } from "./guard";
 import { setTenantOverridesProvenance } from "./provenance";
 import { isTenantOverridesSafeMode, getTenantOverridesSafeModeState } from "./safeMode";
-import { enableTenantOverridesSafeMode } from "./safeMode";
 import { setTenantOverridesCache } from "./cache";
 import { warn, info, WARN } from "../observability";
 
@@ -38,17 +37,17 @@ import { warn, info, WARN } from "../observability";
  * - On read failure, cache is not mutated and defaults apply.
  */
 export async function hydrateTenantOverrides(input: { tenantId: string; actorId?: string }) {
-  const emitProv = (p: any) => {
-    try { setTenantOverridesProvenance(p); } catch {}
-  };
-
   if (isTenantOverridesSafeMode(input.tenantId)) {
     const sm = getTenantOverridesSafeModeState(input.tenantId);
     setTenantOverridesProvenance({
       tenantId: input.tenantId,
       at: new Date().toISOString(),
-      actorId: input.actorId,
-      safeMode: { enabled: true, reason: sm?.reason, persistedEnabled: true },
+      ...(input.actorId ? { actorId: input.actorId } : {}),
+      safeMode: {
+        enabled: true,
+        persistedEnabled: true,
+        ...(sm?.reason ? { reason: sm.reason } : {}),
+      },
       overrides: { attempted: false, applied: false },
       decision: "IGNORED_SAFE_MODE",
     });
@@ -63,7 +62,7 @@ export async function hydrateTenantOverrides(input: { tenantId: string; actorId?
       setTenantOverridesProvenance({
         tenantId: input.tenantId,
         at: new Date().toISOString(),
-        actorId: input.actorId,
+        ...(input.actorId ? { actorId: input.actorId } : {}),
         safeMode: { enabled: false },
         overrides: {
           attempted: true,
@@ -81,7 +80,7 @@ export async function hydrateTenantOverrides(input: { tenantId: string; actorId?
     setTenantOverridesProvenance({
       tenantId: input.tenantId,
       at: new Date().toISOString(),
-      actorId: input.actorId,
+      ...(input.actorId ? { actorId: input.actorId } : {}),
       safeMode: { enabled: false },
       overrides: {
         attempted: true,
@@ -99,7 +98,7 @@ export async function hydrateTenantOverrides(input: { tenantId: string; actorId?
     setTenantOverridesProvenance({
       tenantId: input.tenantId,
       at: new Date().toISOString(),
-      actorId: input.actorId,
+      ...(input.actorId ? { actorId: input.actorId } : {}),
       safeMode: { enabled: false },
       overrides: { attempted: true, applied: false },
       decision: "FAILED_READ",

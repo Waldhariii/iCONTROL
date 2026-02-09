@@ -92,7 +92,8 @@ function renderOp(op: RenderOp, registry?: RegistryLike): string {
 
 function renderBuiltinTable(props: Record<string, unknown>): string {
   const normalized = normalizeTable(props);
-  const title = typeof props.title === "string" ? props.title : "Table";
+  const titleValue = props["title"];
+  const title = typeof titleValue === "string" ? titleValue : "Table";
   const caption = typeof (props as any).caption === "string" ? (props as any).caption : "";
   const emptyText = typeof (props as any).emptyText === "string" ? (props as any).emptyText : "(empty)";
 
@@ -171,8 +172,10 @@ function normalizeTable(input: Record<string, unknown>): { columns: string[]; ro
 }
 
 function renderBuiltinForm(props: Record<string, unknown>): string {
-  const title = typeof props.title === "string" ? props.title : "Form";
-  const fields = Array.isArray(props.fields) ? props.fields : [];
+  const titleValue = props["title"];
+  const title = typeof titleValue === "string" ? titleValue : "Form";
+  const fieldsValue = props["fields"];
+  const fields = Array.isArray(fieldsValue) ? fieldsValue : [];
 
   const body = fields.length
     ? fields.map((f, i) => {

@@ -11,13 +11,13 @@ export async function adminSetActivePlan(args: {
   startedAtIso: string;
   expiresAtIso?: string;
 }): Promise<void> {
-    const store = await getSubscriptionStore();
+  const store = await getSubscriptionStore();
   const reg = new SubscriptionRegistry(store);
   await reg.setActivePlan({
     tenantId: args.tenantId,
     planId: (args.planId as any),
     startedAt: args.startedAtIso,
-    expiresAt: args.expiresAtIso,
+    ...(args.expiresAtIso ? { expiresAt: args.expiresAtIso } : {}),
   });
 
   // touch service resolve path to keep behaviour deterministic
@@ -29,7 +29,7 @@ export async function adminCancel(args: {
   tenantId: string;
   canceledAtIso: string;
 }): Promise<void> {
-    const store = await getSubscriptionStore();
+  const store = await getSubscriptionStore();
   const reg = new SubscriptionRegistry(store);
   await reg.cancel({ tenantId: args.tenantId, canceledAt: args.canceledAtIso });
 

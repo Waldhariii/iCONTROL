@@ -29,9 +29,9 @@ export async function storeGetTenant(deps: StoreDeps, tenantKey: TenantKey): Pro
 
 export async function storePutTenant(deps: StoreDeps, tenant: TenantRecord): Promise<{ ok: true } | { ok: false; reason: string }> {
   const snap = await deps.snapshot.createSnapshot(`tenant:${tenant.tenantKey}`);
-  if (!snap.ok) return { ok: false, reason: snap.reason };
+  if (snap.ok === false) return { ok: false, reason: snap.reason };
 
   const w = await deps.vfs.writeUtf8(tenantPath(tenant.tenantKey), stableJson(tenant));
-  if (!w.ok) return { ok: false, reason: w.reason };
+  if (w.ok === false) return { ok: false, reason: w.reason };
   return { ok: true };
 }

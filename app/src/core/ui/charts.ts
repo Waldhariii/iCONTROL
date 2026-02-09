@@ -34,7 +34,9 @@ function addText(svg: SVGSVGElement, x: number, y: number, text: string, classNa
 }
 
 export function createLineChart(data: number[], widthOrOpts: number | LineChartOptions = 320, height?: number): HTMLElement {
-  const opts: LineChartOptions = typeof widthOrOpts === "object" ? widthOrOpts : { width: widthOrOpts, height };
+  const opts: LineChartOptions = typeof widthOrOpts === "object"
+    ? widthOrOpts
+    : { width: widthOrOpts, ...(height !== undefined ? { height } : {}) };
   const width = opts.width ?? 320;
   const h = opts.height ?? height ?? 140;
 
@@ -94,7 +96,9 @@ export function createLineChart(data: number[], widthOrOpts: number | LineChartO
 }
 
 export function createBarChart(data: number[], widthOrOpts: number | BarChartOptions = 320, height?: number): HTMLElement {
-  const opts: BarChartOptions = typeof widthOrOpts === "object" ? widthOrOpts : { width: widthOrOpts, height };
+  const opts: BarChartOptions = typeof widthOrOpts === "object"
+    ? widthOrOpts
+    : { width: widthOrOpts, ...(height !== undefined ? { height } : {}) };
   const width = opts.width ?? 320;
   const h = opts.height ?? height ?? 140;
 
@@ -145,7 +149,9 @@ export function createStackedBarChart(
   widthOrOpts: number | StackedBarChartOptions = 320,
   height?: number
 ): HTMLElement {
-  const opts: StackedBarChartOptions = typeof widthOrOpts === "object" ? widthOrOpts : { width: widthOrOpts, height };
+  const opts: StackedBarChartOptions = typeof widthOrOpts === "object"
+    ? widthOrOpts
+    : { width: widthOrOpts, ...(height !== undefined ? { height } : {}) };
   const width = opts.width ?? 320;
   const h = opts.height ?? height ?? 140;
 
@@ -249,8 +255,8 @@ export type ChartCardOptions = {
 export function createChartCard(options: ChartCardOptions): HTMLElement {
   const { card, body } = createSectionCard({
     title: options.title,
-    description: options.description,
-    icon: options.icon
+    ...(options.description ? { description: options.description } : {}),
+    ...(options.icon ? { icon: options.icon } : {}),
   });
 
   switch (options.type) {
@@ -270,13 +276,11 @@ export function createChartCard(options: ChartCardOptions): HTMLElement {
       body.appendChild(createDonutChart(options.series, { size: options.size ?? 160 }));
       break;
     case "gauge":
-      body.appendChild(
-        createGaugeChart(options.value, options.max, {
-          label: options.label,
-          segments: options.segments,
-          size: options.size ?? 160
-        })
-      );
+      body.appendChild(createGaugeChart(options.value, options.max, {
+        size: options.size ?? 160,
+        ...(options.label ? { label: options.label } : {}),
+        ...(options.segments ? { segments: options.segments } : {}),
+      }));
       break;
   }
 
@@ -337,7 +341,7 @@ export function createDonutChart(series: ChartSeries[], sizeOrOpts: number | Don
     const swatch = document.createElement("span");
     swatch.className = "ic-chart__swatch";
     if (s.color) swatch.style.backgroundColor = s.color;
-    else swatch.dataset.series = String(idx % 4);
+    else swatch.dataset["series"] = String(idx % 4);
     item.appendChild(swatch);
     const txt = document.createElement("span");
     txt.textContent = (s.label || "") + " " + pct + "%";

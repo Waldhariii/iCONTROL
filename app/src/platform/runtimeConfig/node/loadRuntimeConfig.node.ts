@@ -46,6 +46,7 @@ export function loadRuntimeConfig(cwd = process.cwd()): LoadedRuntimeConfig {
         sha256: sha256(r.text),
         loadedAt,
         mode,
+        schemaVersion: raw?.schemaVersion ?? 1,
       };
       return validateRuntimeConfig(raw, metaBase);
     }
@@ -66,6 +67,7 @@ export function loadRuntimeConfig(cwd = process.cwd()): LoadedRuntimeConfig {
       sha256: sha256(ex.text),
       loadedAt,
       mode,
+      schemaVersion: raw?.schemaVersion ?? 1,
     };
     return validateRuntimeConfig(raw, metaBase);
   }
@@ -73,10 +75,9 @@ export function loadRuntimeConfig(cwd = process.cwd()): LoadedRuntimeConfig {
   // 3) hard default
   const metaBase = {
     source: "default" as const,
-    filePath: undefined,
-    sha256: undefined,
     loadedAt,
     mode,
+    schemaVersion: 1,
   };
   return validateRuntimeConfig({}, metaBase);
 }

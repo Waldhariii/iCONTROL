@@ -1,4 +1,6 @@
 
+import { useTenantContext } from '@/core/tenant/tenantContext';
+
 /* ICONTROL_LOGS_ROUTE_CHECK_V2: required by [logs-route-check] (do not remove)
    NOTE: We do NOT write to location.hash here (SSOT forbids it outside gateway/tests).
    The next line keeps the exact string for grep-based gate only: */

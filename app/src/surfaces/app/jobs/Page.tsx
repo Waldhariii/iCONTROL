@@ -1,4 +1,6 @@
 import React from "react";
+import { useTenantContext } from '@/core/tenant/tenantContext';
+
 import { newCorrelationIdSSOT } from "../../../core/observability/correlation";
 import { getTenantIdSSOT } from "../../../core/tenant/tenantContext";
 import { definePageSpec } from "../_governance/pageSpec";

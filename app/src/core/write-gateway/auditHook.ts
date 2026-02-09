@@ -1,5 +1,5 @@
 import { getLogger } from "../utils/logger";
-import type { WriteResult, WriteCommand } from "./contracts";
+import type { WriteResult } from "./contracts";
 
 export type AuditEntry = {
   kind: string;

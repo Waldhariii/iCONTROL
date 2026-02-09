@@ -3,4 +3,6 @@ export type RuleErr = { ok: false; reason: "invalid_input" | "blocked" | "not_ap
 export type RuleResult<T = unknown> = RuleOk<T> | RuleErr;
 
 export function ok<T>(value: T): RuleOk<T> { return { ok: true, value }; }
-export function err(reason: RuleErr["reason"], detail?: string): RuleErr { return { ok: false, reason, detail }; }
+export function err(reason: RuleErr["reason"], detail?: string): RuleErr {
+  return { ok: false, reason, ...(detail ? { detail } : {}) };
+}

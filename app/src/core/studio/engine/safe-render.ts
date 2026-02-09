@@ -11,7 +11,7 @@ export function safeRender(input: unknown): SafeRenderResult {
   try {
     if (!isString(input) || input.trim().length === 0) return invalid("expected_non_empty_string");
     const verdict = isHtmlSafe(input);
-    if (!verdict.ok) return blocked(verdict.detail);
+    if (verdict.ok === false) return blocked(verdict.detail);
     return { ok: true, html: input };
   } catch (e) {
     return internal(e instanceof Error ? e.message : "unknown");

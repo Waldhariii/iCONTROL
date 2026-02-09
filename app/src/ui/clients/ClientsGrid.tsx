@@ -15,28 +15,32 @@ type Props = {
 
 export function ClientsGrid(p: Props) {
   return (
-    <div style={{ padding: 16 }}>
-      <h2 style={{ margin: "0 0 12px 0" }}>Clients</h2>
+    <div className="ic-clients-page">
+      <h2 className="ic-clients-title">Clients</h2>
 
-      <div style={{ display: "flex", gap: 12, alignItems: "center", marginBottom: 12 }}>
+      <div className="ic-clients-toolbar">
         <input
           value={p.q}
           onChange={(e) => p.onQChange(e.target.value)}
           placeholder="Recherche (nom, email, ville)"
-          style={{ padding: 10, minWidth: 340 }}
+          className="ic-clients-input"
         />
-        <select value={p.status} onChange={(e) => p.onStatusChange(e.target.value as any)} style={{ padding: 10 }}>
+        <select
+          value={p.status}
+          onChange={(e) => p.onStatusChange(e.target.value as any)}
+          className="ic-clients-select"
+        >
           <option value="all">Tous</option>
           <option value="active">Actifs</option>
           <option value="inactive">Inactifs</option>
         </select>
-        <div style={{ opacity: 0.7 }}>Total: {p.total}</div>
+        <div className="ic-clients-total">Total: {p.total}</div>
       </div>
 
-      <div style={{ overflow: "auto", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 10 }}>
-        <table style={{ width: "100%", borderCollapse: "collapse" }}>
+      <div className="ic-clients-table-wrap">
+        <table className="ic-clients-table">
           <thead>
-            <tr style={{ background: "rgba(255,255,255,0.06)" }}>
+            <tr className="ic-clients-head-row">
               {[
                 ["name", "Nom"],
                 ["email", "Email"],
@@ -47,18 +51,12 @@ export function ClientsGrid(p: Props) {
               ].map(([k, label]) => {
                 const key = k as keyof ClientRow;
                 const active = p.sortKey === key;
+                const thClass = active ? "ic-clients-th ic-clients-th--active" : "ic-clients-th";
                 return (
                   <th
                     key={k}
                     onClick={() => p.onSort(key)}
-                    style={{
-                      textAlign: "left",
-                      padding: "10px 12px",
-                      cursor: "pointer",
-                      userSelect: "none",
-                      whiteSpace: "nowrap",
-                      opacity: active ? 1 : 0.85,
-                    }}
+                    className={thClass}
                   >
                     {label}{active ? (p.sortDir === "asc" ? " ▲" : " ▼") : ""}
                   </th>
@@ -68,18 +66,18 @@ export function ClientsGrid(p: Props) {
           </thead>
           <tbody>
             {p.rows.map((r) => (
-              <tr key={r.id} style={{ borderTop: "1px solid rgba(255,255,255,0.08)" }}>
-                <td style={{ padding: "10px 12px" }}>{r.name}</td>
-                <td style={{ padding: "10px 12px" }}>{r.email ?? ""}</td>
-                <td style={{ padding: "10px 12px" }}>{r.phone ?? ""}</td>
-                <td style={{ padding: "10px 12px" }}>{r.city ?? ""}</td>
-                <td style={{ padding: "10px 12px" }}>{r.status}</td>
-                <td style={{ padding: "10px 12px", whiteSpace: "nowrap" }}>{new Date(r.updatedAt).toLocaleString()}</td>
+              <tr key={r.id} className="ic-clients-row">
+                <td className="ic-clients-td">{r.name}</td>
+                <td className="ic-clients-td">{r.email ?? ""}</td>
+                <td className="ic-clients-td">{r.phone ?? ""}</td>
+                <td className="ic-clients-td">{r.city ?? ""}</td>
+                <td className="ic-clients-td">{r.status}</td>
+                <td className="ic-clients-td ic-clients-td--nowrap">{new Date(r.updatedAt).toLocaleString()}</td>
               </tr>
             ))}
             {!p.rows.length && (
               <tr>
-                <td colSpan={6} style={{ padding: 16, opacity: 0.7 }}>Aucun résultat.</td>
+                <td colSpan={6} className="ic-clients-empty">Aucun résultat.</td>
               </tr>
             )}
           </tbody>

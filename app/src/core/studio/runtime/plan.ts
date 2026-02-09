@@ -45,39 +45,39 @@ export function compilePlan(doc: BlueprintDoc): ReturnType<typeof ok<RenderPlan>
     const ops: RenderOp[] = [];
 
     // 1) data.ops[] passthrough (highest ROI / lowest risk)
-    const opsArr = asArr(data.ops);
+    const opsArr = asArr(data["ops"]);
     if (opsArr) {
       for (const raw of opsArr) {
         const o = asObj(raw);
         if (!o) continue;
-        const op = o.op;
+        const op = o["op"];
         if (op === "text") {
-          pushText(ops, o.value ?? "");
+          pushText(ops, o["value"] ?? "");
         } else if (op === "component") {
-          pushComponent(ops, o.id ?? "unknown");
+          pushComponent(ops, o["id"] ?? "unknown");
         }
       }
       if (ops.length) return ok({ ops });
     }
 
     // 2) data.components[] -> component ops
-    const comps = asArr(data.components);
+    const comps = asArr(data["components"]);
     if (comps) {
       for (const c of comps) {
         const o = asObj(c);
-        if (o && "id" in o) pushComponent(ops, (o as any).id);
+        if (o && "id" in o) pushComponent(ops, (o as any)["id"]);
         else pushComponent(ops, c);
       }
       if (ops.length) return ok({ ops });
     }
 
     // 3) data.pages[].blocks[] (common blueprint pattern)
-    const pages = asArr(data.pages);
+    const pages = asArr(data["pages"]);
     if (pages) {
       for (const p of pages) {
         const po = asObj(p);
         if (!po) continue;
-        const blocks = asArr(po.blocks);
+        const blocks = asArr(po["blocks"]);
         if (!blocks) continue;
 
         for (const b of blocks) {
@@ -86,13 +86,13 @@ export function compilePlan(doc: BlueprintDoc): ReturnType<typeof ok<RenderPlan>
 
           // Prefer explicit component id/type if present
           if ("componentId" in bo) {
-            const props = isObj((bo as any).props) ? (bo as any).props : undefined;
-            pushComponent(ops, (bo as any).componentId, props);
+            const props = isObj((bo as any)["props"]) ? (bo as any)["props"] : undefined;
+            pushComponent(ops, (bo as any)["componentId"], props);
             continue;
           }
 
           if ("type" in bo) {
-            const t = (bo as any).type;
+            const t = (bo as any)["type"];
             const tStr = isStr(t) ? t : "";
 
             /* ICONTROL_BUILTIN_BLOCK_MAP_V1
@@ -100,32 +100,32 @@ export function compilePlan(doc: BlueprintDoc): ReturnType<typeof ok<RenderPlan>
                - type:"table" => builtin.table { title, columns, rows }
                - type:"form"  => builtin.form  { title, fields }
             */
-            if (tStr === "text" && (typeof (bo as any).text === "string" || typeof (bo as any).text === "number")) {
-              pushText(ops, (bo as any).text);
+            if (tStr === "text" && (typeof (bo as any)["text"] === "string" || typeof (bo as any)["text"] === "number")) {
+              pushText(ops, (bo as any)["text"]);
               continue;
             }
             if (tStr === "table") {
-              const title = typeof (bo as any).title === "string" ? (bo as any).title : "Demo Table";
-              const columns = Array.isArray((bo as any).columns) ? (bo as any).columns : [];
-              const rows = Array.isArray((bo as any).rows) ? (bo as any).rows : [];
+              const title = typeof (bo as any)["title"] === "string" ? (bo as any)["title"] : "Demo Table";
+              const columns = Array.isArray((bo as any)["columns"]) ? (bo as any)["columns"] : [];
+              const rows = Array.isArray((bo as any)["rows"]) ? (bo as any)["rows"] : [];
               pushComponent(ops, "builtin.table", { title, columns, rows });
               continue;
             }
             if (tStr === "form") {
-              const title = typeof (bo as any).title === "string" ? (bo as any).title : "Demo Form";
-              const fields = Array.isArray((bo as any).fields) ? (bo as any).fields : [];
+              const title = typeof (bo as any)["title"] === "string" ? (bo as any)["title"] : "Demo Form";
+              const fields = Array.isArray((bo as any)["fields"]) ? (bo as any)["fields"] : [];
               pushComponent(ops, "builtin.form", { title, fields });
               continue;
             }
 
             if (tStr) {
-              const props = isObj((bo as any).props) ? (bo as any).props : undefined;
+              const props = isObj((bo as any)["props"]) ? (bo as any)["props"] : undefined;
               pushComponent(ops, tStr, props);
             }
             continue;
           }
-          if ("text" in bo && (typeof (bo as any).text === "string" || typeof (bo as any).text === "number")) {
-            pushText(ops, (bo as any).text);
+          if ("text" in bo && (typeof (bo as any)["text"] === "string" || typeof (bo as any)["text"] === "number")) {
+            pushText(ops, (bo as any)["text"]);
             continue;
           }
 
@@ -164,31 +164,31 @@ export function compilePlan(doc: BlueprintDoc): ReturnType<typeof ok<RenderPlan>
               continue;
             }
 
-            const tStr = isStr(bo.type) ? String(bo.type) : "";
-            if (tStr === "text" && (typeof bo.text === "string" || typeof bo.text === "number")) {
-              pushText(ops, String(bo.text));
+            const tStr = isStr(bo["type"]) ? String(bo["type"]) : "";
+            if (tStr === "text" && (typeof bo["text"] === "string" || typeof bo["text"] === "number")) {
+              pushText(ops, String(bo["text"]));
               continue;
             }
             if (tStr === "table") {
-              const title = typeof bo.title === "string" ? bo.title : "Demo Table";
-              const columns = Array.isArray(bo.columns) ? bo.columns : [];
-              const rows = Array.isArray(bo.rows) ? bo.rows : [];
+              const title = typeof bo["title"] === "string" ? bo["title"] : "Demo Table";
+              const columns = Array.isArray(bo["columns"]) ? bo["columns"] : [];
+              const rows = Array.isArray(bo["rows"]) ? bo["rows"] : [];
               pushComponent(ops, "builtin.table", { title, columns, rows });
               continue;
             }
             if (tStr === "form") {
-              const title = typeof bo.title === "string" ? bo.title : "Demo Form";
-              const fields = Array.isArray(bo.fields) ? bo.fields : [];
+              const title = typeof bo["title"] === "string" ? bo["title"] : "Demo Form";
+              const fields = Array.isArray(bo["fields"]) ? bo["fields"] : [];
               pushComponent(ops, "builtin.form", { title, fields });
               continue;
             }
             if (tStr) {
-              const props = isObj(bo.props) ? bo.props : undefined;
-              pushComponent(ops, mapId(bo.type), props);
+              const props = isObj(bo["props"]) ? bo["props"] : undefined;
+              pushComponent(ops, mapId(bo["type"]), props);
               continue;
             }
-            if ("text" in bo && (typeof bo.text === "string" || typeof bo.text === "number")) {
-              pushText(ops, String(bo.text));
+            if ("text" in bo && (typeof bo["text"] === "string" || typeof bo["text"] === "number")) {
+              pushText(ops, String(bo["text"]));
               continue;
             }
 

@@ -17,8 +17,8 @@ export function nowIso(): string {
 export function makeAuditEvent(ctx: PolicyContext, ev: Omit<AuditEvent, "ts" | "tenantId" | "userId">): AuditEvent {
   return {
     ts: nowIso(),
-    tenantId: ctx.tenantId,
-    userId: ctx.userId,
+    ...(ctx.tenantId ? { tenantId: ctx.tenantId } : {}),
+    ...(ctx.userId ? { userId: ctx.userId } : {}),
     ...ev,
   };
 }

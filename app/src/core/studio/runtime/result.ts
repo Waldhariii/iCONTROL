@@ -7,4 +7,6 @@ export type RuntimeErr = {
 export type RuntimeResult<T> = RuntimeOk<T> | RuntimeErr;
 
 export function ok<T>(value: T): RuntimeOk<T> { return { ok: true, value }; }
-export function err(reason: RuntimeErr["reason"], detail?: string): RuntimeErr { return { ok: false, reason, detail }; }
+export function err(reason: RuntimeErr["reason"], detail?: string): RuntimeErr {
+  return { ok: false, reason, ...(detail ? { detail } : {}) };
+}

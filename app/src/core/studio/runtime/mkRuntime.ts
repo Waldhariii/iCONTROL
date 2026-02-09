@@ -52,7 +52,7 @@ export function mkRuntime(args: MkStudioRuntimeArgs = {}): StudioRuntime {
 
   return {
     audit,
-    __SAFE_MODE__: safeMode,
+    ...(safeMode ? { __SAFE_MODE__: safeMode } : {}),
   };
 }
 

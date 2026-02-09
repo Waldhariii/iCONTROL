@@ -1,3 +1,5 @@
+import { useTenantContext } from '@/core/tenant/tenantContext';
+
 /**
  * ICONTROL_APP_PAGES_REGISTRY_V2
  * Registry minimal pour la surface CLIENT (désactivée).

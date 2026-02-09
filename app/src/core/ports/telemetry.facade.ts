@@ -10,7 +10,9 @@ export function spanStart(name: string, tags?: Record<string,string>): Telemetry
   try {
     if(_impl) return _impl.spanStart(name, tags);
   } catch {}
-  return { name, tsStart: Date.now(), tags };
+  return tags
+    ? { name, tsStart: Date.now(), tags }
+    : { name, tsStart: Date.now() };
 }
 
 export function spanEnd(span: TelemetrySpan, tags?: Record<string,string>) {

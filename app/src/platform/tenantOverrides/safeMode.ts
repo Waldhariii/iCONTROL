@@ -37,14 +37,14 @@ export async function hydrateTenantOverridesSafeMode(input: { tenantId: string }
 
 export async function enableTenantOverridesSafeMode(tenantId: string, reason: string, actorId?: string) {
   latch.set(tenantId, { enabled: true, reason, at: new Date().toISOString() });
-  await writeTenantSafeMode({ tenantId, enabled: true, reason, actorId }).catch(() => {
+  await writeTenantSafeMode({ tenantId, enabled: true, reason, ...(actorId ? { actorId } : {}) }).catch(() => {
     warn(WARN.FALLBACK_DEFAULT_CONFIG, "SAFE_MODE persist failed (enable)", { tenantId }, { reason });
   });
 }
 
 export async function clearTenantOverridesSafeMode(tenantId: string, actorId?: string) {
   latch.delete(tenantId);
-  await writeTenantSafeMode({ tenantId, enabled: false, actorId }).catch(() => {
+  await writeTenantSafeMode({ tenantId, enabled: false, ...(actorId ? { actorId } : {}) }).catch(() => {
     warn(WARN.FALLBACK_DEFAULT_CONFIG, "SAFE_MODE persist failed (clear)", { tenantId }, {});
   });
 }

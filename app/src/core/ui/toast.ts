@@ -27,7 +27,7 @@ export function showToast(options: ToastOptions): void {
   const container = getToastContainer();
   const toast = document.createElement("div");
   toast.className = "ic-toast";
-  toast.dataset.status = options.status;
+  toast.dataset["status"] = options.status;
 
   const icons = {
     success: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>`,

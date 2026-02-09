@@ -45,7 +45,12 @@ export type OrchestratorDeps = {
 
 const okStep = (step: string) => ({ step: step as any, ok: true as const });
 const koStep = (step: string, reasonCode: ReasonCodeV1, detail?: string) =>
-  ({ step: step as any, ok: false as const, reasonCode, detail });
+  ({
+    step: step as any,
+    ok: false as const,
+    reasonCode,
+    ...(typeof detail === "string" ? { detail } : {}),
+  });
 
 export function makeTenantOnboardingOrchestratorFacade(deps: OrchestratorDeps): TenantOnboardingOrchestratorContract {
   return {

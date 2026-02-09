@@ -11,7 +11,7 @@ export function buildActorContext(input: { tenantId: string; role: Role; actorId
   const capabilities = resolveCapabilities(entCtx);
   return {
     tenantId: input.tenantId,
-    actorId: input.actorId,
+    ...(input.actorId ? { actorId: input.actorId } : {}),
     role: input.role,
     capabilities,
   };

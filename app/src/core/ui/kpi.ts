@@ -25,13 +25,13 @@ export function createKpiCard(labelOrOpts: string | KpiCardOptions, value?: stri
   const card = document.createElement("div");
   const isHero = !!opts.hero;
   card.className = "ic-kpi";
-  card.dataset.hero = isHero ? "1" : "0";
+  card.dataset["hero"] = isHero ? "1" : "0";
   if (opts.tone && opts.tone !== "neutral") {
-    card.dataset.tone = opts.tone;
+    card.dataset["tone"] = opts.tone;
   } else if (opts.trend === "up") {
-    card.dataset.tone = "ok";
+    card.dataset["tone"] = "ok";
   } else if (opts.trend === "down") {
-    card.dataset.tone = "err";
+    card.dataset["tone"] = "err";
   }
 
   const title = document.createElement("div");
@@ -90,6 +90,18 @@ export function createKpiCard(labelOrOpts: string | KpiCardOptions, value?: stri
 export function createKpiStrip(items: Array<{ label: string; value: string; tone?: KpiTone; trend?: KpiTrend; unit?: string; target?: string; lastUpdated?: string; hero?: boolean }>): HTMLElement {
   const strip = document.createElement("div");
   strip.className = "ic-kpi-strip";
-  items.forEach((item) => strip.appendChild(createKpiCard({ label: item.label, value: item.value, tone: item.tone, trend: item.trend, unit: item.unit, target: item.target, lastUpdated: item.lastUpdated, hero: item.hero })));
+  items.forEach((item) => {
+    const opts: KpiCardOptions = {
+      label: item.label,
+      value: item.value,
+      ...(item.tone ? { tone: item.tone } : {}),
+      ...(item.trend ? { trend: item.trend } : {}),
+      ...(item.unit ? { unit: item.unit } : {}),
+      ...(item.target ? { target: item.target } : {}),
+      ...(item.lastUpdated ? { lastUpdated: item.lastUpdated } : {}),
+      ...(item.hero ? { hero: item.hero } : {}),
+    };
+    strip.appendChild(createKpiCard(opts));
+  });
   return strip;
 }

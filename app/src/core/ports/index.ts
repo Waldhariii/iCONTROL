@@ -1,51 +1,53 @@
-/**
- * SSOT Ports Index (contract-first)
- * Rule: CP/APP import ports ONLY from this file.
- * Goal: prevent symbol drift and cross-file ad-hoc imports.
- */
+// ========================================
+// SSOT Ports Index — public surface (frozen)
+// Keep exports aligned with ports-public-surface.freeze.contract.test.ts
+// ========================================
 
-// Facades (boundary-safe factories)
-export { createActivationRegistryFacade }
-export type { ActivationDecision, ActivationRegistryFacade, ActivationWrite, ModuleId } from "./activationRegistry.facade";
-export { createPolicyEngineFacade }
-export type { Action, PolicyDecision, PolicyEngineFacade, Resource, Subject } from "./policyEngine.facade";
-export type { PolicyContext } from "./policyEngine.facade";
+// Values (functions/objects)
+export { createPolicyEngineFacade } from "./policyEngine.facade";
+export { createActivationRegistryFacade } from "./activationRegistry.facade";
+export { makeBillingSinkFacade } from "./billingSink.facade";
+export { makeTenantOnboardingOrchestratorFacade } from "./tenantOnboardingOrchestrator.facade";
+export { makeTenantOnboardingPersistedFacade } from "./tenantOnboarding.persisted.facade";
+export { REASON_CODES_V1 } from "./reasonCodes.v1";
+export { BILLING_SINK_CONTRACT_ID } from "./billingSink.contract";
+export { ORCHESTRATOR_CONTRACT_ID } from "./tenantOnboardingOrchestrator.contract";
+export { TENANT_ONBOARDING_PERSIST_CONTRACT_ID } from "./tenantOnboardingPersist.contract";
 
 // Bootstrap / wiring
 export { bootstrapCpEnforcement } from "./cpEnforcement.bootstrap";
-export { __resetForTests, bindActivationRegistry, bindPolicyEngine, EnforcementDeps, registerCpEnforcementDeps, requireCpEnforcementDeps } from "./cpEnforcement.wiring";
+export {
+  __resetForTests,
+  bindActivationRegistry,
+  bindPolicyEngine,
+  registerCpEnforcementDeps,
+  requireCpEnforcementDeps,
+} from "./cpEnforcement.wiring";
 
-export { REASON_CODES_V1, ReasonCode, ReasonCodeV1 } from "./reasonCodes.v1";
-
-// Runtime identity (SSOT)
-export { ActorId, RuntimeIdentity, RuntimeIdentityPort, TenantId } from "./runtimeIdentity.contract";
-
-// ---- VFS + Snapshot (Phase5)
-export { bindVfsPort, getVfsPort } from "./vfs.facade";
+// Bindings
+export { bindSnapshot } from "./snapshot.bind";
 export { bindSnapshotPort, getSnapshotPort } from "./snapshot.facade";
 export { bindVfs } from "./vfs.bind";
-export { bindSnapshot } from "./snapshot.bind";
+export { bindVfsPort, getVfsPort } from "./vfs.facade";
 
-// __PHASE5_APP_LOCAL_CONTRACTS_V1__
-// APP-local contracts are public for app-level adapter implementations.
-export type { VfsPort, VfsRead, VfsWrite, VfsDelete, VfsResult } from "../contracts/vfsPort.contract";
-export type { SnapshotPort, SnapshotCreate, SnapshotRestore, SnapshotList, SnapshotMeta, SnapshotResult } from "../contracts/snapshotPort.contract";
-export * from "./tenantOnboarding.contract";
-export * from "./defaultEntitlements.contract";
-export * from "./billingHook.contract";
+// Types ONLY
+export type {
+  Action,
+  PolicyDecision,
+  PolicyEngineFacade,
+  Resource,
+  Subject,
+  TenantId,
+  PolicyContext,
+} from "./policyEngine.facade";
 
+export type {
+  ActivationDecision,
+  ActivationRegistryFacade,
+  ActivationWrite,
+  ModuleId,
+} from "./activationRegistry.facade";
 
-export * from "./vfs.contract";
-export * from "./snapshot.contract";
-export * from "./tenantOnboarding.persisted.facade";
-export * from "./tenantOnboarding.orchestrator.contract";
-export * from "./tenantOnboarding.orchestrator.facade";
-export { ORCHESTRATOR_CONTRACT_ID } from "./tenantOnboardingOrchestrator.contract";
-export type { TenantOnboardingOrchestratorPort, OrchestratorEvent, OrchestratorState, OrchestratorStep } from "./tenantOnboardingOrchestrator.contract";
-export { makeTenantOnboardingOrchestratorFacade } from "./tenantOnboardingOrchestrator.facade";
-export { TENANT_ONBOARDING_PERSIST_CONTRACT_ID } from "./tenantOnboardingPersist.contract";
-export type { TenantOnboardingPersistPort } from "./tenantOnboardingPersist.contract";
-export { makeTenantOnboardingPersistedFacade } from "./tenantOnboardingPersist.facade";
-export { BILLING_SINK_CONTRACT_ID } from "./billingSink.contract";
-export type { BillingEventV1, BillingSinkPort } from "./billingSink.contract";
-export { makeBillingSinkFacade } from "./billingSink.facade";
+export type { ReasonCode, ReasonCodeV1 } from "./reasonCodes.v1";
+export type { EnforcementDeps } from "./cpEnforcement.wiring";
+export type { ActorId, RuntimeIdentity, RuntimeIdentityPort } from "./runtimeIdentity.contract";

@@ -1,4 +1,6 @@
 // app/src/surfaces/shared/runtime-smoke/Page.ts
+import { useTenantContext } from '@/core/tenant/tenantContext';
+
 import { compilePlan } from "../../../core/studio/runtime/plan";
 import { executePlan } from "../../../core/studio/runtime/execute";
 import { safeRender } from "../../../core/studio/engine";

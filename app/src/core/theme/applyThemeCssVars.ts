@@ -35,9 +35,9 @@ export function applyThemeTokensToCssVars(doc: Document, t: ThemeTokens): void {
   }
 
   // Meta (debug / ops)
-  root.dataset.themeId = t.meta.id;
-  root.dataset.themeVersion = t.meta.version;
-  root.dataset.themeMode = t.meta.mode;
-  if (t.meta.scope) root.dataset.themeScope = t.meta.scope;
-  if (t.meta.brand) root.dataset.themeBrand = t.meta.brand;
+  root.dataset["themeId"] = t.meta.id;
+  root.dataset["themeVersion"] = t.meta.version;
+  root.dataset["themeMode"] = t.meta.mode;
+  if (t.meta.scope) root.dataset["themeScope"] = t.meta.scope;
+  if (t.meta.brand) root.dataset["themeBrand"] = t.meta.brand;
 }

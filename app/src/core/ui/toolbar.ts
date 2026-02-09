@@ -69,7 +69,7 @@ export function createToolbar(options: ToolbarOptions): {
         label: action.label,
         variant: action.primary ? "primary" : "secondary",
         size: "small",
-        icon: action.icon,
+        ...(action.icon ? { icon: action.icon } : {}),
         onClick: () => action.onClick()
       });
       if (action.actionId) btn.setAttribute("data-action-id", action.actionId);
@@ -78,5 +78,5 @@ export function createToolbar(options: ToolbarOptions): {
     container.appendChild(actions);
   }
 
-  return { element: container, searchInput };
+  return { element: container, ...(searchInput ? { searchInput } : {}) };
 }

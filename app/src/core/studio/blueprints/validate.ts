@@ -21,20 +21,23 @@ export function validateBlueprint(kind: BlueprintKind, doc: unknown): ValidateRe
 
   // Common expected fields (from your JSON patterns)
   // We keep this permissive: the point is to catch gross corruption, not enforce everything.
-  if (!("meta" in doc) || !isObj(doc.meta)) {
+  const metaValue = doc["meta"];
+  if (!("meta" in doc) || !isObj(metaValue)) {
     return { ok: false, reason: "missing_field", detail: "meta object missing" };
   }
 
-  const meta = doc.meta as Obj;
+  const meta = metaValue as Obj;
 
-  if (!("kind" in meta) || typeof meta.kind !== "string") {
+  const kindValue = meta["kind"];
+  if (!("kind" in meta) || typeof kindValue !== "string") {
     return { ok: false, reason: "missing_field", detail: "meta.kind missing" };
   }
-  if (meta.kind !== kind) {
-    return { ok: false, reason: "invalid_shape", detail: `meta.kind=${String(meta.kind)} expected=${kind}` };
+  if (kindValue !== kind) {
+    return { ok: false, reason: "invalid_shape", detail: `meta.kind=${String(kindValue)} expected=${kind}` };
   }
 
-  if (!("version" in meta) || typeof meta.version !== "number") {
+  const versionValue = meta["version"];
+  if (!("version" in meta) || typeof versionValue !== "number") {
     return { ok: false, reason: "missing_field", detail: "meta.version missing/invalid" };
   }
 

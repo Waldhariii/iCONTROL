@@ -1,4 +1,6 @@
 import React from "react";
+import { useTenantContext } from '@/core/tenant/tenantContext';
+
 import { enforceCpEntitlementsSurface } from "../../../core/ports/cpSurfaceEnforcement.entitlements";
 import { governedRedirect } from "../../../core/runtime/governedRedirect";
 

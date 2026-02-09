@@ -23,16 +23,16 @@ export function DataTable<T>(props: {
   const { rows, columns, loading } = props;
 
   if (loading) {
-    return <div style={{ padding: 16, opacity: 0.8 }}>Chargement…</div>;
+    return <div className="ic-table-loading">Chargement…</div>;
   }
 
   return (
-    <div style={{ overflowX: "auto" }}>
-      <table style={{ width: "100%", borderCollapse: "collapse" }}>
+    <div className="ic-table-wrap">
+      <table className="ic-table">
         <thead>
           <tr>
             {columns.map(c => (
-              <th key={c.key} style={{ textAlign: "left", padding: 10, borderBottom: "1px solid rgba(255,255,255,0.12)" }}>
+              <th key={c.key} className="ic-table__th">
                 {c.header}
               </th>
             ))}
@@ -42,7 +42,7 @@ export function DataTable<T>(props: {
           {rows.map((r, idx) => (
             <tr key={idx}>
               {columns.map(c => (
-                <td key={c.key} style={{ padding: 10, borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+                <td key={c.key} className="ic-table__td">
                   {c.accessor(r)}
                 </td>
               ))}

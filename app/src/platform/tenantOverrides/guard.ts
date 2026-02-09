@@ -24,7 +24,7 @@ export function guardTenantOverrides(input: {
     return input.overrides;
   } catch (e: any) {
     const reason = `ERR_OVERRIDES_GUARD_FAIL:${String(e?.message || e)}`;
-    void cpEnableTenantOverridesSafeMode({ tenantId: input.tenantId, actorId: undefined, reason });
+    void cpEnableTenantOverridesSafeMode({ tenantId: input.tenantId, reason });
     warn(WARN.FALLBACK_DEFAULT_CONFIG, "Tenant overrides rejected; SAFE_MODE enabled", { tenantId: input.tenantId }, { reason, source: input.source });
     return null;
   }

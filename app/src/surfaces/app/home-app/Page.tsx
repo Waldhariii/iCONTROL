@@ -1,3 +1,5 @@
+import { useTenantContext } from '@/core/tenant/tenantContext';
+
 /**
  * ICONTROL_APP_HOME_V1
  * Landing page for APP (Client Application)

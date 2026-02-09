@@ -7,4 +7,4 @@
  * - Keep as thin re-export layer to preserve import paths without side-effects.
  */
 export { installIControlDiagnosticDEVOnly } from "./diagnosticInstall";
-export type { DiagnosticApi, DiagnosticSnapshot } from "./diagnosticInstall";
+export type { DiagnosticApi } from "./diagnosticInstall";

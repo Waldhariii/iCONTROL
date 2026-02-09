@@ -76,23 +76,23 @@ export async function cpTenantRuntimeSnapshot(tenantId: string): Promise<TenantR
 
   return {
     tenantId,
-    provenance: prov,
+    ...(prov ? { provenance: prov } : {}),
 
     warnings,
     safeMode: {
       enabled,
-      mem: mem ? { reason: mem.reason, at: mem.at } : undefined,
+      ...(mem ? { mem: { reason: mem.reason, at: mem.at } } : {}),
       persisted: {
         enabled: !!persisted.enabled,
-        reason: persisted.reason,
-        at: persisted.at,
-        updatedBy: persisted.updatedBy,
+        ...(persisted.reason ? { reason: persisted.reason } : {}),
+        ...(persisted.at ? { at: persisted.at } : {}),
+        ...(persisted.updatedBy ? { updatedBy: persisted.updatedBy } : {}),
       },
     },
     overrides: {
       applied: !enabled && presentInCache,
       presentInCache,
-      hash,
+      ...(hash ? { hash } : {}),
     },
   };
 }

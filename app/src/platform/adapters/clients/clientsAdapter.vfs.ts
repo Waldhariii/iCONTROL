@@ -51,9 +51,9 @@ function migrateToV1(anyObj: any): ClientV1 | null {
     updatedAt,
     status,
     name,
-    email: anyObj.email ? String(anyObj.email) : undefined,
-    phone: anyObj.phone ? String(anyObj.phone) : undefined,
-    deletedAt: anyObj.deletedAt ? String(anyObj.deletedAt) : undefined,
+    ...(anyObj.email ? { email: String(anyObj.email) } : {}),
+    ...(anyObj.phone ? { phone: String(anyObj.phone) } : {}),
+    ...(anyObj.deletedAt ? { deletedAt: String(anyObj.deletedAt) } : {}),
   };
 
   return v1;
@@ -169,6 +169,9 @@ export function makeClientsAdapterVfs(vfs: VfsFacade): ClientsPort {
       const existing = await readClient(vfs, tenantId, id);
 
       const createdAt = existing?.createdAt ?? nowIso();
+      const email = input.email ?? existing?.email;
+      const phone = input.phone ?? existing?.phone;
+      const deletedAt = existing?.deletedAt;
       const client: ClientV1 = {
         schema: CLIENTS_SCHEMA_V1,
         id,
@@ -176,9 +179,9 @@ export function makeClientsAdapterVfs(vfs: VfsFacade): ClientsPort {
         updatedAt: nowIso(),
         status: input.status ?? existing?.status ?? "active",
         name: input.name,
-        email: input.email ?? existing?.email,
-        phone: input.phone ?? existing?.phone,
-        deletedAt: existing?.deletedAt,
+        ...(email !== undefined ? { email } : {}),
+        ...(phone !== undefined ? { phone } : {}),
+        ...(deletedAt !== undefined ? { deletedAt } : {}),
       };
 
       await writeClient(vfs, tenantId, client);

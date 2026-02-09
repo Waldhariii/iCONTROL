@@ -1,4 +1,6 @@
 import React from "react";
+import { useTenantContext } from '@/core/tenant/tenantContext';
+
 
 export function CpLoginPage() {
   return (

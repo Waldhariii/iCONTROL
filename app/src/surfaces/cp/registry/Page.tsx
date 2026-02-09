@@ -1,3 +1,5 @@
+import { useTenantContext } from '@/core/tenant/tenantContext';
+
 /**
  * ICONTROL_CP_PAGES_REGISTRY_V1
  * Registry des pages pour l'application CONTROL PLANE (/cp)

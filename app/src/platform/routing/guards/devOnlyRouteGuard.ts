@@ -3,6 +3,9 @@ import { auditWarnOnce } from "../../audit/auditOnce";
 import { DEV_ONLY_CP_ROUTES } from "./devOnlyRoutes";
 
 export type DevOnlyGuardInput = {
+  routeKey: string;
+  marker: string;
+  fallback: string;
 };
 
 export function guardDevOnlyRoute(input: DevOnlyGuardInput): string | null {

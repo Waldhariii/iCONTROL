@@ -110,11 +110,11 @@ export function createWriteGateway(deps: WriteGatewayDeps): WriteGateway {
       const auditEntry: AuditEntry = {
         kind: cmd.kind,
         tenantId: cmd.tenantId,
-        actorId: cmd.actor?.id,
+        ...(cmd.actor?.id ? { actorId: cmd.actor.id } : {}),
         correlationId: cmd.correlationId,
         status: result.status,
         ts: new Date().toISOString(),
-        meta: cmd.meta,
+        ...(cmd.meta ? { meta: cmd.meta } : {}),
       };
 
       try {

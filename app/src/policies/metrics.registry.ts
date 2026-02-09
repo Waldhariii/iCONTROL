@@ -83,16 +83,7 @@ export function snapshotMetrics(rt: AnyRt): MetricsSnapshot {
   const ts = nowIso();
   try {
     const st = ensureStore(rt);
-    if (!st) {
-
-  try {
-    const w: any = ((rt) as any) || {};
-    if (w.__METRICS_DISABLED__) return;
-  } catch {}try {
-    const w: any = ((rt) as any) || {};
-    if (w.__METRICS_DISABLED__) return;
-  } catch {}return { ts, counters: {}, gauges: {}, histograms: {} };
-    }
+    if (!st) return { ts, counters: {}, gauges: {}, histograms: {} };
     return {
       ts,
       counters: { ...st.counters },

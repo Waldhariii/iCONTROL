@@ -220,7 +220,7 @@ export function renderCatalog(root: HTMLElement, surface: CatalogSurface): void 
 
     for (const [kind, items] of grouped.entries()) {
       const section = document.createElement("section");
-      section.dataset.catalogSection = kind;
+      section.dataset["catalogSection"] = kind;
       section.style.cssText = "display:flex; flex-direction:column; gap:12px;";
 
       const heading = document.createElement("div");
@@ -237,7 +237,7 @@ export function renderCatalog(root: HTMLElement, surface: CatalogSurface): void 
 
       items.forEach((entry) => {
         const card = document.createElement("div");
-        card.dataset.catalogCard = entry.id;
+        card.dataset["catalogCard"] = entry.id;
         card.style.cssText = `
           border: 1px solid var(--ic-border, var(--icontrol-color-fallback-fg));
           background: var(--ic-card, var(--icontrol-color-fallback-fg));

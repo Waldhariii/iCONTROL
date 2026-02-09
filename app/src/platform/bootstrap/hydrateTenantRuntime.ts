@@ -10,7 +10,10 @@ import { info } from "../observability";
  */
 export async function hydrateTenantRuntime(ctx: RuntimeContext) {
   const sm = await hydrateTenantOverridesSafeMode({ tenantId: ctx.tenantId });
-  const ov = await hydrateTenantOverrides({ tenantId: ctx.tenantId, actorId: ctx.actorId });
+  const ov = await hydrateTenantOverrides({
+    tenantId: ctx.tenantId,
+    ...(ctx.actorId ? { actorId: ctx.actorId } : {}),
+  });
 
   info("OK", "Tenant runtime hydrated", { tenantId: ctx.tenantId, actorId: ctx.actorId }, { safeModeEnabled: sm.enabled, overridesHydrated: ov.ok });
   return { safeModeEnabled: sm.enabled, overridesHydrated: ov.ok };

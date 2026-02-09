@@ -1,3 +1,5 @@
+import { useTenantContext } from '@/core/tenant/tenantContext';
+
 /**
  * CP Login Theme (vanilla)
  * Objectif: page de configuration du branding de login (tokens, logo, fond, CTA)

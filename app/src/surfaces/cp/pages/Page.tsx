@@ -1,3 +1,5 @@
+import { useTenantContext } from '@/core/tenant/tenantContext';
+
 /**
  * ICONTROL_CP_PAGES_INVENTORY_V3
  * Pages Inventory — Complete listing of all CP pages (active/inactive) from ROUTE_CATALOG and registry

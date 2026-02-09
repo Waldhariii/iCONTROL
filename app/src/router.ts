@@ -191,7 +191,7 @@ function __icontrolNormalizeHash__(hash: string): string {
 function __icontrolIsAdminRouteAllowed__(hash: string): boolean {
   const h = __icontrolNormalizeHash__(hash);
   // Toujours autoriser #/dashboard, #/dashboard et #/login sur CP (sécurité si ROUTE_CATALOG manque ou diffère).
-  if (h === "#/dashboard" || h === "#/login") return true;
+  if (h === "#/dashboard" || h === "#/login" || h === "#/dynamic-test") return true;
   return ADMIN_ROUTE_ALLOWLIST.has(h);
 }
 
@@ -321,7 +321,7 @@ function ensureAuth(): boolean {
   const rid = getRouteId();
   // Allow blocked and access_denied pages always (with _cp/_app suffix)
   if (rid === "blocked_cp") return true;
-  if (__icontrolResolveAppKind() === "CP" && (rid === "access_denied_cp" || rid === "login_cp")) return true;
+  if (__icontrolResolveAppKind() === "CP" && (rid === "access_denied_cp" || rid === "login_cp" || rid === "dynamic_test_cp")) return true;
   if (__icontrolResolveAppKind() === "APP" && (rid === "access_denied_app" || rid === "client_disabled_app" || rid === "client_catalog_app" || rid === "home_app")) return true;
 
   // Everything else requires a session

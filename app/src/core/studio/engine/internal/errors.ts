@@ -1,13 +1,13 @@
 import type { SafeRenderResult } from "../types";
 
 export function blocked(detail?: string): SafeRenderResult {
-  return { ok: false, reason: "render_blocked", detail };
+  return { ok: false, reason: "render_blocked", ...(detail ? { detail } : {}) };
 }
 
 export function invalid(detail?: string): SafeRenderResult {
-  return { ok: false, reason: "invalid_input", detail };
+  return { ok: false, reason: "invalid_input", ...(detail ? { detail } : {}) };
 }
 
 export function internal(detail?: string): SafeRenderResult {
-  return { ok: false, reason: "internal_error", detail };
+  return { ok: false, reason: "internal_error", ...(detail ? { detail } : {}) };
 }

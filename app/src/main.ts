@@ -1,8 +1,7 @@
 import "./styles/tokens.generated.css";
-import { debug, info, warn, error } from "./platform/observability/logger";
+import { info, warn, error } from "./platform/observability/logger";
 import { resolveRuntimeContext } from "./platform/runtimeContext";
 import { hydrateTenantRuntime } from "./platform/bootstrap";
-import { hydrateTenantOverrides } from "./platform/tenantOverrides";
 import { getBrandResolved } from "../../platform-services/branding/brandService";
 import "./styles/STYLE_ADMIN_FINAL.css";
 import { installIControlDiagnosticDEVOnly } from "./dev/diagnostic";
@@ -93,7 +92,6 @@ function __icontrol_isShellMounted__(): boolean {
 
 function __icontrol_mountShellIfNeeded__(navProvider: () => any[], shellFactory: (nav: any[]) => any): void {
   try {
-    const kind = (typeof __icontrol_resolveAppKind === "function") ? __icontrol_resolveAppKind() : "CP";
     const hash = (() => { try { return window.location.hash || ""; } catch { return ""; } })();
 
     // Ne pas monter le shell sur la page de login
@@ -111,7 +109,7 @@ function __icontrol_mountShellIfNeeded__(navProvider: () => any[], shellFactory:
     const shell = shellFactory(nav) as IControlShell;
 
     // tag DOM
-    try { (shell.root as any).dataset.icontrolShellRoot = "1"; } catch {}
+    try { (shell.root as any).dataset["icontrolShellRoot"] = "1"; } catch {}
 
     // mount
     appRoot.innerHTML = "";
@@ -122,7 +120,7 @@ function __icontrol_mountShellIfNeeded__(navProvider: () => any[], shellFactory:
     __icontrol_setShellGlobal__(shell);
   } catch (e) {
     // fail-open: ne pas casser le boot, mais on log
-    try { void warn("WARN_CONSOLE_MIGRATED","console migrated", { payload: ("ICONTROL_SHELL_RECOVERY_V1 failed", e) }); } catch {}
+    try { void warn("WARN_CONSOLE_MIGRATED","console migrated", { payload: ["ICONTROL_SHELL_RECOVERY_V1 failed", e] }); } catch {}
   }
 }
 
@@ -140,7 +138,7 @@ import {
 } from "../../platform-services/ui-shell/layout/shell";
 // getDefaultNavItems() route automatiquement vers getDefaultNavItemsApp() ou getDefaultNavItemsCp() selon VITE_APP_KIND
 
-try { if (String(import.meta?.env?.VITE_APP_KIND||"").toUpperCase()==="CP") bootstrapCpEnforcement(); } catch {}
+try { if (String(import.meta?.env?.["VITE_APP_KIND"] || "").toUpperCase() === "CP") bootstrapCpEnforcement(); } catch {}
 import { registerRuntimeConfigEndpoint } from "./core/runtime/runtimeConfigEndpoint";
 import { getGlobalWindow, getImportMeta } from "./core/utils/types";
 /* UI_SHELL_NAV_V1 */
@@ -152,14 +150,14 @@ try {
     b.TITLE_SUFFIX && b.TITLE_SUFFIX.trim() ? " " + b.TITLE_SUFFIX.trim() : "";
   document.title = (b.APP_DISPLAY_NAME || "iCONTROL") + suffix;
   if (__br.warnings && __br.warnings.length) {
-    void warn("WARN_CONSOLE_MIGRATED","console migrated", { payload: ("WARN_BRAND_FALLBACK", __br.warnings) });
+    void warn("WARN_CONSOLE_MIGRATED","console migrated", { payload: ["WARN_BRAND_FALLBACK", __br.warnings] });
   }
 } catch (e) {
-  void warn("WARN_CONSOLE_MIGRATED","console migrated", { payload: ("WARN_BRAND_TITLE_FAILED", String(e)) });
+  void warn("WARN_CONSOLE_MIGRATED","console migrated", { payload: ["WARN_BRAND_TITLE_FAILED", String(e)] });
 }
 // END ICONTROL_BRAND_TITLE_V1
 
-import { applyClientV2Guards, bootRouter, RouteId, getMountEl } from "./router";
+import { applyClientV2Guards, bootRouter, RouteId } from "./router";
 
 /* ICONTROL_THEME_BOOTSTRAP_V1 — SSOT tokens -> CSS vars (generated) */
 import { renderRoute } from "./moduleLoader";
@@ -178,13 +176,13 @@ async function __ICONTROL_APPLY_THEME_SSOT__(): Promise<void> {
     const root = document.documentElement;
     const themeId = kind === "CP" ? "cp-dashboard-charcoal" : "app-foundation-slate";
     const themeMode = "dark";
-    root.dataset.icThemeId = themeId;
-    root.dataset.icThemeMode = themeMode;
-    root.dataset.icThemeScope = kind === "CP" ? "cp.dashboard" : "app.foundation";
+    root.dataset["icThemeId"] = themeId;
+    root.dataset["icThemeMode"] = themeMode;
+    root.dataset["icThemeScope"] = kind === "CP" ? "cp.dashboard" : "app.foundation";
     if (kind === "CP") {
-      root.dataset.appKind = "control_plane";
+      root.dataset["appKind"] = "control_plane";
     } else {
-      delete root.dataset.appKind;
+      delete root.dataset["appKind"];
     }
   } catch (e) {
     logger.warn("THEME_SSOT_BOOTSTRAP_FAILED", String(e));
@@ -198,7 +196,7 @@ function __icontrol_assertAppKind__(): void {
   try {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const anyImportMeta = (import.meta as any);
-    raw = String(anyImportMeta?.env?.VITE_APP_KIND || "");
+    raw = String(anyImportMeta?.env?.["VITE_APP_KIND"] || "");
   } catch {}
   try {
     if (!raw) raw = String((globalThis as any)?.__ICONTROL_APP_KIND__ || "");
@@ -231,7 +229,7 @@ function __icontrol_resolveAppKind(): "APP" | "CP" {
   try {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const anyImportMeta = (import.meta as any);
-    raw = String(anyImportMeta?.env?.VITE_APP_KIND || "");
+    raw = String(anyImportMeta?.env?.["VITE_APP_KIND"] || "");
   } catch {}
   try {
     if (!raw) raw = String((globalThis as any)?.__ICONTROL_APP_KIND__ || "");
@@ -373,14 +371,14 @@ function __icontrol_installAdminStyleGuard__(): void {
 
     const w = globalThis as any;
     w.__ICONTROL_APP_KIND__ = kind;
-    void info("OK","console migrated", { payload: ("ADMIN_STYLE_GUARD_INIT", { kind }) });
+    void info("OK","console migrated", { payload: ["ADMIN_STYLE_GUARD_INIT", { kind }] });
     if (w.__ICONTROL_ADMIN_STYLE_GUARD__) return;
     w.__ICONTROL_ADMIN_STYLE_GUARD__ = {
       enabled: true,
       disableLocalOverrides: true,
       events: [] as Array<{ type: string; detail: string }>
     };
-    void info("OK","console migrated", { payload: ("ADMIN_STYLE_GUARD_INIT", { kind }) });
+    void info("OK","console migrated", { payload: ["ADMIN_STYLE_GUARD_INIT", { kind }] });
 
     const allowStyle = (el: HTMLStyleElement): boolean => {
       if ((el as any).dataset?.icontrolAllow === "1") return true;
@@ -407,7 +405,7 @@ function __icontrol_installAdminStyleGuard__(): void {
         if (!ok) {
           try { node.remove(); } catch {}
           w.__ICONTROL_ADMIN_STYLE_GUARD__.events.push({ type: "STYLE_BLOCKED", detail: node.outerHTML.slice(0, 200) });
-          void warn("WARN_CONSOLE_MIGRATED","console migrated", { payload: ("ADMIN_STYLE_GUARD_BLOCK", { type: "style" }) });
+          void warn("WARN_CONSOLE_MIGRATED","console migrated", { payload: ["ADMIN_STYLE_GUARD_BLOCK", { type: "style" }] });
         }
       }
       if (node.tagName === "LINK") {
@@ -417,7 +415,7 @@ function __icontrol_installAdminStyleGuard__(): void {
           if (!ok) {
             try { link.remove(); } catch {}
             w.__ICONTROL_ADMIN_STYLE_GUARD__.events.push({ type: "LINK_BLOCKED", detail: link.outerHTML.slice(0, 200) });
-            void warn("WARN_CONSOLE_MIGRATED","console migrated", { payload: ("ADMIN_STYLE_GUARD_BLOCK", { type: "link", href: link.href }) });
+            void warn("WARN_CONSOLE_MIGRATED","console migrated", { payload: ["ADMIN_STYLE_GUARD_BLOCK", { type: "link", href: link.href }] });
           }
         }
       }
@@ -450,7 +448,7 @@ function __icontrol_installAdminStyleGuard__(): void {
     w.__ICONTROL_ADMIN_STYLE_GUARD__.sweep = sweep;
     setInterval(sweep, 2000);
   } catch (e) {
-    void warn("WARN_CONSOLE_MIGRATED","console migrated", { payload: ("ADMIN_STYLE_GUARD_FAILED", String(e)) });
+    void warn("WARN_CONSOLE_MIGRATED","console migrated", { payload: ["ADMIN_STYLE_GUARD_FAILED", String(e)] });
   }
 }
 
@@ -483,7 +481,7 @@ function __icontrol_installClientStyleGuard__(): void {
     const blockNode = (node: Element, reason: string): void => {
       try {
         node.parentNode?.removeChild(node);
-        void warn("WARN_CONSOLE_MIGRATED","console migrated", { payload: ("CLIENT_STYLE_GUARD_BLOCK", { reason }) });
+        void warn("WARN_CONSOLE_MIGRATED","console migrated", { payload: ["CLIENT_STYLE_GUARD_BLOCK", { reason }] });
       } catch {}
     };
 
@@ -514,7 +512,7 @@ function __icontrol_installClientStyleGuard__(): void {
       allowHref,
       allowStyleTag,
     };
-    void info("OK","console migrated", { payload: ("CLIENT_STYLE_GUARD_INIT", { kind }) });
+    void info("OK","console migrated", { payload: ["CLIENT_STYLE_GUARD_INIT", { kind }] });
   } catch {}
 }
 
@@ -557,12 +555,10 @@ __icontrol_installClientStyleGuard__();
 
     /* __ICONTROL_BYPASS_SHELL_ON_CP_LOGIN__ */
 const __icontrol_hash = (() => { try { return window.location.hash || ""; } catch { return ""; } })();
-const __icontrol_kind = __icontrol_resolveAppKind();
 
 /**
  * NOTE: Login removed - landing pages are home-app (APP) and dashboard (CP)
  */
-const __icontrol_isLogin = false;
 
 /**
  * Gouvernance d'UI Shell (Enterprise guardrail):
@@ -574,14 +570,13 @@ const isLoginPage = __icontrol_hash === "#/login" || __icontrol_hash.startsWith(
 
 if (isLoginPage) {
   // Pour login, ne pas monter le shell - utiliser directement app
-  const w = getGlobalWindow() as typeof window & { __ICONTROL_MOUNT__?: HTMLElement };
   const cxMain = document.querySelector("#cxMain") as (HTMLElement | null);
   __icontrol_setMountSSOT__(cxMain || appRoot);
 } else {
   const shell = createShell(getDefaultNavItems());
       /* ICONTROL_SHELL_GLOBAL_V1 */
       try {
-        (shell.root as any).dataset.icontrolShellRoot = "1";
+        (shell.root as any).dataset["icontrolShellRoot"] = "1";
       } catch {}
       try {
         __icontrol_setShellGlobal__(shell as any);
@@ -609,7 +604,7 @@ if (isLoginPage) {
       const drawer = document.querySelector("#cxDrawer");
       const mount = (window as any).__ICONTROL_MOUNT__;
       const appKind = (() => {
-        try { return (import.meta as any)?.env?.VITE_APP_KIND || "NON_DEFINI"; } catch { return "ERREUR"; }
+        try { return (import.meta as any)?.env?.["VITE_APP_KIND"] || "NON_DEFINI"; } catch { return "ERREUR"; }
       })();
       return {
         shellRoot: root ? "✅ Trouvé" : "❌ Manquant",
@@ -622,21 +617,22 @@ if (isLoginPage) {
       };
     };
     if ((import.meta as any)?.env?.DEV) {
-      void info("OK","console migrated", { payload: ("💡 Pour diagnostiquer, tapez dans la console: __ICONTROL_DIAGNOSTIC__()") });
+      void info("OK","console migrated", { payload: ["💡 Pour diagnostiquer, tapez dans la console: __ICONTROL_DIAGNOSTIC__()"] });
     }
   } catch {}
 
 }
 /* END __ICONTROL_BYPASS_SHELL_ON_CP_LOGIN__ */
     try {
-      if (__icontrol_kind === "CP") {
+      const kind = __icontrol_resolveAppKind();
+      if (kind === "CP") {
         const b = __br.brand;
         const sh = __icontrol_getShellGlobal__();
         if (b?.APP_DISPLAY_NAME && sh?.setBrandTitle) sh.setBrandTitle(b.APP_DISPLAY_NAME);
       }
     } catch {}
   } catch (e) {
-    void error("ERR_CONSOLE_MIGRATED","console migrated", { payload: ("UI_SHELL_NAV_V1 mount failed", e) });
+    void error("ERR_CONSOLE_MIGRATED","console migrated", { payload: ["UI_SHELL_NAV_V1 mount failed", e] });
   }
 })();
   /* ICONTROL_SHELL_HASHCHANGE_V1 */
@@ -655,7 +651,6 @@ function renderShell(rid: RouteId): void {
       const appRoot = document.getElementById("app");
       if (appRoot) {
         appRoot.innerHTML = "";
-        const w = getGlobalWindow() as typeof window & { __ICONTROL_MOUNT__?: HTMLElement };
         const cxMain = document.querySelector("#cxMain") as (HTMLElement | null);
         __icontrol_setMountSSOT__(cxMain || appRoot);
 }
@@ -672,22 +667,22 @@ function renderShell(rid: RouteId): void {
 
     // Si on est sur une page CP et que le shell n'est pas monté, le monter
     if (!shellRoot && mount === document.getElementById("app")) {
-      void warn("WARN_CONSOLE_MIGRATED","console migrated", { payload: ("⚠️ Shell non monté, tentative de remontage...") });
+      void warn("WARN_CONSOLE_MIGRATED","console migrated", { payload: ["⚠️ Shell non monté, tentative de remontage..."] });
       const appRoot = document.getElementById("app") || document.body;
       const __icontrol_kind = __icontrol_resolveAppKind();
       
       if (__icontrol_kind === "CP") {
         const shell = createShell(getDefaultNavItems());
-        (shell.root as any).dataset.icontrolShellRoot = "1";
+        (shell.root as any).dataset["icontrolShellRoot"] = "1";
         __icontrol_setShellGlobal__(shell as any);
         appRoot.innerHTML = "";
         appRoot.appendChild(shell.root);
         __icontrol_setMountSSOT__(shell.main);
-        void info("OK","console migrated", { payload: ("✅ Shell remonté avec succès") });
+        void info("OK","console migrated", { payload: ["✅ Shell remonté avec succès"] });
       }
     }
   } catch (e) {
-    void warn("WARN_CONSOLE_MIGRATED","console migrated", { payload: ("⚠️ Erreur lors de la vérification du shell:", e) });
+    void warn("WARN_CONSOLE_MIGRATED","console migrated", { payload: ["⚠️ Erreur lors de la vérification du shell:", e] });
   }
   
   renderRoute(rid, mount);

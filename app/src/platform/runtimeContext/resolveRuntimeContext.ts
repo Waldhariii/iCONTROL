@@ -19,7 +19,7 @@ export function resolveRuntimeContext(input?: { fallbackTenantId?: string; fallb
 
   return {
     tenantId,
-    actorId,
+    ...(actorId ? { actorId } : {}),
     appKind,
     isProd,
     source: g.__ICONTROL_TENANT_ID__ ? "global" : "default",
