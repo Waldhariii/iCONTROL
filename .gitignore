@@ -209,3 +209,24 @@ _artifacts/**/tags.json
 
 # Generated-only: local execution artifacts
 /_audit/
+# --- hygiene (post-s23) ---
+.pnpm-store/
+*/node_modules/
+*/dist/
+dist-types/
+*/dist-types/
+server/*.db
+server/*.db-*
+server/icontrol.db
+server/icontrol.db-shm
+server/icontrol.db-wal
+data/*.db
+data/*.db-*
+app/_audit_ctx.tmp
+Premier_Visuel/**/S*_*.log
+Premier_Visuel/**/S*_MARK_DONE_*.log
+_SYSTEM_SNAPSHOT/
+**/_SYSTEM_SNAPSHOT/
+server/*.db
+server/*.db-wal
+server/*.db-shm

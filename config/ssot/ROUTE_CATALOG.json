@@ -349,6 +349,16 @@
       "route_id": "home_cp",
       "app_surface": "CP",
       "status": "ACTIVE"
+    },
+    {
+      "route_id": "dynamic_test_cp",
+      "path": "#/dynamic-test",
+      "app_surface": "CP",
+      "page_module_id": "cp.dynamic-test",
+      "permissions_required": [],
+      "feature_flag_id": null,
+      "tenant_visibility": "all",
+      "status": "ACTIVE"
     }
   ]
 }

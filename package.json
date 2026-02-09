@@ -11,7 +11,8 @@
     "modules/*/ui/frontend-ts",
     "runtime",
     "server",
-    "shared/*"
+    "shared/*",
+    "packages/*"
   ],
   "scripts": {
     "lint": "eslint . --ext .ts,.tsx --max-warnings 0",

@@ -1,4 +1,5 @@
 export * from "./types";
-export * from "./paths";
 export * from "./loaders";
+export * from "./mapping";
 export * from "./validate";
+export * from "./paths";

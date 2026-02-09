@@ -178,6 +178,14 @@ export function renderRoute(rid: RouteId, root: HTMLElement): void {
     void warn("WARN_CONSOLE_MIGRATED","console migrated", { payload: ("WARN_MAIN_SYSTEM_ROUTE", String(e)) });
   }
 
+  if ((rid as any) === "dynamic_test_cp") {
+    import("./surfaces/cp/manifest").then((m) => m.renderCpPage(rid as RouteId, root)).catch((e) => {
+      void warn("WARN_CONSOLE_MIGRATED","console migrated", { payload: ("WARN_DYNAMIC_TEST_PAGE", e) });
+      root.innerHTML = `<div style="padding:2rem;color:#f85149;">Erreur: ${e}</div>`;
+    });
+    return;
+  }
+
   // CP fallback: pages du CP_PAGES_REGISTRY (all routes have _cp suffix)
   // APP fallback: pages du APP_PAGES_REGISTRY (all routes have _app suffix)
   // NO SHARED ROUTES - complete separation

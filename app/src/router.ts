@@ -130,7 +130,7 @@ export type RouteId =
   // CP routes (suffix _cp)
   "dashboard_cp" | "account_cp" | "settings_cp" | "settings_branding_cp" | "users_cp" | "system_cp" 
   | "developer_cp" | "developer_entitlements_cp" | "access_denied_cp" | "verification_cp" | "blocked_cp" | "notfound_cp"
-  | "toolbox_cp" | "ui_catalog_cp" | "runtime_smoke_cp" | "logs_cp" | "dossiers_cp" | "login_cp"
+  | "toolbox_cp" | "ui_catalog_cp" | "runtime_smoke_cp" | "logs_cp" | "dossiers_cp" | "dynamic_test_cp" | "login_cp"
   | "tenants_cp" | "entitlements_cp" | "pages_cp" | "feature-flags_cp" | "publish_cp" | "audit_cp" | "subscription_cp" | "integrations_cp"
   // APP routes (suffix _app)
   | "home_app" | "client_disabled_app" | "client_catalog_app" | "pages_inventory_app" | "access_denied_app" | "notfound_app";
@@ -235,6 +235,7 @@ export function getRouteId(): RouteId {
     if (seg === "tenants") return "tenants_cp";
     if (seg === "entitlements") return "entitlements_cp";
     if (seg === "pages") return "pages_cp";
+    if (seg === "dynamic-test") return "dynamic_test_cp";
     if (seg === "feature-flags") return "feature-flags_cp";
     if (seg === "publish") return "publish_cp";
     if (seg === "audit") return "audit_cp";
@@ -294,6 +295,7 @@ export function getRouteIdFromHash(hash: string): RouteId {
     if (seg === "tenants") return "tenants_cp";
     if (seg === "entitlements") return "entitlements_cp";
     if (seg === "pages") return "pages_cp";
+    if (seg === "dynamic-test") return "dynamic_test_cp";
     if (seg === "feature-flags") return "feature-flags_cp";
     if (seg === "publish") return "publish_cp";
     if (seg === "audit") return "audit_cp";
