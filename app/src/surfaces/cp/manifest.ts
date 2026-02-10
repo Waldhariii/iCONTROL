@@ -22,6 +22,27 @@ async function renderReactPage(root: HTMLElement, Page: ComponentType) {
 }
 
 export async function renderCpPage(rid: RouteId, root: HTMLElement): Promise<void> {
+  if (rid === "dashboard_cp") {
+    root.innerHTML = '<div class="loading-state">Chargement...</div>';
+    try {
+      const module = await import("./dashboard/Page");
+      if (typeof module.renderDashboard !== "function") {
+        root.innerHTML = '<div class="error-state">Error loading page</div>';
+        return;
+      }
+      try {
+        module.renderDashboard(root);
+      } catch (err) {
+        root.innerHTML = '<div class="error-state">Error loading page</div>';
+        console.error("Dashboard render failed:", err);
+      }
+    } catch (err) {
+      root.innerHTML = '<div class="error-state">Error loading page</div>';
+      console.error("Failed to load dashboard page:", err);
+    }
+    return;
+  }
+
   if (rid === "dynamic_test_cp") {
     root.innerHTML = '<div class="loading-state">Chargement...</div>';
     try {
@@ -44,6 +65,19 @@ export async function renderCpPage(rid: RouteId, root: HTMLElement): Promise<voi
     } catch (err) {
       root.innerHTML = '<div class="error-state">Error loading page</div>';
       console.error("Failed to load login-theme page:", err);
+    }
+    return;
+  }
+
+  if (rid === "settings_cp" || rid === "settings_branding_cp") {
+    root.innerHTML = '<div class="loading-state">Chargement...</div>';
+    try {
+      const module = await import("./settings/Page");
+      const Page = module.CpSettingsPage;
+      await renderReactPage(root, Page);
+    } catch (err) {
+      root.innerHTML = '<div class="error-state">Error loading page</div>';
+      console.error("Failed to load settings page:", err);
     }
     return;
   }
