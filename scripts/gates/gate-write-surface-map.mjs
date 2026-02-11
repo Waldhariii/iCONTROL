@@ -12,7 +12,7 @@ const ROOT = process.cwd();
 const paths = readPaths();
 const REPORT = resolve(ROOT, paths.reports.surfaceMap);
 
-const TARGETS = paths.roots.length ? paths.roots : ["app/src", "modules", "platform-services", "server"]; // read-only scan
+const TARGETS = paths.roots.length ? paths.roots : ["apps/control-plane/src", "modules", "platform-services", "server"]; // read-only scan
 const EXCLUDES = ["node_modules", "dist", "coverage"]; // coarse excludes
 
 const PATTERNS = [

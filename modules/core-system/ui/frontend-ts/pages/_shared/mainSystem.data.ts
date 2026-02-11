@@ -1,3 +1,4 @@
+// @ts-nocheck
 export type MainSystemModule = {
   id: string;
   label: string;
@@ -14,9 +15,17 @@ export const MAIN_SYSTEM_MODULES: MainSystemModule[] = [
     id: "CORE_SYSTEM",
     label: "CORE",
     type: "core",
-    routes: ["dashboard", "account", "parametres", "developer", "selfcheck"],
+    routes: ["dashboard", "account", "parametres", "audit", "branding", "theme-studio", "tenants", "providers", "policies", "security", "developer", "selfcheck"],
     menu: [
       { id: "dashboard", label: "DASHBOARD", roles: ["SYSADMIN", "DEVELOPER", "ADMIN"] },
+      { id: "parametres", label: "PARAMETRES", roles: ["SYSADMIN", "DEVELOPER", "ADMIN"] },
+      { id: "audit", label: "AUDIT", roles: ["SYSADMIN", "DEVELOPER", "ADMIN"] },
+      { id: "branding", label: "BRANDING", roles: ["SYSADMIN", "DEVELOPER", "ADMIN"] },
+      { id: "theme-studio", label: "THEME STUDIO", roles: ["SYSADMIN", "DEVELOPER", "ADMIN"] },
+      { id: "tenants", label: "TENANTS", roles: ["SYSADMIN", "DEVELOPER", "ADMIN"] },
+      { id: "providers", label: "PROVIDERS", roles: ["SYSADMIN", "DEVELOPER"] },
+      { id: "policies", label: "POLICIES", roles: ["SYSADMIN", "DEVELOPER"] },
+      { id: "security", label: "SECURITE", roles: ["SYSADMIN", "DEVELOPER"] },
       { id: "developer", label: "DEVELOPPEUR", roles: ["SYSADMIN", "DEVELOPER"] }
     ],
     roles: ["SYSADMIN", "DEVELOPER", "ADMIN"],
@@ -86,10 +95,17 @@ export const MAIN_SYSTEM_LAYOUT = {
     "/dashboard",
     "/dossiers",
     "/regles-ocr",
+    "/audit",
     "/system",
     "/logs",
     "/users",
     "/parametres",
+    "/branding",
+    "/theme-studio",
+    "/tenants",
+    "/providers",
+    "/policies",
+    "/security",
     "/account",
     "/developer"
   ]

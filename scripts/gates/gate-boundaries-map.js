@@ -8,10 +8,10 @@ function ok(msg){ console.log(msg); }
 const repo = process.cwd();
 const appSrc = path.join(repo, "app", "src");
 
-// Temporary allowlist (min-risk): keep build stable while converging platform-services into app/src/platform/* via ADR.
+// Temporary allowlist (min-risk): keep build stable while converging platform-services into apps/control-plane/src/platform/* via ADR.
 // Only these files may import platform-services.
 const ALLOWLIST_FILES = new Set([
-  "app/src/main.ts",
+  "apps/control-plane/src/main.ts",
 ]);
 
 function walk(dir) {
@@ -42,14 +42,14 @@ for (const f of files) {
     offenders.push(`${rel} :: core-kernel import`);
   }
 
-  // Disallow importing root runtime folder from app/src (avoid confusion)
+  // Disallow importing root runtime folder from apps/control-plane/src (avoid confusion)
   if (/\bfrom\s+["']\.\.\/\.\.\/runtime\//.test(txt) || /\bfrom\s+["']runtime\//.test(txt)) {
     offenders.push(`${rel} :: root runtime import`);
   }
 }
 
 if (offenders.length) {
-  fail("ERR_BOUNDARIES_VIOLATION: forbidden imports detected:\n" + offenders.map(s => `- ${s}`).join("\n") + "\nSee STRUCTURE_BOUNDARIES.md");
+  fail("ERR_BOUNDARIES_VIOLATION: forbidden imports detected:\n" + offenders.map(s => `- ${s}`).join("\n") + "\nSee governance/docs/ARCH/STRUCTURE_BOUNDARIES.md");
 }
 
 ok("OK: gate:boundaries-map");

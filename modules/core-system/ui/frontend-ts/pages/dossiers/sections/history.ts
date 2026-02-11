@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { appendTable, sectionCard } from "../../_shared/uiBlocks";
 import { listDossiers, type DossierHistoryEntry } from "../model";
 

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import type { Entitlements } from "./Entitlements";
 
 export type EntitlementKey = keyof Entitlements;

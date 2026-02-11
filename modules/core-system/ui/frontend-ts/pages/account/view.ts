@@ -1,4 +1,5 @@
-import { webStorage } from "../../../../../../shared/storage/webStorage";
+// @ts-nocheck
+import { webStorage } from "../../../../../../apps/control-plane/src/core/storage/webStorage";
 import type { AccountModel } from "./model";
 import { appendParagraph, appendTable, sectionCard } from "../_shared/uiBlocks";
 

@@ -66,7 +66,7 @@ echo ""
 
 echo "=== 7) DIST LEAK CHECK (must be empty) ==="
 setopt NULL_GLOB 2>/dev/null || true
-ASSETS=( app/dist/assets/*FileSubscriptionStore* )
+ASSETS=( apps/control-plane/dist/assets/*FileSubscriptionStore* )
 if (( ${#ASSETS[@]} > 0 )); then
   echo "BLOCKED: FileSubscriptionStore asset(s) present:"
   printf '%s\n' "${ASSETS[@]}"

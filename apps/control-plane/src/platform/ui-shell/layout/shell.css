@@ -1,0 +1,121 @@
+/* Variables, base, focus: STYLE_ADMIN_FINAL.css. Ici: layout .cx* uniquement. */
+.cxHeader {
+  position: sticky; top: 0; z-index: 50;
+  height: 56px; display: flex; align-items: center; justify-content: flex-start;
+  gap: 12px; padding: 0 16px;
+  background: var(--panel);
+  border-bottom: 1px solid var(--line);
+}
+.cxBrand {
+  display: flex; align-items: center; gap: 10px;
+  font-weight: 700; font-size: 15px; letter-spacing: .02em; color: var(--text);
+}
+.cxBrandDot {
+  width: 10px; height: 10px; border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 3px rgba(59,130,246,.2);
+}
+.cxBurger {
+  width: 40px; height: 40px; border-radius: var(--radius-md);
+  background: var(--btn); border: 1px solid var(--line);
+  display: grid; place-items: center; cursor: pointer; color: var(--text);
+}
+.cxBurger:hover { background: var(--btn2); }
+.cxBurger:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.cxSearch {
+  flex: 1; min-width: 80px; max-width: 260px;
+  height: 34px; padding: 0 12px; border-radius: var(--radius-md);
+  background: var(--btn); border: 1px solid var(--line);
+  color: var(--text); font: inherit; font-size: 13px;
+}
+.cxSearch::placeholder { color: var(--muted); }
+.cxSearch:focus { outline: none; border-color: var(--accent); }
+.cxUserZone {
+  margin-left: auto; font-size: 12px; color: var(--muted);
+  white-space: nowrap;
+}
+.cxMain {
+  padding: 20px; max-width: 1280px; margin: 0 auto;
+  background: var(--bg);
+}
+.cxDrawerOverlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,.5);
+  z-index: 80; display: none;
+}
+.cxDrawer {
+  position: fixed; top: 0; left: 0; height: 100%;
+  width: 280px; max-width: 90vw;
+  background: var(--panel);
+  border-right: 1px solid var(--line);
+  box-shadow: var(--shadow);
+  z-index: 90; transform: translateX(-100%);
+  transition: transform .2s ease;
+  padding: 16px; display: flex; flex-direction: column;
+}
+.cxDrawer.open { transform: translateX(0); }
+.cxDrawerOverlay.open { display: block; }
+.cxDrawerTop {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 12px; flex-shrink: 0;
+}
+.cxDrawerTitle {
+  font-weight: 700; font-size: 14px; color: var(--text); letter-spacing: .02em;
+}
+.cxClose {
+  width: 36px; height: 36px; border-radius: var(--radius-md);
+  background: transparent; border: 1px solid var(--line);
+  color: var(--text); cursor: pointer; display: grid; place-items: center;
+}
+.cxClose:hover { background: var(--ic-bgHover); }
+.cxClose:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.cxNav {
+  display: flex; flex-direction: column; gap: 4px; margin-top: 8px; flex: 1; overflow-y: auto;
+}
+.cxNavSection {
+  margin: 10px 8px 4px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+.cxNav a {
+  display: flex; align-items: center;
+  text-decoration: none; color: var(--text);
+  padding: 10px 12px; border-radius: var(--radius-md);
+  background: transparent; border: 1px solid transparent;
+  font-size: 13px; transition: background .15s, border-color .15s;
+}
+.cxNav .cxNavIcon { display: inline-flex; margin-right: 10px; flex-shrink: 0; opacity: .85; }
+.cxNav a:hover { background: var(--ic-bgHover); }
+.cxNav a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.cxNav a.active {
+  border-color: rgba(59,130,246,.4);
+  background: var(--ic-accentBg);
+  color: var(--text);
+}
+.cxNav small { color: var(--muted); font-size: 11px; }
+
+/* Desktop: sidebar fixe à gauche */
+@media (min-width: 960px) {
+  .cxBurger { display: none; }
+  .cxDrawerOverlay { display: none !important; }
+  .cxDrawer {
+    left: 0; right: auto;
+    transform: translateX(0);
+    border-right: 1px solid var(--line);
+    width: 260px;
+  }
+  .cxMain {
+    margin: 0 0 0 260px;
+    max-width: none; padding: 24px;
+  }
+}

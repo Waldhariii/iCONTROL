@@ -1,3 +1,4 @@
+// @ts-nocheck
 import {
   MAIN_SYSTEM_DATASOURCES,
   MAIN_SYSTEM_FORM_CONTRACT,

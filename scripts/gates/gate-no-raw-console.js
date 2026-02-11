@@ -23,7 +23,7 @@ function walk(dir) {
 
 for (const f of walk(appSrc)) {
   const rel = path.relative(repo, f).replace(/\\/g, "/");
-  if (rel.includes("app/src/platform/observability/")) continue;
+  if (rel.includes("apps/control-plane/src/platform/observability/")) continue;
   const txt = fs.readFileSync(f, "utf8");
   if (/\bconsole\.(log|info|warn|error|debug)\b/.test(txt)) offenders.push(rel);
 }

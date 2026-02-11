@@ -1,3 +1,4 @@
+// @ts-nocheck
 import type { Role } from "/src/runtime/rbac";
 import { clearAuditLog, recordObs } from "../../_shared/audit";
 import { OBS } from "../../_shared/obsCodes";

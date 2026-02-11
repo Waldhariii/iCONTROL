@@ -2,7 +2,7 @@
 /**
  * Génère docs/ssot/ROUTE_DRIFT_REPORT.md en comparant les routes du code
  * (CP_PAGES_REGISTRY, APP_PAGES_REGISTRY, __CLIENT_V2_ROUTES__, moduleLoader, getRouteIdFromHash)
- * avec config/ssot/ROUTE_CATALOG.json.
+ * avec runtime/configs/ssot/ROUTE_CATALOG.json.
  *
  * Usage: node scripts/gates/generate-route-drift-report.mjs
  * Puis: npm run gate:route-drift (vérifie « Routes extra » = 0).
@@ -11,12 +11,12 @@ import { readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 
 const ROOT = resolve(process.cwd());
-const APP = resolve(ROOT, "app/src");
+const APP = resolve(ROOT, "apps/control-plane/src");
 
 function collectCodeRoutes() {
   const codeSet = new Set(); // "route_id|app_surface"
 
-  // 1) CP_PAGES_REGISTRY (app/src/surfaces/cp/registry.ts)
+  // 1) CP_PAGES_REGISTRY (apps/control-plane/src/surfaces/cp/registry.ts)
   const cpReg = readFileSync(resolve(APP, "pages/cp/registry.ts"), "utf8");
   const cpMatch = cpReg.match(/export const CP_PAGES_REGISTRY[^=]*=\s*\{([\s\S]*?)\n\};/);
   if (cpMatch) {
@@ -28,7 +28,7 @@ function collectCodeRoutes() {
     }
   }
 
-  // 2) APP_PAGES_REGISTRY (app/src/surfaces/app/registry.ts)
+  // 2) APP_PAGES_REGISTRY (apps/control-plane/src/surfaces/app/registry.ts)
   const appReg = readFileSync(resolve(APP, "pages/app/registry.ts"), "utf8");
   const appMatch = appReg.match(/export const APP_PAGES_REGISTRY[^=]*=\s*\{([\s\S]*?)\n\};/);
   const appRegKeys = new Set();
@@ -78,7 +78,7 @@ function collectCodeRoutes() {
 }
 
 function loadCatalogSet() {
-  const raw = readFileSync(resolve(ROOT, "config/ssot/ROUTE_CATALOG.json"), "utf8");
+  const raw = readFileSync(resolve(ROOT, "runtime/configs/ssot/ROUTE_CATALOG.json"), "utf8");
   const catalog = JSON.parse(raw);
   const s = new Set();
   for (const r of catalog.routes || []) {
@@ -103,19 +103,19 @@ function main() {
     if (!codeSet.has(e)) missing.push(e);
   }
 
-  const catalogRaw = JSON.parse(readFileSync(resolve(ROOT, "config/ssot/ROUTE_CATALOG.json"), "utf8"));
+  const catalogRaw = JSON.parse(readFileSync(resolve(ROOT, "runtime/configs/ssot/ROUTE_CATALOG.json"), "utf8"));
   const catalogCount = (catalogRaw.routes || []).length;
   const now = new Date().toISOString().slice(0, 19) + "Z";
 
   const md = `# ROUTE_DRIFT_REPORT
 
-**Comparaison:** routes effectivement servies / connues dans le code vs \`config/ssot/ROUTE_CATALOG.json\`.
+**Comparaison:** routes effectivement servies / connues dans le code vs \`runtime/configs/ssot/ROUTE_CATALOG.json\`.
 **Généré:** ${now}
 
 ## Méthode
 
 - **Code:** \`router.getRouteId\`, \`getRouteIdFromHash\`, \`CP_PAGES_REGISTRY\`, \`APP_PAGES_REGISTRY\`, \`__CLIENT_V2_ROUTES__\`, \`moduleLoader.renderRoute\`.
-- **Catalogue:** \`config/ssot/ROUTE_CATALOG.json\`.
+- **Catalogue:** \`runtime/configs/ssot/ROUTE_CATALOG.json\`.
 
 ## Résultat
 

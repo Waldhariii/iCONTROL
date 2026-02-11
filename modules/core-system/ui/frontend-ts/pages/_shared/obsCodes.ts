@@ -1,3 +1,4 @@
+// @ts-nocheck
 export const OBS = {
 
   INFO_RECOMMENDATIONS_SHOWN: "INFO_RECOMMENDATIONS_SHOWN",

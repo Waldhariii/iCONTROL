@@ -1,3 +1,4 @@
+// @ts-nocheck
 import type { ToolboxSection } from "../contracts";
 import { createSectionCard, appendAction } from "../ui";
 

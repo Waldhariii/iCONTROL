@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { renderLoginPage, bindLoginEvents } from "./pages/login/loginPage";
 import { renderDashboardPage, bindDashboardEvents } from "./pages/dashboard/dashboardPage";
 

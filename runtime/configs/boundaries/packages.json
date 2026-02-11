@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "packages": {
+    "root": {
+      "path": ".",
+      "allowImportsFrom": ["root"]
+    },
+    "app": {
+      "path": "apps/control-plane",
+      "allowImportsFrom": ["app", "modules", "runtime", "shared", "config", "governance", "design-system"]
+    },
+    "client": {
+      "path": "apps/client-app",
+      "allowImportsFrom": ["client", "modules", "runtime", "shared", "config", "design-system"]
+    },
+    "server": {
+      "path": "platform/api",
+      "allowImportsFrom": ["server", "runtime", "shared", "config", "modules"]
+    },
+    "runtime": {
+      "path": "runtime",
+      "allowImportsFrom": ["runtime", "shared", "config"]
+    },
+    "modules": {
+      "path": "modules",
+      "allowImportsFrom": ["modules", "shared", "config", "runtime"]
+    },
+    "shared": {
+      "path": "core/kernel/shared",
+      "allowImportsFrom": ["shared", "config"]
+    },
+    "config": {
+      "path": "runtime/configs",
+      "allowImportsFrom": ["config"]
+    },
+    "governance": {
+      "path": "governance",
+      "allowImportsFrom": ["governance", "config"]
+    },
+    "design-system": {
+      "path": "design-system",
+      "allowImportsFrom": ["design-system", "shared", "config"]
+    },
+    "desktop": {
+      "path": "app-desktop-*",
+      "allowImportsFrom": ["desktop", "shared", "config", "runtime", "app"]
+    }
+  },
+  "notes": [
+    "Non-destructive: no code moved. This map is a governance control-plane for future refactors.",
+    "Allow list is permissive for now; tighten progressively with evidence."
+  ]
+}

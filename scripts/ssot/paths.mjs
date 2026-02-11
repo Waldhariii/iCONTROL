@@ -2,12 +2,12 @@
 import { readFileSync, existsSync } from "node:fs";
 import { resolve } from "node:path";
 
-const DEFAULT_PATHS_FILE = "PATHS_CANONICAL.md";
+const DEFAULT_PATHS_FILE = "governance/docs/ARCH/PATHS_CANONICAL.md";
 
 function extractJsonBlock(mdText) {
   const match = mdText.match(/```json\s*([\s\S]*?)\s*```/m);
   if (!match) {
-    throw new Error("SSOT JSON block not found in PATHS_CANONICAL.md");
+    throw new Error("SSOT JSON block not found in governance/docs/ARCH/PATHS_CANONICAL.md");
   }
   return match[1];
 }
@@ -65,7 +65,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
       console.error("ERR_SSOT_PATHS_MISSING", { missing });
       process.exit(2);
     }
-    console.log("OK: SSOT paths loaded from PATHS_CANONICAL.md");
+    console.log("OK: SSOT paths loaded from governance/docs/ARCH/PATHS_CANONICAL.md");
   } catch (err) {
     console.error("ERR_SSOT_PATHS", String(err));
     process.exit(1);

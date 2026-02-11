@@ -1,0 +1,416 @@
+{
+  "version": "1.0",
+  "source": "router.ts, allowlists, getRouteId, moduleLoader, CP_PAGES_REGISTRY, APP_PAGES_REGISTRY",
+  "generated": "2026-01-24",
+  "remarks": "Complete separation: All routeIds are globally unique with _cp or _app suffix. No shared routes between APP and CP.",
+  "routes": [
+    {
+      "route_id": "login_cp",
+      "path": "#/login",
+      "app_surface": "CP",
+      "page_module_id": "cp.login",
+      "permissions_required": [],
+      "feature_flag_id": null,
+      "tenant_visibility": "all",
+      "status": "ACTIVE"
+    },
+    {
+      "route_id": "dashboard_cp",
+      "path": "#/dashboard",
+      "app_surface": "CP",
+      "page_module_id": "cp.dashboard",
+      "permissions_required": [],
+      "feature_flag_id": null,
+      "tenant_visibility": "all",
+      "status": "ACTIVE"
+    },
+    {
+      "route_id": "account_cp",
+      "path": "#/account",
+      "app_surface": "CP",
+      "page_module_id": "cp.account",
+      "permissions_required": [],
+      "feature_flag_id": null,
+      "tenant_visibility": "all",
+      "status": "ACTIVE"
+    },
+    {
+      "route_id": "settings_cp",
+      "path": "#/settings",
+      "app_surface": "CP",
+      "page_module_id": "cp.settings",
+      "permissions_required": [
+        "canAccessSettings"
+      ],
+      "feature_flag_id": null,
+      "tenant_visibility": "all",
+      "status": "ACTIVE"
+    },
+    {
+      "route_id": "settings_branding_cp",
+      "path": "#/settings/branding",
+      "app_surface": "CP",
+      "page_module_id": "cp.settings_branding",
+      "permissions_required": [
+        "canAccessSettings"
+      ],
+      "feature_flag_id": null,
+      "tenant_visibility": "all",
+      "status": "ACTIVE"
+    },
+    {
+      "route_id": "branding_cp",
+      "path": "#/branding",
+      "app_surface": "CP",
+      "page_module_id": "cp.branding",
+      "permissions_required": [
+        "canAccessBranding"
+      ],
+      "feature_flag_id": null,
+      "tenant_visibility": "all",
+      "status": "ACTIVE"
+    },
+    {
+      "route_id": "login_theme_cp",
+      "path": "#/theme-studio",
+      "app_surface": "CP",
+      "page_module_id": "cp.login_theme",
+      "permissions_required": [
+        "canAccessThemeStudio"
+      ],
+      "feature_flag_id": null,
+      "tenant_visibility": "all",
+      "status": "ACTIVE"
+    },
+    {
+      "route_id": "security_cp",
+      "path": "#/security",
+      "app_surface": "CP",
+      "page_module_id": "cp.security",
+      "permissions_required": [
+        "canAccessSecurity"
+      ],
+      "feature_flag_id": null,
+      "tenant_visibility": "all",
+      "status": "ACTIVE"
+    },
+    {
+      "route_id": "policies_cp",
+      "path": "#/policies",
+      "app_surface": "CP",
+      "page_module_id": "cp.policies",
+      "permissions_required": [
+        "canAccessPolicies"
+      ],
+      "feature_flag_id": null,
+      "tenant_visibility": "all",
+      "status": "ACTIVE"
+    },
+    {
+      "route_id": "providers_cp",
+      "path": "#/providers",
+      "app_surface": "CP",
+      "page_module_id": "cp.providers",
+      "permissions_required": [
+        "canAccessProviders"
+      ],
+      "feature_flag_id": null,
+      "tenant_visibility": "all",
+      "status": "ACTIVE"
+    },
+    {
+      "route_id": "tenants_cp",
+      "path": "#/tenants",
+      "app_surface": "CP",
+      "page_module_id": "cp.tenants",
+      "permissions_required": [
+        "canAccessTenants"
+      ],
+      "feature_flag_id": null,
+      "tenant_visibility": "all",
+      "status": "ACTIVE"
+    },
+    {
+      "route_id": "users_cp",
+      "path": "#/users",
+      "app_surface": "CP",
+      "page_module_id": "cp.users",
+      "permissions_required": [],
+      "feature_flag_id": null,
+      "tenant_visibility": "all",
+      "status": "ACTIVE"
+    },
+    {
+      "route_id": "system_cp",
+      "path": "#/system",
+      "app_surface": "CP",
+      "page_module_id": "cp.system",
+      "permissions_required": [],
+      "feature_flag_id": null,
+      "tenant_visibility": "all",
+      "status": "ACTIVE"
+    },
+    {
+      "route_id": "developer_cp",
+      "path": "#/developer",
+      "app_surface": "CP",
+      "page_module_id": "core.developer",
+      "permissions_required": [],
+      "feature_flag_id": null,
+      "tenant_visibility": "all",
+      "status": "ACTIVE"
+    },
+    {
+      "route_id": "developer_entitlements_cp",
+      "path": "#/developer/entitlements",
+      "app_surface": "CP",
+      "page_module_id": "core.developer_entitlements",
+      "permissions_required": [],
+      "feature_flag_id": null,
+      "tenant_visibility": "all",
+      "status": "ACTIVE"
+    },
+    {
+      "route_id": "access_denied_cp",
+      "path": "#/access-denied",
+      "app_surface": "CP",
+      "page_module_id": "cp.access_denied",
+      "permissions_required": [],
+      "feature_flag_id": null,
+      "tenant_visibility": "all",
+      "status": "ACTIVE"
+    },
+    {
+      "route_id": "verification_cp",
+      "path": "#/verification",
+      "app_surface": "CP",
+      "page_module_id": "core.verification",
+      "permissions_required": [],
+      "feature_flag_id": null,
+      "tenant_visibility": "all",
+      "status": "ACTIVE"
+    },
+    {
+      "route_id": "blocked_cp",
+      "path": "#/blocked",
+      "app_surface": "CP",
+      "page_module_id": "cp.blocked",
+      "permissions_required": [],
+      "feature_flag_id": null,
+      "tenant_visibility": "all",
+      "status": "EXPERIMENTAL"
+    },
+    {
+      "route_id": "toolbox_cp",
+      "path": "#/toolbox",
+      "app_surface": "CP",
+      "page_module_id": "core.toolbox",
+      "permissions_required": [
+        "canAccessToolbox"
+      ],
+      "feature_flag_id": null,
+      "tenant_visibility": "all",
+      "status": "ACTIVE"
+    },
+    {
+      "route_id": "logs_cp",
+      "path": "#/logs",
+      "app_surface": "CP",
+      "page_module_id": "core.logs",
+      "permissions_required": [],
+      "feature_flag_id": null,
+      "tenant_visibility": "all",
+      "status": "ACTIVE"
+    },
+    {
+      "route_id": "dossiers_cp",
+      "path": "#/dossiers",
+      "app_surface": "CP",
+      "page_module_id": "core.dossiers",
+      "permissions_required": [],
+      "feature_flag_id": null,
+      "tenant_visibility": "all",
+      "status": "ACTIVE"
+    },
+    {
+      "route_id": "entitlements_cp",
+      "path": "#/entitlements",
+      "app_surface": "CP",
+      "page_module_id": "cp.entitlements",
+      "permissions_required": [],
+      "feature_flag_id": null,
+      "tenant_visibility": "all",
+      "status": "EXPERIMENTAL"
+    },
+    {
+      "route_id": "pages_cp",
+      "path": "#/pages",
+      "app_surface": "CP",
+      "page_module_id": "cp.pages",
+      "permissions_required": [],
+      "feature_flag_id": null,
+      "tenant_visibility": "all",
+      "status": "EXPERIMENTAL"
+    },
+    {
+      "route_id": "audit_cp",
+      "path": "#/audit",
+      "app_surface": "CP",
+      "page_module_id": "cp.audit",
+      "permissions_required": [],
+      "feature_flag_id": null,
+      "tenant_visibility": "all",
+      "status": "EXPERIMENTAL"
+    },
+    {
+      "route_id": "notfound_cp",
+      "path": null,
+      "app_surface": "CP",
+      "page_module_id": "cp.notfound",
+      "permissions_required": [],
+      "feature_flag_id": null,
+      "tenant_visibility": "all",
+      "status": "ACTIVE"
+    },
+    {
+      "route_id": "home_app",
+      "path": "#/home-app",
+      "app_surface": "APP",
+      "page_module_id": "app.home_app",
+      "permissions_required": [],
+      "feature_flag_id": null,
+      "tenant_visibility": "all",
+      "status": "ACTIVE"
+    },
+    {
+      "route_id": "dashboard_app",
+      "path": "#/dashboard",
+      "app_surface": "APP",
+      "page_module_id": "app.dashboard_app",
+      "permissions_required": [],
+      "feature_flag_id": null,
+      "tenant_visibility": "all",
+      "status": "ACTIVE"
+    },
+    {
+      "route_id": "login_app",
+      "path": "#/login",
+      "app_surface": "APP",
+      "page_module_id": "app.login_app",
+      "permissions_required": [],
+      "feature_flag_id": null,
+      "tenant_visibility": "all",
+      "status": "ACTIVE"
+    },
+    {
+      "route_id": "account_app",
+      "path": "#/account",
+      "app_surface": "APP",
+      "page_module_id": "app.account_app",
+      "permissions_required": [],
+      "feature_flag_id": null,
+      "tenant_visibility": "all",
+      "status": "ACTIVE"
+    },
+    {
+      "route_id": "settings_app",
+      "path": "#/settings",
+      "app_surface": "APP",
+      "page_module_id": "app.settings_app",
+      "permissions_required": [],
+      "feature_flag_id": null,
+      "tenant_visibility": "all",
+      "status": "ACTIVE"
+    },
+    {
+      "route_id": "clients_app",
+      "path": "#/clients",
+      "app_surface": "APP",
+      "page_module_id": "app.clients_app",
+      "permissions_required": [],
+      "feature_flag_id": null,
+      "tenant_visibility": "all",
+      "status": "ACTIVE"
+    },
+    {
+      "route_id": "jobs_app",
+      "path": "#/jobs",
+      "app_surface": "APP",
+      "page_module_id": "app.jobs_app",
+      "permissions_required": [],
+      "feature_flag_id": null,
+      "tenant_visibility": "all",
+      "status": "ACTIVE"
+    },
+    {
+      "route_id": "registry_app",
+      "path": "#/registry",
+      "app_surface": "APP",
+      "page_module_id": "app.registry_app",
+      "permissions_required": [],
+      "feature_flag_id": null,
+      "tenant_visibility": "all",
+      "status": "ACTIVE"
+    },
+    {
+      "route_id": "gallery_app",
+      "path": "#/gallery",
+      "app_surface": "APP",
+      "page_module_id": "app.gallery_app",
+      "permissions_required": [],
+      "feature_flag_id": null,
+      "tenant_visibility": "all",
+      "status": "ACTIVE"
+    },
+    {
+      "route_id": "client_disabled_app",
+      "path": "#/client-disabled",
+      "app_surface": "APP",
+      "page_module_id": "app.client_disabled",
+      "permissions_required": [],
+      "feature_flag_id": null,
+      "tenant_visibility": "all",
+      "status": "ACTIVE"
+    },
+    {
+      "route_id": "client_catalog_app",
+      "path": "#/__ui-catalog-client",
+      "app_surface": "APP",
+      "page_module_id": "app.client_catalog",
+      "permissions_required": [],
+      "feature_flag_id": null,
+      "tenant_visibility": "all",
+      "status": "HIDDEN"
+    },
+    {
+      "route_id": "pages_inventory_app",
+      "path": "#/pages-inventory",
+      "app_surface": "APP",
+      "page_module_id": "app.pages_inventory",
+      "permissions_required": [],
+      "feature_flag_id": null,
+      "tenant_visibility": "all",
+      "status": "EXPERIMENTAL"
+    },
+    {
+      "route_id": "access_denied_app",
+      "path": "#/access-denied",
+      "app_surface": "APP",
+      "page_module_id": "app.access_denied",
+      "permissions_required": [],
+      "feature_flag_id": null,
+      "tenant_visibility": "all",
+      "status": "ACTIVE"
+    },
+    {
+      "route_id": "notfound_app",
+      "path": "#/notfound",
+      "app_surface": "APP",
+      "page_module_id": "app.notfound",
+      "permissions_required": [],
+      "feature_flag_id": null,
+      "tenant_visibility": "all",
+      "status": "ACTIVE"
+    }
+  ]
+}

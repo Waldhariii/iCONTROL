@@ -2,7 +2,7 @@ import fs from "fs";
 import path from "path";
 
 export function loadBudgets() {
-  const p = path.join(process.cwd(), "config", "governance", "warn-budgets.json");
+  const p = path.join(process.cwd(), "runtime", "configs", "governance", "warn-budgets.json");
   const j = JSON.parse(fs.readFileSync(p, "utf8"));
   if (!j || !j.budgets) throw new Error("warn-budgets.json invalid");
   return { path: p, json: j };

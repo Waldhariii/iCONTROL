@@ -5,7 +5,7 @@ echo "[gate] checking tenant scoping..."
 
 MISSING=()
 
-for page in app/src/surfaces/cp/*/Page.tsx app/src/surfaces/app/*/Page.tsx; do
+for page in apps/control-plane/src/surfaces/cp/*/Page.tsx apps/control-plane/src/surfaces/app/*/Page.tsx; do
   if [ ! -f "$page" ]; then continue; fi
 
   if ! grep -q "useTenantContext\|tenantId" "$page"; then

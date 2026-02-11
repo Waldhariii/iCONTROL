@@ -2,10 +2,10 @@
 set -euo pipefail
 
 # Bloque tokens tenant-specific (exemples). Autorisé uniquement dans:
-#   - app/src/ui-v2/mockups/**
+#   - apps/control-plane/src/ui-v2/mockups/**
 #   - docs/**
 #   - _backups/**
-ALLOW_RE='^(app/src/ui-v2/mockups/|docs/|_backups/)'
+ALLOW_RE='^(apps/control-plane/src/ui-v2/mockups/|docs/|_backups/)'
 SELF_RE='^scripts/gates/no-tenant-sample-data\.sh$'
 
 # Mets ici uniquement des tokens "réels" non génériques. (Pas "Customer A")

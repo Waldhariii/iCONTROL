@@ -2,7 +2,7 @@
 /* Hardcoded colors budget gate (baseline lock).
    - Scans repo for common hardcoded color patterns.
    - Allows explicit allowlist paths.
-   - Fails if current count > budget (budget stored in config/hardcoded-colors-budget.json).
+   - Fails if current count > budget (budget stored in runtime/configs/hardcoded-colors-budget.json).
 */
 import fs from "node:fs";
 import path from "node:path";
@@ -12,16 +12,16 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const REPO = path.resolve(__dirname, "../..");
 
-const BUDGET_PATH = path.join(REPO, "config", "hardcoded-colors-budget.json");
+const BUDGET_PATH = path.join(REPO, "runtime", "configs", "hardcoded-colors-budget.json");
 
 // Conservative patterns: hex, rgb/rgba, hsl/hsla. (No CSS vars)
 const RE = /\b(#(?:[0-9a-fA-F]{3,8})\b|rgba?\(\s*\d+\s*,\s*\d+\s*,\s*\d+(?:\s*,\s*(?:0?\.\d+|1(?:\.0)?)\s*)?\)|hsla?\(\s*\d+\s*,\s*\d+%\s*,\s*\d+%(?:\s*,\s*(?:0?\.\d+|1(?:\.0)?)\s*)?\))/g;
 
 const ALLOWLIST = [
   // generated tokens or legacy artifacts we accept short-term
-  "app/src/styles/tokens.generated.css",
-  "app/src/ui-v2/tokens/design-tokens.css",
-  "app/src/styles/STYLE_ADMIN_FINAL.css",
+  "apps/control-plane/src/styles/tokens.generated.css",
+  "apps/control-plane/src/ui-v2/tokens/design-tokens.css",
+  "apps/control-plane/src/styles/STYLE_ADMIN_FINAL.css",
 ];
 
 const SCAN_EXT = new Set([".ts", ".tsx", ".js", ".jsx", ".css", ".mjs"]);

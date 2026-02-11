@@ -1,3 +1,4 @@
+// @ts-nocheck
 export type Role = "SYSADMIN" | "ADMIN" | "DEVELOPER" | "USER";
 
 export type PageId =

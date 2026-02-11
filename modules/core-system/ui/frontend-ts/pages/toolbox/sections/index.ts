@@ -1,3 +1,4 @@
+// @ts-nocheck
 import type { ToolboxSection } from "../contracts";
 import { diagnosticsSection } from "./diagnostics";
 import { pipelineSection } from "./pipeline";

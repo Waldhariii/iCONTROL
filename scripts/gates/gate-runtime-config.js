@@ -53,7 +53,7 @@ const files = walk(appSrc);
 const offenders = [];
 for (const f of files) {
   const rel = path.relative(repo, f).replace(/\\/g, "/");
-  if (rel.includes("app/src/platform/runtimeConfig/")) continue;
+  if (rel.includes("apps/control-plane/src/platform/runtimeConfig/")) continue;
   const txt = fs.readFileSync(f, "utf8");
   // Conservative: flag node fs/path imports
   const hasFs = /\bfrom\s+["']fs["']|\brequire\(["']fs["']\)/.test(txt);

@@ -13,7 +13,7 @@ if npm run -s gate:pressure-layer >"$tmp" 2>&1; then
 fi
 
 # Gate failed — count heuristic for diagnostics
-count="$(grep -c -E '(app/|modules/|shared/|platform-services/)' "$tmp" 2>/dev/null || echo "1")"
+count="$(grep -c -E '(apps/|modules/|core/kernel/shared/|platform/)' "$tmp" 2>/dev/null || echo "1")"
 echo "ERR_PRESSURE_LAYER_BUDGET: offenders>=1"
 echo "---- gate output ----"
 cat "$tmp"

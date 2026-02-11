@@ -8,7 +8,7 @@ function run(cmd) {
 const hits = run(
   `rg -n --hidden --glob '!**/node_modules/**' --glob '!**/_audit/**' ` +
   `'(namespace\\s*:\\s*["\\\'](\\.\\.|/|~|[A-Za-z]:\\\\)|key\\s*:\\s*["\\\'](\\.\\.|/|~|[A-Za-z]:\\\\))' ` +
-  `app/src platform-services modules core-kernel docs || true`
+  `apps/control-plane/src platform-services modules core-kernel docs || true`
 ).trim();
 
 if (hits) {

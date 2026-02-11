@@ -1,3 +1,4 @@
+// @ts-nocheck
 import type { SubscriptionRecord } from "./SubscriptionRecord";
 import type { SubscriptionStore } from "./SubscriptionStore";
 

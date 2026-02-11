@@ -24,7 +24,7 @@ const issues = {
 
 // 1) Analyser ROUTE_CATALOG.json pour doublons et incohérences
 function auditRouteCatalog() {
-  const catalogPath = path.join(repoRoot, "config", "ssot", "ROUTE_CATALOG.json");
+  const catalogPath = path.join(repoRoot, "runtime", "configs", "ssot", "ROUTE_CATALOG.json");
   if (!fs.existsSync(catalogPath)) {
     issues.errors.push("ROUTE_CATALOG.json manquant");
     return;
@@ -171,7 +171,7 @@ function auditBuildPaths() {
 // 5) Analyser routes dans router.ts vs ROUTE_CATALOG.json
 function auditRouterVsCatalog() {
   const routerPath = path.join(repoRoot, "app", "src", "router.ts");
-  const catalogPath = path.join(repoRoot, "config", "ssot", "ROUTE_CATALOG.json");
+  const catalogPath = path.join(repoRoot, "runtime", "configs", "ssot", "ROUTE_CATALOG.json");
 
   if (!fs.existsSync(routerPath) || !fs.existsSync(catalogPath)) return;
 

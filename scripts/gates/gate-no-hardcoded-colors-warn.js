@@ -25,7 +25,7 @@ const COLOR_RE = /(#[0-9a-fA-F]{3,8}\b|\brgba?\(|\bhsl[a]?\()/;
 for (const f of walk(appSrc)) {
   const rel = path.relative(repo, f).replace(/\\/g, "/");
   // Allow design token files or theme layer (we want vars there)
-  if (rel.includes("app/src/platform/theme/")) continue;
+  if (rel.includes("apps/control-plane/src/platform/theme/")) continue;
 
   const txt = fs.readFileSync(f, "utf8");
   if (COLOR_RE.test(txt)) offenders.push(rel);

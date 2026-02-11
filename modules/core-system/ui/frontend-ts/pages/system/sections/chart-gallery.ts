@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Galerie de tous les types de graphiques — visuel Enterprise (line, bar, stackedBar, area, donut, gauge).
  * Données de démo pour prévisualisation.

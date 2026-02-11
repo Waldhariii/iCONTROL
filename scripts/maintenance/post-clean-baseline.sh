@@ -56,8 +56,8 @@ done
 
 echo
 echo "--- 3) vérifier que les pages restantes correspondent au baseline ---"
-APP_PAGES="app/src/surfaces/app"
-CP_PAGES="app/src/surfaces/cp"
+APP_PAGES="apps/control-plane/src/surfaces/app"
+CP_PAGES="apps/control-plane/src/surfaces/cp"
 
 echo ">> APP pages (should contain only dashboard/login/account/settings variants)"
 if [[ -d "$APP_PAGES" ]]; then
@@ -79,7 +79,7 @@ echo "--- 4) détecter les références brisées aux pages supprimées/déplacé
 mkdir -p "$REPO/_audit"
 rg -n --hidden --glob '!**/node_modules/**' --glob '!**/dist/**' \
   -S -e 'src/pages/(app|cp)/' -e 'pagesInventory' -e 'client-pages-inventory' \
-  app/src 2>/dev/null | tee "$LATEST_AUD/POST_REF_SCAN.txt" || true
+  apps/control-plane/src 2>/dev/null | tee "$LATEST_AUD/POST_REF_SCAN.txt" || true
 
 echo
 echo "--- 5) Lister imports vers fichiers inexistants (best-effort) ---"

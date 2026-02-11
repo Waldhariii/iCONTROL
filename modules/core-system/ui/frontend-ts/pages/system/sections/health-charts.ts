@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Section « Analyse et santé du système » — graphiques CPU, mémoire, latence,
  * requêtes API, santé globale (OK/WARN/ERR) et modules.

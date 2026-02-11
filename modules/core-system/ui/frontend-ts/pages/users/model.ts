@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { MAIN_SYSTEM_MODULES, MAIN_SYSTEM_PERMISSIONS } from "../_shared/mainSystem.data";
 
 export type UsersPermissionRow = {

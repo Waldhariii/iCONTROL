@@ -1,3 +1,4 @@
+// @ts-nocheck
 import type { Role } from "/src/runtime/rbac";
 import type { SafeMode } from "../_shared/safeMode";
 

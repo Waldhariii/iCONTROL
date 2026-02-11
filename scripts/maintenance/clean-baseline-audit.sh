@@ -100,11 +100,11 @@ echo
 echo "--- 3) locate routing + page registries ---"
 rg -n --hidden --glob '!**/node_modules/**' --glob '!**/dist/**' \
   -S -e 'route' -e 'routes' -e 'router' -e 'pagesInventory' -e 'pages-inventory' -e 'Page' \
-  app/src 2>/dev/null | head -n 400 | tee "$AUD/ROUTING_HINTS_HEAD.txt" || true
+  apps/control-plane/src 2>/dev/null | head -n 400 | tee "$AUD/ROUTING_HINTS_HEAD.txt" || true
 
 # Candidate directories (adjust automatically if absent)
-APP_PAGES_DIR="app/src/surfaces/app"
-CP_PAGES_DIR="app/src/surfaces/cp"
+APP_PAGES_DIR="apps/control-plane/src/surfaces/app"
+CP_PAGES_DIR="apps/control-plane/src/surfaces/cp"
 
 echo
 echo "--- 3b) list page dirs if present ---"
@@ -151,7 +151,7 @@ echo "OK: wrote $EXTRA_LIST"
 # Also flag route catalog files (so we can later prune references)
 rg -n --hidden --glob '!**/node_modules/**' --glob '!**/dist/**' \
   -S -e 'pagesInventory' -e 'client-pages-inventory' -e 'CP' -e 'CONTROL_PLANE' \
-  app/src 2>/dev/null | tee "$AUD/INVENTORY_REFS.txt" || true
+  apps/control-plane/src 2>/dev/null | tee "$AUD/INVENTORY_REFS.txt" || true
 
 # ------------------------------------------------------------
 # 5) Plan: quarantine "EXTRA" pages first (non-destructive by default)

@@ -31,7 +31,7 @@ function __isFeatureFlagEnabled(flagName) {
     }
 
     // Fallback: read from SSOT JSON file
-    const flagsPath = path.join(ROOT, "app/src/policies/feature_flags.default.json");
+    const flagsPath = path.join(ROOT, "apps/control-plane/src/policies/feature_flags.default.json");
     if (fs.existsSync(flagsPath)) {
       const flagsJson = JSON.parse(fs.readFileSync(flagsPath, "utf8"));
       const flag = flagsJson.flags?.[flagName];
@@ -88,20 +88,20 @@ function writeFile(p, s) {
   }
 }
 
-const UI_CORE_DIR = "app/src/core/ui";
+const UI_CORE_DIR = "apps/control-plane/src/core/ui";
 const UI_SHARED_DIR = "modules/core-system/ui/frontend-ts/pages/_shared";
-const CP_CSS = "app/src/styles/STYLE_ADMIN_FINAL.css";
+const CP_CSS = "apps/control-plane/src/styles/STYLE_ADMIN_FINAL.css";
 const REGISTRY_TS = path.join(UI_CORE_DIR, "registry.ts");
 
 // Allowlist: inline styles we accept (dynamic-only)
 const INLINE_ALLOWLIST = [
-  "app/src/core/ui/skeletonLoader.ts", // allow: height only
+  "apps/control-plane/src/core/ui/skeletonLoader.ts", // allow: height only
   // Extend explicitly if needed
 ];
 
 // Exclusions (out of scope for contracts, report-only elsewhere)
 const INLINE_EXCLUDE_GLOBS = [
-  "!app/src/core/ui/catalog/**"
+  "!apps/control-plane/src/core/ui/catalog/**"
 ];
 
 // Allowlist: CP can contain these hex values (keep tiny; prefer tokens)
@@ -243,7 +243,7 @@ let report = `# UI Contracts Report\n\nGenerated: ${new Date().toISOString()}\n\
 }
 
 /**
- * Contract D — Component registry coverage: every createX() exported in app/src/core/ui/*.ts must be listed in registry.ts
+ * Contract D — Component registry coverage: every createX() exported in apps/control-plane/src/core/ui/*.ts must be listed in registry.ts
  * Very pragmatic: find "export function create" occurrences, extract names, verify present in registry file content.
  */
 {

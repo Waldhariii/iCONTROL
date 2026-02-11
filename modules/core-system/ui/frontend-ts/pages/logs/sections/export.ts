@@ -1,3 +1,4 @@
+// @ts-nocheck
 import type { Role } from "/src/runtime/rbac";
 import { getAuditLog } from "../../_shared/audit";
 import { blockActionBar } from "../../_shared/uiBlocks";

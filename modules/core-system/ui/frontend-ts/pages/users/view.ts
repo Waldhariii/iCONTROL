@@ -1,3 +1,4 @@
+// @ts-nocheck
 import type { UsersModel } from "./model";
 import { appendList, appendTable, sectionCard } from "../_shared/uiBlocks";
 

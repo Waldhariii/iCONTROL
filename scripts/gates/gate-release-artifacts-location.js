@@ -6,8 +6,8 @@ const path = require("path");
 const REPO = process.cwd();
 const BAD = [
   "dist",
-  "app/dist",
-  "server/dist",
+  "apps/control-plane/dist",
+  "platform/api/dist",
   "dist_rollback",
 ];
 const BAD_GLOBS = [

@@ -15,9 +15,9 @@ violations=$(rg -n \
   --glob '!**/_AUDIT_*' \
   --glob '!**/*.schema.json' \
   --glob '!**/mainSystem.data.ts' \
-  --glob '!app/src/platform/**' \
-  --glob '!app/src/core/**' \
-  --glob '!app/src/dev/**' \
+  --glob '!apps/control-plane/src/platform/**' \
+  --glob '!apps/control-plane/src/core/**' \
+  --glob '!apps/control-plane/src/dev/**' \
   2>/dev/null || true)
 
 if [[ -n "$violations" ]]; then

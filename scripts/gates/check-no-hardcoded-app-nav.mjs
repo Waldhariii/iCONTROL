@@ -12,10 +12,10 @@ function repoRoot(){
 }
 
 const root = repoRoot();
-const targets = ["app/src/core", "app/src/surfaces"];
+const targets = ["apps/control-plane/src/core", "apps/control-plane/src/surfaces"];
 const allow = new Set([
-  "app/src/core/nav/appNav.catalog.ts",
-  "app/src/core/nav/cpNav.catalog.ts",
+  "apps/control-plane/src/core/nav/appNav.catalog.ts",
+  "apps/control-plane/src/core/nav/cpNav.catalog.ts",
 ]);
 
 function listFiles(dir){

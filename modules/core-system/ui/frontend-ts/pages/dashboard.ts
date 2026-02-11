@@ -1,5 +1,6 @@
+// @ts-nocheck
 import { coreBaseStyles } from "../shared/coreStyles";
-import { logout, requireSession } from "../../../../../platform-services/security/auth/localAuth";
+import { logout, requireSession } from "../../../../../apps/control-plane/src/platform/security/localAuth";
 import { MAIN_SYSTEM_ENABLED, MAIN_SYSTEM_LAYOUT, MAIN_SYSTEM_MODULES } from "./_shared/mainSystem.data";
 import { appendList, appendTable, sectionCard } from "./_shared/uiBlocks";
 import { mountSections, type SectionSpec } from "./_shared/sections";

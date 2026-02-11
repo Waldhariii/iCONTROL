@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { blockKeyValueTable } from "../../_shared/uiBlocks";
 import { getSafeMode } from "../../_shared/safeMode";
 

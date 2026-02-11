@@ -1,6 +1,0 @@
-#!/usr/bin/env bash
-set -euo pipefail
-
-if [ -x "app/tools/scripts/guard-cp-no-inline-styles.sh" ]; then
-  (cd app && ./tools/scripts/guard-cp-no-inline-styles.sh)
-fi

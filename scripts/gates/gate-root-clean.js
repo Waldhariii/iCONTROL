@@ -36,7 +36,7 @@ if (offenders.length) {
   fail(
     "ERR_ROOT_NOT_CLEAN: forbidden artefacts found at repo root:\n" +
     offenders.map(o => `- ${o}`).join("\n") +
-    "\nPolicy: see ARTEFACTS_POLICY.md"
+    "\nPolicy: see governance/docs/SECURITY/ARTEFACTS_POLICY.md"
   );
 }
 

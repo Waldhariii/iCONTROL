@@ -1,0 +1,10 @@
+{
+  "budget": 49,
+  "ts": "2026-02-01T19:43:59.054Z",
+  "allowlist": [
+    "apps/control-plane/src/styles/tokens.generated.css",
+    "apps/control-plane/src/ui-v2/tokens/design-tokens.css",
+    "apps/control-plane/src/styles/STYLE_ADMIN_FINAL.css"
+  ],
+  "note": "P4.6.1 lowered budget after reduction sprint #1"
+}

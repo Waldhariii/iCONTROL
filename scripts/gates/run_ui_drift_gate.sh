@@ -13,7 +13,7 @@ REPORT="$REPO/docs/ssot/UI_DRIFT_REPORT.md"
 TS="$(date +%Y-%m-%dT%H:%M:%SZ)"
 
 SCOPE=(
-  "app/src"
+  "apps/control-plane/src"
   "modules/core-system"
 )
 EXCLUDES=(

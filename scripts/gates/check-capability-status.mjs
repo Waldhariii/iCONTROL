@@ -1,12 +1,12 @@
 #!/usr/bin/env node
 /**
- * Gate — CAPABILITY_STATUS (config/ssot)
+ * Gate — CAPABILITY_STATUS (runtime/configs/ssot)
  * Vérifie: existe, JSON valide, capabilities[] non vide, chaque entrée a id (string).
  */
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
-const PATH = resolve(process.cwd(), "config/ssot/CAPABILITY_STATUS.json");
+const PATH = resolve(process.cwd(), "runtime/configs/ssot/CAPABILITY_STATUS.json");
 
 let raw;
 try {

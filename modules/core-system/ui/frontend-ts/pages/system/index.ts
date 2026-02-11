@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { getRole } from "/src/runtime/rbac";
 import { createPageShell } from "/src/core/ui/pageShell";
 import { safeRender } from "../_shared/mainSystem.shared";

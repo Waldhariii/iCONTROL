@@ -1,0 +1,25 @@
+{
+  "schema": "CP_NAV_HARDCODED_EXEMPTIONS_V1",
+  "note": "Exemptions for CP nav hardcoded scanner. Keep minimal; prefer catalog-driven.",
+  "glob_exempt": [
+    "**/*.test.*",
+    "**/__tests__/**",
+    "**/*.spec.*",
+    "**/_fixtures/**",
+    "**/_mocks/**",
+    "**/dist/**",
+    "**/build/**"
+  ],
+  "path_exempt": [
+    "apps/control-plane/src/core/routes/",
+    "apps/control-plane/src/core/runtime/",
+    "apps/control-plane/src/core/ports/",
+    "apps/control-plane/src/surfaces/"
+  ],
+  "token_exempt": [
+    "catalog-driven",
+    "MODULE_CATALOG",
+    "cpNav.catalog",
+    "cpSurfaceRegistry.catalog"
+  ]
+}

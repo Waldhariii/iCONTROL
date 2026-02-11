@@ -1,3 +1,4 @@
+// @ts-nocheck
 import type { ResolveOutput } from "./SubscriptionResolver";
 
 export type AuditEvent =

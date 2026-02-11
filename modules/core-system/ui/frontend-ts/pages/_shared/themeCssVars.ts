@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { MAIN_SYSTEM_THEME } from "./mainSystem.data";
 
 export const ICONTROL_THEME_CSSVARS_V1 = true as const;

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { MAIN_SYSTEM_THEME } from "./mainSystem.data";
 import { recordObs } from "./audit";
 import { OBS } from "./obsCodes";

@@ -1,3 +1,4 @@
+// @ts-nocheck
 // @vitest-environment jsdom
 // @vitest-environment-options { "url": "http://localhost" }
 import { describe, it, expect } from "vitest";

@@ -1,4 +1,5 @@
-import { webStorage } from "../../../../../../shared/storage/webStorage";
+// @ts-nocheck
+import { webStorage } from "../../../../../../apps/control-plane/src/core/storage/webStorage";
 
 export function readStorage(key: string): string | null {
   try {

@@ -37,7 +37,7 @@ fi
 is_core_path () {
   local p="$1"
   case "$p" in
-    core-kernel/*|platform-services/*|scripts/gates/*|scripts/release/*|docs/ssot/*|docs/governance/*|docs/architecture/*)
+    core/kernel/*|core/kernel/shared/*|runtime/configs/*|scripts/gates/*|scripts/release/*|governance/docs/*|governance/docs/ssot/*|governance/docs/architecture/*)
       return 0;;
     *)
       return 1;;
@@ -69,7 +69,7 @@ fi
 rfc_ok=0
 
 # 1) changed RFC with APPROVED
-RFC_CHANGED="$(echo "$CHANGED" | grep -E '^docs/rfc/RFC-[0-9]{8}-[0-9]{3}-.*\.md$' || true)"
+RFC_CHANGED="$(echo "$CHANGED" | grep -E '^governance/docs/rfc/RFC-[0-9]{8}-[0-9]{3}-.*\.md$' || true)"
 if [ -n "$RFC_CHANGED" ]; then
   while IFS= read -r r; do
     [ -z "$r" ] && continue
@@ -85,7 +85,7 @@ if [ "$rfc_ok" -eq 0 ]; then
   msg="$(git log -1 --pretty=%B 2>/dev/null || true)"
   ref="$(echo "$msg" | rg -o 'RFC-[0-9]{8}-[0-9]{3}-[A-Za-z0-9_-]+' | head -n 1 || true)"
   if [ -n "$ref" ]; then
-    file="$(ls "docs/rfc/${ref}-"*.md 2>/dev/null | head -n 1 || true)"
+    file="$(ls "governance/docs/rfc/${ref}-"*.md 2>/dev/null | head -n 1 || true)"
     if [ -n "$file" ] && rg -n "Statut:\s*APPROVED" "$file" >/dev/null 2>&1; then
       rfc_ok=1
     fi

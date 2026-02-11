@@ -12,7 +12,7 @@ const paths = (() => {
   }
 })();
 const REPORT = paths?.rgNSafetyReport || paths?.reports?.rgNSafety || "rg_n_safety_report.md";
-const BACKLOG = "rg_n_safety_backlog.md";
+const BACKLOG = "governance/docs/STANDARDS/rg_n_safety_backlog.md";
 if (!existsSync(REPORT)) {
   try {
     // Report-only: generate the report if missing
@@ -77,4 +77,4 @@ for (const x of sorted) {
 out.push("");
 
 writeFileSync(resolve(ROOT, BACKLOG), out.join("\n"), "utf8");
-console.log("OK_RG_N_TRIAGE_WRITTEN rg_n_safety_backlog.md");
+console.log("OK_RG_N_TRIAGE_WRITTEN governance/docs/STANDARDS/rg_n_safety_backlog.md");

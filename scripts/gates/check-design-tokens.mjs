@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Gate — design.tokens (config/ssot)
+ * Gate — design.tokens (runtime/configs/ssot)
  * Vérifie: JSON valide, tokens complets, CSS vars générées à jour.
  */
 import { readFileSync } from "node:fs";

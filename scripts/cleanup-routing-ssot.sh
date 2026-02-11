@@ -9,14 +9,14 @@ set -euo pipefail
 # ============================================================
 
 # ---- SSOT Paths (NE PAS GUESS) ----
-FLAGS_JSON="app/src/policies/feature_flags.default.json"
-ROUTER_ACTIVE="app/src/router.ts"
-ROUTER_DEAD="app/src/runtime/router.ts"
+FLAGS_JSON="apps/control-plane/src/policies/feature_flags.default.json"
+ROUTER_ACTIVE="apps/control-plane/src/router.ts"
+ROUTER_DEAD="apps/control-plane/src/runtime/router.ts"
 
-CP_DEAD_SYSTEM="app/src/surfaces/cp/system.ts"
-CP_DEAD_USERS="app/src/surfaces/cp/users.ts"
+CP_DEAD_SYSTEM="apps/control-plane/src/surfaces/cp/system.ts"
+CP_DEAD_USERS="apps/control-plane/src/surfaces/cp/users.ts"
 
-MODULE_LOADER="app/src/moduleLoader.ts"
+MODULE_LOADER="apps/control-plane/src/moduleLoader.ts"
 GATE_UI_CONTRACTS="scripts/gates/gate-ui-contracts.mjs"
 FLAG_GATE_UI_CONTRACTS="gate_ui_contracts_fs_shadow"
 
@@ -43,7 +43,7 @@ fi
 # ---- 2) Audit "référencé ou mort" (déterministe) ----
 echo ""
 echo "==[AUDIT] router runtime dead usage"
-if rg -n --hidden --no-ignore-vcs "app/src/runtime/router\.ts" -S app/src modules platform-services server scripts 2>/dev/null | grep -v "__tests__" | grep -v "routes_inspect.sh"; then
+if rg -n --hidden --no-ignore-vcs "apps/control-plane/src/runtime/router\.ts" -S apps/control-plane/src modules platform-services server scripts 2>/dev/null | grep -v "__tests__" | grep -v "scripts/maintenance/routes_inspect.sh"; then
   echo "WARN: runtime/router.ts still referenced (excluding tests)"
 else
   echo "OK: runtime/router.ts not referenced (safe to remove)"
@@ -51,16 +51,16 @@ fi
 
 echo ""
 echo "==[AUDIT] CP_PAGES_REGISTRY / APP_PAGES_REGISTRY usage"
-rg -n --hidden --no-ignore-vcs "CP_PAGES_REGISTRY" -S app/src modules platform-services server scripts 2>/dev/null | head -20 || true
-rg -n --hidden --no-ignore-vcs "APP_PAGES_REGISTRY|__CLIENT_V2_ROUTES__" -S app/src modules platform-services server scripts 2>/dev/null | head -20 || true
+rg -n --hidden --no-ignore-vcs "CP_PAGES_REGISTRY" -S apps/control-plane/src modules platform-services server scripts 2>/dev/null | head -20 || true
+rg -n --hidden --no-ignore-vcs "APP_PAGES_REGISTRY|__CLIENT_V2_ROUTES__" -S apps/control-plane/src modules platform-services server scripts 2>/dev/null | head -20 || true
 
 echo ""
 echo "==[AUDIT] Broken route tokens"
-rg -n --hidden --no-ignore-vcs "client_disabled|client_catalog" -S app/src modules platform-services server 2>/dev/null | head -10 || true
+rg -n --hidden --no-ignore-vcs "client_disabled|client_catalog" -S apps/control-plane/src modules platform-services server 2>/dev/null | head -10 || true
 
 echo ""
 echo "==[AUDIT] CLIENT_V2 guards duplicates"
-rg -n --hidden --no-ignore-vcs "CLIENT_V2" -S app/src modules platform-services server 2>/dev/null | head -30 || true
+rg -n --hidden --no-ignore-vcs "CLIENT_V2" -S apps/control-plane/src modules platform-services server 2>/dev/null | head -30 || true
 
 # ---- 3) Actions critiques (suppression code mort) ----
 echo ""
@@ -69,7 +69,7 @@ echo "==[CRIT] Removing dead code..."
 # 3.1 Supprimer le routeur runtime mort si non référencé
 if test -f "$ROUTER_DEAD"; then
   echo "==[CRIT] Checking if $ROUTER_DEAD is safe to remove..."
-  if rg -n --hidden --no-ignore-vcs "runtime/router" -S app/src modules platform-services server scripts 2>/dev/null | grep -v "__tests__" | grep -v "routes_inspect.sh" | grep -v ".disabled"; then
+  if rg -n --hidden --no-ignore-vcs "runtime/router" -S apps/control-plane/src modules platform-services server scripts 2>/dev/null | grep -v "__tests__" | grep -v "scripts/maintenance/routes_inspect.sh" | grep -v ".disabled"; then
     echo "ERR: runtime/router still referenced (excluding tests). Aborting deletion."
     exit 11
   fi
@@ -89,22 +89,22 @@ if test -f "$CP_DEAD_USERS"; then
 fi
 
 # 3.3 Retirer system/users de CP_PAGES_REGISTRY
-if test -f "app/src/surfaces/cp/registry.ts"; then
+if test -f "apps/control-plane/src/surfaces/cp/registry.ts"; then
   echo "==[CRIT] Removing system/users from CP_PAGES_REGISTRY..."
   # Utiliser sed pour retirer les blocs system et users
-  perl -i -0777 -pe 's/,\s*system:\s*\{[^}]*routeId:\s*"system"[^}]*\}[^,]*//gs; s/,\s*users:\s*\{[^}]*routeId:\s*"users"[^}]*\}[^,]*//gs;' "app/src/surfaces/cp/registry.ts" || true
+  perl -i -0777 -pe 's/,\s*system:\s*\{[^}]*routeId:\s*"system"[^}]*\}[^,]*//gs; s/,\s*users:\s*\{[^}]*routeId:\s*"users"[^}]*\}[^,]*//gs;' "apps/control-plane/src/surfaces/cp/registry.ts" || true
   echo "OK: CP_PAGES_REGISTRY cleaned"
 fi
 
 # ---- 4) Intégration APP registry (fix routes APP cassées) ----
 echo ""
 echo "==[IMPORTANT] Wiring APP_PAGES_REGISTRY into moduleLoader.ts"
-APP_REGISTRY_DEF="$(rg -n --hidden --no-ignore-vcs "APP_PAGES_REGISTRY" -S app/src 2>/dev/null | head -n1 | cut -d: -f1 || true)"
+APP_REGISTRY_DEF="$(rg -n --hidden --no-ignore-vcs "APP_PAGES_REGISTRY" -S apps/control-plane/src 2>/dev/null | head -n1 | cut -d: -f1 || true)"
 if [ -n "${APP_REGISTRY_DEF:-}" ] && test -f "$APP_REGISTRY_DEF"; then
   echo "Found APP_PAGES_REGISTRY in: $APP_REGISTRY_DEF"
   
   # Calculer le chemin relatif
-  REL_PATH=$(node -e "const p=require('path'); console.log(p.relative('app/src', process.argv[1]).replace(/\.ts$/,'').replace(/\\//g,'/'));" "$APP_REGISTRY_DEF")
+  REL_PATH=$(node -e "const p=require('path'); console.log(p.relative('apps/control-plane/src', process.argv[1]).replace(/\.ts$/,'').replace(/\\//g,'/'));" "$APP_REGISTRY_DEF")
   
   # Vérifier si déjà importé
   if ! grep -q "APP_PAGES_REGISTRY\|renderAppPage" "$MODULE_LOADER"; then
@@ -142,15 +142,15 @@ fi
 echo ""
 echo "==[IMPORTANT] CLIENT_V2 guard unification (manual decision required)"
 echo "Found duplicate CLIENT_V2 definitions. Manual refactoring needed:"
-rg -n --hidden --no-ignore-vcs "CLIENT_V2.*=.*Set|__CLIENT_V2" -S app/src 2>/dev/null | head -20 || true
+rg -n --hidden --no-ignore-vcs "CLIENT_V2.*=.*Set|__CLIENT_V2" -S apps/control-plane/src 2>/dev/null | head -20 || true
 echo ""
 echo "ACTION REQUIRED: Choose ONE canonical guard source, then refactor imports."
 
 # ---- 6) Nettoyage .disabled + React non montés ----
 echo ""
 echo "==[HYGIENE] Listing .disabled and dead React files"
-find app/src -type f -name "*.disabled" -maxdepth 12 2>/dev/null | head -10 || true
-find app/src/surfaces/app -type f -name "client-*.tsx" 2>/dev/null | head -10 || true
+find apps/control-plane/src -type f -name "*.disabled" -maxdepth 12 2>/dev/null | head -10 || true
+find apps/control-plane/src/surfaces/app -type f -name "client-*.tsx" 2>/dev/null | head -10 || true
 
 # ---- 7) FIX: gate-ui-contracts.mjs (normalisation) ----
 echo ""
@@ -193,12 +193,12 @@ for (const l of cleaned) {
 
 // Ensure required imports exist (check if already present)
 const requiredImports = [
-  'import { isEnabled } from "../../../app/src/policies/feature_flags.enforce";',
-  'import { createAuditHook } from "../../../app/src/core/write-gateway/auditHook";',
-  'import { createLegacyAdapter } from "../../../app/src/core/write-gateway/adapters/legacyAdapter";',
-  'import { createPolicyHook } from "../../../app/src/core/write-gateway/policyHook";',
-  'import { createCorrelationId, createWriteGateway } from "../../../app/src/core/write-gateway/writeGateway";',
-  'import { getLogger } from "../../../app/src/core/utils/logger";'
+  'import { isEnabled } from "../../../apps/control-plane/src/policies/feature_flags.enforce";',
+  'import { createAuditHook } from "../../../apps/control-plane/src/core/write-gateway/auditHook";',
+  'import { createLegacyAdapter } from "../../../apps/control-plane/src/core/write-gateway/adapters/legacyAdapter";',
+  'import { createPolicyHook } from "../../../apps/control-plane/src/core/write-gateway/policyHook";',
+  'import { createCorrelationId, createWriteGateway } from "../../../apps/control-plane/src/core/write-gateway/writeGateway";',
+  'import { getLogger } from "../../../apps/control-plane/src/core/utils/logger";'
 ];
 
 let hasAllImports = true;

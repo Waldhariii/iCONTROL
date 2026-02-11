@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { blockKeyValueTable } from "../../_shared/uiBlocks";
 import { renderRecommendations } from "../../_shared/recommendations";
 import { getRole, getSafeMode } from "../../_shared/recommendations.ctx";

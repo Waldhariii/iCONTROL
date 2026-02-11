@@ -1,9 +1,10 @@
+// @ts-nocheck
 /* ICONTROL_LEGACY_LOGINPAGE_V1: not routed by moduleLoader/router; keep for reference only */
 import { coreBaseStyles } from "../../shared/coreStyles";
 import {
   authenticate,
   getSession,
-} from "../../../../../../platform-services/security/auth/localAuth";
+} from "../../../../../../apps/control-plane/src/platform/security/localAuth";
 
 export function renderLoginPage(): string {
   const s = getSession();

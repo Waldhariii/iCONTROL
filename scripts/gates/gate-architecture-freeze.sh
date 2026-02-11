@@ -58,21 +58,16 @@ done < <(list_top_level_dirs)
 
 # 2) No new top-level roots outside allowlist (soft allowlist)
 ALLOW_ROOTS=(
-  app
-  server
-  core-kernel
-  platform-services
+  apps
+  core
+  platform
   modules
-  shared
-  config
-  scripts
-  docs
-  schema-registry
-  platform-api
-  extensions
   runtime
-  app-desktop-client
-  app-desktop-control
+  governance
+  design-system
+  scripts
+  tests
+  quarantaine
   _artifacts
   _audit
   _backups
@@ -95,13 +90,12 @@ while IFS= read -r d; do
   fi
 done < <(list_top_level_dirs)
 
-# 3) No cross-layer imports: modules and shared must NOT import from app/src or server/src
-# (platform-services may bridge to app; core-kernel must not depend on app)
+# 3) No cross-layer imports: modules and core/kernel must NOT import from apps/control-plane/src or platform/api/src
 if command -v rg >/dev/null 2>&1; then
   if rg -n --hidden --glob '!**/node_modules/**' --glob '!**/_artifacts/**' --glob '!**/_audit/**' \
-    'from\s+["'\''](\.\./)+app/src/|from\s+["'\'']@app/|from\s+["'\''](\.\./)+server/src/' \
-    modules shared core-kernel 2>/dev/null; then
-    echo "ERR_ARCH_FREEZE: cross-layer imports detected (modules/shared/core-kernel -> app/src or server/src)"
+    'from\s+["'\''](\.\./)+apps/control-plane/src/|from\s+["'\'']@app/|from\s+["'\''](\.\./)+platform/api/src/' \
+    modules core/kernel 2>/dev/null; then
+    echo "ERR_ARCH_FREEZE: cross-layer imports detected (modules/core/kernel -> apps/control-plane/src or platform/api/src)"
     viol=1
   fi
 fi

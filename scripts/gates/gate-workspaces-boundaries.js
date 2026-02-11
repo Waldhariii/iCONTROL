@@ -2,7 +2,7 @@
 /**
  * Gate: workspace boundary enforcement (SSOT-driven).
  *
- * Source of truth: config/boundaries/packages.json
+ * Source of truth: runtime/configs/boundaries/packages.json
  * Version: V2
  *
  * Heuristic scan:
@@ -19,7 +19,7 @@ const IGNORE_FILE_RE = /\.(d\.ts|test\.(t|j)sx?|contract\.test\.(t|j)sx?)$/;
 const IMPORT_RE = /(?:from\s+["']([^"']+)["']|require\(\s*["']([^"']+)["']\s*\)|import\(\s*["']([^"']+)["']\s*\))/g;
 
 function readSSOT() {
-  const p = path.join(repo, "config", "boundaries", "packages.json");
+  const p = path.join(repo, "runtime", "configs", "boundaries", "packages.json");
   const raw = fs.readFileSync(p, "utf8");
   const cfg = JSON.parse(raw);
   if (!cfg || cfg.schemaVersion !== 1 || !cfg.packages) throw new Error("ERR_BOUNDARIES_SSOT_INVALID");
@@ -75,11 +75,12 @@ function pkgKeyForFile(cfg, relPath) {
   const first = relPath.split("/")[0];
   if (first.startsWith("app-desktop-")) return "desktop";
   if (first === "modules") return "modules";
-  if (first === "app") return "app";
-  if (first === "server") return "server";
+  if (first === "apps") return "app";
+  if (first === "platform") return "server";
   if (first === "runtime") return "runtime";
-  if (first === "shared") return "shared";
-  if (first === "config") return "config";
+  if (first === "core") return "shared";
+  if (first === "governance") return "governance";
+  if (first === "design-system") return "design-system";
   return "root";
 }
 
@@ -88,12 +89,14 @@ function pkgKeyForImport(spec) {
   // We only govern obvious workspace roots (not npm deps).
   const s = spec.replace(/^\.\/+/, "").replace(/^(\.\.\/)+/, "");
   const first = s.split("/")[0];
-  if (first === "app") return "app";
-  if (first === "server") return "server";
+  if (first === "apps") return "app";
+  if (first === "platform") return "server";
   if (first === "runtime") return "runtime";
   if (first === "modules") return "modules";
-  if (first === "shared") return "shared";
-  if (first === "config") return "config";
+  if (first === "core") return "shared";
+  if (first === "governance") return "governance";
+  if (first === "design-system") return "design-system";
+  if (first === "runtime" && s.startsWith("runtime/configs")) return "config";
   if (first.startsWith("app-desktop-")) return "desktop";
   return null;
 }
@@ -137,7 +140,7 @@ try {
   process.exit(1);
 }
 
-const dirs = ["app", "server", "runtime", "modules", "shared", "config"]
+const dirs = ["apps", "platform", "runtime", "modules", "core", "governance", "design-system"]
   .map(d => path.join(repo, d))
   .filter(d => fs.existsSync(d));
 

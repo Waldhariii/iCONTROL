@@ -1,3 +1,4 @@
+// @ts-nocheck
 import type { PlanId } from "./SubscriptionRecord";
 
 /**

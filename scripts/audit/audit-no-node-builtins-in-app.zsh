@@ -1,9 +1,9 @@
 #!/usr/bin/env zsh
 set -euo pipefail
 
-echo "=== AUDIT: no node:* builtins in app/src bundle surface ==="
+echo "=== AUDIT: no node:* builtins in apps/control-plane/src bundle surface ==="
 
-SCOPE="app/src"
+SCOPE="apps/control-plane/src"
 DENY=("node:fs" "node:path" "node:crypto" "node:os" "node:stream" "node:buffer")
 
 FOUND=0
@@ -19,4 +19,4 @@ if [ "$FOUND" -eq 1 ]; then
   exit 1
 fi
 
-echo "OK: no node:* builtins referenced in app/src runtime"
+echo "OK: no node:* builtins referenced in apps/control-plane/src runtime"

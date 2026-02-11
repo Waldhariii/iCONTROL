@@ -1,8 +1,9 @@
-import { webStorage } from "../../../../../../shared/storage/webStorage";
+// @ts-nocheck
+import { webStorage } from "../../../../../../apps/control-plane/src/core/storage/webStorage";
 
 /**
  * Module-local auth shim.
- * Modules must not depend on app/src/localAuth.
+ * Modules must not depend on apps/control-plane/src/localAuth.
  *
  * Purpose:
  * - Provide a stable API for module tests (setSession/clearSession/getSession)

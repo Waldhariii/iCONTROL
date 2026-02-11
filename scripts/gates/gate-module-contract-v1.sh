@@ -54,11 +54,11 @@ if (process.exitCode) process.exit(process.exitCode);
 console.log("[gate][OK] manifest schema v1 (minimal) validated");
 NODE
 
-# 3) Hard boundary: modules must not import app/src or server/src
+# 3) Hard boundary: modules must not import apps/control-plane/src or platform/api/src
 # (enforce in code, not only contracts)
-if rg -n --glob 'modules/**' '(from\s+["'\'' ]\.{0,2}/?\.{0,2}/?app/src/|from\s+["'\'' ]@/app/|from\s+["'\'' ]app/src/|from\s+["'\'' ]\.{0,2}/?\.{0,2}/?server/src/|from\s+["'\'' ]server/src/)' >/dev/null 2>&1; then
+if rg -n --glob 'modules/**' '(from\s+["'\'' ]\.{0,2}/?\.{0,2}/?apps/control-plane/src/|from\s+["'\'' ]@/app/|from\s+["'\'' ]apps/control-plane/src/|from\s+["'\'' ]\.{0,2}/?\.{0,2}/?platform/api/src/|from\s+["'\'' ]platform/api/src/)' >/dev/null 2>&1; then
   echo "ERR_MODULE_IMPORTS_APP_OR_SERVER: modules import app/server directly"
-  rg -n --glob 'modules/**' '(from\s+["'\'' ]\.{0,2}/?\.{0,2}/?app/src/|from\s+["'\'' ]@/app/|from\s+["'\'' ]app/src/|from\s+["'\'' ]\.{0,2}/?\.{0,2}/?server/src/|from\s+["'\'' ]server/src/)' || true
+  rg -n --glob 'modules/**' '(from\s+["'\'' ]\.{0,2}/?\.{0,2}/?apps/control-plane/src/|from\s+["'\'' ]@/app/|from\s+["'\'' ]apps/control-plane/src/|from\s+["'\'' ]\.{0,2}/?\.{0,2}/?platform/api/src/|from\s+["'\'' ]platform/api/src/)' || true
   exit 1
 fi
 echo "[gate][OK] no direct app/server imports in modules"

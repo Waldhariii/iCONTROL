@@ -2,7 +2,7 @@
 set -euo pipefail
 
 MARKER="ICONTROL_THEME_CSSVARS_BOOTSTRAP_V1"
-FILE="app/src/main.ts"
+FILE="apps/control-plane/src/main.ts"
 REPORT="_REPORTS/ICONTROL_AUDIT_UI_THEME_CSSVARS_$(date +%Y%m%d_%H%M%S).md"
 
 mkdir -p _REPORTS

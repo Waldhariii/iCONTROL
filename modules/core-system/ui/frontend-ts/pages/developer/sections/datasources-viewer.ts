@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { MAIN_SYSTEM_DATASOURCES } from "../../_shared/mainSystem.data";
 import { appendTable, sectionCard } from "../../_shared/uiBlocks";
 

@@ -6,8 +6,8 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const repoRoot = path.resolve(__dirname, "../..");
-const registryPath = path.join(repoRoot, "app/src/core/ui/registry.ts");
-const cssPath = path.join(repoRoot, "app/src/styles/STYLE_ADMIN_FINAL.css");
+const registryPath = path.join(repoRoot, "apps/control-plane/src/core/ui/registry.ts");
+const cssPath = path.join(repoRoot, "apps/control-plane/src/styles/STYLE_ADMIN_FINAL.css");
 const reportPath = path.join(repoRoot, "_REPORTS/ui-component-registry-report.md");
 
 // Report-only by default; strict mode blocks (PHASE 6.4)
@@ -58,7 +58,7 @@ function __isFeatureFlagEnabled(flagName) {
       const state = flags[flagName].state;
       return state === "ON" || state === "ROLLOUT";
     }
-    const flagsPath = path.join(repoRoot, "app/src/policies/feature_flags.default.json");
+    const flagsPath = path.join(repoRoot, "apps/control-plane/src/policies/feature_flags.default.json");
     if (fs.existsSync(flagsPath)) {
       const flagsJson = JSON.parse(fs.readFileSync(flagsPath, "utf8"));
       const flag = flagsJson.flags?.[flagName];

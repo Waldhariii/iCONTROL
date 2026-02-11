@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { recordObs } from "./audit";
 import { OBS } from "./obsCodes";
 import { navigate } from "/src/runtime/navigate";

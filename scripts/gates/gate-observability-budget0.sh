@@ -17,7 +17,7 @@ rg -n --no-heading --hidden \
   -g '!**/node_modules/**' -g '!**/_artifacts/**' -g '!**/_audit/**' \
   -g '!**/*.node.ts' -g '!**/*.test.ts' -g '!**/*.contract.test.ts' \
   'code["\x27]\s*:\s*["\x27][A-Za-z0-9_:-]+["\x27]' \
-  app core-kernel modules shared scripts 2>/dev/null \
+  apps core modules scripts 2>/dev/null \
   | rg -v '(OK|INFO|DEBUG|WARN_[A-Z0-9_]+|ERR_[A-Z0-9_]+)["\x27]' \
   | tee "$OUT" || true
 
@@ -32,8 +32,8 @@ fi
 rg -l --no-heading --hidden \
   -g '!**/node_modules/**' -g '!**/_artifacts/**' -g '!**/_audit/**' \
   'from\s+["\x27].*core/utils/logger["\x27]' \
-  app/src 2>/dev/null \
-  | rg -v '^(app/src/platform/observability/|app/src/core/|app/src/dev/|app/src/__tests__/)' \
+  apps/control-plane/src 2>/dev/null \
+  | rg -v '^(apps/control-plane/src/platform/observability/|apps/control-plane/src/core/|apps/control-plane/src/dev/|apps/control-plane/src/__tests__/)' \
   | tee "$OUT2" || true
 
 if [ -s "$OUT2" ]; then

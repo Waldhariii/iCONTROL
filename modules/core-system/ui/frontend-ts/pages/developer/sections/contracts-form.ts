@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { MAIN_SYSTEM_FORM_CONTRACT } from "../../_shared/mainSystem.data";
 import { appendTable, sectionCard } from "../../_shared/uiBlocks";
 

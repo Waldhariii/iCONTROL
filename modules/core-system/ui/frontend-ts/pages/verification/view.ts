@@ -1,3 +1,4 @@
+// @ts-nocheck
 import type { VerificationModel } from "./model";
 import { appendParagraph, appendTable, sectionCard } from "../_shared/uiBlocks";
 

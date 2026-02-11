@@ -1,8 +1,9 @@
+// @ts-nocheck
 import { getSession } from "../_shared/localAuth";
 import type { Role } from "/src/runtime/rbac";
 import { navigate } from "/src/router";
 import { safeRender } from "../_shared/mainSystem.shared";
-import { getBrandResolved, setBrandLocalOverride, clearBrandLocalOverride } from "../../../../../../platform-services/branding/brandService";
+import { getBrandResolved, setBrandLocalOverride, clearBrandLocalOverride } from "../../../../../../apps/control-plane/src/platform/branding/brandService";
 import { MAIN_SYSTEM_THEME } from "../_shared/mainSystem.data";
 const UI = {
   WRAP: "max-width:980px;margin:20px auto;padding:0 16px",

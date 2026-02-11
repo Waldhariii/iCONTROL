@@ -1,6 +1,6 @@
 /**
  * gate:module-catalog
- * Validates config/ssot/MODULE_CATALOG.json:
+ * Validates runtime/configs/ssot/MODULE_CATALOG.json:
  * - JSON parseable
  * - schema == MODULE_CATALOG_V1
  * - modules[] non-empty
@@ -12,7 +12,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 const ROOT = process.cwd();
-const P = path.join(ROOT, "config", "ssot", "MODULE_CATALOG.json");
+const P = path.join(ROOT, "runtime", "configs", "ssot", "MODULE_CATALOG.json");
 
 function fail(code, msg) {
   console.error(code + ": " + msg);

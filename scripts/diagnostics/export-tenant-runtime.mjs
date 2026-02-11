@@ -28,16 +28,16 @@ fs.mkdirSync(OUT_DIR, { recursive: true });
 const outFile = path.join(OUT_DIR, `tenant-runtime_${TENANT_ID}_${ts()}.json`);
 
 // Load TS modules through app build-friendly entry using dynamic import of compiled TS via node loader is not available.
-// So we import via relative path from app/src using Node ESM + ts transpilation is not assumed.
+// So we import via relative path from apps/control-plane/src using Node ESM + ts transpilation is not assumed.
 // Instead, we use a tiny JS bridge that requires the built dist when available, OR falls back to ts-node if present.
 // In this repo, tests run via vitest/ts, but node script should stay dependency-free.
-// Therefore: we call node with Vite/Vitest not; we will import via "app/dist" if exists; otherwise refuse.
+// Therefore: we call node with Vite/Vitest not; we will import via "apps/control-plane/dist" if exists; otherwise refuse.
 
 const appDist = path.join(REPO, "app", "dist");
 const hasAppDist = fs.existsSync(appDist);
 
 if (!hasAppDist) {
-  console.error("ERR_DIAG_EXPORT_NO_APP_DIST: app/dist not found. Run: npm run -s build:prod (or gate:preflight:prod) then retry.");
+  console.error("ERR_DIAG_EXPORT_NO_APP_DIST: apps/control-plane/dist not found. Run: npm run -s build:prod (or gate:preflight:prod) then retry.");
   process.exit(2);
 }
 

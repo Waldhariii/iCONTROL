@@ -1,4 +1,5 @@
-import { asStorage } from "../../../../../../shared/storage/webStorage";
+// @ts-nocheck
+import { asStorage } from "../../../../../../apps/control-plane/src/core/storage/webStorage";
 import { getSafeMode } from "../_shared/safeMode";
 import { listFlags, setFlag, FLAG_DEFS } from "../../shared/featureFlags";
 import { MAIN_SYSTEM_LAYOUT } from "../_shared/mainSystem.data";

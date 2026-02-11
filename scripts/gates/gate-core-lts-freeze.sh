@@ -4,14 +4,15 @@ set -euo pipefail
 # CORE LTS FREEZE — RFC-only enforcement
 # If a commit modifies Core paths, it must also modify the RFC file in the same commit range.
 
-RFC_FILE="docs/governance/RFC_CORE_CHANGES.md"
+RFC_FILE="governance/governance/docs/RFC_CORE_CHANGES.md"
 
 # Core LTS scope (strict by default)
 CORE_PATHS=(
-  "core-kernel/"
-  "shared/"
-  "app/src/platform/"
-  "app/src/core/"
+  "core/kernel/"
+  "core/kernel/shared/"
+  "apps/control-plane/src/platform/"
+  "apps/control-plane/src/core/"
+  "runtime/configs/"
   "scripts/release/"
   "scripts/gates/"
 )

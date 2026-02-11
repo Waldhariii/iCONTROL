@@ -22,7 +22,7 @@ const coverage = readFileSync(coveragePath, "utf8");
 
 /**
  * We accept multiple possible formats:
- * - "- 10 `app/src/...`" (surface map)
+ * - "- 10 `apps/control-plane/src/...`" (surface map)
  * - plain "path (count)" lines
  */
 function parseSurfaceTop(s) {
@@ -74,11 +74,11 @@ const top = parseSurfaceTop(surface)
 const covFiles = new Set(parseCoverageFiles(coverage));
 
 function bucket(file) {
-  if (file.startsWith("app/src/core/")) return "CORE_RUNTIME";
-  if (file.startsWith("app/src/pages/")) return "CP_UI";
+  if (file.startsWith("apps/control-plane/src/core/")) return "CORE_RUNTIME";
+  if (file.startsWith("apps/control-plane/src/pages/")) return "CP_UI";
   if (file.startsWith("platform-services/")) return "PLATFORM_SERVICE";
   if (file.startsWith("modules/")) return "MODULES";
-  if (file.startsWith("server/")) return "SERVER";
+  if (file.startsWith("platform/api/")) return "SERVER";
   if (file.startsWith("scripts/")) return "SCRIPTS";
   return "OTHER";
 }

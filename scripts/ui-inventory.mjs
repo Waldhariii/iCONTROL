@@ -79,7 +79,7 @@ function countUsage(name, excludeFile) {
     "*.{ts,tsx,js,jsx}",
     "-n",
     pattern,
-    "app/src",
+    "apps/control-plane/src",
     "modules",
     "components",
   ];
@@ -97,15 +97,15 @@ async function main() {
   const routesApp = readRoutes(ROUTES_APP);
   const routesCp = readRoutes(ROUTES_CP);
 
-  const pagesApp = listFiles(["app/src/surfaces/app"], ["*.{ts,tsx,js,jsx}"]);
-  const pagesCp = listFiles(["app/src/surfaces/cp"], ["*.{ts,tsx,js,jsx}"]);
+  const pagesApp = listFiles(["apps/control-plane/src/surfaces/app"], ["*.{ts,tsx,js,jsx}"]);
+  const pagesCp = listFiles(["apps/control-plane/src/surfaces/cp"], ["*.{ts,tsx,js,jsx}"]);
   const pagesModules = listFiles(
     ["modules"],
     ["**/pages/**/*.{ts,tsx,js,jsx}", "**/ui/**/pages/**/*.{ts,tsx,js,jsx}"]
   );
 
   const componentFiles = [
-    ...listFiles(["app/src/core/ui"], ["*.{ts,tsx,js,jsx}"]),
+    ...listFiles(["apps/control-plane/src/core/ui"], ["*.{ts,tsx,js,jsx}"]),
     ...listFiles(["modules"], ["**/ui/**/*.{ts,tsx,js,jsx}"]),
     ...listFiles(["components"], ["**/*.{ts,tsx,js,jsx}"]),
   ];
@@ -141,7 +141,7 @@ async function main() {
     "*.{ts,tsx,js,jsx}",
     "-n",
     stateKeywords.join("|"),
-    "app/src",
+    "apps/control-plane/src",
     "modules",
   ]);
   const stateFiles = [...new Set(stateHits.map((line) => line.split(":")[0]))];
@@ -152,7 +152,7 @@ async function main() {
     "*.{ts,tsx,js,jsx}",
     "-n",
     chartKeywords.join("|"),
-    "app/src",
+    "apps/control-plane/src",
     "modules",
   ]);
   const chartFiles = [...new Set(chartHits.map((line) => line.split(":")[0]))];
@@ -162,7 +162,7 @@ async function main() {
     "*.{ts,tsx,js,jsx}",
     "-n",
     "MAIN_SYSTEM_THEME|themeManager|tokens",
-    "app/src",
+    "apps/control-plane/src",
     "modules",
   ]);
   const tokenFiles = [...new Set(tokenHits.map((line) => line.split(":")[0]))];

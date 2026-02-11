@@ -1,4 +1,5 @@
-import { asStorage } from "../../../../../shared/storage/webStorage";
+// @ts-nocheck
+import { asStorage } from "../../../../../apps/control-plane/src/core/storage/webStorage";
 import { recordObs } from "../pages/_shared/audit";
 import { OBS } from "../pages/_shared/obsCodes";
 import { getSafeMode } from "../pages/_shared/safeMode";

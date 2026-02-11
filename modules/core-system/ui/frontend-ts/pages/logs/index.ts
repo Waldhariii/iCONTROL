@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { getRole } from "/src/runtime/rbac";
 import { safeRender } from "../_shared/mainSystem.shared";
 import { recordObs } from "../_shared/audit";

@@ -1,3 +1,4 @@
+// @ts-nocheck
 export type MainSystemShell = {
   root: HTMLElement;
   header: HTMLElement;

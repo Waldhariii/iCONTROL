@@ -17,7 +17,7 @@ const root = repoRoot();
 const audit = path.join(root, "_audit");
 if(!exists(audit)) fs.mkdirSync(audit, { recursive: true });
 
-const catPath = path.join(root, "config/ssot/MODULE_CATALOG.json");
+const catPath = path.join(root, "runtime/configs/ssot/MODULE_CATALOG.json");
 const cat = readJson(catPath);
 
 const ts = new Date().toISOString().replace(/[-:]/g,"").replace(/\..+$/,"Z");

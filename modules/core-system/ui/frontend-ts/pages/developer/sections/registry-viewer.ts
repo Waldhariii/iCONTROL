@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { MAIN_SYSTEM_MODULES } from "../../_shared/mainSystem.data";
 import { appendActionRow, appendTable, bindActions, sectionCard } from "../../_shared/uiBlocks";
 

@@ -20,7 +20,7 @@ function repoRoot(){
 }
 
 const root = repoRoot();
-const catPath = path.join(root, "config/ssot/MODULE_CATALOG.json");
+const catPath = path.join(root, "runtime/configs/ssot/MODULE_CATALOG.json");
 if(!exists(catPath)) fail("ERR_SSOT_MAP_MISSING_CATALOG", "Missing MODULE_CATALOG.json");
 
 const cat = readJson(catPath);

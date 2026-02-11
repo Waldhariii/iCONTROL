@@ -6,7 +6,7 @@
       "id": "no-page-import-page",
       "message": "Une page ne doit pas importer une autre page. Utiliser le routeur (navigate, hash).",
       "forbidden": {
-        "from": ["app/src/pages/**/*.ts", "app/src/pages/**/*.tsx", "modules/**/pages/**/*.ts", "modules/**/pages/**/*.tsx"],
+        "from": ["apps/control-plane/src/pages/**/*.ts", "apps/control-plane/src/pages/**/*.tsx", "modules/**/pages/**/*.ts", "modules/**/pages/**/*.tsx"],
         "import": ["**/pages/**/login", "**/pages/**/dashboard", "**/pages/**/users", "**/pages/**/account", "**/pages/**/cp/*", "**/pages/**/app/*", "**/pages/**/settings", "**/pages/**/system", "**/pages/**/dossiers", "**/pages/**/developer", "**/pages/**/verification", "**/pages/**/logs", "**/pages/**/toolbox", "**/pages/**/access-denied", "**/pages/**/blocked", "**/pages/**/notfound", "**/pages/**/runtime-smoke"]
       },
       "exceptions": ["**/registry.ts", "**/moduleLoader.ts", "**/_shared/**", "**/sections/**"]
@@ -15,7 +15,7 @@
       "id": "no-cp-import-app-page",
       "message": "Une page CP ne doit pas importer une page APP (et réciproquement).",
       "forbidden": {
-        "from": ["app/src/pages/cp/**/*.ts", "app/src/pages/cp/**/*.tsx"],
+        "from": ["apps/control-plane/src/pages/cp/**/*.ts", "apps/control-plane/src/pages/cp/**/*.tsx"],
         "import": ["**/pages/app/**"]
       }
     }

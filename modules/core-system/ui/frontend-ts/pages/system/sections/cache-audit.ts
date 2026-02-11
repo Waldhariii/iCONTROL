@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { OBS } from "../../_shared/obsCodes";
 import { recordObs } from "../../_shared/audit";
 

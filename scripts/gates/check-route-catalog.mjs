@@ -1,6 +1,6 @@
 import fs from "node:fs";
 
-const file = "config/ssot/ROUTE_CATALOG.json";
+const file = "runtime/configs/ssot/ROUTE_CATALOG.json";
 if (!fs.existsSync(file)) {
   console.error("ERR_ROUTE_CATALOG_MISSING:", file);
   process.exit(1);

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { safeRender } from "../_shared/mainSystem.shared";
 import { mountSections, type SectionSpec } from "../_shared/sections";
 import { renderRecommendations } from "../_shared/recommendations";

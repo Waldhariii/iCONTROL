@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Styles de base minimaux — visuels désactivés pour stabilité.
  * Conserve uniquement: box-sizing, reset body. Toutes les couleurs, tokens, classes

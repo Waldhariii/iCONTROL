@@ -1,12 +1,12 @@
 #!/usr/bin/env node
 /**
- * Gate — TENANT_FEATURE_MATRIX (config/ssot)
+ * Gate — TENANT_FEATURE_MATRIX (runtime/configs/ssot)
  * Vérifie: existe, JSON valide, templates{} non vide, chaque plan a enabled_pages[] et enabled_capabilities[].
  */
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
-const PATH = resolve(process.cwd(), "config/ssot/TENANT_FEATURE_MATRIX.json");
+const PATH = resolve(process.cwd(), "runtime/configs/ssot/TENANT_FEATURE_MATRIX.json");
 
 let raw;
 try {

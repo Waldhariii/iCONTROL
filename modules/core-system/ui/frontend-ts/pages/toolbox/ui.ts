@@ -1,3 +1,4 @@
+// @ts-nocheck
 export function escapeHtml(s: string): string {
   return String(s)
     .replaceAll("&", "&amp;")

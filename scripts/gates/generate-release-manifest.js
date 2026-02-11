@@ -13,7 +13,7 @@ const out = {
   node: process.version,
   platform: process.platform,
   dist: fs.existsSync("dist") ? fs.readdirSync("dist") : [],
-  app_dist: fs.existsSync("app/dist") ? fs.readdirSync("app/dist") : []
+  app_dist: fs.existsSync("apps/control-plane/dist") ? fs.readdirSync("apps/control-plane/dist") : []
 };
 
 fs.writeFileSync(

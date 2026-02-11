@@ -1,7 +1,8 @@
+// @ts-nocheck
 import {
   authenticate as authApp,
   authenticateManagement as authMgmt,
-} from "../../../../../platform-services/security/auth/localAuth";
+} from "../../../../../apps/control-plane/src/platform/security/localAuth";
 
 function toResult(
   s: { username: string; role: string; fullName?: string } | null

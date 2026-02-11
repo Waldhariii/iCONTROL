@@ -2,8 +2,8 @@
 import { spawnSync } from "node:child_process";
 
 const checks = [
-  { name: "CP imports APP pages", pattern: "pages/app", paths: ["app/src/surfaces/cp"] },
-  { name: "APP imports CP pages", pattern: "pages/cp", paths: ["app/src/surfaces/app"] },
+  { name: "CP imports APP pages", pattern: "pages/app", paths: ["apps/control-plane/src/surfaces/cp"] },
+  { name: "APP imports CP pages", pattern: "pages/cp", paths: ["apps/control-plane/src/surfaces/app"] },
 ];
 
 let failed = false;

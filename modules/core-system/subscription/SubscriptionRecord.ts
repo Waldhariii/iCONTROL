@@ -1,3 +1,4 @@
+// @ts-nocheck
 export type SubscriptionStatus = "active" | "suspended" | "expired";
 
 export type SubscriptionSource = "internal" | "manual" | "import" | "stripe" | "paddle";

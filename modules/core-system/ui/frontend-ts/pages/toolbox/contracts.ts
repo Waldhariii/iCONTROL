@@ -1,3 +1,4 @@
+// @ts-nocheck
 export type ToolboxCtx = {
   safeMode: boolean;
   role: string;

@@ -1,13 +1,13 @@
 #!/usr/bin/env node
 /**
  * Gate — ADMIN_COMPONENTS_REGISTRY
- * Vérifie: config/ssot/ADMIN_COMPONENTS_REGISTRY.ts existe, export AdminComponentEntry,
+ * Vérifie: runtime/configs/ssot/ADMIN_COMPONENTS_REGISTRY.ts existe, export AdminComponentEntry,
  * export const ADMIN_COMPONENTS_REGISTRY = [ (structure TS).
  */
 import { readFileSync, existsSync } from "node:fs";
 import { resolve } from "node:path";
 
-const PATH = resolve(process.cwd(), "config/ssot/ADMIN_COMPONENTS_REGISTRY.ts");
+const PATH = resolve(process.cwd(), "runtime/configs/ssot/ADMIN_COMPONENTS_REGISTRY.ts");
 
 if (!existsSync(PATH)) {
   console.error("[FAIL] ADMIN_COMPONENTS_REGISTRY.ts manquant: " + PATH);

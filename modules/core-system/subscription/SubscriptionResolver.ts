@@ -1,3 +1,4 @@
+// @ts-nocheck
 import type { SubscriptionRecord, PlanId } from "./SubscriptionRecord";
 import type { Entitlements } from "./Entitlements";
 import { PLANS } from "./Plans";

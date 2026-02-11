@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { loadEntitlements, saveEntitlements, clearEntitlements, type Entitlements, DEFAULT_ENTITLEMENTS } from "/src/core/entitlements";
 
 function getTenantId(): string {

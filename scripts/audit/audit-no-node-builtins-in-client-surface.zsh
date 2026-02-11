@@ -5,7 +5,7 @@ setopt NO_HIST_EXPAND
 echo "=== AUDIT: no node:* builtins in client surface (ship code only) ==="
 
 TARGETS=(
-  "app/src"
+  "apps/control-plane/src"
   "modules/core-system/ui/frontend-ts"
 )
 

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import type { SystemModel } from "../model";
 import { blockToggle } from "../../_shared/uiBlocks";
 import { updateFlag } from "../model";

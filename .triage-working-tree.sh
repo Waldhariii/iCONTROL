@@ -251,20 +251,20 @@ case "$MODE" in
     
     # Bucket: config
     {
-      echo "$MODIFIED" | grep "^config/" || true
-      echo "$UNTRACKED" | grep "^config/" || true
+      echo "$MODIFIED" | grep "^runtime/configs/" || true
+      echo "$UNTRACKED" | grep "^runtime/configs/" || true
     } | LC_ALL=C sort | grep -v '^$' > "$TRIAGE_DIR/bucket_config_$TS.txt" || touch "$TRIAGE_DIR/bucket_config_$TS.txt"
     
     # Bucket: autres (catch-all) - fichiers non couverts par les buckets ci-dessus
     {
       if [ -n "$MODIFIED" ]; then
-        echo "$MODIFIED" | grep -v "^app/src/core/ui/" | grep -v "^app/src/styles/" | grep -v "^app/src/pages/" | grep -v "^modules/core-system/ui/" | grep -v "^scripts/gates/" | grep -v "^server/" | grep -v "^docs/" | grep -v "^config/" || true
+        echo "$MODIFIED" | grep -v "^app/src/core/ui/" | grep -v "^app/src/styles/" | grep -v "^app/src/pages/" | grep -v "^modules/core-system/ui/" | grep -v "^scripts/gates/" | grep -v "^server/" | grep -v "^docs/" | grep -v "^runtime/configs/" || true
       fi
       if [ -n "$DELETED" ]; then
         echo "$DELETED" | grep -v "^app/src/pages/" | grep -v "^docs/" || true
       fi
       if [ -n "$UNTRACKED" ]; then
-        echo "$UNTRACKED" | grep -v "^app/src/core/ui/" | grep -v "^app/src/styles/" | grep -v "^app/src/pages/" | grep -v "^modules/core-system/ui/" | grep -v "^scripts/gates/" | grep -v "^server/" | grep -v "^docs/" | grep -v "^config/" || true
+        echo "$UNTRACKED" | grep -v "^app/src/core/ui/" | grep -v "^app/src/styles/" | grep -v "^app/src/pages/" | grep -v "^modules/core-system/ui/" | grep -v "^scripts/gates/" | grep -v "^server/" | grep -v "^docs/" | grep -v "^runtime/configs/" || true
       fi
     } | LC_ALL=C sort | grep -v '^$' > "$TRIAGE_DIR/bucket_other_$TS.txt" || touch "$TRIAGE_DIR/bucket_other_$TS.txt"
     

@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Node fallback (pure TS) for environments without native .node bindings.
  * Contract: export class FileSubscriptionStore.

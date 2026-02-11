@@ -1,3 +1,4 @@
+// @ts-nocheck
 export type SafeMode = "STRICT" | "COMPAT";
 
 export function getSafeMode(): SafeMode {

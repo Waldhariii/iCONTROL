@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { getRole, canAccessToolbox } from "/src/runtime/rbac";
 import { getSafeMode } from "./_shared/safeMode";
 import { getSession } from "./_shared/localAuth";

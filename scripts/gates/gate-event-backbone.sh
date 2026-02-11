@@ -13,12 +13,12 @@ need "core-kernel/src/events/outbox.ts"
 need "core-kernel/src/events/memoryStore.ts"
 need "core-kernel/src/_tests_/eventBackbone.contract.test.ts"
 
-# Boundary: core-kernel must not import from app/ or server/
+# Boundary: core-kernel must not import from app/ or platform/api/
 if rg -n --glob='core-kernel/src/**/*.ts' 'from\s+"(\.\./)+app/' core-kernel/src >/dev/null 2>&1; then
   echo "ERR_EVENT_BACKBONE_BOUNDARY: core-kernel imports app"
   exit 1
 fi
-if rg -n --glob='core-kernel/src/**/*.ts' 'from\s+"(\.\./)+server/' core-kernel/src >/dev/null 2>&1; then
+if rg -n --glob='core-kernel/src/**/*.ts' 'from\s+"(\.\./)+platform/api/' core-kernel/src >/dev/null 2>&1; then
   echo "ERR_EVENT_BACKBONE_BOUNDARY: core-kernel imports server"
   exit 1
 fi

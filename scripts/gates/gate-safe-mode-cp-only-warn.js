@@ -6,9 +6,9 @@ const repo = process.cwd();
 const appSrc = path.join(repo, "app", "src");
 
 const allow = new Set([
-  "app/src/platform/tenantOverrides/safeMode.ts",
-  "app/src/platform/controlPlane/commands/clearTenantOverridesSafeMode.ts",
-  "app/src/platform/controlPlane/commands/enableTenantOverridesSafeMode.ts",
+  "apps/control-plane/src/platform/tenantOverrides/safeMode.ts",
+  "apps/control-plane/src/platform/controlPlane/commands/clearTenantOverridesSafeMode.ts",
+  "apps/control-plane/src/platform/controlPlane/commands/enableTenantOverridesSafeMode.ts",
 ]);
 
 const offenders = [];

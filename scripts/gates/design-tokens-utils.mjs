@@ -1,10 +1,10 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
-export const TOKENS_PATH = resolve(process.cwd(), "config/ssot/design.tokens.json");
+export const TOKENS_PATH = resolve(process.cwd(), "runtime/configs/ssot/design.tokens.json");
 export const GENERATED_CSS_PATH = resolve(
   process.cwd(),
-  "app/src/styles/tokens.generated.css",
+  "apps/control-plane/src/styles/tokens.generated.css",
 );
 
 const CP_LOGIN_MAPPING = {
@@ -178,7 +178,7 @@ export function buildDesignTokensCss(tokens) {
 
   const header = [
     "/* AUTO-GENERATED: DO NOT EDIT DIRECTLY.",
-    " * Source: config/ssot/design.tokens.json",
+    " * Source: runtime/configs/ssot/design.tokens.json",
     " * Run: node scripts/gates/generate-design-tokens-css.mjs",
     " */",
     "",

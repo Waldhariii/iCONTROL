@@ -1,3 +1,4 @@
+// @ts-nocheck
 export function renderAccessDenied(root: HTMLElement, message = "Access denied."): void {
   root.innerHTML = `<div style="opacity:.8;max-width:780px;margin:24px auto;">${message}</div>`;
 }

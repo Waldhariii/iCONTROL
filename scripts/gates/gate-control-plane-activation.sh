@@ -2,7 +2,7 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-REG="$ROOT/app/src/platform/controlPlane/activationRegistry.ts"
+REG="$ROOT/apps/control-plane/src/platform/controlPlane/activationRegistry.ts"
 
 if [[ ! -f "$REG" ]]; then
   echo "ERR_CP_ACTIVATION_REGISTRY_MISSING: ${REG}"

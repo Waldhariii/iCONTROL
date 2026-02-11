@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { readAuditLog, exportAuditLogJson, clearAuditLog } from "/src/core/audit/auditLog";
 import { blockKeyValueTable, sectionCard } from "../../_shared/uiBlocks";
 

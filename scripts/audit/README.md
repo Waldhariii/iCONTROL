@@ -1,6 +1,6 @@
 # Scripts d’audit iCONTROL
 
-Tous les audits du système sont centralisés ici. Voir aussi **`docs/audit/README.md`** pour la stratégie et l’ordre d’exécution.
+Tous les audits du système sont centralisés ici. Voir aussi **`docs/audit/governance/docs/STANDARDS/README.md`** pour la stratégie et l’ordre d’exécution.
 
 ## Index des scripts
 

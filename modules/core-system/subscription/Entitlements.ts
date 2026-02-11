@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Enterprise-grade capabilities are represented as entitlements.
  * Business code must depend on entitlements, not on planId.

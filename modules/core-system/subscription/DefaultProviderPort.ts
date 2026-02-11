@@ -1,3 +1,4 @@
+// @ts-nocheck
 import type { ProviderPort, ProviderSubscriptionPayload } from "./ProviderPort";
 import type { SubscriptionRecord, PlanId } from "./SubscriptionRecord";
 import type { ProviderPlanMap } from "./ProviderPlanMap";

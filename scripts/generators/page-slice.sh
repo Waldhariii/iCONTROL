@@ -14,7 +14,7 @@ if [ "$SURFACE" != "cp" ] && [ "$SURFACE" != "app" ]; then
   exit 1
 fi
 
-PAGE_DIR="app/src/surfaces/$SURFACE/$PAGE_NAME"
+PAGE_DIR="apps/control-plane/src/surfaces/$SURFACE/$PAGE_NAME"
 
 if [ -d "$PAGE_DIR" ]; then
   echo "Error: Page already exists: $PAGE_DIR"

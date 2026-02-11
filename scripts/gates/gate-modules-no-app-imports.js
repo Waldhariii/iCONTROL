@@ -48,7 +48,7 @@ for (const f of walk(modulesDir)) {
   while ((m = IMPORT_RE.exec(txt)) !== null) {
     const spec = m[1] || m[2] || m[3] || "";
     const s = spec.replace(/^\.\/+/, "").replace(/^(\.\.\/)+/, "");
-    if (s.startsWith("app/") || s.startsWith("app/src/") || s.includes("/app/") || s.includes("/app/src/")) {
+    if (s.startsWith("app/") || s.startsWith("apps/control-plane/src/") || s.includes("/app/") || s.includes("/apps/control-plane/src/")) {
       offenders.push({ rel, spec });
     }
   }

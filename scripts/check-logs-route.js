@@ -5,17 +5,17 @@ const path = require("path");
 const checks = [
   {
     id: "dispatch-moduleLoader",
-    file: "app/src/moduleLoader.ts",
+    file: "apps/control-plane/src/moduleLoader.ts",
     must: ["rid", "logs", "renderLogsPage(root)"]
   },
   {
     id: "nav-shell",
-    file: "platform-services/ui-shell/layout/shell.ts",
+    file: "apps/control-plane/src/platform/ui-shell/layout/shell.ts",
     must: ["hash:\"#/logs\"", "id:\"logs\""]
   },
   {
     id: "dashboard-cta",
-    file: "app/src/surfaces/cp/dashboard/Page.tsx",
+    file: "apps/control-plane/src/surfaces/cp/dashboard/Page.tsx",
     must: ["window.location.hash = \"#/logs\""]
   },
   {

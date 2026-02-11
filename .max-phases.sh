@@ -400,10 +400,10 @@ N) app/main: app/src/main.ts app/src/moduleLoader.ts app/src/router.ts
 O) docs/runbooks: docs/runbooks/*
 P) docs/reports: docs/reports/*
 Q) docs/phase: docs/PHASE_*/*
-R) docs/governance: docs/governance/*
+R) docs/governance: governance/docs/*
 S) docs/other: docs/*.md
-T) config: config/* .env.example
-U) root: CONTRIBUTING.md *.md
+T) config: runtime/configs/* .env.example
+U) root: governance/docs/STANDARDS/CONTRIBUTING.md *.md
 V) other: catch-all from bucket_other
 PLAN_EOF
 
@@ -655,7 +655,7 @@ fi
 
 # Phase R: docs/governance
 echo "--- Phase R: docs/governance ---"
-files="$(get_files_by_pattern "docs/governance/*" "$COMMITTED_FILE")"
+files="$(get_files_by_pattern "governance/docs/*" "$COMMITTED_FILE")"
 if [[ -n "$files" ]]; then
   commit_phase "R" "docs: governance" "$files"
   echo "$files" >> "$COMMITTED_FILE"
@@ -678,7 +678,7 @@ fi
 
 # Phase T: config
 echo "--- Phase T: config ---"
-files="$(get_files_by_pattern "config/*"$'\n'".env.example" "$COMMITTED_FILE")"
+files="$(get_files_by_pattern "runtime/configs/*"$'\n'".env.example" "$COMMITTED_FILE")"
 if [[ -z "$files" ]] && [[ -n "${TS:-}" ]]; then
   files="$(get_files_from_bucket ".triage/bucket_config_${TS}.txt" "$COMMITTED_FILE")"
 fi
@@ -691,7 +691,7 @@ fi
 
 # Phase U: root
 echo "--- Phase U: root ---"
-files="$(get_files_by_pattern "CONTRIBUTING.md"$'\n'"*.md" "$COMMITTED_FILE")"
+files="$(get_files_by_pattern "governance/docs/STANDARDS/CONTRIBUTING.md"$'\n'"*.md" "$COMMITTED_FILE")"
 files="$(echo "$files" | grep -v "^docs/" || true)"
 if [[ -n "$files" ]]; then
   commit_phase "U" "docs: root documentation" "$files"

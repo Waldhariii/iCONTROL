@@ -7,8 +7,8 @@ const appSrc = path.join(repo, "app", "src");
 
 const offenders = [];
 const allow = new Set([
-  "app/src/platform/tenantOverrides/store.ts",
-  "app/src/platform/controlPlane/commands/writeTenantOverrides.ts",
+  "apps/control-plane/src/platform/tenantOverrides/store.ts",
+  "apps/control-plane/src/platform/controlPlane/commands/writeTenantOverrides.ts",
 ]);
 
 function walk(dir) {

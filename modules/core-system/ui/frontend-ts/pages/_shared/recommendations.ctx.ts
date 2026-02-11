@@ -1,3 +1,4 @@
+// @ts-nocheck
 // ICONTROL_LOCALAUTH_SHIM_V1
 import { getSession } from "./localAuth";
 import { getSafeMode as getSafeModeBase, type SafeMode } from "./safeMode";

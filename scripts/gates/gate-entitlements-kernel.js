@@ -48,12 +48,12 @@ for (const f of files) {
   const rel = path.relative(repo, f).replace(/\\/g, "/");
 
   // Allowlist: runtimeConfig + entitlements kernel itself + tests
-  if (rel.includes("app/src/platform/runtimeConfig/")) continue;
-  if (rel.includes("app/src/platform/entitlements/")) continue;
-  if (rel.includes("app/src/platform/tenantOverrides/")) continue;
-  if (rel.includes("app/src/__tests__/")) continue;
+  if (rel.includes("apps/control-plane/src/platform/runtimeConfig/")) continue;
+  if (rel.includes("apps/control-plane/src/platform/entitlements/")) continue;
+  if (rel.includes("apps/control-plane/src/platform/tenantOverrides/")) continue;
+  if (rel.includes("apps/control-plane/src/__tests__/")) continue;
   // Transitional allowlist (known legacy usage)
-  if (rel === "app/src/policies/cache.registry.ts") continue;
+  if (rel === "apps/control-plane/src/policies/cache.registry.ts") continue;
 
   const txt = fs.readFileSync(f, "utf8");
 
@@ -71,7 +71,7 @@ if (offenders.length) {
   fail(
     "ERR_ENTITLEMENTS_SCATTERED_CHECKS: runtimeConfig reads / tier compares detected outside entitlements kernel:\n" +
     uniq.map(s => `- ${s}`).join("\n") +
-    "\nFix: move those checks into app/src/platform/entitlements/* and consume only resolveCapabilities()."
+    "\nFix: move those checks into apps/control-plane/src/platform/entitlements/* and consume only resolveCapabilities()."
   );
 }
 

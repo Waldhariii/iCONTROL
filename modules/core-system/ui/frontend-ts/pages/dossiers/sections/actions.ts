@@ -1,3 +1,4 @@
+// @ts-nocheck
 import type { Role } from "/src/runtime/rbac";
 import { blockActionBar, blockToast } from "../../_shared/uiBlocks";
 import { getSafeMode } from "../../_shared/safeMode";

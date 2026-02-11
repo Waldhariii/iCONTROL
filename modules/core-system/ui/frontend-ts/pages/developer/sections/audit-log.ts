@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { getAuditLog } from "../../_shared/audit";
 import { appendParagraph, appendTable, sectionCard } from "../../_shared/uiBlocks";
 

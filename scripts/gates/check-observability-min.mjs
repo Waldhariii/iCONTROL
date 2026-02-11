@@ -28,12 +28,12 @@ const repoRoot = getRepoRoot();
 
 // 1) Canonical artifacts (fast path)
 const canonical = [
-  "app/src/core/ports/telemetry.contract.ts",
-  "app/src/core/ports/telemetry.facade.ts",
-  "app/src/core/ports/observability.contract.ts",
-  "app/src/core/ports/observability.facade.ts",
-  "app/src/core/ports/logger.contract.ts",
-  "app/src/core/ports/logger.facade.ts",
+  "apps/control-plane/src/core/ports/telemetry.contract.ts",
+  "apps/control-plane/src/core/ports/telemetry.facade.ts",
+  "apps/control-plane/src/core/ports/observability.contract.ts",
+  "apps/control-plane/src/core/ports/observability.facade.ts",
+  "apps/control-plane/src/core/ports/logger.contract.ts",
+  "apps/control-plane/src/core/ports/logger.facade.ts",
 ];
 
 for(const rel of canonical){
@@ -45,7 +45,7 @@ for(const rel of canonical){
 
 // 2) Pattern-based quick scan (scoped, bounded)
 const scopedRoots = [
-  "app/src/core",
+  "apps/control-plane/src/core",
   "scripts"
 ];
 
@@ -111,4 +111,4 @@ if(hits.length){
   process.exit(0);
 }
 
-fail("ERR_OBS_MIN_MISSING", "Missing observability baseline. No telemetry/logger/metrics/tracing signals found under app/src/core or scripts.");
+fail("ERR_OBS_MIN_MISSING", "Missing observability baseline. No telemetry/logger/metrics/tracing signals found under apps/control-plane/src/core or scripts.");

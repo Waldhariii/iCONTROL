@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * Gate: Prevent CP <-> APP cross-imports
- * Fails if any file in app/src imports from pages/cp/ or pages/app/ of the opposite scope
+ * Fails if any file in apps/control-plane/src imports from pages/cp/ or pages/app/ of the opposite scope
  */
 
 import { execSync } from "child_process";
@@ -15,7 +15,7 @@ function checkCrossImports() {
   // Check CP files importing APP pages
   try {
     const cpImportsApp = execSync(
-      `rg -n --hidden --glob '!.git' "from\\s+['\"].*pages/app/|import.*pages/app/" app/src/surfaces/cp app/src/core app/src/router.ts app/src/moduleLoader.ts 2>/dev/null || true`,
+      `rg -n --hidden --glob '!.git' "from\\s+['\"].*pages/app/|import.*pages/app/" apps/control-plane/src/surfaces/cp apps/control-plane/src/core apps/control-plane/src/router.ts apps/control-plane/src/moduleLoader.ts 2>/dev/null || true`,
       { encoding: "utf-8", cwd: REPO_ROOT }
     ).trim();
     
@@ -30,7 +30,7 @@ function checkCrossImports() {
   // Check APP files importing CP pages
   try {
     const appImportsCp = execSync(
-      `rg -n --hidden --glob '!.git' "from\\s+['\"].*pages/cp/|import.*pages/cp/" app/src/surfaces/app app/src/core app/src/router.ts app/src/moduleLoader.ts 2>/dev/null || true`,
+      `rg -n --hidden --glob '!.git' "from\\s+['\"].*pages/cp/|import.*pages/cp/" apps/control-plane/src/surfaces/app apps/control-plane/src/core apps/control-plane/src/router.ts apps/control-plane/src/moduleLoader.ts 2>/dev/null || true`,
       { encoding: "utf-8", cwd: REPO_ROOT }
     ).trim();
     
@@ -46,7 +46,7 @@ function checkCrossImports() {
   // But we check it doesn't import registries directly
   try {
     const inventoryImports = execSync(
-      `rg -n "from.*pages/(cp|app)/registry" app/src/core/pagesInventory.ts 2>/dev/null || true`,
+      `rg -n "from.*pages/(cp|app)/registry" apps/control-plane/src/core/pagesInventory.ts 2>/dev/null || true`,
       { encoding: "utf-8", cwd: REPO_ROOT }
     ).trim();
     

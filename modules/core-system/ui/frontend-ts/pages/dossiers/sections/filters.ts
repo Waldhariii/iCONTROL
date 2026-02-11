@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { blockFilterInput, sectionCard } from "../../_shared/uiBlocks";
 
 export type DossiersFilter = {

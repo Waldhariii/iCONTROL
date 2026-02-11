@@ -9,7 +9,7 @@ function rg(q) {
 }
 
 const hits = [
-  rg(`rg -n --hidden --glob '!**/node_modules/**' --glob '!**/_audit/**' --glob '!**/*.test.*' --glob '!**/__tests__/**' "(\\btier\\b|\\bplan\\b\\s*===|\\bsubscription\\b\\s*===)" app/src modules || true`)
+  rg(`rg -n --hidden --glob '!**/node_modules/**' --glob '!**/_audit/**' --glob '!**/*.test.*' --glob '!**/__tests__/**' "(\\btier\\b|\\bplan\\b\\s*===|\\bsubscription\\b\\s*===)" apps/control-plane/src modules || true`)
 ].join("\n").trim();
 
 if (!hits) {

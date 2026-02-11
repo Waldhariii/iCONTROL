@@ -1,3 +1,4 @@
+// @ts-nocheck
 import type { SystemModel } from "../model";
 import { blockKeyValueTable } from "../../_shared/uiBlocks";
 

@@ -8,9 +8,9 @@ mkdir -p "$OUT_DIR"
 
 REPORT="$OUT_DIR/AUDIT_NON_REGRESSION_CHEMINS.md"
 
-FLAGS_JSON="app/src/policies/feature_flags.default.json"
-ROUTER_ACTIVE="app/src/router.ts"
-ROUTER_RUNTIME="app/src/runtime/router.ts"
+FLAGS_JSON="apps/control-plane/src/policies/feature_flags.default.json"
+ROUTER_ACTIVE="apps/control-plane/src/router.ts"
+ROUTER_RUNTIME="apps/control-plane/src/runtime/router.ts"
 
 fail(){ echo "FAIL: $*" >&2; exit 1; }
 ok(){ echo "OK: $*"; }
@@ -22,10 +22,10 @@ test -f "$ROUTER_ACTIVE" || fail "Missing active router: $ROUTER_ACTIVE"
 # ------------------------------------------------------------
 # 1) Imports vers runtime/router.ts (parallèle) hors tests
 # ------------------------------------------------------------
-echo "== Scan: imports vers app/src/runtime/router.ts =="
+echo "== Scan: imports vers apps/control-plane/src/runtime/router.ts =="
 rg -n --hidden --no-ignore-vcs \
   "from\s+['\"][^'\"]*runtime/router['\"]|runtime/router" \
-  app/src modules platform-services server \
+  apps/control-plane/src modules platform-services server \
   > "$OUT_DIR/AUDIT_runtime_router_imports.txt" || true
 
 # Filtrer: exclure tests, scripts shell, fichiers de documentation
@@ -46,7 +46,7 @@ echo "== Analyse: route-like importés hors tests (SSOT router.ts) =="
 python3 - <<'PY'
 import re, sys, pathlib, json
 
-active = "app/src/router.ts"
+active = "apps/control-plane/src/router.ts"
 deny = re.compile(r"/tests?/|/__tests__/|\.test\.|\.spec\.", re.I)
 
 # Exclure les utilitaires légitimes du routeur principal (helpers, loaders, etc.)
@@ -58,7 +58,7 @@ legit_helpers = [
 ]
 
 cand = []
-for p in pathlib.Path("app/src").rglob("*.ts"):
+for p in pathlib.Path("apps/control-plane/src").rglob("*.ts"):
     s = str(p).replace("\\","/")
     if s == active:
         continue
@@ -72,10 +72,10 @@ for p in pathlib.Path("app/src").rglob("*.ts"):
         cand.append(s)
 
 def mod_id(path):
-    return path.replace("app/src/","").replace(".ts","").replace(".tsx","")
+    return path.replace("apps/control-plane/src/","").replace(".ts","").replace(".tsx","")
 
 imports = []
-for f in pathlib.Path("app/src").rglob("*.ts"):
+for f in pathlib.Path("apps/control-plane/src").rglob("*.ts"):
     sf = str(f).replace("\\","/")
     if deny.search(sf):
         continue
@@ -110,8 +110,8 @@ PY
 # 3) Registries fantômes: CP_PAGES_REGISTRY / APP_PAGES_REGISTRY
 # ------------------------------------------------------------
 echo "== Scan: registries (definitions vs usages) =="
-rg -n --hidden --no-ignore-vcs "CP_PAGES_REGISTRY" app/src > "$OUT_DIR/AUDIT_cp_pages_registry.txt" || true
-rg -n --hidden --no-ignore-vcs "APP_PAGES_REGISTRY" app/src > "$OUT_DIR/AUDIT_app_pages_registry.txt" || true
+rg -n --hidden --no-ignore-vcs "CP_PAGES_REGISTRY" apps/control-plane/src > "$OUT_DIR/AUDIT_cp_pages_registry.txt" || true
+rg -n --hidden --no-ignore-vcs "APP_PAGES_REGISTRY" apps/control-plane/src > "$OUT_DIR/AUDIT_app_pages_registry.txt" || true
 
 python3 - <<'PY'
 import json, re, sys, pathlib
@@ -130,7 +130,7 @@ def analyze(report_path):
     return sorted(set(files))
 
 def has_external_usage(symbol, def_file):
-    for f in pathlib.Path("app/src").rglob("*.ts"):
+    for f in pathlib.Path("apps/control-plane/src").rglob("*.ts"):
         sf = str(f).replace("\\","/")
         if deny.search(sf):
             continue
@@ -171,7 +171,7 @@ PY
 echo "== Scan: duplication de routes (heuristique strings) =="
 rg -n --hidden --no-ignore-vcs \
   "(path\s*:\s*['\"]/|route\s*:\s*['\"]/|['\"]/cp/|['\"]/app/)" \
-  app/src \
+  apps/control-plane/src \
   > "$OUT_DIR/AUDIT_route_strings.txt" || true
 
 python3 - <<'PY'
@@ -217,7 +217,7 @@ PY
 # 5) CLIENT_V2 SSOT detection: rapport (non-bloquant)
 # ------------------------------------------------------------
 echo "== Scan: CLIENT_V2 SSOT marker (CLIENT_V2_ROUTE_IDS) =="
-rg -n --hidden --no-ignore-vcs "CLIENT_V2_ROUTE_IDS" app/src > "$OUT_DIR/AUDIT_client_v2_ssot.txt" || true
+rg -n --hidden --no-ignore-vcs "CLIENT_V2_ROUTE_IDS" apps/control-plane/src > "$OUT_DIR/AUDIT_client_v2_ssot.txt" || true
 
 python3 - <<'PY'
 import re, pathlib

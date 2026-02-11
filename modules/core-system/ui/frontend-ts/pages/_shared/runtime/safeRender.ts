@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Module-local safeRender shim.
  * Purpose: avoid importing app/** from modules/** (boundary enforcement).

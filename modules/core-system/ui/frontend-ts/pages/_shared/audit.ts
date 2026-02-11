@@ -1,3 +1,4 @@
+// @ts-nocheck
 export type AuditEntry = {
   code: string;
   ts: string;

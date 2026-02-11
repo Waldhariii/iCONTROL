@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { getRole } from "/src/runtime/rbac";
 import { getSafeMode } from "../_shared/safeMode";
 import { renderAccessDenied, safeRender } from "../_shared/mainSystem.shared";

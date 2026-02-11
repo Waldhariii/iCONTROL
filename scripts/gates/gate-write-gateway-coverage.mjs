@@ -13,12 +13,12 @@ const paths = readPaths();
 const REPORT = resolve(ROOT, paths.reports.coverage);
 
 const TARGETS = [
-  "app/src/core",
+  "apps/control-plane/src/core",
   "modules",
 ];
 
 const EXCLUDES = [
-  "app/src/core/write-gateway",
+  "apps/control-plane/src/core/write-gateway",
 ];
 
 const PATTERN = String.raw`\\b(save|write)[A-Za-z0-9_]*\\s*\\(|localStorage\\.setItem\\s*\\(|sessionStorage\\.setItem\\s*\\(`;

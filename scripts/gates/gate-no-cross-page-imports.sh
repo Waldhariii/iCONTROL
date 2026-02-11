@@ -3,7 +3,7 @@ set -e
 
 echo "[gate] checking cross-page imports..."
 
-VIOLATIONS=$(grep -r "from ['\"]\.\./.*/surfaces/" app/src/surfaces \
+VIOLATIONS=$(grep -r "from ['\"]\.\./.*/surfaces/" apps/control-plane/src/surfaces \
   --include="*.tsx" --include="*.ts" \
   --exclude-dir="_shared" \
   --exclude-dir="node_modules" \

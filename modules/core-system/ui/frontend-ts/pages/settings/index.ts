@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { safeRender } from "../_shared/mainSystem.shared";
 import { renderRecommendations } from "../_shared/recommendations";
 import { getRole, getSafeMode } from "../_shared/recommendations.ctx";

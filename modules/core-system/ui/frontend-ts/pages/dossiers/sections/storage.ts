@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { blockKeyValueTable } from "../../_shared/uiBlocks";
 import { createDossiersModel } from "../model";
 

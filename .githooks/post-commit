@@ -1,4 +1,0 @@
-#!/bin/zsh
-# Intentionally empty (governed workflow):
-# INDEX is updated manually by operator to avoid any working-tree churn.
-exit 0

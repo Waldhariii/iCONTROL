@@ -3,7 +3,7 @@ set -e
 
 echo "[gate] checking inline styles..."
 
-VIOLATIONS=$(grep -r "style={{" app/src/surfaces \
+VIOLATIONS=$(grep -r "style={{" apps/control-plane/src/surfaces \
   --include="*.tsx" \
   2>/dev/null | grep -v "// ALLOWED" || true)
 

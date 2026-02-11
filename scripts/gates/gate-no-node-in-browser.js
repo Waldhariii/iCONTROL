@@ -45,7 +45,7 @@ for (const f of files) {
   const rel = path.relative(repo, f).replace(/\\/g, "/");
 
   // Allow Node-only folder
-  if (rel.includes("app/src/platform/runtimeConfig/node/")) continue;
+  if (rel.includes("apps/control-plane/src/platform/runtimeConfig/node/")) continue;
 
   const txt = fs.readFileSync(f, "utf8");
 

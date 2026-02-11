@@ -5,13 +5,13 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 
 # Targets: CP core/shared UI only (explicit allowlist)
 TARGETS=(
-  "$ROOT/app/src/core/ui"
+  "$ROOT/apps/control-plane/src/core/ui"
   "$ROOT/modules/core-system/ui/frontend-ts/pages/_shared"
 )
 
 # Exclusions: catalog is noisy and intentionally out-of-gate for now
 EXCLUDES=(
-  "$ROOT/app/src/core/ui/catalog"
+  "$ROOT/apps/control-plane/src/core/ui/catalog"
 )
 
 # Build ripgrep args
