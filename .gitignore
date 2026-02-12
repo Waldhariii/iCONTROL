@@ -230,3 +230,20 @@ _SYSTEM_SNAPSHOT/
 server/*.db
 server/*.db-wal
 server/*.db-shm
+
+# Fichiers macOS à ignorer
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Dossiers temporaires
+_audit/
+*.log
+
+# Build artifacts
+dist/
+*.db
+
+# Rapports temporaires
+*AUDIT*.txt
+*RAPPORT*.md
