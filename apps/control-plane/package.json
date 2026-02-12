@@ -40,7 +40,6 @@
     "preflight": "npm run verify:ssot:fast"
   },
   "dependencies": {
-    "@icontrol/design-system": "file:./src/core/ui/design-system",
     "dompurify": "^3.0.6",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
