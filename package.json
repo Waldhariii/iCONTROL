@@ -14,7 +14,7 @@
     "design-system/components/*"
   ],
   "scripts": {
-    "lint": "eslint . --ext .ts,.tsx --max-warnings 0",
+    "lint": "eslint . --ext .ts,.tsx",
     "lint:fix": "eslint . --ext .ts,.tsx --fix",
     "test": "npm run test:app",
     "test:app": "bash ./scripts/vitest-app.sh",

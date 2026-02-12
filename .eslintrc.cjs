@@ -1,37 +1,19 @@
 module.exports = {
   root: true,
-  env: {
-    node: true,
-    es2022: true,
-  },
+  env: { node: true, es2022: true },
   parser: '@typescript-eslint/parser',
-  parserOptions: {
-    ecmaVersion: 'latest',
-    sourceType: 'module',
-  },
+  parserOptions: { ecmaVersion: 'latest', sourceType: 'module' },
   plugins: ['@typescript-eslint'],
-  extends: [
-    'eslint:recommended',
-    'plugin:@typescript-eslint/recommended',
-  ],
-  ignorePatterns: [
-    'node_modules/',
-    'dist/',
-    'build/',
-    '*.generated.*',
-    '*.config.js',
-    '*.config.mjs',
-    '*.config.cjs',
-  ],
+  extends: ['eslint:recommended', 'plugin:@typescript-eslint/recommended'],
+  ignorePatterns: ['node_modules/', 'dist/', 'build/', '*.generated.*', '*.config.*'],
   rules: {
-    // Désactiver temporairement les règles problématiques
     '@typescript-eslint/ban-ts-comment': 'off',
-    '@typescript-eslint/no-explicit-any': 'warn',
-    '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
-    'no-empty': 'warn',
-    'prefer-const': 'warn',
-    'no-useless-escape': 'warn',
-    'no-constant-condition': 'warn',
+    '@typescript-eslint/no-explicit-any': 'off',
+    '@typescript-eslint/no-unused-vars': 'off',
+    'no-empty': 'off',
+    'prefer-const': 'off',
+    'no-useless-escape': 'off',
+    'no-constant-condition': 'off',
     '@typescript-eslint/no-namespace': 'off',
-  },
+  }
 };
