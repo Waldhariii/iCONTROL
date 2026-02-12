@@ -3,12 +3,12 @@
  * Pages Inventory — Complete listing of all CP pages (active/inactive) from ROUTE_CATALOG and registry
  */
 import { coreBaseStyles } from "@modules/core-system/ui/frontend-ts/shared/coreStyles";
-import { createPageShell } from "/src/core/ui/pageShell";
-import { createSectionCard } from "/src/core/ui/sectionCard";
-import { createToolbar } from "/src/core/ui/toolbar";
-import { createBadge } from "/src/core/ui/badge";
-import { createDataTable, type TableColumn } from "/src/core/ui/dataTable";
-import { createKpiStrip } from "/src/core/ui/kpi";
+import { createPageShell } from "../../../core/ui/pageShell";
+import { createSectionCard } from "../../../core/ui/sectionCard";
+import { createToolbar } from "../../../core/ui/toolbar";
+import { createBadge } from "../../../core/ui/badge";
+import { createDataTable, type TableColumn } from "../../../core/ui/dataTable";
+import { createKpiStrip } from "../../../core/ui/kpi";
 import { createGovernanceFooter, mapSafeMode } from "../_shared/cpLayout";
 import { getSafeMode } from "@modules/core-system/ui/frontend-ts/pages/_shared/safeMode";
 import { getPagesInventory, type PageInventoryEntry } from "/src/core/pagesInventory";
