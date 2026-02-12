@@ -186,8 +186,8 @@
     "validate:isolation": "npm run gate:no-cross-page-imports && npm run gate:no-direct-writes && npm run gate:tenant-scoping && npm run gate:no-inline-styles"
   },
   "devDependencies": {
-    "@types/react": "^19.2.10",
-    "@types/react-dom": "^19.2.3",
+    "@types/react": "18.3.28",
+    "@types/react-dom": "18.3.7",
     "@typescript-eslint/eslint-plugin": "^8.55.0",
     "@typescript-eslint/parser": "^8.55.0",
     "@vitejs/plugin-react": "^5.1.2",
@@ -198,8 +198,8 @@
     "typescript": "~5.5.0"
   },
   "dependencies": {
-    "react": "^19.2.4",
-    "react-dom": "^19.2.4"
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
   },
   "overrides": {
     "@rolldown/pluginutils": "1.0.0-beta.27",
