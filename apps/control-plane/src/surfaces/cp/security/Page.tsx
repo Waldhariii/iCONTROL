@@ -1,5 +1,6 @@
 import React from "react";
 import { useTenantContext } from "@/core/tenant/tenantContext";
+import { LocalStorageProvider } from "@/core/control-plane/storage";
 import { useSecurityQuery } from "./queries";
 import { useSecurityCommands } from "./commands";
 import { canAccessSecurity, canWriteSecurity } from "@/runtime/rbac";
@@ -14,6 +15,7 @@ export default function SecurityPage() {
   const [busyId, setBusyId] = React.useState<string | null>(null);
   const [message, setMessage] = React.useState<string | null>(null);
   const [compact, setCompact] = React.useState<"normal" | "compact" | "dense">("normal");
+  const storage = React.useMemo(() => new LocalStorageProvider(""), []);
   const canWrite = canAccessSecurity() && canWriteSecurity();
   const prefsKey = React.useMemo(() => {
     const s = getSession();
@@ -31,22 +33,22 @@ export default function SecurityPage() {
 
   React.useEffect(() => {
     try {
-      const raw = localStorage.getItem(prefsKey);
+      const raw = storage.getItem(prefsKey);
       if (raw === "normal" || raw === "compact" || raw === "dense") {
         setCompact(raw);
       }
     } catch {
       // ignore
     }
-  }, [prefsKey]);
+  }, [prefsKey, storage]);
 
   React.useEffect(() => {
     try {
-      localStorage.setItem(prefsKey, compact);
+      storage.setItem(prefsKey, compact);
     } catch {
       // ignore
     }
-  }, [prefsKey, compact]);
+  }, [prefsKey, compact, storage]);
 
   const onUpdate = async (rowId: string) => {
     const row = data.find((r) => r.id === rowId);

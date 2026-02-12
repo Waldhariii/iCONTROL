@@ -1,5 +1,6 @@
 import React from "react";
 import { useTenantContext } from "@/core/tenant/tenantContext";
+import { LocalStorageProvider } from "@/core/control-plane/storage";
 import { navigate } from "@/router";
 import {
   canAccessBranding,
@@ -27,6 +28,7 @@ export function CpSettingsPage() {
   const [error, setError] = React.useState<string | null>(null);
   const [density, setDensity] = React.useState<"normal" | "compact" | "dense">("normal");
   const [densitySaving, setDensitySaving] = React.useState(false);
+  const storage = React.useMemo(() => new LocalStorageProvider(""), []);
 
   React.useEffect(() => {
     let alive = true;
@@ -144,7 +146,7 @@ export function CpSettingsPage() {
         const s = getSession();
         const user = String((s as any)?.username || (s as any)?.userId || "anonymous");
         const storageKey = `icontrol:cp:density:${tenantId}:${user}`;
-        localStorage.setItem(storageKey, next);
+        storage.setItem(storageKey, next);
       } catch {}
       const API_BASE = getApiBase();
       const s = getSession();

@@ -1,5 +1,6 @@
 import React from "react";
 import { useTenantContext } from "@/core/tenant/tenantContext";
+import { LocalStorageProvider } from "@/core/control-plane/storage";
 import { useProvidersQuery } from "./queries";
 import { useProvidersCommands } from "./commands";
 import { canAccessProviders, canWriteProviders } from "@/runtime/rbac";
@@ -112,6 +113,7 @@ export default function ProvidersPage() {
   const [busyId, setBusyId] = React.useState<string | null>(null);
   const [message, setMessage] = React.useState<string | null>(null);
   const canWrite = canAccessProviders() && canWriteProviders();
+  const storage = React.useMemo(() => new LocalStorageProvider(""), []);
   const prefsKey = React.useMemo(() => {
     const s = getSession();
     const user = String((s as any)?.username || (s as any)?.userId || "anonymous");
@@ -180,7 +182,7 @@ export default function ProvidersPage() {
 
     (async () => {
       try {
-        const raw = localStorage.getItem(prefsKey);
+        const raw = storage.getItem(prefsKey);
         if (raw) {
           const parsed = JSON.parse(raw) as ProvidersPrefs;
           if (parsed?.type) setFilterType(parsed.type);
@@ -241,7 +243,7 @@ export default function ProvidersPage() {
 
     window.addEventListener("hashchange", applyFromHash);
     return () => window.removeEventListener("hashchange", applyFromHash);
-  }, [prefsKey, applyGlobalDensity]);
+  }, [prefsKey, applyGlobalDensity, storage]);
 
   React.useEffect(() => {
     if (!hasHydrated) return;
@@ -256,7 +258,7 @@ export default function ProvidersPage() {
       syncDensity,
     };
     try {
-      localStorage.setItem(prefsKey, JSON.stringify(payload));
+      storage.setItem(prefsKey, JSON.stringify(payload));
     } catch {
       // ignore storage errors
     }
@@ -281,7 +283,7 @@ export default function ProvidersPage() {
       }
     }, 400);
     return () => window.clearTimeout(timer);
-  }, [filterType, filterStatus, filterHealth, filterSearch, sortSpecs, days, compact, syncDensity, prefsKey, hasHydrated, tenantId]);
+  }, [filterType, filterStatus, filterHealth, filterSearch, sortSpecs, days, compact, syncDensity, prefsKey, hasHydrated, tenantId, storage]);
 
   React.useEffect(() => {
     if (syncDensity) {

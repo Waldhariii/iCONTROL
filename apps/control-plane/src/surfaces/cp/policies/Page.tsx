@@ -1,5 +1,6 @@
 import React from "react";
 import { useTenantContext } from "@/core/tenant/tenantContext";
+import { LocalStorageProvider } from "@/core/control-plane/storage";
 import { usePoliciesQuery } from "./queries";
 import { usePoliciesCommands } from "./commands";
 import { canAccessPolicies, canWritePolicies } from "@/runtime/rbac";
@@ -16,6 +17,7 @@ export default function PoliciesPage() {
   const [message, setMessage] = React.useState<string | null>(null);
   const [compact, setCompact] = React.useState<"normal" | "compact" | "dense">("normal");
   const canWrite = canAccessPolicies() && canWritePolicies();
+  const storage = React.useMemo(() => new LocalStorageProvider(""), []);
   const prefsKey = React.useMemo(() => {
     const s = getSession();
     const user = String((s as any)?.username || (s as any)?.userId || "anonymous");
@@ -32,22 +34,22 @@ export default function PoliciesPage() {
 
   React.useEffect(() => {
     try {
-      const raw = localStorage.getItem(prefsKey);
+      const raw = storage.getItem(prefsKey);
       if (raw === "normal" || raw === "compact" || raw === "dense") {
         setCompact(raw);
       }
     } catch {
       // ignore
     }
-  }, [prefsKey]);
+  }, [prefsKey, storage]);
 
   React.useEffect(() => {
     try {
-      localStorage.setItem(prefsKey, compact);
+      storage.setItem(prefsKey, compact);
     } catch {
       // ignore
     }
-  }, [prefsKey, compact]);
+  }, [prefsKey, compact, storage]);
 
   const onCreate = async () => {
     if (!canWrite) {

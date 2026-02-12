@@ -7,6 +7,7 @@ import { buildActorContext } from "@/platform/securityContext";
 import { guardAdminGlobalTheme } from "@/platform/guards/adminGuards";
 import { getApiBase } from "@/core/runtime/apiBase";
 import { getSession } from "@/localAuth";
+import { LocalStorageProvider } from "@/core/control-plane/storage";
 
 const BASE_FIELDS: Array<{ key: string; label: string; placeholder: string }> = [
   { key: "--app-bg-primary", label: "App background", placeholder: "#0f1115" },
@@ -37,6 +38,7 @@ export default function LoginThemePage() {
   const [densitySaving, setDensitySaving] = React.useState(false);
   const [status, setStatus] = React.useState<string | null>(null);
   const [form, setForm] = React.useState<Record<string, string>>(() => overrides.theme?.CP ?? {});
+  const storage = React.useMemo(() => new LocalStorageProvider(""), []);
   const decision = React.useMemo(() => {
     const mappedRole = canWriteTheme() ? "admin" : "viewer";
     const actor = buildActorContext({ tenantId, role: mappedRole });
@@ -133,7 +135,7 @@ export default function LoginThemePage() {
       });
       try {
         const storageKey = `icontrol:cp:density:${tenantId}:${userId || "anonymous"}`;
-        localStorage.setItem(storageKey, next);
+        storage.setItem(storageKey, next);
       } catch {}
     } finally {
       setDensitySaving(false);

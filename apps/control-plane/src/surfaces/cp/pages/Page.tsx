@@ -15,6 +15,7 @@ import { getPagesInventory, type PageInventoryEntry } from "/src/core/pagesInven
 import { getApiBase } from "/src/core/runtime/apiBase";
 import { getSession } from "/src/localAuth";
 import { getPermissionClaims, hasPermission } from "/src/runtime/rbac";
+import { LocalStorageProvider } from "/src/core/control-plane/storage";
 
 const CP_PAGES = getPagesInventory("CP");
 const CLIENT_PAGES = getPagesInventory("CLIENT");
@@ -133,6 +134,7 @@ export function renderPages(root: HTMLElement): void {
     statusBadge: { label: "GOUVERNÉ", tone: "info" }
   });
 
+  const storage = new LocalStorageProvider("");
   const SURFACE_KEY = "icontrol_pages_surface";
   const readSurfaceFromUrl = () => {
     try {
@@ -157,13 +159,13 @@ export function renderPages(root: HTMLElement): void {
   };
   const readSurfaceFromStorage = () => {
     try {
-      const raw = localStorage.getItem(SURFACE_KEY);
+      const raw = storage.getItem(SURFACE_KEY);
       if (raw === "CLIENT" || raw === "CP") return raw as "CLIENT" | "CP";
     } catch {}
     return null;
   };
   const writeSurfaceToStorage = (s: "CP" | "CLIENT") => {
-    try { localStorage.setItem(SURFACE_KEY, s); } catch {}
+    try { storage.setItem(SURFACE_KEY, s); } catch {}
   };
   const writeSurfaceToUrl = (s: "CP" | "CLIENT") => {
     try {

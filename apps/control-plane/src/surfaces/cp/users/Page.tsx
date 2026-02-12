@@ -28,6 +28,7 @@ import { Vfs, type VfsScope } from "../../../platform/storage/vfs";
 import { guardCpSurface } from "../../../core/runtime/cpSurfaceGuard";
 import { canManageUsers, getPermissionClaims } from "../../../runtime/rbac";
 import { getApiBase } from "../../../core/runtime/apiBase";
+import { LocalStorageProvider } from "../../../core/control-plane/storage";
 
 type UsersModelCp = {
   title: string;
@@ -45,6 +46,7 @@ type UserPermissions = {
 
 const USER_PERMS_KEY = "icontrol_cp_user_permissions_v1";
 const RBAC_PERMS_KEY = "icontrol_rbac_permissions_v1";
+const storage = new LocalStorageProvider("");
 
 const RBAC_ROLE_PRESETS: Record<string, string[]> = {
   USER: [],
@@ -149,7 +151,7 @@ function previewAccess(perms: string[]) {
 
 function readRbacStore(): Record<string, string[]> {
   try {
-    const raw = localStorage.getItem(RBAC_PERMS_KEY);
+    const raw = storage.getItem(RBAC_PERMS_KEY);
     if (!raw) return {};
     const parsed = JSON.parse(raw);
     if (parsed && typeof parsed === "object" && parsed.roles && typeof parsed.roles === "object") {
@@ -161,7 +163,7 @@ function readRbacStore(): Record<string, string[]> {
 
 function writeRbacStore(roles: Record<string, string[]>): void {
   try {
-    localStorage.setItem(RBAC_PERMS_KEY, JSON.stringify({ roles }));
+    storage.setItem(RBAC_PERMS_KEY, JSON.stringify({ roles }));
   } catch {}
 }
 
@@ -218,7 +220,7 @@ function validateRbacPayload(payload: any): { roles: Record<string, string[]> } 
 
 function getUserPermissions(username: string, role: string): UserPermissions {
   try {
-    const raw = localStorage.getItem(USER_PERMS_KEY);
+    const raw = storage.getItem(USER_PERMS_KEY);
     if (raw) {
       const parsed = JSON.parse(raw) as Record<string, UserPermissions>;
       const stored = parsed?.[username];
@@ -231,10 +233,10 @@ function getUserPermissions(username: string, role: string): UserPermissions {
 
 function setUserPermissions(username: string, perms: UserPermissions): void {
   try {
-    const raw = localStorage.getItem(USER_PERMS_KEY);
+    const raw = storage.getItem(USER_PERMS_KEY);
     const parsed = raw ? (JSON.parse(raw) as Record<string, UserPermissions>) : {};
     parsed[username] = perms;
-    localStorage.setItem(USER_PERMS_KEY, JSON.stringify(parsed));
+    storage.setItem(USER_PERMS_KEY, JSON.stringify(parsed));
   } catch {}
 }
 

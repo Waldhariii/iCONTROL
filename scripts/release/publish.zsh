@@ -88,9 +88,9 @@ validate_tag_format() {
 
 
 # Centralised gates are sourced to avoid drift and keep scripts readable.
-if [[ -f "scripts/_gates/gate_fs.zsh" ]]; then source "scripts/_gates/gate_fs.zsh"; fi
-if [[ -f "scripts/_gates/gate_git.zsh" ]]; then source "scripts/_gates/gate_git.zsh"; fi
-if [[ -f "scripts/_gates/gate_release.zsh" ]]; then source "scripts/_gates/gate_release.zsh"; fi
+if [[ -f "scripts/gates/gate_fs.zsh" ]]; then source "scripts/gates/gate_fs.zsh"; fi
+if [[ -f "scripts/gates/gate_git.zsh" ]]; then source "scripts/gates/gate_git.zsh"; fi
+if [[ -f "scripts/gates/gate_release.zsh" ]]; then source "scripts/gates/gate_release.zsh"; fi
 
 
 run() {
@@ -102,8 +102,8 @@ run() {
 }
 
 
-# [gates] preflight_git_writable() moved to scripts/_gates (sourced)
-# [gates] need_clean_tree() moved to scripts/_gates (sourced)
+# [gates] preflight_git_writable() moved to scripts/gates (sourced)
+# [gates] need_clean_tree() moved to scripts/gates (sourced)
 need_gh() {
   command -v gh >/dev/null 2>&1 || { echo "ERROR: gh not installed"; exit 1; }
   if is_offline_gh; then
@@ -307,7 +307,7 @@ render_notes_for_release() {
   echo "$tmp"
 }
 
-# [gates] verify_release_consistency() moved to scripts/_gates (sourced)
+# [gates] verify_release_consistency() moved to scripts/gates (sourced)
 run_gates() {
   echo "OK: GATES close-the-loop (pre-publish)"
   if [[ ! -x "scripts/release/close-the-loop.zsh" ]]; then

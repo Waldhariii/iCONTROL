@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# ============================================
+# PRE-COMMIT ORCHESTRATOR (SSOT)
+# ============================================
+# 1. Binary guard: blocks binaries/archives in staging
+# 2. Gates: executes .githooks/pre-commit gates
+# ============================================
+
+# Phase 1: Binary guard (blocks .map, .zip, .png, etc.)
+BIN_REGEX='(\.tar\.gz$|\.tgz$|\.zip$|\.7z$|\.rar$|\.png$|\.jpg$|\.jpeg$|\.webp$|\.gif$|\.pdf$|\.mp4$|\.mov$|\.avi$|\.dmg$|\.pkg$|\.exe$|\.bin$|\.map$|\.log$)'
+
+bad="$(git diff --staged --name-only | grep -E "$BIN_REGEX" || true)"
+if [ -n "${bad:-}" ]; then
+  echo "[BLOCK] Binaires détectés dans le staging (Option 1)."
+  echo "$bad"
+  echo ""
+  echo "Action: unstage ces fichiers (recommandé):"
+  echo "  git restore --staged -- <file>"
+  echo ""
+  echo "Si tu veux VRAIMENT forcer (déconseillé), fais un commit séparé et conscient."
+  exit 12
+fi
+
+# Phase 2: Execute gates from .githooks/pre-commit
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+GITHOOKS_PRE_COMMIT="${REPO_ROOT}/.githooks/pre-commit"
+
+if [ ! -f "$GITHOOKS_PRE_COMMIT" ]; then
+  echo "ERROR: .githooks/pre-commit not found at: $GITHOOKS_PRE_COMMIT"
+  exit 1
+fi
+
+if [ ! -x "$GITHOOKS_PRE_COMMIT" ]; then
+  chmod +x "$GITHOOKS_PRE_COMMIT"
+fi
+
+# Execute gates (zsh script)
+exec "$GITHOOKS_PRE_COMMIT"

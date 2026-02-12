@@ -58,6 +58,9 @@ type DashboardData = {
 };
 
 export function renderDashboard(root: HTMLElement): void {
+  let resolved = false;
+  let hardFallback: number | null = null;
+
   const renderLoading = () => {
     root.innerHTML = coreBaseStyles();
     const safeModeValue = mapSafeMode(getSafeMode());
@@ -290,6 +293,12 @@ const { card: healthCard, body: healthBody } = createSectionCard({
     root.appendChild(shell);
   };
 
+  hardFallback = window.setTimeout(() => {
+    if (resolved) return;
+    const empty = buildEmptyDashboardData();
+    renderData(empty, { metrics: "timeout", events: "timeout" });
+  }, 9000);
+
   try {
     renderLoading();
     const dataPromise = getDashboardData();
@@ -298,6 +307,8 @@ const { card: healthCard, body: healthBody } = createSectionCard({
     );
     Promise.race([dataPromise, timeoutPromise])
       .then(({ data, errors }) => {
+        resolved = true;
+        if (hardFallback !== null) window.clearTimeout(hardFallback);
         try {
           renderData(data, errors);
         } catch (err) {
@@ -306,10 +317,14 @@ const { card: healthCard, body: healthBody } = createSectionCard({
         }
       })
       .catch((error) => {
+        resolved = true;
+        if (hardFallback !== null) window.clearTimeout(hardFallback);
         const empty = buildEmptyDashboardData();
         renderData(empty, { metrics: String(error) });
       });
   } catch (err) {
+    resolved = true;
+    if (hardFallback !== null) window.clearTimeout(hardFallback);
     root.innerHTML = coreBaseStyles();
     root.appendChild(createErrorState({ code: "ERR_DASHBOARD_BOOT", message: String(err) }));
   }

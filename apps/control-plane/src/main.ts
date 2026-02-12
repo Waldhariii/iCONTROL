@@ -3,7 +3,7 @@ import { info, warn, error } from "./platform/observability/logger";
 import { resolveRuntimeContext } from "./platform/runtimeContext";
 import { hydrateTenantRuntime } from "./platform/bootstrap";
 import { getBrandResolved } from "./platform/branding/brandService";
-import { getSession } from "./localAuth";
+import { getSession, isLoggedIn, clearManagementSession } from "./localAuth";
 import { getApiBase } from "./core/runtime/apiBase";
 import "./styles/STYLE_ADMIN_FINAL.css";
 import { installIControlDiagnosticDEVOnly } from "./dev/diagnostic";
@@ -134,9 +134,11 @@ function __icontrol_mountShellIfNeeded__(navProvider: () => any[], shellFactory:
   try {
     const hash = (() => { try { return window.location.hash || ""; } catch { return ""; } })();
 
-    // Ne pas monter le shell sur la page de login
+    // Ne pas monter le shell sur la page de login, sauf si déjà authentifié
     if (hash === "#/login" || hash.startsWith("#/login")) {
-      return; // Pas de shell pour login
+      if (!isLoggedIn("CP")) {
+        return; // Pas de shell pour login
+      }
     }
 
     // Shell always required for CP (sauf login)
@@ -470,7 +472,7 @@ try {
     }
     const h = String(window.location.hash || "");
     if (h === "#/blocked" || h.startsWith("#/blocked?") || h.startsWith("#/blocked&")) {
-      navigate("#/login");
+      navigate("#/dashboard");
     }
   }
 } catch {}
@@ -776,6 +778,11 @@ function renderShell(rid: RouteId): void {
     if (boot && boot.parentElement) boot.parentElement.removeChild(boot);
   } catch {}
   
+  // Si login mais déjà authentifié, forcer l'URL dashboard
+  if (rid === "login_cp" && isLoggedIn("CP")) {
+    navigate("#/dashboard");
+    return;
+  }
   // Ne pas monter le shell sur la page de login (login_cp)
   if (rid === "login_cp") {
     // Pour login, utiliser directement l'élément app sans shell
@@ -852,17 +859,16 @@ queueMicrotask(() => {
           }
           // If the placeholder still exists after a forced router tick, render login directly.
           setTimeout(() => {
-            try {
-              const bootStillThere = document.getElementById("icontrol-boot");
-              if (!bootStillThere) return;
-              const mount = __icontrol_resolveMountSSOT__();
-              logger.warn("BOOT_WATCHDOG_RENDER_LANDING", "Boot placeholder persists; rendering landing directly.");
-              const kind = __icontrol_resolveAppKind();
-              const landing = kind === "CP" ? "dashboard_cp" : "home_app";
-              renderRoute(landing as RouteId, mount);
-            } catch (e) {
-              logger.warn("BOOT_WATCHDOG_LOGIN_FAILED", String(e));
-            }
+          try {
+            const bootStillThere = document.getElementById("icontrol-boot");
+            if (!bootStillThere) return;
+            logger.warn("BOOT_WATCHDOG_RENDER_LANDING", "Boot placeholder persists; rendering landing directly.");
+            const kind = __icontrol_resolveAppKind();
+            const landing = kind === "CP" ? (isLoggedIn("CP") ? "dashboard_cp" : "login_cp") : "home_app";
+            renderShell(landing as RouteId);
+          } catch (e) {
+            logger.warn("BOOT_WATCHDOG_LOGIN_FAILED", String(e));
+          }
           }, 500);
         } catch (e) {
           logger.warn("BOOT_WATCHDOG_FAILED", String(e));
@@ -875,6 +881,45 @@ queueMicrotask(() => {
   (async () => {
     __icontrol_setBootStage__("Boot: start");
     __icontrol_assertAppKind__();
+
+    // DEV only: clear CP session once per browser to avoid stale login loop.
+    try {
+      if (__icontrolIsLocalDev__()) {
+        const key = "icontrol_dev_session_cleared_v1";
+        const stored = localStorage.getItem(key);
+        if (!stored) {
+          clearManagementSession();
+          localStorage.setItem(key, "1");
+        }
+      }
+    } catch {}
+
+    // Ensure runtime identity exists early enough for CP surface guards.
+    try {
+      const g: any = globalThis as any;
+      const ctx = resolveRuntimeContext({ fallbackAppKind: __icontrol_resolveAppKind() });
+      if (!g.__ICONTROL_RUNTIME__ || typeof g.__ICONTROL_RUNTIME__ !== "object") {
+        g.__ICONTROL_RUNTIME__ = {};
+      }
+      if (!g.__ICONTROL_RUNTIME__.tenantId) {
+        g.__ICONTROL_RUNTIME__.tenantId = ctx.tenantId;
+      }
+      if (!g.__ICONTROL_RUNTIME__.appKind) {
+        g.__ICONTROL_RUNTIME__.appKind = ctx.appKind;
+      }
+      if (!g.__ICONTROL_RUNTIME__.actorId) {
+        const s = getSession();
+        const actor = String((s as any)?.username || (s as any)?.userId || "");
+        if (actor) {
+          g.__ICONTROL_RUNTIME__.actorId = actor;
+        } else if (__icontrolIsLocalDev__()) {
+          g.__ICONTROL_RUNTIME__.actorId = "dev";
+        }
+      }
+      // no-op: blocked handling now centralized in router
+    } catch {
+      // fail-soft: do not block boot
+    }
 
     /* THEME_SSOT_APPLY_CALL_V1 */
     void __ICONTROL_APPLY_THEME_SSOT__();
@@ -897,19 +942,7 @@ queueMicrotask(() => {
       // Continuer même si VersionGate échoue (fail open)
     }
 
-    // DEV fast-path: if we are still on the boot placeholder, render landing directly.
-    try {
-      const isDev = (import.meta as any)?.env?.DEV;
-      const bootEl = document.getElementById("icontrol-boot");
-      if (isDev && bootEl) {
-        const mount = __icontrol_resolveMountSSOT__();
-        const kind = __icontrol_resolveAppKind();
-        const landing = kind === "CP" ? "dashboard_cp" : "home_app";
-        renderRoute(landing as RouteId, mount);
-      }
-    } catch (e) {
-      logger.warn("WARN_DEV_FASTPATH_LANDING", String(e));
-    }
+    // DEV fast-path removed: router is now the single source of truth.
 
     __icontrol_setBootStage__("Boot: router");
     bootRouter((rid) => renderShell(rid));

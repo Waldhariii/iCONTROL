@@ -7,12 +7,38 @@ export function CpLoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
+  const resolveReturnTo = () => {
+    try {
+      const hash = String(window.location.hash || "");
+      const query = hash.split("?")[1] || "";
+      const params = new URLSearchParams(query);
+      const raw = params.get("returnTo");
+      if (!raw) return "#/dashboard";
+      const decoded = decodeURIComponent(raw);
+      return decoded.startsWith("#/") ? decoded : "#/dashboard";
+    } catch {
+      return "#/dashboard";
+    }
+  };
+
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError("");
     const res = authenticateManagement(username, password);
     if (res.ok) {
-      navigate("#/dashboard");
+      const target = resolveReturnTo();
+      navigate(target);
+      // Hard-fallback: ensure hash switches even if router swallows it.
+      setTimeout(() => {
+        try {
+          const h = String(window.location.hash || "");
+          if (h === "#/login" || h.startsWith("#/login")) {
+            window.location.replace(`${window.location.pathname}${window.location.search}${target}`);
+          }
+        } catch {
+          // ignore
+        }
+      }, 0);
       return;
     }
     setError(res.error);

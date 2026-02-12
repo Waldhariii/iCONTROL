@@ -92,10 +92,33 @@ export function renderRoute(rid: RouteId, root: HTMLElement): void {
       return;
     }
     if ((rid as any) === "blocked_cp") {
+      const injectDiag = () => {
+        try {
+          const isDev = (import.meta as any)?.env?.DEV === true;
+          const host = typeof window !== "undefined" ? window.location.hostname : "";
+          if (!isDev && host !== "localhost" && host !== "127.0.0.1") return;
+          const diag = document.createElement("pre");
+          diag.className = "ic-access-denied__diag";
+          const g: any = globalThis as any;
+          const payload = {
+            hash: String(window.location.hash || ""),
+            appKind: g.__ICONTROL_APP_KIND__,
+            runtime: g.__ICONTROL_RUNTIME__,
+            bootBlock: g.__bootBlock,
+            bootBanner: g.__bootBanner,
+            session: g.__ICONTROL_SESSION__,
+          };
+          diag.textContent = JSON.stringify(payload, null, 2);
+          root.appendChild(diag);
+        } catch {
+          // ignore
+        }
+      };
       import("@modules/core-system/ui/frontend-ts/pages/blocked")
         .then((m) => {
           const html = (m as any).default?.() ?? "";
           root.innerHTML = html || `<div style="max-width:980px;margin:40px auto;padding:0 16px;opacity:.8">Accès bloqué.</div>`;
+          injectDiag();
         })
         .catch((e) => {
           /* ICONTROL_LOADER_IMPORT_GUARD_V1 */
@@ -104,6 +127,7 @@ export function renderRoute(rid: RouteId, root: HTMLElement): void {
             err: String(e),
           }] });
           root.innerHTML = `<div style="max-width:980px;margin:40px auto;padding:0 16px;opacity:.8">Accès bloqué.</div>`;
+          injectDiag();
         });
       return;
     }

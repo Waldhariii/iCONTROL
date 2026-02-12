@@ -159,6 +159,29 @@ function __clientV2FallbackHash(state?: string) {
   // APP-only fallback - use home_app
   return state ? `#/home-app?state=${encodeURIComponent(state)}` : "#/home-app";
 }
+
+function __resolveReturnToFromHash(hash: string): string {
+  try {
+    const query = String(hash || "").split("?")[1] || "";
+    const params = new URLSearchParams(query);
+    const raw = params.get("returnTo");
+    if (!raw) return "#/dashboard";
+    const decoded = decodeURIComponent(raw);
+    return decoded.startsWith("#/") ? decoded : "#/dashboard";
+  } catch {
+    return "#/dashboard";
+  }
+}
+
+function __hasReturnTo(hash: string): boolean {
+  try {
+    const query = String(hash || "").split("?")[1] || "";
+    const params = new URLSearchParams(query);
+    return params.has("returnTo");
+  } catch {
+    return false;
+  }
+}
 function __clientV2IsAllowed(hash: string) {
   const normalized = __clientV2NormalizeHash(hash);
   return __CLIENT_V2_ALLOW.has(normalized);
@@ -431,6 +454,7 @@ if (!hash.startsWith("#/")) coreNavigate("#/" + hash.replace(/^#\/?/, ""));
 }
 
 function ensureAuth(): boolean {
+  const h = String(location.hash || "");
   const rid = getRouteId();
   // Allow blocked and access_denied pages always (with _cp/_app suffix)
   if (rid === "blocked_cp") {
@@ -451,8 +475,9 @@ function ensureAuth(): boolean {
       // APP: redirect to home_app
       navigate("#/home-app?state=disabled");
     } else {
-      // CP: redirect to login_cp
-      navigate("#/login");
+      // CP: redirect to login_cp with returnTo
+      const rt = h ? encodeURIComponent(h) : encodeURIComponent("#/dashboard");
+      navigate(`#/login?returnTo=${rt}`);
     }
     return false;
   }
@@ -500,6 +525,12 @@ export function bootRouter(onRoute: (rid: RouteId) => void): void {
     } catch {}
     const rid = getRouteId();
     const h = String(location.hash || "");
+    // If authenticated and on login WITH returnTo, redirect to target.
+    if (isLoggedIn() && (h === "#/login" || h.startsWith("#/login")) && __hasReturnTo(h)) {
+      const target = __resolveReturnToFromHash(h);
+      coreNavigate(target);
+      return;
+    }
     // If Version Policy blocks this build, force a controlled route once.
     // DEV safety: never enforce boot block in local dev.
     try {
@@ -543,7 +574,9 @@ export function bootRouter(onRoute: (rid: RouteId) => void): void {
             // Laisser passer pour permettre le rendu de la page de login
           } else {
             // Redirection vers #/login si non connecté, sinon #/dashboard
-            const target = isLoggedIn() ? "#/dashboard" : "#/login";
+            const target = isLoggedIn()
+              ? "#/dashboard"
+              : `#/login?returnTo=${encodeURIComponent(h || "#/dashboard")}`;
             try { coreNavigate(target); } catch {}
             return;
           }

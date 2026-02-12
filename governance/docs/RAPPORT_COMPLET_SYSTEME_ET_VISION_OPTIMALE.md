@@ -18,7 +18,7 @@
 | **Services plateforme** | `platform-services/` : branding (brandService), security/auth (localAuth), ui-shell (layout/shell.css, shell.ts, routing/router.ts). |
 | **Serveur** | `server/` : runtime-config-server.ts, build.mjs, log.mjs, smoke-runtime-config.mjs, ssot-invariants.test.mjs. |
 | **Config** | `runtime/configs/` : brand/, branding/, permissions/rbac.json, safe-mode/*.json, ssot/ (ROUTE_CATALOG.json, TENANT_FEATURE_MATRIX.json, design.tokens.json, CAPABILITY_STATUS.json, ADMIN_COMPONENTS_REGISTRY.ts), module-registry.json. |
-| **Scripts** | `scripts/` : audit/ (13 scripts), gates/ (26+ fichiers), dev/, release/, maintenance/, runbook/, ssot/, _gates/, gate/, mac/, tools/. |
+| **Scripts** | `scripts/` : audit/ (13 scripts), gates/ (26+ fichiers), dev/, release/, maintenance/, runbook/, ssot/,  gate/, mac/, tools/. |
 | **Docs** | `docs/` : adr/, architecture/, contracts/, governance/, release/, releases/, runbooks/, ssot/, ui/, audit/, PHASE_1/, PHASE_2/, _proofs/, + rapports (REPORT_CURRENT_STATE, GAP_MATRIX, EXECUTION_ROADMAP_AZ, etc.). |
 | **Applications desktop** | `app-desktop-client/`, `app-desktop-control/` (Tauri/Rust). |
 
