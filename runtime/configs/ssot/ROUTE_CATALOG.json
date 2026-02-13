@@ -25,6 +25,52 @@
       "status": "ACTIVE"
     },
     {
+      "route_id": "dashboard_overview_cp",
+      "path": "#/dashboard/overview",
+      "app_surface": "CP",
+      "page_module_id": "cp.dashboard.overview",
+      "permissions_required": [],
+      "feature_flag_id": null,
+      "tenant_visibility": "all",
+      "status": "ACTIVE",
+      "nav_visibility": {
+        "dashboard_tabs": true,
+        "tab_order": 1
+      }
+    },
+    {
+      "route_id": "dashboard_tenants_cp",
+      "path": "#/dashboard/tenants",
+      "app_surface": "CP",
+      "page_module_id": "cp.dashboard.tenants",
+      "permissions_required": [
+        "canAccessTenants"
+      ],
+      "feature_flag_id": null,
+      "tenant_visibility": "all",
+      "status": "ACTIVE",
+      "nav_visibility": {
+        "dashboard_tabs": true,
+        "tab_order": 2
+      }
+    },
+    {
+      "route_id": "dashboard_alerts_cp",
+      "path": "#/dashboard/alerts",
+      "app_surface": "CP",
+      "page_module_id": "cp.dashboard.alerts",
+      "permissions_required": [
+        "canViewLogs"
+      ],
+      "feature_flag_id": null,
+      "tenant_visibility": "all",
+      "status": "ACTIVE",
+      "nav_visibility": {
+        "dashboard_tabs": true,
+        "tab_order": 3
+      }
+    },
+    {
       "route_id": "account_cp",
       "path": "#/account",
       "app_surface": "CP",

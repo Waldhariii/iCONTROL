@@ -27,10 +27,6 @@ import { hasPermission } from "/src/runtime/rbac";
 // @ts-ignore
 import catalog from "@config/ssot/ROUTE_CATALOG.json";
 
-import { renderOverview } from "./sections/overview";
-import { renderTenantsView } from "./sections/tenants";
-import { renderAlertsView } from "./sections/alerts";
-
 type DashboardStatus = "OPERATIONNEL" | "DEGRADE" | "INCIDENT";
 
 type DashboardEvent = {
@@ -126,24 +122,6 @@ function orderByPrefs<T extends { id: string }>(items: T[], order: string[]): T[
     if (ai !== bi) return ai - bi;
     return a.id.localeCompare(b.id);
   });
-}
-
-
-function renderTabContent(container: HTMLElement): void {
-  const hash = window.location.hash || "";
-  
-  container.innerHTML = "";
-  
-  if (hash.includes("/overview")) {
-    renderOverview(container);
-  } else if (hash.includes("/tenants")) {
-    renderTenantsView(container);
-  } else if (hash.includes("/alerts")) {
-    renderAlertsView(container);
-  } else {
-    // Par défaut, afficher Overview
-    renderOverview(container);
-  }
 }
 
 export function renderDashboard(root: HTMLElement): void {
