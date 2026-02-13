@@ -21,12 +21,11 @@ function AccountApp() {
               display: "flex",
               justifyContent: "space-between",
               alignItems: "center",
-              transition: "border-color 0.2s",
             }}
           >
             <div>
               <div style={{ color: "var(--text-primary)", fontWeight: "600", marginBottom: "4px" }}>
-                💳 Plan & Abonnement
+                💳 Plan &amp; Abonnement
               </div>
               <div style={{ color: "var(--text-muted)", fontSize: "14px" }}>
                 Gérez votre plan et votre facturation
