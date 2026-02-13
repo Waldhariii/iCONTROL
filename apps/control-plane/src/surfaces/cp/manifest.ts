@@ -3,6 +3,7 @@ import type { ComponentType } from "react";
 import { TenantProvider } from "@/core/tenant/tenantContext";
 import { PaymentSettingsSurface } from "./payment-settings/adapter";
 import { SubscriptionsSurface } from "./subscriptions/adapter";
+import { ObservabilitySurface } from "./observability/adapter";
 
 async function renderReactPage(root: HTMLElement, Page: ComponentType) {
   root.innerHTML = "";
