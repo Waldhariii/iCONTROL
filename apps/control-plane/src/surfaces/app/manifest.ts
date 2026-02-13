@@ -1,5 +1,6 @@
 /**
 import { SignupSurface } from "./signup/adapter";
+import { BillingSurface } from "./billing/adapter";
  * APP surface manifest (baseline)
  * PROD: keep minimal; extend via module system later.
  */

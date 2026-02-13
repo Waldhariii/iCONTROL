@@ -450,6 +450,17 @@
       "status": "ACTIVE"
     },
     {
+      "route_id": "billing_app",
+      "path": "#/account/billing",
+      "app_surface": "APP",
+      "page_module_id": "app.billing",
+      "permissions_required": [],
+      "feature_flag_id": null,
+      "tenant_visibility": "all",
+      "status": "ACTIVE",
+      "nav_visibility": null
+    },
+    {
       "route_id": "settings_app",
       "path": "#/settings",
       "app_surface": "APP",
