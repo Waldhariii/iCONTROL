@@ -1,3 +1,4 @@
+import { openPlanModal } from "./plan-modal";
 // @ts-nocheck
 import { sectionCard, el } from "../../_shared/uiBlocks";
 
@@ -89,7 +90,12 @@ export function renderPlansSection(host: HTMLElement): void {
     font-weight: 500;
   `;
   addBtn.onclick = () => {
-    alert("Modal d'ajout de plan (à implémenter)");
+    openPlanModal(null, (newPlan) => {
+    console.log("Nouveau plan:", newPlan);
+    // TODO: Sauvegarder dans TENANT_FEATURE_MATRIX.json
+    alert("Plan créé ! (sauvegarde à implémenter)");
+    window.location.reload();
+  });
   };
 
   toolbar.appendChild(searchInput);
@@ -126,7 +132,12 @@ export function renderPlansSection(host: HTMLElement): void {
     };
 
     planCard.onclick = () => {
-      alert(`Éditer le plan ${plan.name} (modal à implémenter)`);
+      openPlanModal(plan, (updatedPlan) => {
+      console.log("Plan mis à jour:", updatedPlan);
+      // TODO: Sauvegarder dans TENANT_FEATURE_MATRIX.json
+      alert("Plan modifié ! (sauvegarde à implémenter)");
+      window.location.reload();
+    });
     };
 
     // Header
