@@ -27,3 +27,13 @@ export type { PaymentProvider } from "./types/provider.interface";
 // Providers (si besoin d'accès direct)
 export { MockProvider } from "./providers/MockProvider";
 export { StripeProvider } from "./providers/StripeProvider";
+
+// Webhook system
+export { WebhookProcessor } from "./WebhookProcessor";
+export type {
+  WebhookEventType,
+  WebhookPayload,
+  WebhookAction,
+  WebhookProcessResult,
+  WebhookLog,
+} from "./types/webhook.types";
