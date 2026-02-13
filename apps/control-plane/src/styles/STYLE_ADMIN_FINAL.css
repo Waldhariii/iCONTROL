@@ -515,7 +515,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-md);
-  padding: var(--space-md);
+  padding: 0;
   width: 100%;
   max-width: 100%;
   box-sizing: border-box;
@@ -582,6 +582,88 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-md);
+}
+
+/* --- Global CP page margins (force 10px only from cxMain) --- */
+[data-app-kind="control_plane"] .ic-settings-page,
+[data-app-kind="control_plane"] .ic-tenants-page,
+[data-app-kind="control_plane"] .ic-admin-page {
+  padding: 0 !important;
+  margin: 0 !important;
+  max-width: 100% !important;
+}
+[data-app-kind="control_plane"] .ic-page-shell {
+  padding: 0 !important;
+  margin: 0 !important;
+  max-width: 100% !important;
+}
+
+/* Fallback scoping via cxMain (when data-app-kind is absent) */
+.cxMain .ic-settings-page,
+.cxMain .ic-tenants-page,
+.cxMain .ic-admin-page,
+.cxMain .ic-page-shell {
+  padding: 0 !important;
+  margin: 0 !important;
+  max-width: 100% !important;
+  width: 100% !important;
+}
+
+/* Force module cards/tables to align with page edges */
+.cxMain .cxNoticeCard,
+.cxMain .cxTable {
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+/* --- Align admin pages to dashboard visual system --- */
+.cxMain .ic-admin-card,
+.cxMain .ic-settings-card,
+.cxMain .ic-tenants-table,
+.cxMain .ic-admin-table,
+.cxMain .ic-admin-panel {
+  background: var(--bg-surface) !important;
+  border: 1px solid var(--border-subtle) !important;
+  border-radius: var(--radius-md) !important;
+  box-shadow: var(--ic-cardShadow) !important;
+}
+
+.cxMain .ic-admin-row,
+.cxMain .ic-tenants-row {
+  border: 1px solid var(--border-subtle) !important;
+  background: var(--bg-panel) !important;
+  border-radius: var(--radius-md) !important;
+}
+
+.cxMain .ic-admin-row--head,
+.cxMain .ic-tenants-row--head {
+  background: var(--table-header) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--table-separator) !important;
+}
+
+.cxMain .ic-admin-input,
+.cxMain .ic-admin-select,
+.cxMain .ic-settings-select {
+  background: var(--bg-panel) !important;
+  border: 1px solid var(--border-subtle) !important;
+  color: var(--text-primary) !important;
+}
+
+.cxMain .ic-admin-btn,
+.cxMain .ic-settings-btn,
+.cxMain .ic-tenants-pill {
+  background: var(--bg-panel) !important;
+  border: 1px solid var(--border-subtle) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Ensure tables stretch full width when cp data-attr is missing */
+.cxMain table,
+.cxMain .cxTable {
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box;
 }
 
 /* --- Data Table --- */
@@ -761,6 +843,10 @@
 
 [data-app-kind="control_plane"] .cxTable__cell--empty {
   opacity: 0.7;
+}
+[data-app-kind="control_plane"] .cxTable__cell {
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 
 [data-app-kind="control_plane"] .cxTable__note {
@@ -1111,6 +1197,54 @@
 [data-app-kind="control_plane"] .cxNoticeBody p { opacity:.8; line-height:1.4; }
 [data-app-kind="control_plane"] .cxNoticeBody ul { margin:0; padding-left:18px; opacity:.9; }
 
+/* --- System Plans Editor --- */
+[data-app-kind="control_plane"] .cxPlanEditor {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+[data-app-kind="control_plane"] .cxPlanEditor__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-sm);
+}
+[data-app-kind="control_plane"] .cxPlanEditor__textarea {
+  min-height: 260px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  white-space: pre;
+}
+[data-app-kind="control_plane"] .cxPlanEditor__status {
+  font-size: var(--text-xs);
+  color: var(--ic-mutedText);
+}
+
+/* --- System Tabs --- */
+[data-app-kind="control_plane"] .cxTabs {
+  display: flex;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+  align-items: center;
+}
+[data-app-kind="control_plane"] .cxTab {
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-panel);
+  color: var(--ic-text);
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  font-size: var(--text-sm);
+  cursor: pointer;
+}
+[data-app-kind="control_plane"] .cxTab:hover {
+  background: var(--btn2);
+}
+[data-app-kind="control_plane"] .cxTab--active {
+  border-color: var(--ic-accent);
+  background: var(--ic-accentBg);
+  color: var(--ic-accent);
+  font-weight: 600;
+}
+
 /* --- uiBlocks legacy input (scoped) --- */
 [data-app-kind="control_plane"] .cxInput {
   padding: 8px 10px;
@@ -1382,3 +1516,43 @@
 .ic-cp-users-pageLabelText{color:var(--ic-text);text-transform:capitalize;}
 
 .ic-cp-users-modalActions{display:flex;gap:12px;justify-content:flex-end;}
+
+html.ic-motion-off *, html.ic-motion-off *::before, html.ic-motion-off *::after {
+  animation: none !important;
+  transition: none !important;
+}
+
+.ic-theme-palette-wrap{display:flex;flex-direction:column;gap:8px;margin-top:8px;}
+.ic-theme-palette-head{display:flex;align-items:center;gap:8px;}
+.ic-theme-color-input{width:32px;height:32px;padding:0;border:none;background:transparent;cursor:pointer;}
+.ic-theme-palette{display:grid;gap:10px;padding:10px;border:1px solid var(--ic-border);border-radius:10px;background:var(--ic-panel);}
+.ic-theme-palette-title{font-size:12px;font-weight:600;color:var(--ic-text);opacity:.8;}
+.ic-theme-palette-grid{display:grid;grid-template-columns:repeat(6, minmax(0, 1fr));gap:8px;}
+.ic-theme-swatch{width:100%;aspect-ratio:1/1;border-radius:8px;border:1px solid var(--ic-border);cursor:pointer;}
+.ic-theme-swatch--charcoal{background:#0f1115;}
+.ic-theme-swatch--slate{background:#141a22;}
+.ic-theme-swatch--graphite{background:#1f262f;}
+.ic-theme-swatch--ink{background:#0b0d10;}
+.ic-theme-swatch--ice{background:#e6e9ee;}
+.ic-theme-swatch--mist{background:#9aa3ad;}
+.ic-theme-swatch--blue{background:#5a8fff;}
+.ic-theme-swatch--cyan{background:#2bd4f9;}
+.ic-theme-swatch--green{background:#4ec9b0;}
+.ic-theme-swatch--amber{background:#f59e0b;}
+.ic-theme-swatch--rose{background:#f472b6;}
+.ic-theme-swatch--purple{background:#7b5cff;}
+.ic-theme-swatch--ocean{background:linear-gradient(135deg,#0f172a 0%,#1e3a8a 50%,#38bdf8 100%);}
+.ic-theme-swatch--nebula{background:linear-gradient(135deg,#111827 0%,#5b21b6 60%,#f472b6 100%);}
+.ic-theme-swatch--forest{background:linear-gradient(135deg,#0b1510 0%,#14532d 55%,#34d399 100%);}
+.ic-theme-swatch--ember{background:linear-gradient(135deg,#1f2937 0%,#b45309 55%,#f59e0b 100%);}
+.ic-theme-swatch--aurora{background:linear-gradient(135deg,#0b1320 0%,#1d4ed8 45%,#22d3ee 100%);}
+.ic-theme-swatch--sunrise{background:linear-gradient(135deg,#111827 0%,#fb7185 50%,#f97316 100%);}
+
+/* System Plans Page */
+.plan-card-hover {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.plan-card-hover:hover {
+  box-shadow: 0 8px 24px rgba(90, 143, 255, 0.15);
+}
