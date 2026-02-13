@@ -572,6 +572,19 @@
       "feature_flag_id": null,
       "tenant_visibility": "all",
       "status": "ACTIVE"
+    },
+    {
+      "route_id": "subscriptions_cp",
+      "path": "#/subscriptions",
+      "app_surface": "CP",
+      "page_module_id": "cp.subscriptions",
+      "permissions_required": [
+        "canAccessSettings"
+      ],
+      "feature_flag_id": null,
+      "tenant_visibility": "all",
+      "status": "ACTIVE",
+      "nav_visibility": "sidebar"
     }
   ]
 }
