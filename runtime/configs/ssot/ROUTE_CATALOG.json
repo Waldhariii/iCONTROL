@@ -43,9 +43,7 @@
       "path": "#/dashboard/tenants",
       "app_surface": "CP",
       "page_module_id": "cp.dashboard.tenants",
-      "permissions_required": [
-        "canAccessTenants"
-      ],
+      "permissions_required": [],
       "feature_flag_id": null,
       "tenant_visibility": "all",
       "status": "ACTIVE",
@@ -59,9 +57,7 @@
       "path": "#/dashboard/alerts",
       "app_surface": "CP",
       "page_module_id": "cp.dashboard.alerts",
-      "permissions_required": [
-        "canViewLogs"
-      ],
+      "permissions_required": [],
       "feature_flag_id": null,
       "tenant_visibility": "all",
       "status": "ACTIVE",
