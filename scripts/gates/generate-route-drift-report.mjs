@@ -55,7 +55,7 @@ function collectCodeRoutes() {
   const ridRe = /(?:rid|\(rid as any\))\s*===\s*["']([^"']+)["']/g;
   let rm;
   while ((rm = ridRe.exec(ml)) !== null) mlIds.add(rm[1]);
-  const mlClientOnly = new Set(["login", "dashboard", "account", "settings", "settings_branding", "access_denied"]);
+  const mlClientOnly = new Set(["login", "dashboard", "account", "settings", "access_denied"]);
   for (const r of mlIds) {
     codeSet.add(r + "|CP");
     if (mlClientOnly.has(r)) codeSet.add(r + "|CLIENT");

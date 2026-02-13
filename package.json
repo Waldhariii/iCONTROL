@@ -28,7 +28,7 @@
     "format:check:all": "prettier --check .",
     "dev:reset": "bash ./scripts/dev-reset.sh",
     "dev:app": "VITE_APP_KIND=APP npm --prefix apps/control-plane run dev -- --host 127.0.0.1 --port 5176 --strictPort --base /app/",
-    "dev:cp": "VITE_APP_KIND=CONTROL_PLANE npm --prefix apps/control-plane run dev -- --host 127.0.0.1 --port 5177 --strictPort --base /cp/",
+    "dev:cp": "VITE_APP_KIND=CONTROL_PLANE npm --prefix apps/control-plane run dev -- --host 127.0.0.1 --port 5177 --strictPort ",
     "dev:both": "bash -lc 'npm run dev:reset && (npm run dev:app & npm run dev:cp & wait)'",
     "desktop:dev:app": "bash -lc 'cd apps/control-plane-desktop-client/src-tauri && cargo tauri dev'",
     "desktop:dev:cp": "bash -lc 'cd apps/control-plane-desktop-control/src-tauri && cargo tauri dev'",

@@ -19,18 +19,15 @@ const DEFAULT_ROLE_PERMS: Record<Role, string[]> = {
   USER: [],
   ADMIN: [
     "cp.access.settings",
-    "cp.access.branding",
     "cp.access.theme_studio",
     "cp.access.tenants",
     "cp.pages.create",
     "cp.pages.update",
-    "cp.branding.write",
     "cp.tenants.write",
     "cp.users.manage",
   ],
   SYSADMIN: [
     "cp.access.settings",
-    "cp.access.branding",
     "cp.access.theme_studio",
     "cp.access.tenants",
     "cp.access.providers",
@@ -46,14 +43,12 @@ const DEFAULT_ROLE_PERMS: Record<Role, string[]> = {
     "cp.providers.write",
     "cp.policies.write",
     "cp.security.write",
-    "cp.branding.write",
     "cp.tenants.write",
     "cp.users.manage",
     "cp.theme.write",
   ],
   DEVELOPER: [
     "cp.access.settings",
-    "cp.access.branding",
     "cp.access.theme_studio",
     "cp.access.tenants",
     "cp.access.providers",
@@ -65,7 +60,6 @@ const DEFAULT_ROLE_PERMS: Record<Role, string[]> = {
     "cp.providers.write",
     "cp.policies.write",
     "cp.security.write",
-    "cp.branding.write",
     "cp.tenants.write",
     "cp.users.manage",
     "cp.theme.write",
@@ -120,11 +114,6 @@ export function canAccessSettings(): boolean {
   return canSeeSettings();
 }
 
-export function canAccessBranding(): boolean {
-  if (hasPermission("cp.access.branding")) return true;
-  const r = getRole();
-  return r === "ADMIN" || r === "SYSADMIN" || r === "DEVELOPER";
-}
 
 export function canAccessThemeStudio(): boolean {
   if (hasPermission("cp.access.theme_studio")) return true;
@@ -178,9 +167,6 @@ export function canWriteTenants(): boolean {
   return hasPermission("cp.tenants.write");
 }
 
-export function canWriteBranding(): boolean {
-  return hasPermission("cp.branding.write");
-}
 
 export function canManageUsers(): boolean {
   return hasPermission("cp.users.manage");

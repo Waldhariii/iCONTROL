@@ -46,4 +46,3 @@ npm run build:app
 ## Politique non négociable
 - Pas d’inline handlers.
 - Actions UI autorisées: `navigate`, `exportCsv`, `noop`.
-- Branding uniquement dans `settings_branding`.

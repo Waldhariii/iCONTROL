@@ -18,12 +18,12 @@ export function renderRoute(rid: RouteId, root: HTMLElement): void {
   try {
   try {
     if ((rid as any) === "users_cp") {
-      import("@modules/core-system/ui/frontend-ts/pages/users")
-        .then((m) => m.renderUsers(root))
+      import("./surfaces/cp/users/Page")
+        .then((m) => m.renderUsersCp(root))
         .catch((e) => {
           /* ICONTROL_LOADER_IMPORT_GUARD_V1 */
           void warn("WARN_CONSOLE_MIGRATED","console migrated", { payload: ["WARN_ROUTE_IMPORT_FAILED", {
-            spec: "@modules/core-system/ui/frontend-ts/pages/users",
+            spec: "./surfaces/cp/users/Page",
             err: String(e),
           }] });
         });
@@ -41,18 +41,6 @@ export function renderRoute(rid: RouteId, root: HTMLElement): void {
         });
       return;
     }
-    if ((rid as any) === "dossiers_cp") {
-      import("@modules/core-system/ui/frontend-ts/pages/dossiers")
-        .then((m) => m.renderDossiersPage(root))
-        .catch((e) => {
-          /* ICONTROL_LOADER_IMPORT_GUARD_V1 */
-          void warn("WARN_CONSOLE_MIGRATED","console migrated", { payload: ["WARN_ROUTE_IMPORT_FAILED", {
-            spec: "@modules/core-system/ui/frontend-ts/pages/dossiers",
-            err: String(e),
-          }] });
-        });
-      return;
-    }
     if ((rid as any) === "developer_cp") {
       import("@modules/core-system/ui/frontend-ts/pages/developer")
         .then((m) => m.renderDeveloper(root))
@@ -60,18 +48,6 @@ export function renderRoute(rid: RouteId, root: HTMLElement): void {
           /* ICONTROL_LOADER_IMPORT_GUARD_V1 */
           void warn("WARN_CONSOLE_MIGRATED","console migrated", { payload: ["WARN_ROUTE_IMPORT_FAILED", {
             spec: "@modules/core-system/ui/frontend-ts/pages/developer",
-            err: String(e),
-          }] });
-        });
-      return;
-    }
-    if ((rid as any) === "developer_entitlements_cp") {
-      import("@modules/core-system/ui/frontend-ts/pages/developer/entitlements")
-        .then((m) => m.renderDeveloperEntitlements(root))
-        .catch((e) => {
-          /* ICONTROL_LOADER_IMPORT_GUARD_V1 */
-          void warn("WARN_CONSOLE_MIGRATED","console migrated", { payload: ["WARN_ROUTE_IMPORT_FAILED", {
-            spec: "@modules/core-system/ui/frontend-ts/pages/developer/entitlements",
             err: String(e),
           }] });
         });

@@ -10,7 +10,6 @@
 | DOCS_OCR | Route #/docs absente de getRouteId et moduleLoader | P2 |
 | clients (module-registry) | Pas de page dédiée, pas de route | P3 |
 | integrations-hub | cp.integrations en registry, allowlist OK ; dépendance config | P2 |
-| renderRoute | Imports statiques login/dashboard/settings/settings_branding (non lazy) | P3 |
 | MAIN_SYSTEM « parametres » | Alias vers settings ; « selfcheck » non exposé | P3 |
 | PAGE→PAGE | Risque d'imports page→page ; PAGE_BOUNDARY_LINT à faire | P2 |
 | Write Gateway | Écritures (storage, toggles, config) non passées par une façade unique | P1 |

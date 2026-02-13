@@ -27,68 +27,8 @@ function uniqById(items: Recommendation[]): Recommendation[] {
   return items.filter((x) => (seen.has(x.id) ? false : (seen.add(x.id), true)));
 }
 
-function buildDossiersRecommendations(ctx: RecoContext): Recommendation[] {
-  const out: Recommendation[] = [];
 
-  if (ctx.safeMode === "STRICT") {
-    out.push({
-      id: "safe_mode_strict",
-      title: "SAFE_MODE STRICT",
-      body: "Les actions d'écriture sont bloquees. Basculer en COMPAT pour executer des operations (ou utiliser un role autorise).",
-      level: "WARN"
-    });
-  } else {
-    out.push({
-      id: "safe_mode_compat",
-      title: "SAFE_MODE COMPAT",
-      body: "Les actions d'ecriture sont permises (avec RBAC). Surveille l'audit log en cas d'operations bulk.",
-      level: "INFO"
-    });
-  }
-
-  if (ctx.role === "ADMIN") {
-    out.push({
-      id: "rbac_admin",
-      title: "RBAC (ADMIN)",
-      body: "Acces limite a certaines operations avancees. Escalader vers SYSADMIN/DEVELOPER si une section est bloquee.",
-      level: "INFO"
-    });
-  }
-
-  if (ctx.entityState === "BLOCKED") {
-    out.push({
-      id: "dossier_blocked",
-      title: "Dossier BLOQUE",
-      body: ctx.blockedReason
-        ? `Valider la cause: ${ctx.blockedReason}. Puis decider: reouverture (OPEN) ou cloture (CLOSED).`
-        : "Raison manquante. Exiger une justification avant toute sortie de blocage.",
-      level: "WARN"
-    });
-  }
-
-  if (ctx.entityState === "WAITING") {
-    out.push({
-      id: "dossier_waiting",
-      title: "Dossier EN ATTENTE",
-      body: "Planifier le next step (assignation / rendez-vous / piece justificative) puis basculer en IN_PROGRESS.",
-      level: "INFO"
-    });
-  }
-
-  if (ctx.entityState === "CLOSED") {
-    out.push({
-      id: "dossier_closed",
-      title: "Dossier CLOS",
-      body: "Aucune transition recommandee. Si reouverture necessaire, documenter la justification dans l'historique.",
-      level: "INFO"
-    });
-  }
-
-  return uniqById(out);
-}
-
-export function buildRecommendations(ctx: RecoContext): Recommendation[] {
-  if (ctx.pageId === "dossiers") return buildDossiersRecommendations(ctx);
+export function buildRecommendations(_ctx: RecoContext): Recommendation[] {
   return [];
 }
 

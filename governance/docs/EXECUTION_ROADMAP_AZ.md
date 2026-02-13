@@ -51,7 +51,6 @@ Séquençage non négociable. Pour chaque étape : critères d’acceptation, d�
 
 | Étape | Description | Critères d’acceptation | Dépendances | Sizing | Fichiers / facteurs |
 |-------|-------------|-------------------------|-------------|--------|---------------------|
-| 3.1 | Tenants (lifecycle, branding, quotas) | CRUD tenant, paramètres, quotas, isolation controls | 1.1 | L | pages/cp/tenants.ts, control-plane |
 | 3.2 | Subscriptions (plans, add-ons, entitlements viewer) | Portail plans/add-ons, viewer entitlements par tenant, metering | 1.1 | L | subscription.ts, modules/core-system/subscription |
 | 3.3 | Security center (policies, MFA/SSO premium si activé) | Policies, MFA/SSO stub ou intégré, threat signals | 1.2 | XL | Nouveau module |
 | 3.4 | Storage center (VFS drivers, retention, backups) | Choix storage, lifecycle, backups, restore test | 1.3 | XL | VFS absent |
@@ -76,7 +75,6 @@ Séquençage non négociable. Pour chaque étape : critères d’acceptation, d�
 | 4.8 | Achats / Inventaire / Fournisseurs | Fournisseurs, commandes, inventaire | 2.2 | L | inventory TODO |
 | 4.9 | Intégrations (email, banques, API) | Connecteurs, webhooks | 2.2 | L | integrations_cp stub |
 
-**Effort Phase 4 :** XL global. Facteurs : tout le métier ERP à construire ; dossiers et dashboard comme base.
 
 ---
 

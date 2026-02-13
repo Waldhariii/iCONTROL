@@ -15,12 +15,11 @@ export const MAIN_SYSTEM_MODULES: MainSystemModule[] = [
     id: "CORE_SYSTEM",
     label: "CORE",
     type: "core",
-    routes: ["dashboard", "account", "parametres", "audit", "branding", "theme-studio", "tenants", "providers", "policies", "security", "developer", "selfcheck"],
+    routes: ["dashboard", "account", "parametres", "audit", "theme-studio", "tenants", "providers", "policies", "security", "developer", "selfcheck"],
     menu: [
       { id: "dashboard", label: "DASHBOARD", roles: ["SYSADMIN", "DEVELOPER", "ADMIN"] },
       { id: "parametres", label: "PARAMETRES", roles: ["SYSADMIN", "DEVELOPER", "ADMIN"] },
       { id: "audit", label: "AUDIT", roles: ["SYSADMIN", "DEVELOPER", "ADMIN"] },
-      { id: "branding", label: "BRANDING", roles: ["SYSADMIN", "DEVELOPER", "ADMIN"] },
       { id: "theme-studio", label: "THEME STUDIO", roles: ["SYSADMIN", "DEVELOPER", "ADMIN"] },
       { id: "tenants", label: "TENANTS", roles: ["SYSADMIN", "DEVELOPER", "ADMIN"] },
       { id: "providers", label: "PROVIDERS", roles: ["SYSADMIN", "DEVELOPER"] },
@@ -30,18 +29,6 @@ export const MAIN_SYSTEM_MODULES: MainSystemModule[] = [
     ],
     roles: ["SYSADMIN", "DEVELOPER", "ADMIN"],
     namespaces: ["icontrol_*"],
-    activeDefault: true
-  },
-  {
-    id: "M_DOSSIERS",
-    label: "DOSSIERS",
-    type: "module",
-    routes: ["dossiers"],
-    menu: [
-      { id: "dossiers", label: "DOSSIERS", roles: ["SYSADMIN", "DEVELOPER", "ADMIN"] }
-    ],
-    roles: ["SYSADMIN", "DEVELOPER", "ADMIN"],
-    namespaces: ["dossiers_*"],
     activeDefault: true
   },
   {
@@ -71,7 +58,7 @@ export const MAIN_SYSTEM_MODULES: MainSystemModule[] = [
   }
 ];
 
-export const MAIN_SYSTEM_ENABLED = ["CORE_SYSTEM", "M_DOSSIERS", "SYSTEM_LOGS"];
+export const MAIN_SYSTEM_ENABLED = ["CORE_SYSTEM", "SYSTEM_LOGS"];
 
 export const MAIN_SYSTEM_PERMISSIONS: Record<string, Record<string, string[]>> = {
   CORE_SYSTEM: {
@@ -79,11 +66,6 @@ export const MAIN_SYSTEM_PERMISSIONS: Record<string, Record<string, string[]>> =
     DEVELOPER: ["READ", "WRITE"],
     ADMIN: ["READ"]
   },
-  M_DOSSIERS: {
-    SYSADMIN: ["READ", "WRITE"],
-    DEVELOPER: ["READ", "WRITE"],
-    ADMIN: ["READ", "WRITE"]
-  }
 };
 
 export const MAIN_SYSTEM_LAYOUT = {
@@ -93,14 +75,12 @@ export const MAIN_SYSTEM_LAYOUT = {
   pagePadding: 18,
   menuOrder: [
     "/dashboard",
-    "/dossiers",
     "/regles-ocr",
     "/audit",
     "/system",
     "/logs",
     "/users",
     "/parametres",
-    "/branding",
     "/theme-studio",
     "/tenants",
     "/providers",

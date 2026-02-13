@@ -29,7 +29,6 @@ Colonnes : État | Fichiers / preuves | Tests associés | Action prioritaire
 
 | Capacité cible | État | Fichiers / Preuves | Tests | Action |
 |----------------|------|--------------------|-------|--------|
-| Tenant Management (création, branding, isolation) | Partiel | pages/cp/tenants.ts, control-plane/tenantService | — | Lifecycle complet, import/export tenant |
 | Subscription & Billing Ops | Partiel | pages/cp/subscription.ts, modules/core-system/subscription | subscription-*.contract.test | Portail upgrade/downgrade, metering |
 | Module Catalog (pages activables/désactivables) | Partiel | module-registry.json, ROUTE_CATALOG, TENANT_FEATURE_MATRIX | capability-status gate | Brancher matrix dans nav/guard |
 | Security Center (MFA/SSO, policies, DLP) | Absent | — | — | Phase 3.3 |

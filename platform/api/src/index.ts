@@ -119,6 +119,13 @@ const BRANDING_PERMS = {
   write: { roles: ["ADMIN", "SYSADMIN", "DEVELOPER"] as Role[], permission: "cp.branding.write" },
 };
 
+function resolveSsotPath(file: string): string {
+  const repoRoot = path.resolve(__dirname, "..", "..", "..");
+  const runtimePath = path.join(repoRoot, "runtime", "configs", "ssot", file);
+  if (fs.existsSync(runtimePath)) return runtimePath;
+  return path.resolve(__dirname, "..", "..", "config", "ssot", file);
+}
+
 function validateCpPagePayload(payload: any): { ok: boolean; error?: string } {
   const routeId = String(payload?.route_id || "").trim();
   const title = String(payload?.title || "").trim();
@@ -1401,10 +1408,29 @@ app.get('/api/cp/branding', (req, res) => {
 
 app.get('/api/cp/plans', (req, res) => {
   try {
-    const plansPath = path.resolve(__dirname, "..", "..", "config", "ssot", "TENANT_FEATURE_MATRIX.json");
+    const plansPath = resolveSsotPath("TENANT_FEATURE_MATRIX.json");
     const raw = fs.readFileSync(plansPath, "utf-8");
     const json = JSON.parse(raw);
     res.json({ success: true, data: json });
+  } catch (err) {
+    return sendError(res, 500, "ERR_INTERNAL", String(err));
+  }
+});
+
+app.put('/api/cp/plans', (req, res) => {
+  if (!requirePermission(req, res, TENANT_PERMS.write)) return;
+  try {
+    const payload = req.body || {};
+    if (!payload || typeof payload !== "object") {
+      return sendError(res, 400, "ERR_INVALID_PAYLOAD");
+    }
+    if (!payload.templates || typeof payload.templates !== "object") {
+      return sendError(res, 400, "ERR_INVALID_TEMPLATES");
+    }
+    const plansPath = resolveSsotPath("TENANT_FEATURE_MATRIX.json");
+    fs.writeFileSync(plansPath, JSON.stringify(payload, null, 2));
+    auditWrite(req, "TENANT_MATRIX_UPDATE", "tenant_feature_matrix", { templates: Object.keys(payload.templates || {}) });
+    res.json({ success: true });
   } catch (err) {
     return sendError(res, 500, "ERR_INTERNAL", String(err));
   }

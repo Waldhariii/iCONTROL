@@ -11,7 +11,6 @@ Cette structure est la base **autorisée** pour iCONTROL. Les chemins hors liste
 - `scripts/`
 - `docs/`
 - `shared/` (design system)
-- `platform-services/` (shell + branding)
 - `core-kernel/` (kernel business contract)
 - `platform-api/` (contracts)
 - `schema-registry/`
@@ -49,5 +48,4 @@ Cette structure est la base **autorisée** pour iCONTROL. Les chemins hors liste
 - `docs/STRUCTURE_CANONIQUE_DEPTH4.txt`
 
 ## Notes
-- Les dossiers `node_modules/` peuvent exister localement mais ne sont pas canonique.
 - Les fichiers temporaires `*.tmp`, `*.backup-*`, `*.pre-*` sont interdits.

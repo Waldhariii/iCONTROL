@@ -2,6 +2,8 @@
  * ICONTROL_TOAST_V1
  * Système de notifications toast
  */
+import { ICONTROL_KEYS } from "../runtime/storageKeys";
+import { webStorage } from "../../platform/storage/webStorage";
 
 export interface ToastOptions {
   status: "success" | "error" | "warning" | "info";
@@ -24,6 +26,10 @@ function getToastContainer(): HTMLElement {
 }
 
 export function showToast(options: ToastOptions): void {
+  try {
+    const pref = webStorage.get(ICONTROL_KEYS.settings.notifications);
+    if (pref === "off" || pref === "disabled") return;
+  } catch {}
   const container = getToastContainer();
   const toast = document.createElement("div");
   toast.className = "ic-toast";

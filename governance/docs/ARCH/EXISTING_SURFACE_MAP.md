@@ -46,8 +46,6 @@ Scope: iCONTROL repo (read-only inventory)
 - Risk: direct filesystem write, no centralized Write Gateway; location fixed to repo path.
 
 6) Brand settings (localStorage)
-- Paths: `platform-services/branding/brandService.ts`
-- Owner: platform-services/branding
 - Usage: store brand override in localStorage
 - Entrypoints: brand service write methods (localStorage.setItem/removeItem)
 - Call graph (approx): UI settings → brandService → localStorage
@@ -61,10 +59,8 @@ Scope: iCONTROL repo (read-only inventory)
 - Risk: placeholder, not governed (no audit/Write Gateway).
 
 8) UI demo data writes (localStorage)
-- Paths: `modules/core-system/ui/frontend-ts/pages/dossiers/model.ts`
 - Owner: modules/core-system/ui
 - Usage: create/update dossier demo data in localStorage
-- Entrypoints: `writeAll()`, `createDossiersModel()`
 - Call graph (approx): UI actions → `writeAll` → `localStorage.setItem`
 - Risk: write path in UI layer; SAFE_MODE checks are local-only; not centralized.
 

@@ -6,7 +6,6 @@ export type PageId =
   | "account"
   | "parametres"
   | "developer"
-  | "dossiers"
   | "system"
   | "logs"
   | "verification";
@@ -14,9 +13,6 @@ export type PageId =
 export type SectionId =
   | "toolbox-rules"
   | "toolbox-audit-log"
-  | "dossiers-list"
-  | "dossiers-detail"
-  | "dossiers-create"
   | "settings-account"
   | "settings-system";
 
@@ -36,11 +32,6 @@ export function canAccessPage(role: Role, page: PageId): PolicyDecision {
   if (role === "USER") {
     if (page === "dashboard" || page === "account") return { allow: true };
     return { allow: false, reason: "RBAC_PAGE_USER_BLOCKED" };
-  }
-
-  // ADMIN policy: deny developer page by default (as per policy)
-  if (role === "ADMIN") {
-    if (page === "developer") return { allow: false, reason: "RBAC_PAGE_ADMIN_BLOCKED" };
   }
 
   // SYSADMIN + DEVELOPER can access most internal pages

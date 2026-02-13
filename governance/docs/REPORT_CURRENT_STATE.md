@@ -12,8 +12,6 @@
 |--------|--------|
 | **Apps** | Une app Vite principale (`app/`) servie en deux modes : `VITE_APP_KIND=APP` (port 5176, base `/app/`) et `VITE_APP_KIND=CONTROL_PLANE` (port 5177, base `/cp/`). Pas de packages séparés "admin" vs "client" : un seul bundle par build. |
 | **Packages / workspaces** | Monorepo npm : `app`, `langs/frontend-ts`, `modules/*/ui/frontend-ts`, `shared/*`. |
-| **Modules métier** | `modules/core-system` (subscription + UI : dashboard, account, users, dossiers, developer, system, toolbox, settings, etc.), `modules/inventory` (manifest seul), `modules/_module-template`. |
-| **Services / runtime** | `server/` (runtime-config-server.ts, build.mjs), `platform-services/` (branding, security/auth, ui-shell). `core-kernel/` (10 fichiers TS) : socle pur. |
 | **Config** | `runtime/configs/ssot/` : ROUTE_CATALOG.json, TENANT_FEATURE_MATRIX.json, design.tokens.json, CAPABILITY_STATUS.json, ADMIN_COMPONENTS_REGISTRY.ts. `runtime/configs/permissions/rbac.json`, `runtime/configs/safe-mode/`, `runtime/configs/brand/`, `runtime/configs/module-registry.json`. |
 
 ---
@@ -46,7 +44,6 @@
 | Élément | État | Détail |
 |--------|------|--------|
 | **Déclaration** | Manuelle | Routes dans `app/src/router.ts` (getRouteId), ROUTE_CATALOG.json (SSOT déclaratif). CP : CP_PAGES_REGISTRY (`app/src/pages/cp/registry.ts`), APP : APP_PAGES_REGISTRY (`app/src/pages/app/registry.ts`). |
-| **Chargement** | Manuelle | `moduleLoader.ts` : chaîne if/else par route_id (users_cp, account_cp, dossiers_cp, developer_cp, …) avec import() dynamique vers `modules/core-system/ui/frontend-ts/pages/*`. Pas d’auto-discovery. |
 | **Menus / nav** | Codés en dur | Sidebar / nav dérivés du router et des registries ; pas de fichier "menu" SSOT. |
 | **Permissions / entitlements par page** | ROUTE_CATALOG | `permissions_required`, `tenant_visibility` dans ROUTE_CATALOG ; canAccessSettings, canAccessToolbox utilisés dans le router. TENANT_FEATURE_MATRIX (enabled_pages par plan) non branché dans le guard de navigation. |
 | **Manifestes module** | Partiel | `modules/core-system/manifest/manifest.json` (id, routes, permissions, storageScopes, flags). `_module-template`, `inventory` ont un manifest. Pas de convention "une page = un manifest" ni de scan au build. |
@@ -85,7 +82,6 @@
 | **Jobs / Work Orders** | Absent | CAPABILITY_STATUS : jobs TODO. Aucune page. |
 | **Calendrier** | Absent | CAPABILITY_STATUS : calendar TODO. module-registry calendar complementary. |
 | **CRM** | Absent | Pas de pipeline leads/opportunités, contacts, organisations. "clients" PARTIAL (module-registry, pas de page). |
-| **Dossiers** | Présent | Module dossiers branché (#/dossiers), core-system UI (list, detail, filters, bulk, storage, safe-mode). |
 
 ---
 

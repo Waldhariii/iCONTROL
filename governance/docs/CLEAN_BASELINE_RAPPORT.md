@@ -7,7 +7,6 @@
 
 ## Résumé
 
-L'audit a identifié **31 fichiers de pages** à mettre en quarantaine et **4 dossiers racine** à nettoyer pour réduire le système à un ensemble minimal de pages essentielles.
 
 ---
 
@@ -24,7 +23,6 @@ L'audit a identifié **31 fichiers de pages** à mettre en quarantaine et **4 do
 - `app/src/pages/cp/login.ts` — Login (admin)
 - `app/src/pages/cp/login-theme.ts` — Thème login
 - `app/src/pages/cp/settings.ts` — Paramètres (admin)
-- `app/src/pages/cp/settings-branding.ts` — Branding
 
 ---
 
@@ -67,7 +65,6 @@ L'audit a identifié **31 fichiers de pages** à mettre en quarantaine et **4 do
 
 ---
 
-## Dossiers racine à mettre en quarantaine (4 dossiers)
 
 1. `_ARCHIVES` (1.0M)
 2. `_EVIDENCE_STORE` (8.0K)
@@ -86,7 +83,6 @@ L'audit a identifié **31 fichiers de pages** à mettre en quarantaine et **4 do
 - **REPO** : 148M (node_modules) + 4.4M (app) + 644K (modules) + 600K (docs) + 544K (scripts)
 
 ### Après nettoyage (estimé)
-- Réduction de ~2M (pages + dossiers racine)
 - node_modules reste inchangé (dépendances)
 
 ---
@@ -96,7 +92,6 @@ L'audit a identifié **31 fichiers de pages** à mettre en quarantaine et **4 do
 ### 1. Vérification manuelle
 Avant d'exécuter, vérifier que les pages conservées correspondent bien aux besoins :
 - Client APP : Dashboard, Settings, Account
-- Admin/CP : Dashboard, Login, Settings, Settings-Branding, Login-Theme
 
 ### 2. Mise à jour du ROUTE_CATALOG
 Après quarantaine, mettre à jour `runtime/configs/ssot/ROUTE_CATALOG.json` pour retirer les routes des pages mises en quarantaine.

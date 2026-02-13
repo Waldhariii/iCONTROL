@@ -23,6 +23,9 @@ import { createKpiCard } from "../../../core/ui/kpi";
 import { createGovernanceFooter, createDemoDataBanner } from "../_shared/cpLayout";
 import { formatRelative } from "/src/core/utils/dateFormat";
 import { getApiBase } from "/src/core/runtime/apiBase";
+import { hasPermission } from "/src/runtime/rbac";
+// @ts-ignore
+import catalog from "@config/ssot/ROUTE_CATALOG.json";
 
 type DashboardStatus = "OPERATIONNEL" | "DEGRADE" | "INCIDENT";
 
@@ -57,9 +60,86 @@ type DashboardData = {
   };
 };
 
+type DashboardTab = { label: string; hash: string; order: number };
+type DashboardPrefs = {
+  period: "24h" | "7d" | "30d";
+  hidden: string[];
+  gridOrder: string[];
+  chartOrder: string[];
+  tabsOrder: string[];
+  tabsHidden: string[];
+};
+
+const DASH_PREF_KEY = "cp.dashboard.prefs";
+
+const DASH_DEFAULTS: DashboardPrefs = {
+  period: "7d",
+  hidden: [],
+  gridOrder: ["health", "activity", "errors", "modules"],
+  chartOrder: ["consumption", "incidents"],
+  tabsOrder: [],
+  tabsHidden: []
+};
+
+function getRoutePermissions(routeId: string): string[] {
+  const routes = (catalog as any)?.routes ?? [];
+  const match = routes.find((r: any) => String(r?.route_id || "") === routeId);
+  if (!match) return [];
+  const perms = match.permissions_required;
+  return Array.isArray(perms) ? perms.map(String) : [];
+}
+
+function hasRouteAccess(routeId: string): boolean {
+  const perms = getRoutePermissions(routeId);
+  if (!perms.length) return true;
+  return perms.every((p) => hasPermission(p));
+}
+
+function getDashboardPrefs(): DashboardPrefs {
+  try {
+    const raw = localStorage.getItem(DASH_PREF_KEY);
+    if (!raw) return { ...DASH_DEFAULTS };
+    const parsed = JSON.parse(raw) as Partial<DashboardPrefs>;
+    return {
+      period: parsed.period === "24h" || parsed.period === "30d" ? parsed.period : "7d",
+      hidden: Array.isArray(parsed.hidden) ? parsed.hidden.map(String) : [],
+      gridOrder: Array.isArray(parsed.gridOrder) ? parsed.gridOrder.map(String) : [...DASH_DEFAULTS.gridOrder],
+      chartOrder: Array.isArray(parsed.chartOrder) ? parsed.chartOrder.map(String) : [...DASH_DEFAULTS.chartOrder],
+      tabsOrder: Array.isArray(parsed.tabsOrder) ? parsed.tabsOrder.map(String) : [],
+      tabsHidden: Array.isArray(parsed.tabsHidden) ? parsed.tabsHidden.map(String) : []
+    };
+  } catch {
+    return { ...DASH_DEFAULTS };
+  }
+}
+
+function orderByPrefs<T extends { id: string }>(items: T[], order: string[]): T[] {
+  if (!order || order.length === 0) return items;
+  const index = new Map(order.map((id, i) => [id, i]));
+  return items.slice().sort((a, b) => {
+    const ai = index.has(a.id) ? (index.get(a.id) as number) : 9999;
+    const bi = index.has(b.id) ? (index.get(b.id) as number) : 9999;
+    if (ai !== bi) return ai - bi;
+    return a.id.localeCompare(b.id);
+  });
+}
+
 export function renderDashboard(root: HTMLElement): void {
   let resolved = false;
   let hardFallback: number | null = null;
+  const prefs = getDashboardPrefs();
+
+  const attachPrefsListener = () => {
+    const anyRoot = root as any;
+    if (anyRoot.__dashPrefsListenerAttached) return;
+    anyRoot.__dashPrefsListenerAttached = true;
+    window.addEventListener("cp-settings:dashboard-prefs", () => {
+      renderDashboard(root);
+    });
+  };
+  attachPrefsListener();
+
+  const tabs = getDashboardTabs();
 
   const renderLoading = () => {
     root.innerHTML = coreBaseStyles();
@@ -73,6 +153,8 @@ export function renderDashboard(root: HTMLElement): void {
 
     const demoBanner = createDemoDataBanner();
     if (demoBanner) content.appendChild(demoBanner);
+    const tabsRow = buildDashboardTabs(tabs);
+    if (tabsRow) content.appendChild(tabsRow);
     const kpiRow = document.createElement("div");
     kpiRow.classList.add("ic-cp-71ffbe0c48");
     for (let i = 0; i < 4; i += 1) {
@@ -116,15 +198,18 @@ for (let i = 0; i < 4; i += 1) {
 
     const demoBanner = createDemoDataBanner();
     if (demoBanner) content.appendChild(demoBanner);
+    const tabsRow = buildDashboardTabs(tabs);
+    if (tabsRow) content.appendChild(tabsRow);
 
     const toolbar = document.createElement("div");
     toolbar.classList.add("ic-cp-5a86b7eec3");
     const periodSelect = document.createElement("select");
     periodSelect.classList.add("ic-cp-7f9639531f");
-    periodSelect.innerHTML = "<option>24 heures</option><option selected>Derniers 7 jours</option><option>30 jours</option>";
+    periodSelect.innerHTML = "<option value=\"24h\">24 heures</option><option value=\"7d\">Derniers 7 jours</option><option value=\"30d\">30 jours</option>";
+    periodSelect.value = prefs.period;
     toolbar.appendChild(periodSelect);
-    const tabs = document.createElement("div");
-    tabs.classList.add("ic-cp-e988e644f9");
+    const viewTabs = document.createElement("div");
+    viewTabs.classList.add("ic-cp-e988e644f9");
     const gen = document.createElement("button");
     gen.type = "button";
     gen.textContent = "Général";
@@ -135,159 +220,216 @@ for (let i = 0; i < 4; i += 1) {
     det.classList.add("ic-cp-1d73f26e87");
     det.onmouseover = () => { det.style.background = "var(--ic-bgHover)"; };
     det.onmouseout = () => { det.style.background = "transparent"; };
-    tabs.appendChild(gen);
-    tabs.appendChild(det);
-    toolbar.appendChild(tabs);
+    viewTabs.appendChild(gen);
+    viewTabs.appendChild(det);
+    toolbar.appendChild(viewTabs);
     content.appendChild(toolbar);
 
-    const kpiHeroRow = document.createElement("div");
-    kpiHeroRow.classList.add("ic-cp-f74ca94b4f");
-    const cpuTrend: "up" | "down" | "neutral" = (data.kpi.cpuPct ?? 0) > 50 ? "up" : "down";
-    kpiHeroRow.appendChild(createKpiCardWithMiniChart(
-      { label: "CPU", value: formatMaybeNumber(data.kpi.cpuPct), tone: cpuTone, trend: cpuTrend, unit: "%" },
-      []
-    ));
-    const latTrend: "up" | "down" | "neutral" = (data.kpi.latencyMs ?? 0) > 200 ? "up" : "down";
-    kpiHeroRow.appendChild(createKpiCardWithMiniChart(
-      { label: "Latence p95", value: formatMaybeNumber(data.kpi.latencyMs), tone: latencyTone, trend: latTrend, unit: "ms" },
-      []
-    ));
-    content.appendChild(kpiHeroRow);
+    if (!prefs.hidden.includes("kpi_hero")) {
+      const kpiHeroRow = document.createElement("div");
+      kpiHeroRow.classList.add("ic-cp-f74ca94b4f");
+      const cpuTrend: "up" | "down" | "neutral" = (data.kpi.cpuPct ?? 0) > 50 ? "up" : "down";
+      kpiHeroRow.appendChild(createKpiCardWithMiniChart(
+        { label: "CPU", value: formatMaybeNumber(data.kpi.cpuPct), tone: cpuTone, trend: cpuTrend, unit: "%" },
+        []
+      ));
+      const latTrend: "up" | "down" | "neutral" = (data.kpi.latencyMs ?? 0) > 200 ? "up" : "down";
+      kpiHeroRow.appendChild(createKpiCardWithMiniChart(
+        { label: "Latence p95", value: formatMaybeNumber(data.kpi.latencyMs), tone: latencyTone, trend: latTrend, unit: "ms" },
+        []
+      ));
+      content.appendChild(kpiHeroRow);
+    }
 
     const grid = document.createElement("div");
     grid.classList.add("ic-cp-da39a3ee5e");
-const { card: healthCard, body: healthBody } = createSectionCard({
-      title: "Santé système",
-      description: "CPU, mémoire, latence p95 et état local"
-    });
-    if (errors.metrics) {
-      healthBody.appendChild(createErrorState({
-        code: "ERR_METRICS_FETCH",
-        message: errors.metrics
-      }));
-    }
-    healthBody.appendChild(createKpiRow("CPU", formatMaybeNumber(data.kpi.cpuPct, "%"), cpuTone));
-    healthBody.appendChild(createKpiRow("Mémoire", formatMaybeNumber(data.kpi.memPct, "%"), memTone));
-    healthBody.appendChild(createKpiRow("Latence p95", formatMaybeNumber(data.kpi.latencyMs, " ms"), latencyTone));
-    healthBody.appendChild(createKpiRow("État local", latencyTone === "err" ? "ERR" : latencyTone === "warn" ? "WARN" : "OK", latencyTone));
-    healthBody.appendChild(createLastUpdatedRow(data.lastUpdated));
-    grid.appendChild(healthCard);
 
-    const { card: activityCard, body: activityBody } = createSectionCard({
-      title: "Activité",
-      description: "Requêtes API, jobs et utilisateurs actifs"
-    });
-    if (errors.metrics) {
-      activityBody.appendChild(createErrorState({
-        code: "ERR_ACTIVITY_FETCH",
-        message: errors.metrics
-      }));
-    }
-    activityBody.appendChild(createKpiRow("Requêtes API (24h)", formatMaybeNumber(data.kpi.api24h)));
-    activityBody.appendChild(createKpiRow("Jobs (24h)", formatMaybeNumber(data.kpi.jobs24h)));
-    activityBody.appendChild(createKpiRow("Utilisateurs actifs (24h)", formatMaybeNumber(data.kpi.activeUsers)));
-    if (data.kpi.peak24h !== null && data.kpi.peak24h !== undefined) {
-      activityBody.appendChild(createKpiRow("Pic (24h)", formatMaybeNumber(data.kpi.peak24h)));
-    }
-    activityBody.appendChild(createLastUpdatedRow(data.lastUpdated));
-    grid.appendChild(activityCard);
+    const buildHealthCard = () => {
+      const { card, body } = createSectionCard({
+        title: "Santé système",
+        description: "CPU, mémoire, latence p95 et état local"
+      });
+      if (errors.metrics) {
+        body.appendChild(createErrorState({
+          code: "ERR_METRICS_FETCH",
+          message: errors.metrics
+        }));
+      }
+      body.appendChild(createKpiRow("CPU", formatMaybeNumber(data.kpi.cpuPct, "%"), cpuTone));
+      body.appendChild(createKpiRow("Mémoire", formatMaybeNumber(data.kpi.memPct, "%"), memTone));
+      body.appendChild(createKpiRow("Latence p95", formatMaybeNumber(data.kpi.latencyMs, " ms"), latencyTone));
+      body.appendChild(createKpiRow("État local", latencyTone === "err" ? "ERR" : latencyTone === "warn" ? "WARN" : "OK", latencyTone));
+      body.appendChild(createLastUpdatedRow(data.lastUpdated));
+      return card;
+    };
 
-    const { card: errorsCard, body: errorsBody } = createSectionCard({
-      title: "Erreurs",
-      description: "Alertes et erreurs des dernières 24 heures",
-      actions: [
-        {
-          label: "Voir logs",
-          onClick: () => { navigate("#/audit"); }
-        }
-      ]
-    });
-    if (errors.metrics) {
-      errorsBody.appendChild(createErrorState({
-        code: "ERR_LOGS_AGG",
-        message: errors.metrics
-      }));
-    }
-    const warnValue = data.kpi.warn24h ?? 0;
-    const errValue = data.kpi.err24h ?? 0;
-    errorsBody.appendChild(createKpiRow("WARN (24h)", formatMaybeNumber(data.kpi.warn24h), warnValue > 0 ? "warn" : "ok"));
-    errorsBody.appendChild(createKpiRow("ERR (24h)", formatMaybeNumber(data.kpi.err24h), errValue > 0 ? "err" : "ok"));
-    errorsBody.appendChild(createKpiRow("Top module", data.kpi.topModule || "N/A"));
-    errorsBody.appendChild(createLastUpdatedRow(data.lastUpdated));
-    grid.appendChild(errorsCard);
+    const buildActivityCard = () => {
+      const { card, body } = createSectionCard({
+        title: "Activité",
+        description: "Requêtes API, jobs et utilisateurs actifs"
+      });
+      if (errors.metrics) {
+        body.appendChild(createErrorState({
+          code: "ERR_ACTIVITY_FETCH",
+          message: errors.metrics
+        }));
+      }
+      body.appendChild(createKpiRow("Requêtes API (24h)", formatMaybeNumber(data.kpi.api24h)));
+      body.appendChild(createKpiRow("Jobs (24h)", formatMaybeNumber(data.kpi.jobs24h)));
+      body.appendChild(createKpiRow("Utilisateurs actifs (24h)", formatMaybeNumber(data.kpi.activeUsers)));
+      if (data.kpi.peak24h !== null && data.kpi.peak24h !== undefined) {
+        body.appendChild(createKpiRow("Pic (24h)", formatMaybeNumber(data.kpi.peak24h)));
+      }
+      body.appendChild(createLastUpdatedRow(data.lastUpdated));
+      return card;
+    };
 
-    const { card: modulesCard, body: modulesBody } = createSectionCard({
-      title: "Modules",
-      description: "État des modules et impact SAFE_MODE",
-      actions: [
-        {
-          label: "Gérer modules",
-          onClick: () => { navigate("#/subscription"); }
-        }
-      ]
+    const buildErrorsCard = () => {
+      const { card, body } = createSectionCard({
+        title: "Erreurs",
+        description: "Alertes et erreurs des dernières 24 heures",
+        actions: [
+          {
+            label: "Voir logs",
+            onClick: () => { navigate("#/audit"); }
+          }
+        ]
+      });
+      if (errors.metrics) {
+        body.appendChild(createErrorState({
+          code: "ERR_LOGS_AGG",
+          message: errors.metrics
+        }));
+      }
+      const warnValue = data.kpi.warn24h ?? 0;
+      const errValue = data.kpi.err24h ?? 0;
+      body.appendChild(createKpiRow("WARN (24h)", formatMaybeNumber(data.kpi.warn24h), warnValue > 0 ? "warn" : "ok"));
+      body.appendChild(createKpiRow("ERR (24h)", formatMaybeNumber(data.kpi.err24h), errValue > 0 ? "err" : "ok"));
+      body.appendChild(createKpiRow("Top module", data.kpi.topModule || "N/A"));
+      body.appendChild(createLastUpdatedRow(data.lastUpdated));
+      return card;
+    };
+
+    const buildModulesCard = () => {
+      const { card, body } = createSectionCard({
+        title: "Modules",
+        description: "État des modules et impact SAFE_MODE",
+        actions: [
+          {
+            label: "Gérer modules",
+            onClick: () => { navigate("#/entitlements"); }
+          }
+        ]
+      });
+      if (errors.metrics) {
+        body.appendChild(createErrorState({
+          code: "ERR_MODULES_FETCH",
+          message: errors.metrics
+        }));
+      }
+      const active = data.kpi.modulesActive ?? 0;
+      const inactive = data.kpi.modulesInactive ?? 0;
+      body.appendChild(createKpiRow("Actifs", formatMaybeNumber(data.kpi.modulesActive), active > 0 ? "ok" : "warn"));
+      body.appendChild(createKpiRow("Inactifs", formatMaybeNumber(data.kpi.modulesInactive), inactive > 0 ? "warn" : "ok"));
+      body.appendChild(createKpiRow("SAFE_MODE impact", safeModeValue === "STRICT" ? "Routage auto limité" : safeModeValue === "COMPAT" ? "Compatibilité priorisée" : "Mode normal"));
+      body.appendChild(createLastUpdatedRow(data.lastUpdated));
+      return card;
+    };
+
+    const gridItems = [
+      { id: "health", build: buildHealthCard },
+      { id: "activity", build: buildActivityCard },
+      {
+        id: "errors",
+        build: buildErrorsCard,
+        allowed: () => hasRouteAccess("audit_cp") || hasRouteAccess("logs_cp")
+      },
+      {
+        id: "modules",
+        build: buildModulesCard,
+        allowed: () => hasRouteAccess("entitlements_cp")
+      }
+    ].filter((item) => !prefs.hidden.includes(item.id))
+     .filter((item) => (typeof item.allowed === "function" ? item.allowed() : true));
+
+    orderByPrefs(gridItems, prefs.gridOrder).forEach((item) => {
+      const card = item.build();
+      if (card) grid.appendChild(card);
     });
-    if (errors.metrics) {
-      modulesBody.appendChild(createErrorState({
-        code: "ERR_MODULES_FETCH",
-        message: errors.metrics
-      }));
-    }
-    const active = data.kpi.modulesActive ?? 0;
-    const inactive = data.kpi.modulesInactive ?? 0;
-    modulesBody.appendChild(createKpiRow("Actifs", formatMaybeNumber(data.kpi.modulesActive), active > 0 ? "ok" : "warn"));
-    modulesBody.appendChild(createKpiRow("Inactifs", formatMaybeNumber(data.kpi.modulesInactive), inactive > 0 ? "warn" : "ok"));
-    modulesBody.appendChild(createKpiRow("SAFE_MODE impact", safeModeValue === "STRICT" ? "Routage auto limité" : safeModeValue === "COMPAT" ? "Compatibilité priorisée" : "Mode normal"));
-    modulesBody.appendChild(createLastUpdatedRow(data.lastUpdated));
-    grid.appendChild(modulesCard);
 
     const chartsRow = document.createElement("div");
     chartsRow.classList.add("ic-cp-17b5a5ae38");
 
-    const { card: consumptionCard, body: consumptionBody } = createSectionCard({
-      title: "Trafic / Consommation API",
-      description: "Volume de requêtes (lecture agrégée)"
-    });
-    if (errors.metrics) {
-      consumptionBody.appendChild(createErrorState({ code: "ERR_METRICS_FETCH", message: errors.metrics }));
-    } else if (data.series?.apiDaily && data.series.apiDaily.length) {
-      consumptionBody.appendChild(createAreaChart(data.series.apiDaily, { width: 480, height: 180 }));
-    } else {
-      consumptionBody.appendChild(createErrorState({ code: "NO_DATA", message: "Aucune donnée métrique disponible." }));
-    }
-    chartsRow.appendChild(consumptionCard);
+    const buildConsumptionCard = () => {
+      const { card, body } = createSectionCard({
+        title: "Trafic / Consommation API",
+        description: "Volume de requêtes (lecture agrégée)"
+      });
+      if (errors.metrics) {
+        body.appendChild(createErrorState({ code: "ERR_METRICS_FETCH", message: errors.metrics }));
+      } else if (data.series?.apiDaily && data.series.apiDaily.length) {
+        body.appendChild(createAreaChart(data.series.apiDaily, { width: 480, height: 180 }));
+      } else {
+        body.appendChild(createErrorState({ code: "NO_DATA", message: "Aucune donnée métrique disponible." }));
+      }
+      return card;
+    };
 
-    const { card: incidentsCard, body: incidentsBody } = createSectionCard({
-      title: "Incidents & Santé",
-      description: "Distribution OK / WARN / ERR (24h)"
-    });
-    incidentsBody.appendChild(createDonutChart([
-      { label: "OK", value: 62, color: "var(--ic-success)" },
-      { label: "WARN", value: 28, color: "var(--ic-warn)" },
-      { label: "ERR", value: 10, color: "var(--ic-error)" }
-    ]));
-    chartsRow.appendChild(incidentsCard);
+    const buildIncidentsCard = () => {
+      const { card, body } = createSectionCard({
+        title: "Incidents & Santé",
+        description: "Distribution OK / WARN / ERR (24h)"
+      });
+      body.appendChild(createDonutChart([
+        { label: "OK", value: 62, color: "var(--ic-success)" },
+        { label: "WARN", value: 28, color: "var(--ic-warn)" },
+        { label: "ERR", value: 10, color: "var(--ic-error)" }
+      ]));
+      return card;
+    };
 
-    content.appendChild(chartsRow);
+    const chartItems = [
+      {
+        id: "consumption",
+        build: buildConsumptionCard,
+        allowed: () => hasRouteAccess("logs_cp") || hasRouteAccess("audit_cp")
+      },
+      {
+        id: "incidents",
+        build: buildIncidentsCard,
+        allowed: () => hasRouteAccess("security_cp")
+      }
+    ].filter((item) => !prefs.hidden.includes(item.id))
+     .filter((item) => (typeof item.allowed === "function" ? item.allowed() : true));
+
+    orderByPrefs(chartItems, prefs.chartOrder).forEach((item) => {
+      const card = item.build();
+      if (card) chartsRow.appendChild(card);
+    });
+
+    if (chartsRow.childElementCount > 0) content.appendChild(chartsRow);
     content.appendChild(grid);
 
-    const { card: eventsCard, body: eventsBody } = createSectionCard({
-      title: "Événements récents",
-      description: "Derniers événements système (audit / logs) — lecture seule",
-      actions: [
-        {
-          label: "Rafraîchir",
-          onClick: () => { renderDashboard(root); }
-        }
-      ]
-    });
-    if (errors.events) {
-      eventsBody.appendChild(createErrorState({
-        code: "ERR_EVENTS_FETCH",
-        message: errors.events
-      }));
+    if (!prefs.hidden.includes("events") && (hasRouteAccess("audit_cp") || hasRouteAccess("logs_cp"))) {
+      const { card: eventsCard, body: eventsBody } = createSectionCard({
+        title: "Événements récents",
+        description: "Derniers événements système (audit / logs) — lecture seule",
+        actions: [
+          {
+            label: "Rafraîchir",
+            onClick: () => { renderDashboard(root); }
+          }
+        ]
+      });
+      if (errors.events) {
+        eventsBody.appendChild(createErrorState({
+          code: "ERR_EVENTS_FETCH",
+          message: errors.events
+        }));
+      }
+      eventsBody.appendChild(createEventsTable(data.recentEvents));
+      content.appendChild(eventsCard);
     }
-    eventsBody.appendChild(createEventsTable(data.recentEvents));
-    content.appendChild(eventsCard);
 
     content.appendChild(createGovernanceFooter(data.lastUpdated));
     root.appendChild(shell);
@@ -334,6 +476,59 @@ function mapSafeMode(value: string): "OFF" | "COMPAT" | "STRICT" {
   if (value === "STRICT") return "STRICT";
   if (value === "COMPAT") return "COMPAT";
   return "OFF";
+}
+
+function titleizeRouteId(routeId: string): string {
+  return routeId
+    .replace(/^cp\./, "")
+    .replace(/_cp$/, "")
+    .replace(/_app$/, "")
+    .replace(/[-_]+/g, " ")
+    .trim()
+    .split(" ")
+    .filter(Boolean)
+    .map((x) => x.charAt(0).toUpperCase() + x.slice(1))
+    .join(" ");
+}
+
+function getDashboardTabs(): DashboardTab[] {
+  const routes = (catalog as any)?.routes ?? [];
+  const prefs = getDashboardPrefs();
+  const rawTabs = routes
+    .filter((r: any) => r && r.app_surface === "CP")
+    .map((r: any) => {
+      const nav = (r && typeof r.nav_visibility === "object") ? r.nav_visibility : null;
+      if (!nav || nav.dashboard_tabs !== true) return null;
+      const order = typeof nav.tab_order === "number" ? nav.tab_order : 999;
+      const routeId = String(r.route_id || "");
+      if (prefs.tabsHidden.includes(routeId)) return null;
+      if (!hasRouteAccess(routeId)) return null;
+      const label = titleizeRouteId(routeId || r.path || "");
+      return { label, hash: String(r.path || ""), order, id: routeId } as DashboardTab & { id: string };
+    })
+    .filter(Boolean) as Array<DashboardTab & { id: string }>;
+
+  const ordered = orderByPrefs(rawTabs, prefs.tabsOrder);
+  return ordered.map((t) => ({ label: t.label, hash: t.hash, order: t.order }));
+}
+
+function buildDashboardTabs(tabs: DashboardTab[]): HTMLElement | null {
+  if (!tabs || tabs.length === 0) return null;
+  const row = document.createElement("div");
+  row.classList.add("ic-cp-5a86b7eec3");
+  const wrap = document.createElement("div");
+  wrap.classList.add("ic-cp-e988e644f9");
+  const current = window.location.hash || "";
+  tabs.forEach((t) => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.textContent = t.label;
+    btn.classList.add(current.startsWith(t.hash) ? "ic-cp-6bba7f9326" : "ic-cp-1d73f26e87");
+    btn.onclick = () => { navigate(t.hash); };
+    wrap.appendChild(btn);
+  });
+  row.appendChild(wrap);
+  return row;
 }
 
 function formatNumber(value: number): string {

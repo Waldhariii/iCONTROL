@@ -12,7 +12,6 @@
 - cp_storage_shadow → CP_STORAGE_SET (app/src/core/control-plane/storage.ts)
 - logintheme_override_shadow → LOGINTHEME_OVERRIDE_WRITE_SHADOW (app/src/pages/cp/ui/loginTheme/loginTheme.override.ts)
 - users_shadow → USERS_WRITE_SHADOW (app/src/pages/cp/views/users.ts)
-- brandservice_shadow → BRANDSERVICE_WRITE_SHADOW (platform-services/branding/brandService.ts)
 - localauth_shadow → LOCALAUTH_WRITE_SHADOW (platform-services/security/auth/localAuth.ts)
 - ui_catalog_shadow → UI_CATALOG_WRITE_SHADOW (app/src/core/ui/catalog/index.ts)
 - file_subscription_store_node_fs_shadow → FILESUBSCRIPTIONSTORE_NODE_FS_WRITE_SHADOW (modules/core-system/subscription/FileSubscriptionStore.node.ts)

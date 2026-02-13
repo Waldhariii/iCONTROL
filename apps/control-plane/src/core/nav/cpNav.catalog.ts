@@ -8,7 +8,6 @@ import type { CpSurfaceCatalogEntry } from "../ports/cpSurfaceRegistry.catalog";
 import { getCpSurfaceRegistryCatalogDriven } from "../ports/cpSurfaceRegistry.catalog";
 import {
   canAccessSettings,
-  canAccessBranding,
   canAccessThemeStudio,
   canAccessTenants,
   canAccessProviders,
@@ -63,8 +62,6 @@ export async function getCpNavCatalogDriven(): Promise<CpNavItem[]> {
     switch (x.id) {
       case "cp.settings":
         return canAccessSettings();
-      case "cp.branding":
-        return canAccessBranding();
       case "cp.login.theme":
       case "cp.theme.studio":
         return canAccessThemeStudio();

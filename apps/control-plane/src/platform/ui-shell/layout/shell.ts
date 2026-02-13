@@ -2,7 +2,6 @@ import "./shell.css";
 import { getSession, isLoggedIn, logout } from "@/localAuth";
 import {
   canAccessSettings,
-  canAccessBranding,
   canAccessThemeStudio,
   canAccessTenants,
   canAccessProviders,
@@ -12,6 +11,8 @@ import {
 import { hasPermission } from "@/runtime/rbac";
 import { buildMainSystemShell } from "@modules/core-system/ui/frontend-ts/pages/_shared/mainSystem.ui";
 import { navigate } from "@/router";
+import { ICONTROL_KEYS } from "@/core/runtime/storageKeys";
+import { webStorage } from "@/platform/storage/webStorage";
 // @ts-ignore
 import catalog from "@config/ssot/ROUTE_CATALOG.json";
 
@@ -21,6 +22,12 @@ export type NavItem = {
   hash: string;
   show: () => boolean;
 };
+
+type NavMode = "icons" | "labels";
+type NavVisibility = { drawer?: boolean; dashboard_tabs?: boolean; tab_order?: number };
+
+const NAV_MODE_KEY = "cp.nav.displayMode";
+const NAV_OPEN_KEY = "cp.nav.drawerOpen";
 
 function getRouteHash(): string {
   // Landing: CP uses home-cp, APP uses home-app (login removed)
@@ -54,8 +61,7 @@ function isAllowedByPermissions(perms: string[]): boolean {
   if (!perms.length) return true;
   const map: Record<string, () => boolean> = {
     canAccessSettings,
-    canAccessBranding,
-    canAccessThemeStudio,
+      canAccessThemeStudio,
     canAccessTenants,
     canAccessProviders,
     canAccessPolicies,
@@ -77,6 +83,10 @@ function buildCatalogNavItems(): NavItem[] {
     .filter((r: any) => ["ACTIVE", "EXPERIMENTAL"].includes(String(r.status || "")))
     .filter((r: any) => typeof r.path === "string" && r.path.startsWith("#/"))
     .filter((r: any) => !String(r.route_id || "").includes("login") && !String(r.route_id || "").includes("notfound") && !String(r.route_id || "").includes("blocked"))
+    .filter((r: any) => {
+      const nav = (r && typeof r.nav_visibility === "object") ? (r.nav_visibility as NavVisibility) : {};
+      return nav.drawer !== false;
+    })
     .map((r: any) => {
       const routeId = String(r.route_id || "");
       const id = routeId.replace(/_cp$/, "").replace(/_app$/, "");
@@ -96,7 +106,6 @@ function buildCatalogNavItems(): NavItem[] {
 /** Icônes SVG 18×18 par id de navigation (style cohérent) */
 const NAV_ICONS: Record<string, string> = {
   dashboard: "<svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"3\" y=\"3\" width=\"7\" height=\"9\"/><rect x=\"14\" y=\"3\" width=\"7\" height=\"5\"/><rect x=\"14\" y=\"12\" width=\"7\" height=\"9\"/><rect x=\"3\" y=\"16\" width=\"7\" height=\"5\"/></svg>",
-  dossiers: "<svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z\"/></svg>",
   system: "<svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><rect x=\"4\" y=\"4\" width=\"16\" height=\"16\" rx=\"2\" ry=\"2\"/><line x1=\"9\" y1=\"9\" x2=\"15\" y2=\"9\"/><line x1=\"9\" y1=\"13\" x2=\"15\" y2=\"13\"/><line x1=\"9\" y1=\"17\" x2=\"12\" y2=\"17\"/></svg>",
   logs: "<svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z\"/><polyline points=\"14 2 14 8 20 8\"/><line x1=\"16\" y1=\"13\" x2=\"8\" y2=\"13\"/><line x1=\"16\" y1=\"17\" x2=\"8\" y2=\"17\"/><line x1=\"10\" y1=\"9\" x2=\"8\" y2=\"9\"/></svg>",
   audit: "<svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M9 11l3 3L22 4\"/><path d=\"M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11\"/></svg>",
@@ -105,8 +114,9 @@ const NAV_ICONS: Record<string, string> = {
   developer: "<svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><polyline points=\"16 18 22 12 16 6\"/><polyline points=\"8 6 2 12 8 18\"/></svg>",
   verification: "<svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z\"/></svg>",
   toolbox: "<svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z\"/></svg>",
+  entitlements: "<svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M20 7H4\"/><path d=\"M6 7l2-4h8l2 4\"/><rect x=\"4\" y=\"7\" width=\"16\" height=\"13\" rx=\"2\"/></svg>",
+  pages: "<svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M4 4h16v16H4z\"/><path d=\"M8 8h8\"/><path d=\"M8 12h8\"/><path d=\"M8 16h5\"/></svg>",
   settings: "<svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><circle cx=\"12\" cy=\"12\" r=\"3\"/><path d=\"M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z\"/></svg>",
-  branding: "<svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><circle cx=\"12\" cy=\"12\" r=\"4\"/><path d=\"M12 2v6\"/><path d=\"M12 16v6\"/><path d=\"M2 12h6\"/><path d=\"M16 12h6\"/></svg>",
   "theme-studio": "<svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M12 22a10 10 0 100-20 6 6 0 000 12 2 2 0 110 4z\"/><circle cx=\"7.5\" cy=\"10\" r=\"1\"/><circle cx=\"12\" cy=\"7\" r=\"1\"/><circle cx=\"16.5\" cy=\"10\" r=\"1\"/></svg>",
   tenants: "<svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><rect x=\"3\" y=\"3\" width=\"7\" height=\"7\"/><rect x=\"14\" y=\"3\" width=\"7\" height=\"7\"/><rect x=\"3\" y=\"14\" width=\"7\" height=\"7\"/><rect x=\"14\" y=\"14\" width=\"7\" height=\"7\"/></svg>",
   providers: "<svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M3 12h18\"/><path d=\"M6 6h12\"/><path d=\"M6 18h12\"/></svg>",
@@ -116,7 +126,70 @@ const NAV_ICONS: Record<string, string> = {
 
 export function createShell(navItems: NavItem[]){
   const shell = buildMainSystemShell();
-  const { root, header, drawer, overlay, main, nav, burger, close, logoutLink, sessionHint, headerUser } = shell;
+  const { root, header, drawer, overlay, main, nav, burger, close, logoutLink, sessionHint, headerUser, avatar } = shell;
+  const brand = header.querySelector("#cxBrandTitle") as HTMLElement | null;
+
+  let navMode: NavMode = "labels";
+  let drawerOpen = true;
+
+  const readNavMode = (): NavMode => {
+    try {
+      const v = localStorage.getItem(NAV_MODE_KEY);
+      return v === "icons" ? "icons" : "labels";
+    } catch {
+      return "labels";
+    }
+  };
+
+  const readDrawerOpen = (): boolean => {
+    try {
+      const v = localStorage.getItem(NAV_OPEN_KEY);
+      if (v === "false") return false;
+      if (v === "true") return true;
+      return true;
+    } catch {
+      return true;
+    }
+  };
+
+  const writeNavMode = (mode: NavMode) => {
+    try {
+      localStorage.setItem(NAV_MODE_KEY, mode);
+    } catch {}
+  };
+
+  const writeDrawerOpen = (open: boolean) => {
+    try {
+      localStorage.setItem(NAV_OPEN_KEY, open ? "true" : "false");
+    } catch {}
+  };
+
+  const applyNavMode = () => {
+    root.classList.toggle("cxNavMode-icons", navMode === "icons");
+    root.classList.toggle("cxNavMode-labels", navMode === "labels");
+    shell.modeToggle.textContent = navMode === "labels" ? "‹" : "›";
+    shell.modeToggle.setAttribute("aria-label", navMode === "labels" ? "Passer en mode icônes" : "Passer en mode libellés");
+  };
+
+  const applyDrawerState = () => {
+    root.classList.toggle("cxNavClosed", !drawerOpen);
+  };
+
+  const setNavMode = (mode: NavMode) => {
+    navMode = mode;
+    writeNavMode(mode);
+    applyNavMode();
+  };
+
+  const toggleNavMode = () => setNavMode(navMode === "labels" ? "icons" : "labels");
+
+  const getHomeRoute = (): string => {
+    try {
+      const stored = webStorage.get(ICONTROL_KEYS.settings.home);
+      if (stored && stored.startsWith("#/")) return stored;
+    } catch {}
+    return "#/dashboard";
+  };
 
   function renderNav(){
     nav.innerHTML = "";
@@ -127,22 +200,24 @@ export function createShell(navItems: NavItem[]){
       const a = document.createElement("a");
       a.href = it.hash;
       a.setAttribute("data-hash", it.hash);
+      if (navMode === "icons") a.setAttribute("title", it.label);
+      else a.removeAttribute("title");
       a.addEventListener("click", (e) => {
         const ev = e as MouseEvent;
         if (ev.metaKey || ev.ctrlKey || ev.shiftKey || ev.altKey) return;
         e.preventDefault();
         navigate(it.hash);
-        closeDrawer();
       });
       const icon = NAV_ICONS[it.id];
-      if (icon) {
-        const span = document.createElement("span");
-        span.className = "cxNavIcon";
-        span.innerHTML = icon;
-        span.setAttribute("aria-hidden", "true");
-        a.appendChild(span);
-      }
-      a.appendChild(document.createTextNode(it.label));
+      const iconSpan = document.createElement("span");
+      iconSpan.className = icon ? "cxNavIcon" : "cxNavIcon cxNavIcon--fallback";
+      iconSpan.innerHTML = icon ? icon : "•";
+      iconSpan.setAttribute("aria-hidden", "true");
+      a.appendChild(iconSpan);
+      const label = document.createElement("span");
+      label.className = "cxNavLabel";
+      label.textContent = it.label;
+      a.appendChild(label);
       nav.appendChild(a);
     };
 
@@ -160,39 +235,74 @@ export function createShell(navItems: NavItem[]){
       };
       const s = getSession() as any;
       const un = String(s?.username || "user");
-      const role = String(s?.role || "USER");
-      sessionHint.textContent = `Connecté: ${un} • Rôle: ${role}`;
-      headerUser.textContent = `${un} (${role})`;
-      headerUser.setAttribute("title", `Connecté: ${un} • Rôle: ${role}`);
+      sessionHint.textContent = "";
+      headerUser.textContent = `Bienvenue ${un}`;
+      headerUser.setAttribute("title", `Bienvenue ${un}`);
+      avatar.textContent = String(un || "U").charAt(0).toUpperCase();
+      avatar.style.display = "grid";
+      avatar.onclick = (e) => {
+        e.preventDefault();
+        navigate("#/account");
+      };
     } else {
       logoutLink.style.display = "none";
-      sessionHint.textContent = "Non connecté";
+      sessionHint.textContent = "";
       headerUser.textContent = "—";
       headerUser.removeAttribute("title");
+      avatar.style.display = "none";
+      avatar.onclick = null;
     }
 
     setActiveLinks(drawer);
   }
 
-  function openDrawer(){
-    overlay.classList.add("open");
-    drawer.classList.add("open");
+  const closeDrawer = () => {
+    drawerOpen = false;
+    writeDrawerOpen(false);
+    applyDrawerState();
+  };
+  const openDrawer = () => {
+    drawerOpen = true;
+    writeDrawerOpen(true);
+    applyDrawerState();
+    applyNavMode();
     renderNav();
-  }
-  function closeDrawer(){
-    overlay.classList.remove("open");
-    drawer.classList.remove("open");
-  }
+  };
 
   burger.onclick = openDrawer;
   close.onclick = closeDrawer;
+  shell.modeToggle.onclick = toggleNavMode;
   overlay.onclick = closeDrawer;
+  if (brand) {
+    brand.onclick = (e) => {
+      e.preventDefault();
+      navigate(getHomeRoute());
+    };
+  }
 
   window.addEventListener("hashchange", ()=>{
     renderNav();
     setActiveLinks(drawer);
   });
 
+  window.addEventListener("cp-settings:nav-mode", (ev) => {
+    const detail = (ev as CustomEvent).detail;
+    if (detail === "icons" || detail === "labels") {
+      setNavMode(detail);
+      renderNav();
+    }
+  });
+
+  window.addEventListener("cp-settings:drawer-open", (ev) => {
+    const detail = (ev as CustomEvent).detail;
+    if (detail === true) openDrawer();
+    if (detail === false) closeDrawer();
+  });
+
+  navMode = readNavMode();
+  drawerOpen = readDrawerOpen();
+  applyDrawerState();
+  applyNavMode();
   renderNav();
 
   // Public API

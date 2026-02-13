@@ -7,7 +7,7 @@
       "message": "Une page ne doit pas importer une autre page. Utiliser le routeur (navigate, hash).",
       "forbidden": {
         "from": ["apps/control-plane/src/pages/**/*.ts", "apps/control-plane/src/pages/**/*.tsx", "modules/**/pages/**/*.ts", "modules/**/pages/**/*.tsx"],
-        "import": ["**/pages/**/login", "**/pages/**/dashboard", "**/pages/**/users", "**/pages/**/account", "**/pages/**/cp/*", "**/pages/**/app/*", "**/pages/**/settings", "**/pages/**/system", "**/pages/**/dossiers", "**/pages/**/developer", "**/pages/**/verification", "**/pages/**/logs", "**/pages/**/toolbox", "**/pages/**/access-denied", "**/pages/**/blocked", "**/pages/**/notfound", "**/pages/**/runtime-smoke"]
+        "import": ["**/pages/**/login", "**/pages/**/dashboard", "**/pages/**/users", "**/pages/**/account", "**/pages/**/cp/*", "**/pages/**/app/*", "**/pages/**/settings", "**/pages/**/system", "**/pages/**/developer", "**/pages/**/verification", "**/pages/**/logs", "**/pages/**/toolbox", "**/pages/**/access-denied", "**/pages/**/blocked", "**/pages/**/notfound", "**/pages/**/runtime-smoke"]
       },
       "exceptions": ["**/registry.ts", "**/moduleLoader.ts", "**/_shared/**", "**/sections/**"]
     },

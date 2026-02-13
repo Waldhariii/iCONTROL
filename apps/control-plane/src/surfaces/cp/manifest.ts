@@ -55,20 +55,7 @@ export async function renderCpPage(rid: RouteId, root: HTMLElement): Promise<voi
     return;
   }
 
-  if (rid === "branding_cp") {
-    root.innerHTML = '<div class="loading-state">Chargement...</div>';
-    try {
-      const module = await import("./branding/Page");
-      const Page = module.default;
-      await renderReactPage(root, Page);
-    } catch (err) {
-      root.innerHTML = '<div class="error-state">Error loading page</div>';
-      console.error("Failed to load branding page:", err);
-    }
-    return;
-  }
-
-  if (rid === "settings_cp" || rid === "settings_branding_cp") {
+  if (rid === "settings_cp") {
     root.innerHTML = '<div class="loading-state">Chargement...</div>';
     try {
       const module = await import("./settings/Page");

@@ -22,7 +22,6 @@
 - 2 `app/src/core/audit/auditLog.ts`
 - 2 `platform-services/security/auth/localAuth.ts`
 - 2 `app/src/core/entitlements/storage.ts`
-- 2 `platform-services/branding/brandService.ts`
 - 2 `app/src/core/runtime/runtimeConfig.ts`
 - 2 `app/src/__tests__/runtime-config-endpoint.shim.flag-on.contract.test.ts`
 - 2 `app/src/localAuth.ts`
@@ -95,8 +94,6 @@ app/src/core/entitlements/storage.ts:83:  window.localStorage.setItem(entitlemen
 app/src/core/entitlements/storage.ts:119:  window.localStorage.removeItem(entitlementsKey(tenantId));
 app/src/__tests__/runtime-config-endpoint.shim.flag-off-default.contract.test.ts:21:    const res = await fetch("http://localhost/cp/api/runtime-config", {
 modules/core-system/ui/frontend-ts/pages/logs/index.ts:343:    const res = await fetch(url, { headers: { "accept": "application/json" } });
-platform-services/branding/brandService.ts:159:    window.localStorage.setItem(LS_KEY, serialized);
-platform-services/branding/brandService.ts:202:  try { localStorage.removeItem(LS_KEY); } catch {}
 app/src/__tests__/runtime-config-endpoint.shim.contract.test.ts:29:    const res1 = await window.fetch("/something-else", { method: "GET" });
 app/src/core/runtime/tenant.ts:56:  localStorage.setItem(TENANT_KEY, v);
 app/src/core/runtime/safeMode.ts:70:    window.localStorage.setItem(SAFE_KEY, value);

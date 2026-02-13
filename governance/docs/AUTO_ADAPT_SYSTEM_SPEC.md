@@ -27,7 +27,6 @@ Chaque module/page doit avoir un **manifeste minimal** (ex. `manifest.json` ou `
 
 | Champ | Type | Description |
 |-------|------|-------------|
-| `id` | string | Identifiant stable (ex. `biz.crm.contacts`, `core.dossiers`). |
 | `name` | string | Libellé affiché. |
 | `type` | `"core"` \| `"complementary"` | Core = toujours on ; complementary = activable. |
 | `version` | string | Semver. |
@@ -110,7 +109,6 @@ Chaque module/page doit avoir un **manifeste minimal** (ex. `manifest.json` ou `
 ## 5. Design system "par construction" — B4
 
 - **Tokens centralisés :** source unique `runtime/configs/ssot/design.tokens.json` ; génération CSS vars via `generate-design-tokens-css.mjs`.
-- **Deux thèmes isolés :** Admin (cp-dashboard-charcoal) et Client (app-foundation-slate) ; override par tenant (branding) contrôlé via themeManager / config brand.
 - **Interdiction styles legacy :** lint rules (ESLint / script) qui rejettent couleurs en dur (hex, rgb, rgba) hors `var(--*)` dans les fichiers des modules ; allowlist explicite pour exceptions.
 - **Catalogue UI (snapshots) :** scripts `ui-catalog-snap.mjs`, `cp-visual-snap.mjs` ; intégration en CI pour détecter régressions visuelles (optionnel mais recommandé).
 
@@ -120,7 +118,6 @@ Chaque module/page doit avoir un **manifeste minimal** (ex. `manifest.json` ou `
 
 1. Créer ou étendre un module sous `modules/<module-id>/`.
 2. Ajouter ou mettre à jour `manifest/manifest.json` (id, routes, entitlements_default, data_namespace, tests_contractuels).
-3. Implémenter la page (ex. `modules/<module-id>/ui/frontend-ts/pages/<page>/`) et exporter un render (ex. `renderDossiersPage(root)`).
 4. Lancer le script d’auto-discovery (build-time ou npm run generate:module-registry ou équivalent).
 5. Vérifier que ROUTE_CATALOG et TENANT_FEATURE_MATRIX sont alignés (ou générés) ; si manuel, ajouter route_id et enabled_pages.
 6. Brancher le rendu dans le moduleLoader ou le registry généré (si codegen : régénérer ; si registry JSON : ajouter entrée route_id → chemin d’import).

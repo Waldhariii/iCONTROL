@@ -7,6 +7,10 @@ export const ICONTROL_KEYS = {
   settings: {
     theme: "icontrol_settings_v1.theme",
     language: "icontrol_settings_v1.language",
+    motion: "icontrol_settings_v1.motion",
+    notifications: "icontrol_settings_v1.notifications",
+    shortcuts: "icontrol_settings_v1.shortcuts",
+    home: "icontrol_settings_v1.home",
   },
   iam: {
     role: "icontrol_iam_v1.role",

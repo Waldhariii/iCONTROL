@@ -15,7 +15,6 @@
 | id | label | type | routes | status | quality_level |
 |----|-------|------|--------|--------|---------------|
 | CORE_SYSTEM | CORE | core | dashboard, account, parametres, developer, selfcheck | DONE | 2 |
-| M_DOSSIERS | DOSSIERS | module | dossiers | DONE | 2 |
 | SYSTEM_LOGS | SYSTEME | module | system, logs | DONE | 2 |
 | DOCS_OCR | DOCUMENTS | module | docs | TODO | 0 |
 
@@ -26,7 +25,6 @@
 | Module | enabled | type | status |
 |--------|---------|------|--------|
 | core-system | true | core | DONE |
-| dossiers | false | complementary | DONE |
 | clients | false | complementary | PARTIAL |
 | inventory | false | complementary | TODO |
 | documents | false | complementary | TODO |

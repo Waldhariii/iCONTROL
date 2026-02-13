@@ -18,7 +18,6 @@ describe("Governance: navigation is centralized", () => {
       "apps/control-plane/src/localAuth.ts",
       "modules/core-system/ui/frontend-ts/pages/dashboard.ts",
       "modules/core-system/ui/frontend-ts/pages/login.ts",
-      "modules/core-system/ui/frontend-ts/pages/settings/branding.ts",
       "modules/core-system/ui/frontend-ts/pages/_shared/uiBlocks.ts",
     ]
       .map((f) => path.join(root, f))

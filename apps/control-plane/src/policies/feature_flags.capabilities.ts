@@ -7,10 +7,9 @@
  */
 export const CAPABILITY_FORCED_OFF: Record<string, readonly string[]> = {
   // Examples (start tiny; extend via Management later)
-  "cap.disable.developer": ["ui.developer", "ui.developer.entitlements"],
-  "cap.disable.settings": ["ui.settings", "ui.settings.branding"],
+  "cap.disable.developer": ["ui.developer"],
+  "cap.disable.settings": ["ui.settings"],
   "cap.disable.users": ["ui.users"],
-  "cap.disable.dossiers": ["ui.dossiers"],
 } as const;
 
 export function forcedOffFlagsFromCapabilities(capabilities: readonly string[] | undefined): string[] {

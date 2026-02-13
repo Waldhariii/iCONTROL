@@ -29,8 +29,6 @@ import { renderSystemHealthCharts } from "./sections/health-charts";
 import { renderChartGallery } from "./sections/chart-gallery";
 // @ts-ignore
 import catalog from "@config/ssot/ROUTE_CATALOG.json";
-import { renderPlansSection } from "./sections/plans";
-import { renderSubscriptionsSection } from "./sections/subscriptions";
 
 function mapSafeMode(s: string): "OFF" | "COMPAT" | "STRICT" {
   return s === "STRICT" ? "STRICT" : s === "COMPAT" ? "COMPAT" : "OFF";
@@ -137,13 +135,170 @@ function getAllRouteIds(): string[] {
   return Array.from(new Set(ids)).sort((a, b) => a.localeCompare(b));
 }
 
-function renderSystemSubscriptions(host: HTMLElement): void {
-  renderSubscriptionsSection(host);
-}
-
 function renderSystemPlans(host: HTMLElement): void {
-  renderPlansSection(host);
+  const card = sectionCard("Plans & Pages");
+  appendParagraph(card, "Édition des plans et des pages autorisées (SSOT). Toute modification impacte les guards de routage.");
+  appendParagraph(card, "Astuce: utilisez \"Toutes les pages\" pour tout activer, puis affinez par plan.");
 
+  const editor = document.createElement("div");
+  editor.className = "cxPlanEditor";
+
+  const status = document.createElement("div");
+  status.className = "cxPlanEditor__status";
+  status.textContent = "Chargement…";
+
+  const textarea = document.createElement("textarea");
+  textarea.className = "cxInput cxPlanEditor__textarea";
+  textarea.setAttribute("aria-label", "Édition JSON des plans");
+
+  const row = document.createElement("div");
+  row.className = "cxPlanEditor__row";
+
+  const nameInput = document.createElement("input");
+  nameInput.className = "cxInput";
+  nameInput.placeholder = "Nouveau plan (ex: STARTER)";
+  nameInput.setAttribute("aria-label", "Nom du plan");
+
+  const priceMonthlyInput = document.createElement("input");
+  priceMonthlyInput.className = "cxInput";
+  priceMonthlyInput.placeholder = "Prix mensuel";
+  priceMonthlyInput.setAttribute("aria-label", "Prix mensuel");
+
+  const priceYearlyInput = document.createElement("input");
+  priceYearlyInput.className = "cxInput";
+  priceYearlyInput.placeholder = "Prix annuel";
+  priceYearlyInput.setAttribute("aria-label", "Prix annuel");
+
+  row.appendChild(nameInput);
+  row.appendChild(priceMonthlyInput);
+  row.appendChild(priceYearlyInput);
+
+  const actions = document.createElement("div");
+  actions.className = "cxActionRow";
+
+  const btnRefresh = el("button", { type: "button" }, "Recharger");
+  btnRefresh.className = "cxActionBtn";
+  const btnAll = el("button", { type: "button" }, "Toutes les pages");
+  btnAll.className = "cxActionBtn";
+  const btnAddPlan = el("button", { type: "button" }, "Ajouter plan");
+  btnAddPlan.className = "cxActionBtn";
+  const btnSave = el("button", { type: "button" }, "Sauver");
+  btnSave.className = "cxActionBtn";
+
+  actions.appendChild(btnRefresh);
+  actions.appendChild(btnAll);
+  actions.appendChild(btnAddPlan);
+  actions.appendChild(btnSave);
+
+  editor.appendChild(status);
+  editor.appendChild(textarea);
+  editor.appendChild(row);
+  editor.appendChild(actions);
+  card.appendChild(editor);
+  host.appendChild(card);
+
+  const setStatus = (msg: string) => { status.textContent = msg; };
+
+  const load = async () => {
+    try {
+      setStatus("Chargement…");
+      const res = await fetch("/api/cp/plans");
+      const json = await res.json();
+      if (!res.ok || !json?.success) {
+        setStatus("Erreur de chargement des plans.");
+        return;
+      }
+      textarea.value = JSON.stringify(json.data ?? {}, null, 2);
+      setStatus("Chargé.");
+    } catch (e) {
+      setStatus("Erreur réseau.");
+    }
+  };
+
+  const parseMatrix = (): PlanMatrix | null => {
+    try {
+      return JSON.parse(textarea.value || "{}");
+    } catch {
+      setStatus("JSON invalide.");
+      return null;
+    }
+  };
+
+  const applyAllPages = () => {
+    const matrix = parseMatrix();
+    if (!matrix) return;
+    const allRoutes = getAllRouteIds();
+    const templates = matrix.templates || {};
+    Object.keys(templates).forEach((k) => {
+      const t = templates[k] || {};
+      t.enabled_pages = allRoutes;
+      templates[k] = t;
+    });
+    matrix.templates = templates;
+    textarea.value = JSON.stringify(matrix, null, 2);
+    setStatus("Toutes les pages ont été appliquées.");
+  };
+
+  const addPlan = () => {
+    const plan = String(nameInput.value || "").trim().toUpperCase();
+    if (!plan) {
+      setStatus("Nom de plan requis.");
+      return;
+    }
+    const matrix = parseMatrix();
+    if (!matrix) return;
+    const templates = matrix.templates || {};
+    if (templates[plan]) {
+      setStatus("Ce plan existe déjà.");
+      return;
+    }
+    const allRoutes = getAllRouteIds();
+    templates[plan] = {
+      plan,
+      enabled_pages: allRoutes,
+      enabled_capabilities: [],
+      price_monthly: Number(priceMonthlyInput.value || 0),
+      price_yearly: Number(priceYearlyInput.value || 0),
+      limits: {},
+      billing_binding: null,
+      audit_required: false,
+    };
+    matrix.templates = templates;
+    textarea.value = JSON.stringify(matrix, null, 2);
+    setStatus(`Plan ${plan} ajouté.`);
+  };
+
+  const save = async () => {
+    const matrix = parseMatrix();
+    if (!matrix) return;
+    if (!matrix.templates || typeof matrix.templates !== "object") {
+      setStatus("Champ templates manquant.");
+      return;
+    }
+    try {
+      setStatus("Sauvegarde…");
+      const res = await fetch("/api/cp/plans", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(matrix),
+      });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok || !json?.success) {
+        setStatus("Erreur de sauvegarde.");
+        return;
+      }
+      setStatus("Sauvé.");
+    } catch {
+      setStatus("Erreur réseau.");
+    }
+  };
+
+  btnRefresh.onclick = load;
+  btnAll.onclick = applyAllPages;
+  btnAddPlan.onclick = addPlan;
+  btnSave.onclick = save;
+
+  void load();
 }
 
 type SystemTab = {
@@ -158,7 +313,6 @@ function getSystemTabs(): SystemTab[] {
   return [
     { id: "hub", label: "Hub", sectionIds: ["system-hub"] },
     { id: "plans", label: "Plans", sectionIds: ["system-plans"] },
-    { id: "subscriptions", label: "Abonnements", sectionIds: ["system-subscriptions"] },
     {
       id: "ops",
       label: "Ops",
@@ -218,7 +372,6 @@ export function renderSystemPage(root: HTMLElement): void {
   const sections: SectionSpec[] = [
     { id: "system-hub", title: "System Hub", render: (host) => renderSystemHub(host) },
     { id: "system-plans", title: "Plans", render: (host) => renderSystemPlans(host) },
-    { id: "system-subscriptions", title: "Abonnements", render: (host) => renderSystemSubscriptions(host) },
     { id: "system-health-charts", title: "Analyse et santé du système", render: (host) => renderSystemHealthCharts(host) },
     { id: "system-chart-gallery", title: "Galerie graphiques", render: (host) => renderChartGallery(host) },
     { id: "system-safe-mode", title: "Mode sûr", render: (host) => renderSystemSafeMode(host, model) },

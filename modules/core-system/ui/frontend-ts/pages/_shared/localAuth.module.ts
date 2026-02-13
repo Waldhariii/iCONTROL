@@ -15,15 +15,21 @@ export type LocalSession = {
   issuedAt: number;
 };
 
-const LS_SESSION = "icontrol_session_v1";
+const LS_SESSION_APP = "icontrol_session_v1";
+const LS_SESSION_CP = "icontrol_mgmt_session_v1";
 
 let _session: LocalSession | null = null;
 
 function syncToStorage(s: LocalSession | null) {
   try {
     if (typeof window !== "undefined") {
-      if (s) webStorage.set(LS_SESSION, JSON.stringify(s));
-      else webStorage.del(LS_SESSION);
+      if (s) {
+        webStorage.set(LS_SESSION_APP, JSON.stringify(s));
+        webStorage.set(LS_SESSION_CP, JSON.stringify(s));
+      } else {
+        webStorage.del(LS_SESSION_APP);
+        webStorage.del(LS_SESSION_CP);
+      }
     }
   } catch {
     /* storage disabled */
@@ -44,9 +50,14 @@ export function getSession(): LocalSession | null {
   if (_session) return { ..._session };
   try {
     if (typeof window !== "undefined") {
-      const raw = webStorage.get(LS_SESSION);
-      if (raw) {
-        _session = JSON.parse(raw) as LocalSession;
+      const rawCp = webStorage.get(LS_SESSION_CP);
+      if (rawCp) {
+        _session = JSON.parse(rawCp) as LocalSession;
+        return _session ? { ..._session } : null;
+      }
+      const rawApp = webStorage.get(LS_SESSION_APP);
+      if (rawApp) {
+        _session = JSON.parse(rawApp) as LocalSession;
         return _session ? { ..._session } : null;
       }
     }

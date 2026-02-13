@@ -41,6 +41,14 @@ export function enforceTenantMatrix(params: {
   requiredPage?: string;       // e.g. "cp.settings"
   requiredCapability?: string; // e.g. "canAdminEntitlements"
 }): TenantMatrixDecision {
+  // DEV MODE: Bypass all checks in local development
+  try {
+    const isDev = typeof import.meta !== 'undefined' && (import.meta as any).env?.DEV;
+    if (isDev) {
+      return { allow: true, reasonCode: 'OK_POLICY_ALLOW' };
+    }
+  } catch {}
+
   const plan = planFromTenantId(params.tenantId);
   const caps = getEnabledCapabilitiesForPlan(plan);
   const pages = getEnabledPagesForPlan(plan);

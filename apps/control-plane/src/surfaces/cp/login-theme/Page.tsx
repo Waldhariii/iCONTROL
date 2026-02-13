@@ -56,6 +56,24 @@ export default function LoginThemePage() {
     setForm((prev) => ({ ...prev, [key]: value }));
   };
 
+  const isColorField = (key: string) =>
+    key.includes("bg") ||
+    key.includes("surface") ||
+    key.includes("text") ||
+    key.includes("accent") ||
+    key.includes("border");
+
+  const toHex = (value: string | undefined) => {
+    if (!value) return "";
+    const v = value.trim();
+    if (/^#[0-9a-fA-F]{6}$/.test(v)) return v.toUpperCase();
+    if (/^#[0-9a-fA-F]{3}$/.test(v)) {
+      const r = v[1], g = v[2], b = v[3];
+      return (`#${r}${r}${g}${g}${b}${b}`).toUpperCase();
+    }
+    return "";
+  };
+
   const onSave = async () => {
     setStatus("Sauvegarde en cours...");
     await saveOverrides(appKind, form);
@@ -223,6 +241,45 @@ export default function LoginThemePage() {
                 onChange={(e) => onChange(field.key, e.target.value)}
               />
               <span className="ic-theme-field-hint">{field.key}</span>
+              {isColorField(field.key) ? (
+                <div className="ic-theme-palette-wrap">
+                  <div className="ic-theme-palette-head">
+                    <input
+                      type="color"
+                      className="ic-theme-color-input"
+                      value={toHex(form[field.key]) || "#000000"}
+                      onChange={(e) => onChange(field.key, e.target.value)}
+                      aria-label="Couleur actuelle (sélecteur)"
+                    />
+                  </div>
+                  <div className="ic-theme-palette">
+                    <div className="ic-theme-palette-title">Couleurs</div>
+                    <div className="ic-theme-palette-grid">
+                      {COLOR_PRESETS.map((c) => (
+                        <button
+                          key={c.id}
+                          type="button"
+                          className={`ic-theme-swatch ${c.className}`}
+                          onClick={() => onChange(field.key, c.value)}
+                          aria-label={c.label}
+                        />
+                      ))}
+                    </div>
+                    <div className="ic-theme-palette-title">Dégradés</div>
+                    <div className="ic-theme-palette-grid">
+                      {GRADIENT_PRESETS.map((g) => (
+                        <button
+                          key={g.id}
+                          type="button"
+                          className={`ic-theme-swatch ${g.className}`}
+                          onClick={() => onChange(field.key, g.value)}
+                          aria-label={g.label}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              ) : null}
             </label>
           ))}
         </div>
@@ -248,3 +305,27 @@ export default function LoginThemePage() {
     </div>
   );
 }
+
+const COLOR_PRESETS: Array<{ id: string; label: string; value: string; className: string }> = [
+  { id: "c-charcoal", label: "Charcoal", value: "#0f1115", className: "ic-theme-swatch--charcoal" },
+  { id: "c-slate", label: "Slate", value: "#141a22", className: "ic-theme-swatch--slate" },
+  { id: "c-graphite", label: "Graphite", value: "#1f262f", className: "ic-theme-swatch--graphite" },
+  { id: "c-ink", label: "Ink", value: "#0b0d10", className: "ic-theme-swatch--ink" },
+  { id: "c-ice", label: "Ice", value: "#e6e9ee", className: "ic-theme-swatch--ice" },
+  { id: "c-mist", label: "Mist", value: "#9aa3ad", className: "ic-theme-swatch--mist" },
+  { id: "c-blue", label: "Blue", value: "#5a8fff", className: "ic-theme-swatch--blue" },
+  { id: "c-cyan", label: "Cyan", value: "#2bd4f9", className: "ic-theme-swatch--cyan" },
+  { id: "c-green", label: "Green", value: "#4ec9b0", className: "ic-theme-swatch--green" },
+  { id: "c-amber", label: "Amber", value: "#f59e0b", className: "ic-theme-swatch--amber" },
+  { id: "c-rose", label: "Rose", value: "#f472b6", className: "ic-theme-swatch--rose" },
+  { id: "c-purple", label: "Purple", value: "#7b5cff", className: "ic-theme-swatch--purple" },
+];
+
+const GRADIENT_PRESETS: Array<{ id: string; label: string; value: string; className: string }> = [
+  { id: "g-ocean", label: "Ocean", value: "linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #38bdf8 100%)", className: "ic-theme-swatch--ocean" },
+  { id: "g-nebula", label: "Nebula", value: "linear-gradient(135deg, #111827 0%, #5b21b6 60%, #f472b6 100%)", className: "ic-theme-swatch--nebula" },
+  { id: "g-forest", label: "Forest", value: "linear-gradient(135deg, #0b1510 0%, #14532d 55%, #34d399 100%)", className: "ic-theme-swatch--forest" },
+  { id: "g-ember", label: "Ember", value: "linear-gradient(135deg, #1f2937 0%, #b45309 55%, #f59e0b 100%)", className: "ic-theme-swatch--ember" },
+  { id: "g-aurora", label: "Aurora", value: "linear-gradient(135deg, #0b1320 0%, #1d4ed8 45%, #22d3ee 100%)", className: "ic-theme-swatch--aurora" },
+  { id: "g-sunrise", label: "Sunrise", value: "linear-gradient(135deg, #111827 0%, #fb7185 50%, #f97316 100%)", className: "ic-theme-swatch--sunrise" },
+];

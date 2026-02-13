@@ -76,6 +76,9 @@
       "feature_flag_id": null,
       "tenant_visibility": "all",
       "nav_visibility": {
+        "drawer": false,
+        "dashboard_tabs": true,
+        "tab_order": 2,
         "system_tabs": true,
         "system_order": 4
       },
@@ -93,8 +96,7 @@
       "tenant_visibility": "all",
       "status": "ACTIVE",
       "nav_visibility": {
-        "system_tabs": true,
-        "system_order": 3
+        "drawer": false
       }
     },
     {
@@ -107,11 +109,7 @@
       ],
       "feature_flag_id": null,
       "tenant_visibility": "all",
-      "status": "ACTIVE",
-      "nav_visibility": {
-        "system_tabs": true,
-        "system_order": 1
-      }
+      "status": "ACTIVE"
     },
     {
       "route_id": "tenants_cp",
@@ -123,11 +121,7 @@
       ],
       "feature_flag_id": null,
       "tenant_visibility": "all",
-      "status": "ACTIVE",
-      "nav_visibility": {
-        "system_tabs": true,
-        "system_order": 2
-      }
+      "status": "ACTIVE"
     },
     {
       "route_id": "users_cp",
@@ -149,80 +143,6 @@
       "app_surface": "CP",
       "page_module_id": "cp.system",
       "permissions_required": [],
-      "feature_flag_id": null,
-      "tenant_visibility": "all",
-      "status": "ACTIVE",
-      "nav_visibility": {
-        "system_tabs": true,
-        "system_order": 5
-      }
-    },
-    {
-      "route_id": "system_overview_cp",
-      "path": "#/system/overview",
-      "app_surface": "CP",
-      "page_module_id": "cp.system.overview",
-      "permissions_required": [],
-      "feature_flag_id": null,
-      "tenant_visibility": "all",
-      "status": "ACTIVE"
-    },
-    {
-      "route_id": "system_subscriptions_cp",
-      "path": "#/system/subscriptions",
-      "app_surface": "CP",
-      "page_module_id": "cp.system.subscriptions",
-      "permissions_required": [
-        "canAccessSystem"
-      ],
-      "feature_flag_id": null,
-      "tenant_visibility": "all",
-      "status": "ACTIVE"
-    },
-    {
-      "route_id": "system_plans_cp",
-      "path": "#/system/plans",
-      "app_surface": "CP",
-      "page_module_id": "cp.system.plans",
-      "permissions_required": [
-        "canAccessSystem"
-      ],
-      "feature_flag_id": null,
-      "tenant_visibility": "all",
-      "status": "ACTIVE"
-    },
-    {
-      "route_id": "system_storage_cp",
-      "path": "#/system/storage",
-      "app_surface": "CP",
-      "page_module_id": "cp.system.storage",
-      "permissions_required": [
-        "canAccessSystem"
-      ],
-      "feature_flag_id": null,
-      "tenant_visibility": "all",
-      "status": "ACTIVE"
-    },
-    {
-      "route_id": "system_integrations_cp",
-      "path": "#/system/integrations",
-      "app_surface": "CP",
-      "page_module_id": "cp.system.integrations",
-      "permissions_required": [
-        "canAccessSystem"
-      ],
-      "feature_flag_id": null,
-      "tenant_visibility": "all",
-      "status": "ACTIVE"
-    },
-    {
-      "route_id": "system_config_cp",
-      "path": "#/system/config",
-      "app_surface": "CP",
-      "page_module_id": "cp.system.config",
-      "permissions_required": [
-        "canAccessSystem"
-      ],
       "feature_flag_id": null,
       "tenant_visibility": "all",
       "status": "ACTIVE"

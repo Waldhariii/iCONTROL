@@ -22,14 +22,11 @@
 | `modules/core-system/.../pages/login.ts` | CP, APP | core.login | login | ACTIVE |
 | `modules/core-system/.../pages/dashboard.ts` | CP, APP | core.dashboard | dashboard | ACTIVE |
 | `modules/core-system/.../pages/settings/index.ts` | CP | core.settings | settings | ACTIVE |
-| `modules/core-system/.../pages/settings/branding.ts` | CP | core.settings_branding | settings_branding | ACTIVE |
 | `modules/core-system/.../pages/account/index.ts` | CP, APP | core.account | account | ACTIVE |
 | `modules/core-system/.../pages/users/index.ts` | CP, APP | core.users | users | ACTIVE |
 | `modules/core-system/.../pages/system/index.ts` | CP, APP | core.system | system | ACTIVE |
 | `modules/core-system/.../pages/logs/index.ts` | CP | core.logs | logs | ACTIVE |
-| `modules/core-system/.../pages/dossiers/index.ts` | CP | core.dossiers | dossiers | ACTIVE |
 | `modules/core-system/.../pages/developer/index.tsx` | CP | core.developer | developer | ACTIVE |
-| `modules/core-system/.../pages/developer/entitlements.tsx` | CP | core.developer_entitlements | developer_entitlements | ACTIVE |
 | `modules/core-system/.../pages/access-denied/index.tsx` | CP, APP | core.access_denied | access_denied | ACTIVE |
 | `modules/core-system/.../pages/verification/index.ts` | CP | core.verification | verification | ACTIVE |
 | `modules/core-system/.../pages/toolbox.ts` | CP | core.toolbox | toolbox | ACTIVE |

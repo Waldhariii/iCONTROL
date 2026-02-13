@@ -29,6 +29,8 @@ import { guardCpSurface } from "../../../core/runtime/cpSurfaceGuard";
 import { canManageUsers, getPermissionClaims } from "../../../runtime/rbac";
 import { getApiBase } from "../../../core/runtime/apiBase";
 import { LocalStorageProvider } from "../../../core/control-plane/storage";
+// @ts-ignore
+import catalog from "@config/ssot/ROUTE_CATALOG.json";
 
 type UsersModelCp = {
   title: string;
@@ -37,7 +39,7 @@ type UsersModelCp = {
   menuAccess: Array<{ menuId: string; label: string; roles: string[] }>;
 };
 
-type PageId = "dashboard" | "account" | "users" | "management" | "settings" | "toolbox" | "dossiers";
+type PageId = "dashboard" | "account" | "users" | "management" | "settings" | "toolbox";
 
 type UserPermissions = {
   pages: PageId[];
@@ -46,13 +48,13 @@ type UserPermissions = {
 
 const USER_PERMS_KEY = "icontrol_cp_user_permissions_v1";
 const RBAC_PERMS_KEY = "icontrol_rbac_permissions_v1";
+const USERS_TAB_KEY = "cp.users.permissions.tab";
 const storage = new LocalStorageProvider("");
 
 const RBAC_ROLE_PRESETS: Record<string, string[]> = {
   USER: [],
   ADMIN: [
     "cp.access.settings",
-    "cp.access.branding",
     "cp.access.theme_studio",
     "cp.access.tenants",
     "cp.pages.create",
@@ -60,7 +62,6 @@ const RBAC_ROLE_PRESETS: Record<string, string[]> = {
   ],
   SYSADMIN: [
     "cp.access.settings",
-    "cp.access.branding",
     "cp.access.theme_studio",
     "cp.access.tenants",
     "cp.access.providers",
@@ -76,7 +77,6 @@ const RBAC_ROLE_PRESETS: Record<string, string[]> = {
   ],
   DEVELOPER: [
     "cp.access.settings",
-    "cp.access.branding",
     "cp.access.theme_studio",
     "cp.access.tenants",
     "cp.access.providers",
@@ -94,7 +94,6 @@ const RBAC_GROUP_PREFIXES: Array<{ label: string; prefix: string }> = [
   { label: "Providers", prefix: "cp.providers" },
   { label: "Policies", prefix: "cp.policies" },
   { label: "Security", prefix: "cp.security" },
-  { label: "Branding", prefix: "cp.branding" },
   { label: "Tenants", prefix: "cp.tenants" },
   { label: "Users", prefix: "cp.users" },
   { label: "Theme", prefix: "cp.theme" },
@@ -111,6 +110,34 @@ function validatePermissions(perms: string[]) {
     seen.add(p);
   });
   return { invalid, duplicates };
+}
+
+function titleizeRouteId(routeId: string): string {
+  return String(routeId || "")
+    .replace(/^cp\./, "")
+    .replace(/_cp$/, "")
+    .replace(/_app$/, "")
+    .replace(/[-_]+/g, " ")
+    .trim()
+    .split(" ")
+    .filter(Boolean)
+    .map((x) => x.charAt(0).toUpperCase() + x.slice(1))
+    .join(" ");
+}
+
+function readUsersTab(): "app" | "cp" {
+  try {
+    const v = storage.getItem(USERS_TAB_KEY);
+    return v === "app" ? "app" : "cp";
+  } catch {
+    return "cp";
+  }
+}
+
+function writeUsersTab(tab: "app" | "cp"): void {
+  try {
+    storage.setItem(USERS_TAB_KEY, tab);
+  } catch {}
 }
 
 function groupPermissions(perms: string[]) {
@@ -133,7 +160,6 @@ function previewAccess(perms: string[]) {
   const has = (perm: string) => perms.includes(perm);
   return [
     { label: "Settings", ok: has("cp.access.settings") },
-    { label: "Branding", ok: has("cp.access.branding") },
     { label: "Theme Studio", ok: has("cp.access.theme_studio") },
     { label: "Tenants", ok: has("cp.access.tenants") },
     { label: "Providers", ok: has("cp.access.providers") },
@@ -227,7 +253,7 @@ function getUserPermissions(username: string, role: string): UserPermissions {
       if (stored) return stored;
     }
   } catch {}
-  const basePages: PageId[] = role === "MASTER" ? ["dashboard", "account", "users", "management", "settings", "toolbox", "dossiers"] : ["dashboard", "account"];
+  const basePages: PageId[] = role === "MASTER" ? ["dashboard", "account", "users", "management", "settings", "toolbox"] : ["dashboard", "account"];
   return { pages: basePages, canManagePermissions: role === "MASTER" || role === "ADMIN" };
 }
 
@@ -402,6 +428,43 @@ export function renderUsersOverviewCp(root: HTMLElement, model: UsersModelCp): v
 
 export function renderUsersListCp(root: HTMLElement, model: UsersModelCp): void {
   void model;
+  root.innerHTML = "";
+  const tabs = document.createElement("div");
+  tabs.className = "cxTabs";
+  const tabApp = document.createElement("button");
+  tabApp.className = "cxTab";
+  tabApp.textContent = "Permissions APP";
+  const tabCp = document.createElement("button");
+  tabCp.className = "cxTab";
+  tabCp.textContent = "Permissions CP";
+  tabs.appendChild(tabApp);
+  tabs.appendChild(tabCp);
+  root.appendChild(tabs);
+
+  const appPane = document.createElement("div");
+  const cpPane = document.createElement("div");
+  root.appendChild(appPane);
+  root.appendChild(cpPane);
+
+  let activeTab: "app" | "cp" = readUsersTab();
+  const applyTabs = () => {
+    tabApp.classList.toggle("cxTab--active", activeTab === "app");
+    tabCp.classList.toggle("cxTab--active", activeTab === "cp");
+    appPane.hidden = activeTab !== "app";
+    cpPane.hidden = activeTab !== "cp";
+  };
+  tabApp.onclick = () => {
+    activeTab = "app";
+    writeUsersTab(activeTab);
+    applyTabs();
+  };
+  tabCp.onclick = () => {
+    activeTab = "cp";
+    writeUsersTab(activeTab);
+    applyTabs();
+  };
+  applyTabs();
+
   const s = requireSession();
   const currentRole = getRole();
   const isMaster = s.username === "Master" || String(currentRole) === "MASTER" || currentRole === "SYSADMIN";
@@ -520,7 +583,7 @@ export function renderUsersListCp(root: HTMLElement, model: UsersModelCp): void 
     ]
   });
 
-  root.appendChild(toolbar);
+  cpPane.appendChild(toolbar);
 
   if (searchInput) {
     addTooltipToElement(searchInput, "Recherche par nom, rôle ou application", "top");
@@ -651,7 +714,7 @@ export function renderUsersListCp(root: HTMLElement, model: UsersModelCp): void 
   };
 
   renderTable();
-  root.appendChild(tableContainer);
+  cpPane.appendChild(tableContainer);
 
   if (!canManage) {
     return;
@@ -868,7 +931,19 @@ export function renderUsersListCp(root: HTMLElement, model: UsersModelCp): void 
   };
 
   rbacCard.appendChild(rbacWrap);
-  root.appendChild(rbacCard);
+  cpPane.appendChild(rbacCard);
+
+  // APP Permissions (read-only summary driven by SSOT)
+  const appCard = sectionCard("Permissions APP — Lecture seule");
+  const routes = (catalog as any)?.routes ?? [];
+  const appRoutes = routes
+    .filter((r: any) => r && r.app_surface === "APP")
+    .filter((r: any) => ["ACTIVE", "EXPERIMENTAL"].includes(String(r.status || "")))
+    .filter((r: any) => typeof r.path === "string" && r.path.startsWith("#/"))
+    .map((r: any) => titleizeRouteId(String(r.route_id || r.path || "")));
+  const list = appRoutes.length ? appRoutes : ["Aucune page APP détectée dans le SSOT."];
+  appendList(appCard, list);
+  appPane.appendChild(appCard);
   
   // Fonction pour éditer les permissions
   (window as any).__editPermissions = (username: string, role?: string) => {
@@ -879,7 +954,7 @@ export function renderUsersListCp(root: HTMLElement, model: UsersModelCp): void 
     const permissions = getUserPermissions(username, userRole as any);
     const modal = document.createElement("div");
     modal.classList.add("ic-cp-90e5d31543");
-const allPages: PageId[] = ["dashboard", "account", "users", "management", "settings", "toolbox", "dossiers"];
+const allPages: PageId[] = ["dashboard", "account", "users", "management", "settings", "toolbox"];
     
     // Construire le HTML du modal
     const modalContent = document.createElement("div");
@@ -997,6 +1072,17 @@ export function renderUsersMenuAccessCp(root: HTMLElement, model: UsersModelCp):
     }))
   );
   root.appendChild(card);
+}
+
+export function renderUsersCp(root: HTMLElement): void {
+  root.innerHTML = "";
+  const model: UsersModelCp = {
+    title: "Utilisateurs (CP)",
+    roles: ["USER", "ADMIN", "SYSADMIN", "DEVELOPER"],
+    permissions: [],
+    menuAccess: [],
+  };
+  renderUsersListCp(root, model);
 }
 
 // Modal pour ajouter un utilisateur système

@@ -38,7 +38,6 @@
 - `app/src/core/ui/badge.ts`
 - `app/src/core/ui/toast.ts`
 - `modules/core-system/ui/frontend-ts/pages/access-denied/index.tsx`
-- `modules/core-system/ui/frontend-ts/pages/developer/entitlements.tsx`
 - `modules/core-system/ui/frontend-ts/pages/developer/index.tsx`
 - `modules/core-system/ui/frontend-ts/pages/system/sections/cache-audit.ts`
 - `modules/core-system/ui/frontend-ts/pages/logs/index.ts`

@@ -2,11 +2,9 @@
 
 ## Contexte
 Le noyau devait rester minimal, durable et sans dependances d'implementation.
-Des services (branding/auth local) utilisaient localStorage et import.meta, ce qui
 couplait le core-kernel a l'environnement UI.
 
 ## Decision
-Deplacer les implementations UI (branding et auth local) vers platform-services,
 et laisser le core-kernel avec des contrats/types uniquement.
 
 ## Consequences

@@ -3,7 +3,7 @@ import { safeRender } from "../_shared/mainSystem.shared";
 import { mountSections, type SectionSpec } from "../_shared/sections";
 import { renderRecommendations } from "../_shared/recommendations";
 import { getSafeMode } from "../_shared/recommendations.ctx";
-import { sectionCard } from "../_shared/uiBlocks";
+import { appendActionRow, appendParagraph, bindActions, sectionCard } from "../_shared/uiBlocks";
 import { getSession } from "../_shared/localAuth";
 import { renderAccessDenied } from "../_shared/renderAccessDenied";
 import { canAccessPage, canAccessSection, type Role } from "../_shared/rolePolicy";
@@ -116,28 +116,26 @@ export function renderDeveloper(root: HTMLElement): void {
       requiresRole: "SYSADMIN"
     },
     {
-      id: "developer-entitlements",
-      title: "Entitlements (manual)",
-      render: (host) => {
-        const card = sectionCard("Manual Subscription Provisioning");
-        const note = document.createElement("div");
-        note.style.cssText = "opacity:.85;margin-bottom:8px";
-        note.textContent = "Activer/désactiver plan et modules sans billing (local only).";
-        const link = document.createElement("a");
-        link.href = "#/developer/entitlements";
-        link.textContent = "Ouvrir la page Entitlements";
-        link.style.cssText = "display:inline-block;margin-top:4px";
-        card.appendChild(note);
-        card.appendChild(link);
-        host.appendChild(card);
-      },
-      requiresRoles: ["SYSADMIN", "DEVELOPER"]
-    },
-    {
       id: "toolbox-audit-log",
       title: "Audit log",
       render: (host) => render_audit_log(host),
       requiresRoles: ["SYSADMIN", "DEVELOPER"]
+    },
+    {
+      id: "toolbox-theme-studio",
+      title: "Theme Studio",
+      render: (host) => {
+        const card = sectionCard("Theme Studio");
+        appendParagraph(card, "Configuration globale du thème CP + App Client (tokens, modes, densité).");
+        const row = appendActionRow(card, [
+          { id: "open-theme", label: "Ouvrir Theme Studio", type: "navigate", payload: "#/theme-studio" }
+        ]);
+        bindActions(row, [{ id: "open-theme", label: "Ouvrir Theme Studio", type: "navigate", payload: "#/theme-studio" }], {
+          allowRoutes: ["#/theme-studio"]
+        });
+        host.appendChild(card);
+      },
+      requiresRoles: ["SYSADMIN", "DEVELOPER", "ADMIN"]
     }
   ];
 
@@ -178,6 +176,6 @@ export const developerSections = [
   "toolbox-contracts-form",
   "toolbox-datasources",
   "toolbox-rules",
-  "developer-entitlements",
-  "toolbox-audit-log"
+  "toolbox-audit-log",
+  "toolbox-theme-studio"
 ];

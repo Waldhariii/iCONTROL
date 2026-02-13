@@ -12,7 +12,6 @@
 | **Fondations (repo, build, routing, tests, gates)** | 12 % | En place (Vite, router, ROUTE_CATALOG, Vitest, gate:ssot, design tokens) | ~85 % | ~10 % |
 | **Core Kernel & Gouvernance** | 15 % | SAFE_MODE, RBAC partiel, Write Gateway partiel, storageNs, audit partiel | ~35 % | ~5 % |
 | **Console Admin (Control Plane)** | 18 % | Tenants, subscription, audit, pages CP partielles ; pas Security/Storage/Support | ~25 % | ~4,5 % |
-| **App Client (ERP PME)** | 35 % | Home, disabled, catalog, pages-inventory, dossiers ; pas CRM/DMS/Jobs/Calendar/Facturation/Compta | ~8 % | ~3 % |
 | **Modules / Auto-adapt** | 8 % | Manifests partiels, pas d’auto-discovery, registries manuels | ~20 % | ~1,5 % |
 | **IA / OCR / Automation** | 8 % | Absent | 0 % | 0 % |
 | **Reliability & Self-Healing** | 4 % | Docs + GATES_SELF_HEAL test ; pas de runtime (observability, auto-réparation) | ~15 % | ~0,5 % |
@@ -103,7 +102,6 @@ Numérotation cohérente avec D3/D5 ; ordre recommandé = Phase puis priorité.
 
 | # | Action | Critère de complétion |
 |---|--------|------------------------|
-| 3.1 | Tenant Management : CRUD tenant (création, activation, suspension), paramètres (branding, timezone, langues), isolation controls | pages/cp/tenants.ts + control-plane/tenantService |
 | 3.2 | Tenant : import/export tenant (migration) | Flux export/import documenté et testé |
 | 3.3 | Subscriptions : portail plans/add-ons, viewer entitlements par tenant, metering (consommation quotas) | pages/cp/subscription.ts + modules/core-system/subscription |
 | 3.4 | Subscriptions : facturation plateforme (invoices, paiements, taxes, dunning) — au moins stub ou MVP | Données + UI minimales |

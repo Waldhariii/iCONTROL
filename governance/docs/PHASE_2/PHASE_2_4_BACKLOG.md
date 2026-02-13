@@ -10,15 +10,12 @@
 |---:|---:|---|---|---|---|
 | 1 | 10 | OTHER | no | `app/src/policies/cache.registry.ts` | LOW: evaluate |
 | 2 | 9 | CORE_RUNTIME | no | `app/src/core/runtime/runtimeConfig.ts` | HIGH: prioritize canonical write points + SSOT gating |
-| 3 | 9 | MODULES | no | `modules/core-system/ui/frontend-ts/pages/developer/entitlements.tsx` | MED: module isolation; prefer write gateway single entrypoint |
 | 4 | 7 | CP_UI | no | `app/src/pages/cp/views/users.ts` | MED: UI writes; keep SSR guards + legacy-first |
 | 5 | 5 | CORE_RUNTIME | no | `app/src/core/entitlements/index.ts` | HIGH: prioritize canonical write points + SSOT gating |
-| 6 | 5 | MODULES | no | `modules/core-system/ui/frontend-ts/pages/dossiers/model.ts` | MED: module isolation; prefer write gateway single entrypoint |
 | 7 | 4 | OTHER | no | `app/src/__tests__/safe-mode.enforcement-wiring.contract.test.ts` | LOW: evaluate |
 | 8 | 4 | CORE_RUNTIME | no | `app/src/core/ui/themeManager.ts` | HIGH: prioritize canonical write points + SSOT gating |
 | 9 | 3 | CORE_RUNTIME | no | `app/src/core/audit/auditLog.ts` | HIGH: prioritize canonical write points + SSOT gating |
 | 10 | 3 | CP_UI | no | `app/src/pages/cp/ui/loginTheme/loginTheme.override.ts` | MED: UI writes; keep SSR guards + legacy-first |
-| 11 | 2 | PLATFORM_SERVICE | no | `platform-services/branding/brandService.ts` | HIGH: service boundary; tighten payload + correlation scope |
 | 12 | 2 | MODULES | no | `modules/core-system/subscription/SubscriptionRegistry.ts` | MED: module isolation; prefer write gateway single entrypoint |
 | 13 | 2 | MODULES | no | `modules/core-system/subscription/SubscriptionStore.ts` | MED: module isolation; prefer write gateway single entrypoint |
 | 14 | 2 | MODULES | no | `modules/core-system/subscription/FileSubscriptionStore.node.ts` | MED: module isolation; prefer write gateway single entrypoint |
@@ -46,14 +43,11 @@
 | 36 | 1 | OTHER | no | `app/src/__tests__/cache-bounds-hardening.contract.test.ts` | LOW: evaluate |
 | 37 | 1 | CORE_RUNTIME | no | `app/src/core/runtime/tenant.ts` | HIGH: prioritize canonical write points + SSOT gating |
 | 38 | 1 | MODULES | no | `modules/core-system/ui/frontend-ts/pages/verification/index.test.ts` | MED: module isolation; prefer write gateway single entrypoint |
-| 39 | 1 | MODULES | no | `modules/core-system/ui/frontend-ts/pages/dossiers/index.test.ts` | MED: module isolation; prefer write gateway single entrypoint |
 | 40 | 1 | MODULES | no | `modules/core-system/ui/frontend-ts/pages/_shared/regression-wall.test.ts` | MED: module isolation; prefer write gateway single entrypoint |
-| 41 | 1 | MODULES | no | `modules/core-system/ui/frontend-ts/pages/dossiers/sections/list.ts` | MED: module isolation; prefer write gateway single entrypoint |
 | 42 | 1 | MODULES | no | `modules/core-system/ui/frontend-ts/pages/dashboard/index.test.ts` | MED: module isolation; prefer write gateway single entrypoint |
 | 43 | 1 | MODULES | no | `modules/core-system/ui/frontend-ts/pages/developer/index.test.ts` | MED: module isolation; prefer write gateway single entrypoint |
 | 44 | 1 | MODULES | no | `modules/core-system/ui/frontend-ts/pages/_shared/safe-mode-write.test.ts` | MED: module isolation; prefer write gateway single entrypoint |
 | 45 | 1 | CORE_RUNTIME | no | `app/src/core/studio/datasources/memory.ts` | HIGH: prioritize canonical write points + SSOT gating |
-| 46 | 1 | MODULES | no | `modules/core-system/ui/frontend-ts/pages/settings/branding.test.ts` | MED: module isolation; prefer write gateway single entrypoint |
 | 47 | 1 | MODULES | no | `modules/core-system/ui/frontend-ts/pages/users/index.test.ts` | MED: module isolation; prefer write gateway single entrypoint |
 | 48 | 1 | CORE_RUNTIME | no | `app/src/core/studio/audit/logger.ts` | HIGH: prioritize canonical write points + SSOT gating |
 | 49 | 1 | MODULES | no | `modules/core-system/ui/frontend-ts/pages/logs/index.ts` | MED: module isolation; prefer write gateway single entrypoint |

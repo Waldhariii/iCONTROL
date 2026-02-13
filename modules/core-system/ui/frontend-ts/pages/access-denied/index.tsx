@@ -34,15 +34,10 @@ export function renderAccessDeniedPage(root: HTMLElement, props: AccessDeniedPro
 
   const actions = document.createElement("div");
   actions.style.cssText = "margin-top:16px;display:flex;gap:12px;flex-wrap:wrap";
-  const linkProvision = document.createElement("a");
-  linkProvision.href = "#/developer/entitlements";
-  linkProvision.style.cssText = "padding:10px 14px;border-radius:8px;border:1px solid var(--ic-border);text-decoration:none";
-  linkProvision.textContent = "Ouvrir Provisioning (Developer → Entitlements)";
   const linkLogs = document.createElement("a");
   linkLogs.href = "#/logs";
   linkLogs.style.cssText = "padding:10px 14px;border-radius:8px;border:1px solid var(--ic-border);text-decoration:none";
   linkLogs.textContent = "Voir les logs / audit";
-  actions.appendChild(linkProvision);
   actions.appendChild(linkLogs);
   wrap.appendChild(actions);
 

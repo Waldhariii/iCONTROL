@@ -25,7 +25,6 @@
 - safeMode: `app/src/core/runtime/safeMode.ts`
 - loginTheme override: `app/src/pages/cp/ui/loginTheme/loginTheme.override.ts`
 - users: `app/src/pages/cp/views/users.ts`
-- brandService: `platform-services/branding/brandService.ts`
 - localAuth: `platform-services/security/auth/localAuth.ts`
 - ui catalog: `app/src/core/ui/catalog/index.ts`
 - cp storage: `app/src/core/control-plane/storage.ts`
@@ -94,7 +93,6 @@
     "safeMode": "app/src/core/runtime/safeMode.ts",
     "loginThemeOverride": "app/src/pages/cp/ui/loginTheme/loginTheme.override.ts",
     "users": "app/src/pages/cp/views/users.ts",
-    "brandService": "platform-services/branding/brandService.ts",
     "localAuth": "platform-services/security/auth/localAuth.ts",
     "uiCatalog": "app/src/core/ui/catalog/index.ts",
     "cpStorage": "app/src/core/control-plane/storage.ts",

@@ -9,8 +9,6 @@
 | account | ADMIN, SYSADMIN, DEVELOPER | Autorisé | Stockage local uniquement |
 | verification | ADMIN, SYSADMIN, DEVELOPER | Autorisé | SAFE_MODE self-check |
 | developer | SYSADMIN, DEVELOPER | Autorisé | Toolbox read-only |
-| settings | ADMIN, SYSADMIN | Autorisé | Hors branding |
-| settings_branding | ADMIN, SYSADMIN | Autorisé | Branding strict |
 
 ## Sections spécifiques (Developer)
 

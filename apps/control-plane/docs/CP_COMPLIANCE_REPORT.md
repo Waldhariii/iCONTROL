@@ -41,7 +41,6 @@ Contracted marker: `ICONTROL_DIAGNOSTIC_V1`
 
 [1m[46m RUN [49m[22m [36mv4.0.16 [39m[90m/Users/danygaudreault/System_Innovex_CLEAN/iCONTROL/app[39m
 
- [32m✓[39m src/__tests__/router-dossiers.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 148[2mms[22m[39m
  [32m✓[39m src/__tests__/toolbox.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 147[2mms[22m[39m
  [32m✓[39m src/__tests__/router-system-logs.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 150[2mms[22m[39m
  [32m✓[39m src/__tests__/cache-refresh-meta-marker.contract.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 134[2mms[22m[39m
@@ -65,11 +64,9 @@ Contracted marker: `ICONTROL_DIAGNOSTIC_V1`
  [32m✓[39m src/__tests__/cache-refresh-metrics-shape.contract.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 58[2mms[22m[39m
  [32m✓[39m src/__tests__/cache-refresh-metrics-no-throw.contract.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 52[2mms[22m[39m
  [32m✓[39m src/__tests__/circuit-breaker.contract.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 63[2mms[22m[39m
- [32m✓[39m ../modules/core-system/ui/frontend-ts/pages/settings/branding.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 77[2mms[22m[39m
  [32m✓[39m ../modules/core-system/ui/frontend-ts/pages/developer/index.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 70[2mms[22m[39m
  [32m✓[39m ../modules/core-system/ui/frontend-ts/pages/logs/index.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 128[2mms[22m[39m
  [32m✓[39m ../modules/core-system/ui/frontend-ts/pages/system/index.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 138[2mms[22m[39m
- [32m✓[39m ../modules/core-system/ui/frontend-ts/pages/dossiers/index.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 169[2mms[22m[39m
  [32m✓[39m src/__tests__/cache-registry.contract.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 47[2mms[22m[39m
  [32m✓[39m src/__tests__/policies-killswitch.contract.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 37[2mms[22m[39m
  [32m✓[39m src/__tests__/ssot-css-entrypoint.contract.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 25[2mms[22m[39m

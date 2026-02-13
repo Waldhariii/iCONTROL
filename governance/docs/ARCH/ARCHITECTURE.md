@@ -4,7 +4,6 @@
 Plateforme modulaire long terme, avec isolation stricte par modules et UI shell stable.
 
 ## Couches
-- core-kernel/: noyau (branding, règles, contrats) — ne dépend jamais des modules
 - platform-services/: services transverses (UI shell, routing helpers)
 - modules/: modules métiers (core-system = auth/login/dashboard/settings)
 - app/: shell Vite (boot + router + mount + module loader)

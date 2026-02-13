@@ -6,7 +6,7 @@ export function renderUsersOverview(root: HTMLElement, model: UsersModel): void 
   const card = sectionCard(model.title);
   appendList(card, [
     "Roles references are derived from module registry.",
-    "Permissions table mirrors CORE_SYSTEM/M_DOSSIERS mappings.",
+    "Permissions table mirrors CORE_SYSTEM mappings.",
     "Menu access lists roles per menu item."
   ]);
   root.appendChild(card);

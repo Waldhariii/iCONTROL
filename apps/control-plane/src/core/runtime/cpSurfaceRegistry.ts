@@ -22,12 +22,10 @@ export type CpSurfaceKey =
   | "cp.providers"
   | "cp.policies"
   | "cp.security"
-  | "cp.branding"
   | "cp.tenants"
   | "cp.audit"
   | "cp.toolbox"
   | "cp.developer"
-  | "cp.developer-entitlements"
 ;
 
 export type CpSurfaceSpec = Readonly<{
@@ -60,12 +58,10 @@ export const CP_SURFACE_REGISTRY: Readonly<Record<CpSurfaceKey, CpSurfaceSpec>> 
   "cp.providers": Object.freeze({ key: "cp.providers" }),
   "cp.policies": Object.freeze({ key: "cp.policies" }),
   "cp.security": Object.freeze({ key: "cp.security" }),
-  "cp.branding": Object.freeze({ key: "cp.branding" }),
   "cp.tenants": Object.freeze({ key: "cp.tenants" }),
   "cp.audit": Object.freeze({ key: "cp.audit" }),
   "cp.toolbox": Object.freeze({ key: "cp.toolbox" }),
   "cp.developer": Object.freeze({ key: "cp.developer" }),
-  "cp.developer-entitlements": Object.freeze({ key: "cp.developer-entitlements" }),
 
 });
 
@@ -85,12 +81,10 @@ export const CP_SURFACE_KEYS: readonly CpSurfaceKey[] = Object.freeze([
   "cp.providers",
   "cp.policies",
   "cp.security",
-  "cp.branding",
   "cp.tenants",
   "cp.audit",
   "cp.toolbox",
   "cp.developer",
-  "cp.developer-entitlements",
   "cp.settings",
   "cp.users"
 

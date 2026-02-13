@@ -10,9 +10,9 @@ export function render_contracts_table(host: HTMLElement): void {
     [
       {
         id: "table_def_contract",
-        columns: MAIN_SYSTEM_TABLE_CONTRACT.columnFields.join(" "),
-        actions: MAIN_SYSTEM_TABLE_CONTRACT.actionTypes.join(" "),
-        visibleForRoles: "column.visibleForRoles" 
+        columns: MAIN_SYSTEM_TABLE_CONTRACT.columnFields.join("\n"),
+        actions: MAIN_SYSTEM_TABLE_CONTRACT.actionTypes.join("\n"),
+        visibleForRoles: "column.visibleForRoles"
       }
     ]
   );

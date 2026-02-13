@@ -43,5 +43,4 @@ Point d’entrée unique pour exécuter une release de façon outillée et audit
   - `./scripts/maintenance/test_app.zsh`
 
 ## Provisioning manuel (Dev)
-- Aller sur: `Developer -> Entitlements` (route: `/developer/entitlements`)
 - Objectif: activer/désactiver des entitlements localement pour valider les guards UI et les parcours PRO.

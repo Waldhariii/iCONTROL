@@ -114,11 +114,9 @@ function getSourceFile(routeId: string, appSurface: "CP" | "CLIENT"): string {
       users_cp: "apps/control-plane/src/surfaces/cp/users.ts",
       system_cp: "apps/control-plane/src/surfaces/cp/system.ts",
       developer_cp: "apps/control-plane/src/surfaces/cp/registry.ts",
-      developer_entitlements_cp: "apps/control-plane/src/surfaces/cp/registry.ts",
       verification_cp: "apps/control-plane/src/surfaces/cp/registry.ts",
       toolbox_cp: "apps/control-plane/src/surfaces/cp/registry.ts",
       logs_cp: "apps/control-plane/src/surfaces/cp/registry.ts",
-      dossiers_cp: "apps/control-plane/src/surfaces/cp/registry.ts"
     };
     return fileMap[routeId] || "apps/control-plane/src/surfaces/cp/registry.ts";
   } else {
