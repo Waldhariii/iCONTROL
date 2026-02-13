@@ -8,8 +8,8 @@ export function TenantsList() {
   const { data, isLoading, error, refresh } = useTenantsQuery();
   const { createTenant, updateTenant, deleteTenant } = useTenantsCommands();
   const [showModal, setShowModal] = React.useState(false);
-  const [form, setForm] = React.useState({ id: "", name: "", plan: "FREE" });
   const [selectedTenant, setSelectedTenant] = React.useState<string | null>(null);
+  const [form, setForm] = React.useState({ id: "", name: "", plan: "FREE" });
   const [message, setMessage] = React.useState<string | null>(null);
   const canWrite = canWriteTenants();
 
@@ -253,7 +253,6 @@ export function TenantsList() {
           </div>
         </div>
       )}
-    </div>
 
       {/* Drawer Profil Tenant */}
       {selectedTenant && (
