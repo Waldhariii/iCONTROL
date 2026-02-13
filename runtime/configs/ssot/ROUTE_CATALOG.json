@@ -429,6 +429,17 @@
       "status": "ACTIVE"
     },
     {
+      "route_id": "signup_app",
+      "path": "#/signup",
+      "app_surface": "APP",
+      "page_module_id": "app.signup",
+      "permissions_required": [],
+      "feature_flag_id": null,
+      "tenant_visibility": "all",
+      "status": "ACTIVE",
+      "nav_visibility": null
+    },
+    {
       "route_id": "account_app",
       "path": "#/account",
       "app_surface": "APP",

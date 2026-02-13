@@ -15,6 +15,24 @@ function LoginApp() {
           <input className="ic-input" type="password" placeholder="••••••••" />
         </label>
         <button className="btn-primary" type="button">Se connecter</button>
+        
+        {/* Lien Créer un compte */}
+        <div style={{ textAlign: "center", marginTop: "20px" }}>
+          <p style={{ color: "var(--text-muted)", fontSize: "14px", marginBottom: "8px" }}>
+            Vous n'avez pas encore de compte ?
+          </p>
+          <a 
+            href="#/signup" 
+            style={{ 
+              color: "var(--accent-primary)", 
+              textDecoration: "none", 
+              fontWeight: "600",
+              fontSize: "14px"
+            }}
+          >
+            Créer un compte gratuit
+          </a>
+        </div>
       </div>
     </div>
   );
