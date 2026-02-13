@@ -32,7 +32,10 @@
       "permissions_required": [],
       "feature_flag_id": null,
       "tenant_visibility": "all",
-      "status": "ACTIVE"
+      "status": "ACTIVE",
+      "nav_visibility": {
+        "drawer": false
+      }
     },
     {
       "route_id": "settings_cp",
@@ -44,30 +47,10 @@
       ],
       "feature_flag_id": null,
       "tenant_visibility": "all",
-      "status": "ACTIVE"
-    },
-    {
-      "route_id": "settings_branding_cp",
-      "path": "#/settings/branding",
-      "app_surface": "CP",
-      "page_module_id": "cp.settings_branding",
-      "permissions_required": [
-        "canAccessSettings"
-      ],
-      "feature_flag_id": null,
-      "tenant_visibility": "all",
-      "status": "ACTIVE"
-    },
-    {
-      "route_id": "branding_cp",
-      "path": "#/branding",
-      "app_surface": "CP",
-      "page_module_id": "cp.branding",
-      "permissions_required": [
-        "canAccessBranding"
-      ],
-      "feature_flag_id": null,
-      "tenant_visibility": "all",
+      "nav_visibility": {
+        "system_tabs": true,
+        "system_order": 6
+      },
       "status": "ACTIVE"
     },
     {
@@ -92,6 +75,13 @@
       ],
       "feature_flag_id": null,
       "tenant_visibility": "all",
+      "nav_visibility": {
+        "drawer": false,
+        "dashboard_tabs": true,
+        "tab_order": 2,
+        "system_tabs": true,
+        "system_order": 4
+      },
       "status": "ACTIVE"
     },
     {
@@ -104,7 +94,10 @@
       ],
       "feature_flag_id": null,
       "tenant_visibility": "all",
-      "status": "ACTIVE"
+      "status": "ACTIVE",
+      "nav_visibility": {
+        "drawer": false
+      }
     },
     {
       "route_id": "providers_cp",
@@ -138,6 +131,10 @@
       "permissions_required": [],
       "feature_flag_id": null,
       "tenant_visibility": "all",
+      "nav_visibility": {
+        "system_tabs": true,
+        "system_order": 1
+      },
       "status": "ACTIVE"
     },
     {
@@ -146,6 +143,76 @@
       "app_surface": "CP",
       "page_module_id": "cp.system",
       "permissions_required": [],
+      "feature_flag_id": null,
+      "tenant_visibility": "all",
+      "status": "ACTIVE"
+    },
+    {
+      "route_id": "system_overview_cp",
+      "path": "#/system/overview",
+      "app_surface": "CP",
+      "page_module_id": "cp.system.overview",
+      "permissions_required": [],
+      "feature_flag_id": null,
+      "tenant_visibility": "all",
+      "status": "ACTIVE"
+    },
+    {
+      "route_id": "system_subscriptions_cp",
+      "path": "#/system/subscriptions",
+      "app_surface": "CP",
+      "page_module_id": "cp.system.subscriptions",
+      "permissions_required": [
+        "canAccessSystem"
+      ],
+      "feature_flag_id": null,
+      "tenant_visibility": "all",
+      "status": "ACTIVE"
+    },
+    {
+      "route_id": "system_plans_cp",
+      "path": "#/system/plans",
+      "app_surface": "CP",
+      "page_module_id": "cp.system.plans",
+      "permissions_required": [
+        "canAccessSystem"
+      ],
+      "feature_flag_id": null,
+      "tenant_visibility": "all",
+      "status": "ACTIVE"
+    },
+    {
+      "route_id": "system_storage_cp",
+      "path": "#/system/storage",
+      "app_surface": "CP",
+      "page_module_id": "cp.system.storage",
+      "permissions_required": [
+        "canAccessSystem"
+      ],
+      "feature_flag_id": null,
+      "tenant_visibility": "all",
+      "status": "ACTIVE"
+    },
+    {
+      "route_id": "system_integrations_cp",
+      "path": "#/system/integrations",
+      "app_surface": "CP",
+      "page_module_id": "cp.system.integrations",
+      "permissions_required": [
+        "canAccessSystem"
+      ],
+      "feature_flag_id": null,
+      "tenant_visibility": "all",
+      "status": "ACTIVE"
+    },
+    {
+      "route_id": "system_config_cp",
+      "path": "#/system/config",
+      "app_surface": "CP",
+      "page_module_id": "cp.system.config",
+      "permissions_required": [
+        "canAccessSystem"
+      ],
       "feature_flag_id": null,
       "tenant_visibility": "all",
       "status": "ACTIVE"
@@ -161,16 +228,6 @@
       "status": "ACTIVE"
     },
     {
-      "route_id": "developer_entitlements_cp",
-      "path": "#/developer/entitlements",
-      "app_surface": "CP",
-      "page_module_id": "core.developer_entitlements",
-      "permissions_required": [],
-      "feature_flag_id": null,
-      "tenant_visibility": "all",
-      "status": "ACTIVE"
-    },
-    {
       "route_id": "access_denied_cp",
       "path": "#/access-denied",
       "app_surface": "CP",
@@ -178,7 +235,10 @@
       "permissions_required": [],
       "feature_flag_id": null,
       "tenant_visibility": "all",
-      "status": "ACTIVE"
+      "status": "ACTIVE",
+      "nav_visibility": {
+        "drawer": false
+      }
     },
     {
       "route_id": "verification_cp",
@@ -188,6 +248,13 @@
       "permissions_required": [],
       "feature_flag_id": null,
       "tenant_visibility": "all",
+      "nav_visibility": {
+        "drawer": false,
+        "dashboard_tabs": true,
+        "tab_order": 3,
+        "system_tabs": true,
+        "system_order": 5
+      },
       "status": "ACTIVE"
     },
     {
@@ -220,16 +287,13 @@
       "permissions_required": [],
       "feature_flag_id": null,
       "tenant_visibility": "all",
-      "status": "ACTIVE"
-    },
-    {
-      "route_id": "dossiers_cp",
-      "path": "#/dossiers",
-      "app_surface": "CP",
-      "page_module_id": "core.dossiers",
-      "permissions_required": [],
-      "feature_flag_id": null,
-      "tenant_visibility": "all",
+      "nav_visibility": {
+        "drawer": false,
+        "dashboard_tabs": true,
+        "tab_order": 1,
+        "system_tabs": true,
+        "system_order": 3
+      },
       "status": "ACTIVE"
     },
     {
@@ -240,6 +304,11 @@
       "permissions_required": [],
       "feature_flag_id": null,
       "tenant_visibility": "all",
+      "nav_visibility": {
+        "system_tabs": true,
+        "system_order": 2,
+        "drawer": false
+      },
       "status": "EXPERIMENTAL"
     },
     {
@@ -260,7 +329,12 @@
       "permissions_required": [],
       "feature_flag_id": null,
       "tenant_visibility": "all",
-      "status": "EXPERIMENTAL"
+      "status": "EXPERIMENTAL",
+      "nav_visibility": {
+        "drawer": false,
+        "dashboard_tabs": true,
+        "tab_order": 4
+      }
     },
     {
       "route_id": "notfound_cp",

@@ -93,7 +93,6 @@ import { getSession, isLoggedIn, logout } from "./localAuth";
 import { warn } from "./platform/observability/logger";
 import {
   canAccessSettings,
-  canAccessBranding,
   canAccessThemeStudio,
   canAccessTenants,
   canAccessProviders,
@@ -195,10 +194,11 @@ function __clientV2IsAllowed(hash: string) {
 // Complete separation: All routeIds are globally unique with _cp or _app suffix
 export type RouteId = 
   // CP routes (suffix _cp)
-  "dashboard_cp" | "account_cp" | "settings_cp" | "settings_branding_cp" | "branding_cp" | "users_cp" | "system_cp" 
-  | "developer_cp" | "developer_entitlements_cp" | "access_denied_cp" | "verification_cp" | "blocked_cp" | "notfound_cp"
-  | "toolbox_cp" | "logs_cp" | "dossiers_cp" | "login_cp" | "login_theme_cp" | "ui_showcase_cp"
+  "dashboard_cp" | "account_cp" | "settings_cp" | "users_cp" | "system_cp" 
+  | "developer_cp" | "access_denied_cp" | "verification_cp" | "blocked_cp" | "notfound_cp"
+  | "toolbox_cp" | "logs_cp" | "login_cp" | "login_theme_cp" | "ui_showcase_cp"
   | "tenants_cp" | "providers_cp" | "policies_cp" | "security_cp" | "entitlements_cp" | "pages_cp" | "audit_cp"
+  | "system_overview_cp" | "system_subscriptions_cp" | "system_plans_cp" | "system_storage_cp" | "system_integrations_cp" | "system_config_cp"
   // APP routes (suffix _app)
   | "home_app" | "dashboard_app" | "login_app" | "account_app" | "settings_app" | "clients_app" | "jobs_app" | "registry_app" | "gallery_app"
   | "client_disabled_app" | "client_catalog_app" | "pages_inventory_app" | "access_denied_app" | "notfound_app";
@@ -312,21 +312,23 @@ export function getRouteId(): RouteId {
     if (seg === "dashboard") return "dashboard_cp";
     if (seg === "users") return "users_cp";
     if (seg === "account") return "account_cp";
-    if (seg === "developer/entitlements" || seg === "dev/entitlements") return "developer_entitlements_cp";
     if (seg === "developer" || seg === "dev") return "developer_cp";
     if (seg === "access-denied") return "access_denied_cp";
     if (seg === "toolbox" || seg === "dev-tools" || seg === "devtools") return "toolbox_cp";
     if (seg === "system") return "system_cp";
+    if (seg === "system/overview") return "system_overview_cp";
+    if (seg === "system/subscriptions") return "system_subscriptions_cp";
+    if (seg === "system/plans") return "system_plans_cp";
+    if (seg === "system/storage") return "system_storage_cp";
+    if (seg === "system/integrations") return "system_integrations_cp";
+    if (seg === "system/config") return "system_config_cp";
     if (seg === "logs") return "logs_cp";
-    if (seg === "dossiers") return "dossiers_cp";
     if (seg === "verification" || seg === "verify") return "verification_cp";
     if (seg === "security") return canAccessSecurity() ? "security_cp" : "dashboard_cp";
     if (seg === "policies") return canAccessPolicies() ? "policies_cp" : "dashboard_cp";
     if (seg === "providers") return canAccessProviders() ? "providers_cp" : "dashboard_cp";
     if (seg === "tenants") return canAccessTenants() ? "tenants_cp" : "dashboard_cp";
     if (seg === "settings") return canAccessSettings() ? "settings_cp" : "dashboard_cp";
-    if (seg === "settings/branding") return canAccessSettings() ? "settings_branding_cp" : "dashboard_cp";
-    if (seg === "branding") return canAccessBranding() ? "branding_cp" : "dashboard_cp";
     if (seg === "entitlements") return "entitlements_cp";
     if (seg === "pages") return "pages_cp";
     if (seg === "audit") return "audit_cp";
@@ -378,20 +380,16 @@ export function getRouteIdFromHash(hash: string): RouteId {
     if (seg === "dashboard") return "dashboard_cp";
     if (seg === "users") return "users_cp";
     if (seg === "account") return "account_cp";
-    if (seg === "developer/entitlements" || seg === "dev/entitlements") return "developer_entitlements_cp";
     if (seg === "developer" || seg === "dev") return "developer_cp";
     if (seg === "access-denied") return "access_denied_cp";
     if (seg === "toolbox" || seg === "dev-tools" || seg === "devtools") return "toolbox_cp";
     if (seg === "system") return "system_cp";
     if (seg === "logs") return "logs_cp";
-    if (seg === "dossiers") return "dossiers_cp";
     if (seg === "verification" || seg === "verify") return "verification_cp";
     if (seg === "security") return "security_cp";
     if (seg === "policies") return "policies_cp";
     if (seg === "providers") return "providers_cp";
     if (seg === "settings") return "settings_cp";
-    if (seg === "settings/branding") return "settings_branding_cp";
-    if (seg === "branding") return "branding_cp";
     if (seg === "tenants") return "tenants_cp";
     if (seg === "entitlements") return "entitlements_cp";
     if (seg === "pages") return "pages_cp";
@@ -411,10 +409,7 @@ function resolveCpSurfaceKeyFromRid(rid: RouteId): string | null {
     case "login_theme_cp":
       return "cp.login-theme";
     case "settings_cp":
-    case "settings_branding_cp":
       return "cp.settings";
-    case "branding_cp":
-      return "cp.branding";
     case "tenants_cp":
       return "cp.tenants";
     case "providers_cp":
@@ -435,8 +430,6 @@ function resolveCpSurfaceKeyFromRid(rid: RouteId): string | null {
       return "cp.account";
     case "developer_cp":
       return "cp.developer";
-    case "developer_entitlements_cp":
-      return "cp.developer-entitlements";
     case "toolbox_cp":
       return "cp.toolbox";
     default:
