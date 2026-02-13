@@ -8,6 +8,7 @@ import { getApiBase } from "./core/runtime/apiBase";
 import "./styles/STYLE_ADMIN_FINAL.css";
 import { installIControlDiagnosticDEVOnly } from "./dev/diagnostic";
 import { bootstrapCpEnforcement } from "./core/ports/cpEnforcement.bootstrap";
+import { BillingService, BILLING_CONFIG } from "@modules/core-billing";
 import "./styles/icontrol.generated.css";
 
 // Boot marker + minimal crash surface (helps when console is empty)
@@ -963,6 +964,21 @@ if ((import.meta as any).env?.DEV) {
   }
 }
 
+
+
+/**
+ * Initialize BillingService with configured provider
+ */
+(async () => {
+  try {
+    await BillingService.initialize(BILLING_CONFIG);
+    const providerInfo = BillingService.getActiveProviderInfo();
+    console.log('[BillingService] Initialized with provider:', providerInfo.name);
+  } catch (err) {
+    console.warn('[BillingService] Failed to initialize:', err);
+    // fail-soft: app continues without billing
+  }
+})();
 
 /**
  * Canonical tenant hydration (P3.5).

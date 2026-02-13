@@ -1,4 +1,5 @@
 import React from "react";
+import { BillingService } from "@modules/core-billing";
 
 const PLANS = [
   {
@@ -69,27 +70,44 @@ export default function BillingPage() {
     setShowModal(true);
   };
 
-  const confirmChangePlan = () => {
+  const confirmChangePlan = async () => {
     if (!selectedPlan) return;
 
     try {
-      // Mettre à jour le plan dans localStorage
-      const tenants = JSON.parse(localStorage.getItem("tenants") || "[]");
-      const currentTenantId = localStorage.getItem("currentTenant");
-      const updatedTenants = tenants.map((t: any) => {
-        if (t.id === currentTenantId) {
-          return { ...t, plan: selectedPlan, updatedAt: new Date().toISOString() };
-        }
-        return t;
-      });
-      localStorage.setItem("tenants", JSON.stringify(updatedTenants));
-
-      setCurrentPlan(selectedPlan);
-      setShowModal(false);
-      setMessage(`✅ Plan changé avec succès vers ${selectedPlan}`);
+      const currentTenantId = localStorage.getItem("currentTenant") || "";
       
-      setTimeout(() => setMessage(null), 3000);
+      // Utiliser le vrai BillingService
+      const result = await BillingService.createCheckoutSession({
+        tenantId: currentTenantId,
+        planId: selectedPlan as any,
+        successUrl: window.location.href,
+        cancelUrl: window.location.href,
+      });
+
+      if (result.success) {
+        // Mock provider redirige directement vers successUrl
+        // En production avec Stripe: window.location.href = result.checkoutUrl;
+        
+        // Mettre à jour le plan localement
+        const tenants = JSON.parse(localStorage.getItem("tenants") || "[]");
+        const updatedTenants = tenants.map((t: any) => {
+          if (t.id === currentTenantId) {
+            return { ...t, plan: selectedPlan, updatedAt: new Date().toISOString() };
+          }
+          return t;
+        });
+        localStorage.setItem("tenants", JSON.stringify(updatedTenants));
+
+        setCurrentPlan(selectedPlan);
+        setShowModal(false);
+        setMessage(`✅ Plan changé avec succès vers ${selectedPlan}`);
+        
+        setTimeout(() => setMessage(null), 3000);
+      } else {
+        setMessage("❌ Erreur lors du changement de plan");
+      }
     } catch (err) {
+      console.error("Error changing plan:", err);
       setMessage("❌ Erreur lors du changement de plan");
     }
   };
