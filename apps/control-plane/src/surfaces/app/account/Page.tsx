@@ -7,55 +7,17 @@ function AccountApp() {
       <p>Gérez votre compte et vos paramètres.</p>
       
       <div style={{ marginTop: "32px" }}>
-        <h2 style={{ color: "var(--text-primary)", marginBottom: "16px" }}>Liens rapides</h2>
+        <h2>Liens rapides</h2>
         
         <div style={{ display: "flex", flexDirection: "column", gap: "12px", maxWidth: "400px" }}>
-          
-            href="#/account/billing"
-            style={{
-              padding: "16px",
-              background: "var(--surface-1)",
-              border: "1px solid var(--surface-border)",
-              borderRadius: "8px",
-              textDecoration: "none",
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-            }}
-          >
-            <div>
-              <div style={{ color: "var(--text-primary)", fontWeight: "600", marginBottom: "4px" }}>
-                💳 Plan &amp; Abonnement
-              </div>
-              <div style={{ color: "var(--text-muted)", fontSize: "14px" }}>
-                Gérez votre plan et votre facturation
-              </div>
-            </div>
-            <span style={{ color: "var(--accent-primary)", fontSize: "20px" }}>→</span>
+          <a href="#/account/billing" style={{ padding: "16px", background: "var(--surface-1)", border: "1px solid var(--surface-border)", borderRadius: "8px", textDecoration: "none", display: "block" }}>
+            <div style={{ fontWeight: "600", marginBottom: "4px" }}>Plan et Abonnement</div>
+            <div style={{ fontSize: "14px" }}>Gérez votre plan et votre facturation</div>
           </a>
 
-          
-            href="#/settings"
-            style={{
-              padding: "16px",
-              background: "var(--surface-1)",
-              border: "1px solid var(--surface-border)",
-              borderRadius: "8px",
-              textDecoration: "none",
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-            }}
-          >
-            <div>
-              <div style={{ color: "var(--text-primary)", fontWeight: "600", marginBottom: "4px" }}>
-                ⚙️ Paramètres
-              </div>
-              <div style={{ color: "var(--text-muted)", fontSize: "14px" }}>
-                Configurez vos préférences
-              </div>
-            </div>
-            <span style={{ color: "var(--accent-primary)", fontSize: "20px" }}>→</span>
+          <a href="#/settings" style={{ padding: "16px", background: "var(--surface-1)", border: "1px solid var(--surface-border)", borderRadius: "8px", textDecoration: "none", display: "block" }}>
+            <div style={{ fontWeight: "600", marginBottom: "4px" }}>Paramètres</div>
+            <div style={{ fontSize: "14px" }}>Configurez vos préférences</div>
           </a>
         </div>
       </div>
