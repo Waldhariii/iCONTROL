@@ -31,6 +31,7 @@ import { renderChartGallery } from "./sections/chart-gallery";
 import catalog from "@config/ssot/ROUTE_CATALOG.json";
 import { renderPlansSection } from "./sections/plans";
 import { renderSubscriptionsSection } from "./sections/subscriptions";
+import { renderSystemOverview } from "./sections/overview";
 
 function mapSafeMode(s: string): "OFF" | "COMPAT" | "STRICT" {
   return s === "STRICT" ? "STRICT" : s === "COMPAT" ? "COMPAT" : "OFF";
@@ -137,6 +138,10 @@ function getAllRouteIds(): string[] {
   return Array.from(new Set(ids)).sort((a, b) => a.localeCompare(b));
 }
 
+function renderSystemOverview(host: HTMLElement): void {
+  renderSystemOverview(host);
+}
+
 function renderSystemSubscriptions(host: HTMLElement): void {
   renderSubscriptionsSection(host);
 }
@@ -156,7 +161,7 @@ const SYSTEM_TAB_KEY = "cp.system.tab";
 
 function getSystemTabs(): SystemTab[] {
   return [
-    { id: "hub", label: "Hub", sectionIds: ["system-hub"] },
+    { id: "hub", label: "Overview", sectionIds: ["system-overview"] },
     { id: "plans", label: "Plans", sectionIds: ["system-plans"] },
     { id: "subscriptions", label: "Abonnements", sectionIds: ["system-subscriptions"] },
     {
@@ -216,6 +221,7 @@ export function renderSystemPage(root: HTMLElement): void {
 
   const model = createSystemModel();
   const sections: SectionSpec[] = [
+    { id: "system-overview", title: "Overview", render: (host) => renderSystemOverview(host) },
     { id: "system-hub", title: "System Hub", render: (host) => renderSystemHub(host) },
     { id: "system-plans", title: "Plans", render: (host) => renderSystemPlans(host) },
     { id: "system-subscriptions", title: "Abonnements", render: (host) => renderSystemSubscriptions(host) },
