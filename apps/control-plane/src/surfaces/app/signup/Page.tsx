@@ -41,7 +41,7 @@ export default function SignupPage() {
         plan: "FREE",
         owner: {
           email: form.email,
-          password: form.password, // En production, hasher !
+          password: form.password,
         },
         createdAt: new Date().toISOString(),
       };
@@ -130,7 +130,7 @@ export default function SignupPage() {
                 fontWeight: "500",
               }}
             >
-              Nom de l'entreprise *
+              Nom de l&apos;entreprise *
             </label>
             <input
               type="text"
