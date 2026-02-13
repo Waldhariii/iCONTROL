@@ -1,6 +1,7 @@
 import type { RouteId } from "../../router";
 import type { ComponentType } from "react";
 import { TenantProvider } from "@/core/tenant/tenantContext";
+import { PaymentSettingsSurface } from "./payment-settings/adapter";
 
 async function renderReactPage(root: HTMLElement, Page: ComponentType) {
   root.innerHTML = "";

@@ -96,6 +96,19 @@
       "status": "ACTIVE"
     },
     {
+      "route_id": "payment_settings_cp",
+      "path": "#/settings/payment",
+      "app_surface": "CP",
+      "page_module_id": "cp.payment-settings",
+      "permissions_required": [
+        "canAccessSettings"
+      ],
+      "feature_flag_id": null,
+      "tenant_visibility": "all",
+      "status": "ACTIVE",
+      "nav_visibility": null
+    },
+    {
       "route_id": "login_theme_cp",
       "path": "#/theme-studio",
       "app_surface": "CP",
