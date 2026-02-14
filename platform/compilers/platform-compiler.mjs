@@ -12,6 +12,7 @@ export function compilePlatform({ ssotDir, outDir, releaseId, env, privateKeyPat
 
   const capabilities = readJson(`${ssotDir}/registry/capabilities.json`);
   const modules = readJson(`${ssotDir}/registry/modules.json`);
+  const entitlements = readJson(`${ssotDir}/tenancy/entitlements.json`);
 
   const manifest = {
     manifest_id: `manifest:${releaseId}`,
@@ -30,7 +31,8 @@ export function compilePlatform({ ssotDir, outDir, releaseId, env, privateKeyPat
     datasources: datasourceContracts,
     workflows: workflowDags,
     capabilities,
-    modules
+    modules,
+    entitlements
   };
 
   const checksums = {

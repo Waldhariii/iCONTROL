@@ -8,7 +8,8 @@ import {
   accessGate,
   perfBudgetGate,
   isolationGate,
-  driftGate
+  driftGate,
+  noFallbackGate
 } from "./gates.mjs";
 
 const releaseId = process.argv[2];
@@ -26,10 +27,11 @@ const gates = [
   () => orphanGate({ ssotDir, manifestsDir, releaseId }),
   () => policyGate({ manifestsDir, releaseId }),
   () => accessGate({ ssotDir }),
-  () => tokenGate({ ssotDir }),
+  () => tokenGate({ ssotDir, releaseId, manifestsDir }),
   () => perfBudgetGate({ ssotDir }),
   () => isolationGate({ ssotDir, manifestsDir, releaseId }),
-  () => driftGate({ manifestsDir, releaseId })
+  () => driftGate({ manifestsDir, releaseId }),
+  () => noFallbackGate()
 ];
 
 const results = [];

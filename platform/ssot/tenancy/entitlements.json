@@ -1,1 +1,6 @@
-[]
+[
+  {
+    "id": "entitlement:default",
+    "name": "Default"
+  }
+]

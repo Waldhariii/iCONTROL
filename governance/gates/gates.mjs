@@ -82,17 +82,36 @@ export function policyGate({ manifestsDir, releaseId }) {
   return { ok, gate: "Policy Gate", details: ok ? "" : `Routes without guard: ${missing.map((r) => r.route_id).join(", ")}` };
 }
 
-export function tokenGate({ ssotDir }) {
+export function tokenGate({ ssotDir, releaseId, manifestsDir }) {
   const widgets = readJson(`${ssotDir}/studio/widgets/widget_instances.json`);
+  const manifestRoot = manifestsDir || "./runtime/manifests";
+  const themeManifest = readJson(`${manifestRoot}/theme_manifest.${releaseId}.json`);
   const offenders = widgets.filter((w) => {
     if (!w.props) return false;
     const keys = Object.keys(w.props);
     const hasInline = keys.some((k) => k.toLowerCase().includes("style") || k.toLowerCase().includes("class"));
     const hasHardcodedColor = Object.values(w.props).some((v) => typeof v === "string" && (v.includes("#") || v.includes("rgb(")));
-    return hasInline || hasHardcodedColor;
+    const hasPx = Object.values(w.props).some((v) => typeof v === "string" && v.includes("px"));
+    return hasInline || hasHardcodedColor || hasPx;
   });
-  const ok = offenders.length === 0;
-  return { ok, gate: "Token Gate", details: ok ? "" : `Hardcoded styles in widgets: ${offenders.map((w) => w.id).join(", ")}` };
+  const expectedCss = `:root{\n${(themeManifest.tokens || [])
+    .map((t) => `--${t.token_key}: ${String(t.value)}${t.units || ""};`)
+    .join("\n")}\n}`;
+  const cssPath = manifestRoot.includes("/runtime/manifests")
+    ? `./platform/runtime/build_artifacts/theme_vars.${releaseId}.css`
+    : `${manifestRoot}/theme_vars.${releaseId}.css`;
+  let cssOk = false;
+  try {
+    const css = readFileSync(cssPath, "utf-8");
+    cssOk = css.trim() === expectedCss.trim();
+  } catch {
+    cssOk = false;
+  }
+  const ok = offenders.length === 0 && cssOk;
+  const details = [];
+  if (offenders.length) details.push(`Hardcoded styles in widgets: ${offenders.map((w) => w.id).join(", ")}`);
+  if (!cssOk) details.push("Theme CSS vars artifact mismatch or missing");
+  return { ok, gate: "Token Gate", details: details.join(" | ") };
 }
 
 export function accessGate({ ssotDir }) {
@@ -100,8 +119,12 @@ export function accessGate({ ssotDir }) {
   const capabilities = new Set(readJson(`${ssotDir}/registry/capabilities.json`));
   const missing = [];
   for (const p of pages) {
-    for (const cap of p.capabilities_required || []) {
-      if (!capabilities.has(cap)) missing.push(`${p.id}:${cap}`);
+    if (!p.capabilities_required || p.capabilities_required.length === 0) {
+      missing.push(`${p.id}:missing_capabilities`);
+    } else {
+      for (const cap of p.capabilities_required || []) {
+        if (!capabilities.has(cap)) missing.push(`${p.id}:${cap}`);
+      }
     }
   }
   const ok = missing.length === 0;
@@ -132,6 +155,25 @@ export function driftGate({ manifestsDir, releaseId }) {
   const manifestChecksum = sha256(stableStringify({ ...manifest, signature: "", checksums: { ...checksums, manifest: "" } }));
   const ok = checksums.manifest === manifestChecksum;
   return { ok, gate: "Drift Gate", details: ok ? "" : "Manifest checksum mismatch" };
+}
+
+export function noFallbackGate() {
+  const cpApp = readFileSync("./apps/control-plane/public/app.js", "utf-8");
+  const clientApp = readFileSync("./apps/client-app/public/app.js", "utf-8");
+  const mustHave = ["manifest?.routes?.routes"];
+  const forbidden = [/staticRoutes/i, /fallbackRoutes/i, /hardcodedRoutes/i, /nav\s*=\s*\[/i, /routes\s*=\s*\[/i];
+
+  const missing = mustHave.filter((m) => !cpApp.includes(m) || !clientApp.includes(m));
+  const offenders = [];
+  for (const re of forbidden) {
+    if (re.test(cpApp) || re.test(clientApp)) offenders.push(re.toString());
+  }
+
+  const ok = missing.length === 0 && offenders.length === 0;
+  const details = [];
+  if (missing.length) details.push("Missing manifest route usage");
+  if (offenders.length) details.push(`Forbidden patterns: ${offenders.join(", ")}`);
+  return { ok, gate: "NoFallback Gate", details: details.join(" | ") };
 }
 
 export function designFreezeGate({ ssotDir }) {

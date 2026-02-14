@@ -1,26 +1,75 @@
 [
   {
-    "id": "studio-test",
+    "id": "cp-studio-pages",
     "surface": "cp",
-    "key": "studio-test",
-    "slug": "studio-test",
-    "title_key": "studio.test",
+    "key": "studio.pages",
+    "slug": "cp-studio-pages",
+    "title_key": "studio.pages",
     "module_id": "studio",
     "default_layout_template_id": "layout-1",
-    "capabilities_required": [],
+    "capabilities_required": [
+      "studio.access"
+    ],
     "owner_team": "studio",
     "tags": [],
     "state": "active"
   },
   {
-    "id": "studio-test-1771103538880",
+    "id": "cp-studio-routes",
     "surface": "cp",
-    "key": "studio-test-1771103538880",
-    "slug": "studio-test-1771103538880",
-    "title_key": "studio.test",
+    "key": "studio.routes",
+    "slug": "cp-studio-routes",
+    "title_key": "studio.routes",
     "module_id": "studio",
     "default_layout_template_id": "layout-1",
-    "capabilities_required": [],
+    "capabilities_required": [
+      "studio.access"
+    ],
+    "owner_team": "studio",
+    "tags": [],
+    "state": "active"
+  },
+  {
+    "id": "cp-studio-nav",
+    "surface": "cp",
+    "key": "studio.nav",
+    "slug": "cp-studio-nav",
+    "title_key": "studio.nav",
+    "module_id": "studio",
+    "default_layout_template_id": "layout-1",
+    "capabilities_required": [
+      "studio.access"
+    ],
+    "owner_team": "studio",
+    "tags": [],
+    "state": "active"
+  },
+  {
+    "id": "cp-studio-releases",
+    "surface": "cp",
+    "key": "studio.releases",
+    "slug": "cp-studio-releases",
+    "title_key": "studio.releases",
+    "module_id": "studio",
+    "default_layout_template_id": "layout-1",
+    "capabilities_required": [
+      "studio.access"
+    ],
+    "owner_team": "studio",
+    "tags": [],
+    "state": "active"
+  },
+  {
+    "id": "cp-studio-health",
+    "surface": "cp",
+    "key": "studio.health",
+    "slug": "cp-studio-health",
+    "title_key": "studio.health",
+    "module_id": "studio",
+    "default_layout_template_id": "layout-1",
+    "capabilities_required": [
+      "studio.access"
+    ],
     "owner_team": "studio",
     "tags": [],
     "state": "active"

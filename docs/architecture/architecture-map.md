@@ -7,3 +7,6 @@ Key paths:
 - Compilers: `platform/compilers`
 - Runtime Manifests: `runtime/manifests`
 - Gates: `governance/gates`
+
+Notes:
+- CP is the manufacturer console; client runtime continues on active release if CP is down.

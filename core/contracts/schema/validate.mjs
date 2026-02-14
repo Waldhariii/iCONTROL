@@ -1,8 +1,23 @@
 import { readFileSync, readdirSync } from "fs";
 import { join, dirname } from "path";
 import Ajv2020 from "ajv/dist/2020.js";
+import addFormats from "ajv-formats";
 
-const ajv = new Ajv2020({ allErrors: true, strict: false });
+const strict = process.env.STRICT_SCHEMA === "1";
+const ajv = new Ajv2020({
+  allErrors: true,
+  strict,
+  logger: strict
+    ? {
+        log: () => {},
+        warn: (msg) => {
+          throw new Error(`Schema warning treated as error: ${msg}`);
+        },
+        error: console.error
+      }
+    : undefined
+});
+addFormats(ajv);
 let initialized = false;
 
 function loadSchemas() {

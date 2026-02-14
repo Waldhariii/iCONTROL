@@ -11,14 +11,14 @@ function readJson(path) {
   return JSON.parse(readFileSync(path, "utf-8"));
 }
 
-export function loadManifest({ releaseId, stalenessMs = 30000 }) {
+export function loadManifest({ releaseId, stalenessMs = 30000, manifestsDir = "./runtime/manifests" }) {
   const now = Date.now();
   if (cache.manifest && cache.releaseId === releaseId && now - cache.loadedAt < stalenessMs) {
     return cache.manifest;
   }
 
-  const manifestPath = `./runtime/manifests/platform_manifest.${releaseId}.json`;
-  const sigPath = `./runtime/manifests/platform_manifest.${releaseId}.sig`;
+  const manifestPath = `${manifestsDir}/platform_manifest.${releaseId}.json`;
+  const sigPath = `${manifestsDir}/platform_manifest.${releaseId}.sig`;
   const publicKeyPath = "./platform/runtime/keys/manifest-public.pem";
 
   const manifest = readJson(manifestPath);

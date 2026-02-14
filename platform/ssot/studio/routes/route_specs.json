@@ -1,1 +1,72 @@
-[]
+[
+  {
+    "route_id": "route:cp-studio-pages",
+    "surface": "cp",
+    "path": "/cp/studio/pages",
+    "page_id": "cp-studio-pages",
+    "guard_pack_id": "guard:default",
+    "flag_gate_id": "flag:default",
+    "entitlement_gate_id": "entitlement:default",
+    "priority": 10,
+    "canonical": true,
+    "aliases": [],
+    "deprecation_date": "",
+    "redirect_to": ""
+  },
+  {
+    "route_id": "route:cp-studio-routes",
+    "surface": "cp",
+    "path": "/cp/studio/routes",
+    "page_id": "cp-studio-routes",
+    "guard_pack_id": "guard:default",
+    "flag_gate_id": "flag:default",
+    "entitlement_gate_id": "entitlement:default",
+    "priority": 10,
+    "canonical": true,
+    "aliases": [],
+    "deprecation_date": "",
+    "redirect_to": ""
+  },
+  {
+    "route_id": "route:cp-studio-nav",
+    "surface": "cp",
+    "path": "/cp/studio/nav",
+    "page_id": "cp-studio-nav",
+    "guard_pack_id": "guard:default",
+    "flag_gate_id": "flag:default",
+    "entitlement_gate_id": "entitlement:default",
+    "priority": 10,
+    "canonical": true,
+    "aliases": [],
+    "deprecation_date": "",
+    "redirect_to": ""
+  },
+  {
+    "route_id": "route:cp-studio-releases",
+    "surface": "cp",
+    "path": "/cp/studio/releases",
+    "page_id": "cp-studio-releases",
+    "guard_pack_id": "guard:default",
+    "flag_gate_id": "flag:default",
+    "entitlement_gate_id": "entitlement:default",
+    "priority": 10,
+    "canonical": true,
+    "aliases": [],
+    "deprecation_date": "",
+    "redirect_to": ""
+  },
+  {
+    "route_id": "route:cp-studio-health",
+    "surface": "cp",
+    "path": "/cp/studio/health",
+    "page_id": "cp-studio-health",
+    "guard_pack_id": "guard:default",
+    "flag_gate_id": "flag:default",
+    "entitlement_gate_id": "entitlement:default",
+    "priority": 10,
+    "canonical": true,
+    "aliases": [],
+    "deprecation_date": "",
+    "redirect_to": ""
+  }
+]

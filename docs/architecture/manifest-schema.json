@@ -3,7 +3,7 @@
   "$id": "platform_manifest.v1",
   "title": "platform_manifest",
   "type": "object",
-  "required": ["manifest_id", "manifest_version", "manifest_env", "release_id", "signature", "checksums", "compat_matrix", "routes", "nav", "pages", "widgets", "themes", "permissions", "datasources", "workflows", "capabilities", "modules"],
+  "required": ["manifest_id", "manifest_version", "manifest_env", "release_id", "signature", "checksums", "compat_matrix", "routes", "nav", "pages", "widgets", "themes", "permissions", "datasources", "workflows", "capabilities", "modules", "entitlements"],
   "additionalProperties": false,
   "properties": {
     "manifest_id": {"type": "string"},
@@ -22,6 +22,7 @@
     "datasources": {"$ref": "datasource_contracts.v1"},
     "workflows": {"$ref": "workflow_dags.v1"},
     "capabilities": {"type": "array", "items": {"type": "string"}},
-    "modules": {"type": "array", "items": {"type": "string"}}
+    "modules": {"type": "array", "items": {"type": "string"}},
+    "entitlements": {"type": "array", "items": {"type": "object"}}
   }
 }

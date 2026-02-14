@@ -7,3 +7,4 @@ PASS - Token Gate
 PASS - Perf Budget Gate
 PASS - Isolation Gate
 PASS - Drift Gate
+PASS - NoFallback Gate

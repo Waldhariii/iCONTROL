@@ -1,5 +1,9 @@
 import { readFileSync, writeFileSync } from "fs";
+import { join } from "path";
 import { execSync } from "child_process";
+
+const SSOT_DIR = process.env.SSOT_DIR || "./platform/ssot";
+const ssotPath = (p) => join(SSOT_DIR, p);
 
 function readJson(path) {
   return JSON.parse(readFileSync(path, "utf-8"));
@@ -15,19 +19,19 @@ function removeById(list, ids) {
 }
 
 export function orchestrateDelete({ changesetId, releaseId }) {
-  const cs = readJson(`./platform/ssot/changes/changesets/${changesetId}.json`);
+  const cs = readJson(ssotPath(`changes/changesets/${changesetId}.json`));
   const deletes = (cs.ops || []).filter((o) => o.op === "delete_request");
   if (!deletes.length) throw new Error("No delete_request ops");
 
   for (const op of deletes) {
     const target = op.target;
     if (target.kind === "page_definition") {
-      const pagesPath = "./platform/ssot/studio/pages/page_definitions.json";
-      const pageVersionsPath = "./platform/ssot/studio/pages/page_instances.json";
-      const pageBindingsPath = "./platform/ssot/studio/pages/page_bindings.json";
-      const routesPath = "./platform/ssot/studio/routes/route_specs.json";
-      const navPath = "./platform/ssot/studio/nav/nav_specs.json";
-      const routeAliasesPath = "./platform/ssot/studio/routes/route_aliases.json";
+      const pagesPath = ssotPath("studio/pages/page_definitions.json");
+      const pageVersionsPath = ssotPath("studio/pages/page_instances.json");
+      const pageBindingsPath = ssotPath("studio/pages/page_bindings.json");
+      const routesPath = ssotPath("studio/routes/route_specs.json");
+      const navPath = ssotPath("studio/nav/nav_specs.json");
+      const routeAliasesPath = ssotPath("studio/routes/route_aliases.json");
 
       const pages = readJson(pagesPath);
       const pageVersions = readJson(pageVersionsPath);
@@ -46,9 +50,9 @@ export function orchestrateDelete({ changesetId, releaseId }) {
       writeJson(navPath, navSpecs.filter((n) => !removedRoutes.includes(n.route_id)));
       writeJson(routeAliasesPath, routeAliases.filter((a) => !removedRoutes.includes(a.route_id)));
     } else if (target.kind === "route_spec") {
-      const routesPath = "./platform/ssot/studio/routes/route_specs.json";
-      const navPath = "./platform/ssot/studio/nav/nav_specs.json";
-      const routeAliasesPath = "./platform/ssot/studio/routes/route_aliases.json";
+      const routesPath = ssotPath("studio/routes/route_specs.json");
+      const navPath = ssotPath("studio/nav/nav_specs.json");
+      const routeAliasesPath = ssotPath("studio/routes/route_aliases.json");
       const routes = readJson(routesPath);
       writeJson(routesPath, routes.filter((r) => r.route_id !== target.ref));
       const navSpecs = readJson(navPath);
@@ -56,7 +60,7 @@ export function orchestrateDelete({ changesetId, releaseId }) {
       const routeAliases = readJson(routeAliasesPath);
       writeJson(routeAliasesPath, routeAliases.filter((a) => a.route_id !== target.ref));
     } else if (target.kind === "widget_instance") {
-      const widgetsPath = "./platform/ssot/studio/widgets/widget_instances.json";
+      const widgetsPath = ssotPath("studio/widgets/widget_instances.json");
       const widgets = readJson(widgetsPath);
       writeJson(widgetsPath, widgets.filter((w) => w.id !== target.ref));
     } else {
@@ -81,7 +85,7 @@ export function orchestrateDelete({ changesetId, releaseId }) {
     }
   }
 
-  execSync(`node platform/runtime/deletion/gc.mjs ${releaseId} --apply`, { stdio: "inherit" });
+  execSync(`node platform/runtime/deletion/gc.mjs ${releaseId} --apply`, { stdio: "inherit", env: { ...process.env, SSOT_DIR } });
   const plan = {
     changeset_id: changesetId,
     release_id: releaseId,

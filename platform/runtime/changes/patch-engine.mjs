@@ -3,10 +3,10 @@ import { join, dirname } from "path";
 import { sha256, stableStringify } from "../../compilers/utils.mjs";
 import { validateOrThrow } from "../../../core/contracts/schema/validate.mjs";
 
-const SSOT_DIR = "./platform/ssot";
+const SSOT_DIR = process.env.SSOT_DIR || "./platform/ssot";
 const LOCK_PATH = "./platform/runtime/changes/changes.lock";
-const SNAPSHOT_DIR = "./platform/ssot/changes/snapshots";
-const AUDIT_PATH = "./platform/ssot/governance/audit_ledger.json";
+const SNAPSHOT_DIR = join(SSOT_DIR, "changes/snapshots");
+const AUDIT_PATH = join(SSOT_DIR, "governance/audit_ledger.json");
 
 const kindToPath = {
   page_definition: "studio/pages/page_definitions.json",
@@ -15,7 +15,8 @@ const kindToPath = {
   nav_spec: "studio/nav/nav_specs.json",
   widget_instance: "studio/widgets/widget_instances.json",
   design_token: "design/design_tokens.json",
-  theme: "design/themes.json"
+  theme: "design/themes.json",
+  active_release: "changes/active_release.json"
 };
 
 const kindToSchema = {
@@ -25,7 +26,8 @@ const kindToSchema = {
   nav_spec: "array_of_objects.v1",
   widget_instance: "array_of_objects.v1",
   design_token: "design_token.v1",
-  theme: "theme.v1"
+  theme: "theme.v1",
+  active_release: "active_release.v1"
 };
 
 function readJson(path) {
@@ -70,6 +72,17 @@ function checksumFile(path) {
 }
 
 function applyOp(dataArray, op) {
+  if (!Array.isArray(dataArray)) {
+    if (op.op === "update") {
+      if (op.path) {
+        dataArray[op.path] = op.value;
+      } else {
+        Object.assign(dataArray, op.value);
+      }
+      return;
+    }
+    throw new Error(`Unsupported op for object target: ${op.op}`);
+  }
   const targetRef = op.target.ref;
   if (op.op === "add") {
     dataArray.push(op.value);
@@ -98,8 +111,8 @@ function applyOp(dataArray, op) {
 }
 
 function readChangeset(changesetId) {
-  const direct = `./platform/ssot/changes/changesets/${changesetId}.json`;
-  const legacy = `./platform/ssot/changes/changesets/${changesetId}/changeset.json`;
+  const direct = join(SSOT_DIR, `changes/changesets/${changesetId}.json`);
+  const legacy = join(SSOT_DIR, `changes/changesets/${changesetId}/changeset.json`);
   const path = existsSync(direct) ? direct : legacy;
   return { path, data: readJson(path) };
 }
@@ -133,7 +146,12 @@ export function applyOpsToDir(ssotDir, ops) {
 
     applyOp(data, op);
     const schemaId = kindToSchema[op.target.kind];
-    for (const item of data) validateOrThrow(schemaId, item, relPath);
+    if (Array.isArray(data)) {
+      if (schemaId === "array_of_objects.v1") validateOrThrow(schemaId, data, relPath);
+      else for (const item of data) validateOrThrow(schemaId, item, relPath);
+    } else {
+      validateOrThrow(schemaId, data, relPath);
+    }
     writeJson(absPath, data);
   }
 }
@@ -170,7 +188,12 @@ export function applyChangeset(changesetId) {
       applyOp(data, op);
 
       const schemaId = kindToSchema[op.target.kind];
-      for (const item of data) validateOrThrow(schemaId, item, relPath);
+      if (Array.isArray(data)) {
+        if (schemaId === "array_of_objects.v1") validateOrThrow(schemaId, data, relPath);
+        else for (const item of data) validateOrThrow(schemaId, item, relPath);
+      } else {
+        validateOrThrow(schemaId, data, relPath);
+      }
 
       const stagingPath = absPath + ".staging";
       writeJson(stagingPath, data);
@@ -181,7 +204,7 @@ export function applyChangeset(changesetId) {
     cs.applied_at = new Date().toISOString();
     cs.snapshot_ref = snapshotPath;
     writeJson(csPath, cs);
-    writeJson(`./platform/ssot/changes/reviews/${cs.id}.json`, { id: cs.id, status: "pending", created_at: cs.applied_at });
+    writeJson(join(SSOT_DIR, `changes/reviews/${cs.id}.json`), { id: cs.id, status: "pending", created_at: cs.applied_at });
     appendAudit({ event: "changeset_applied", changeset_id: cs.id, at: cs.applied_at });
     return cs;
   } catch (err) {

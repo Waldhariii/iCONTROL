@@ -29,6 +29,7 @@ try {
   copyDir(`${root}/runtime`, `${temp}/runtime`);
   copyDir(`${root}/scripts`, `${temp}/scripts`);
   copyDir(`${root}/governance`, `${temp}/governance`);
+  copyDir(`${root}/apps`, `${temp}/apps`);
   symlinkSync(`${root}/node_modules`, `${temp}/node_modules`, "dir");
 
   run("node scripts/maintenance/generate-keys.mjs", temp);
@@ -78,7 +79,7 @@ try {
 
   // page without guard_pack
   copyDir(`${root}/platform`, `${temp}/platform`);
-  run("node -e \"const fs=require('fs');const p='platform/ssot/studio/routes/route_specs.json';const d=JSON.parse(fs.readFileSync(p,'utf-8'));d.push({route_id:'r-noguard',surface:'cp',path:'/noguard',page_id:'page-x',guard_pack_id:'',flag_gate_id:'f',entitlement_gate_id:'e',priority:1,canonical:true,aliases:[],deprecation_date:'',redirect_to:''});fs.writeFileSync(p,JSON.stringify(d,null,2));\"",
+  run("node -e \"const fs=require('fs');const pp='platform/ssot/studio/pages/page_definitions.json';const pd=JSON.parse(fs.readFileSync(pp,'utf-8'));pd.push({id:'page-x',surface:'cp',key:'page-x',slug:'page-x',title_key:'x',module_id:'m',default_layout_template_id:'l',capabilities_required:['studio.access'],owner_team:'o',tags:[],state:'active'});fs.writeFileSync(pp,JSON.stringify(pd,null,2));const p='platform/ssot/studio/routes/route_specs.json';const d=JSON.parse(fs.readFileSync(p,'utf-8'));d.push({route_id:'r-noguard',surface:'cp',path:'/noguard',page_id:'page-x',guard_pack_id:'',flag_gate_id:'f',entitlement_gate_id:'e',priority:1,canonical:true,aliases:[],deprecation_date:'',redirect_to:''});fs.writeFileSync(p,JSON.stringify(d,null,2));\"",
       temp);
   run("node scripts/ci/compile.mjs test-004 dev", temp);
   let failedPolicy = false;
@@ -88,6 +89,20 @@ try {
     failedPolicy = true;
   }
   if (!failedPolicy) throw new Error("Expected policy gate failure did not occur");
+
+  // no fallback gate
+  copyDir(`${root}/platform`, `${temp}/platform`);
+  const appPath = `${temp}/apps/control-plane/public/app.js`;
+  const app = readFileSync(appPath, "utf-8") + "\nconst staticRoutes = ['/cp/hardcoded'];\n";
+  writeFileSync(appPath, app);
+  run("node scripts/ci/compile.mjs test-005 dev", temp);
+  let failedNoFallback = false;
+  try {
+    run("node governance/gates/run-gates.mjs test-005", temp);
+  } catch {
+    failedNoFallback = true;
+  }
+  if (!failedNoFallback) throw new Error("Expected NoFallback gate failure did not occur");
 
   console.log("Gate tests PASS");
 } finally {
