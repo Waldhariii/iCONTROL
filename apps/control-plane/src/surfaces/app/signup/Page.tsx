@@ -47,7 +47,8 @@ export default function SignupPage() {
       localStorage.setItem("currentTenant", tenantId);
       localStorage.setItem("currentUser", form.email);
 
-      window.location.hash = "#/dashboard";
+      window.location.href = "#/dashboard";
+      window.location.reload();
     } catch (err) {
       setError("Erreur lors de la création du compte");
     } finally {

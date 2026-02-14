@@ -92,7 +92,7 @@
   display: none !important;
 }
 .cxDrawer {
-  position: sticky; top: 0; left: 0; height: 100%;
+  position: sticky; top: 0; left: 0; height: calc(100vh - 56px);
   width: var(--cp-sidebar-open-w); max-width: 90vw;
   background: var(--panel);
   border-right: 1px solid var(--line);
@@ -100,7 +100,8 @@
   z-index: 10; transform: none;
   transition: width .2s ease;
   padding: 16px; display: flex; flex-direction: column;
-}
+
+  overflow-y: auto;}
 .cxNavMode-icons .cxDrawer { width: var(--cp-sidebar-collapsed-w); }
 .cxNavClosed .cxDrawer {
   width: 0;

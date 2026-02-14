@@ -200,6 +200,24 @@ function getStorage(): Pick<Storage, "getItem" | "setItem" | "removeItem" | "cle
 export function getSession(
   scope: AuthScope = resolveAuthScope(),
 ): Session | null {
+  // JWT du backend d'abord
+  try {
+    const token = getStorage().getItem('auth_token');
+    if (token) {
+      const parts = token.split('.');
+      if (parts.length === 3) {
+        const payload = JSON.parse(atob(parts[1]));
+        const currentUser = getStorage().getItem('currentUser');
+        return {
+          username: currentUser || payload.userId || 'user',
+          role: 'ADMIN',
+          issuedAt: payload.iat * 1000 || Date.now(),
+        };
+      }
+    }
+  } catch {}
+  
+  // Fallback
   try {
     const raw = getStorage().getItem(getSessionKey(scope));
     if (!raw) return null;
