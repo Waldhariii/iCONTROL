@@ -1,4 +1,6 @@
 import { spawn } from "child_process";
+import { writeFileSync, mkdirSync } from "fs";
+import { join } from "path";
 import { createTempSsot } from "./test-utils.mjs";
 
 const api = "http://localhost:7070/api";
@@ -84,6 +86,11 @@ async function run() {
     }
     const validateRes = await fetch(`${api}/changesets/${cs.id}/validate`, { method: "POST", headers: { "x-role": "cp.admin" } });
     if (!validateRes.ok) throw new Error("Validate failed");
+
+    const reviewsDir = join(temp.ssotDir, "changes/reviews");
+    mkdirSync(reviewsDir, { recursive: true });
+    const reviewPath = join(reviewsDir, `publish-${cs.id}.json`);
+    writeFileSync(reviewPath, JSON.stringify({ id: `publish-${cs.id}`, action: "publish", target_id: cs.id, required_approvals: 2, approvals: ["user:admin", "user:admin2"], status: "approved" }, null, 2));
 
     const published = await fetch(`${api}/changesets/${cs.id}/publish`, {
       method: "POST",

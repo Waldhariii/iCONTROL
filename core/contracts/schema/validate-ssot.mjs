@@ -8,7 +8,8 @@ const specificMap = new Map([
   ["route_specs.json", "route_spec.v1"],
   ["design_tokens.json", "design_token.v1"],
   ["themes.json", "theme.v1"],
-  ["active_release.json", "active_release.v1"]
+  ["active_release.json", "active_release.v1"],
+  ["break_glass.json", "break_glass.v1"]
 ]);
 
 function inferSchemaForFile(path, data) {

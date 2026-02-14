@@ -1,1 +1,12 @@
-[]
+[
+  {
+    "id": "user:admin",
+    "email": "admin@icontrol.local",
+    "name": "Admin"
+  },
+  {
+    "id": "user:admin2",
+    "email": "admin2@icontrol.local",
+    "name": "Admin2"
+  }
+]

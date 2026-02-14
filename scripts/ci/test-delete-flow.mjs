@@ -1,4 +1,6 @@
 import { spawn } from "child_process";
+import { writeFileSync, mkdirSync } from "fs";
+import { join } from "path";
 import { createTempSsot } from "./test-utils.mjs";
 
 const api = "http://localhost:7070/api";
@@ -51,9 +53,13 @@ async function run() {
       body: JSON.stringify({ changeset_id: cs.id, page_definition, page_version })
     });
 
+    const reviewsDir = join(temp.ssotDir, "changes/reviews");
+    mkdirSync(reviewsDir, { recursive: true });
+    writeFileSync(join(reviewsDir, `publish-${cs.id}.json`), JSON.stringify({ id: `publish-${cs.id}`, action: "publish", target_id: cs.id, required_approvals: 2, approvals: ["user:admin", "user:admin2"], status: "approved" }, null, 2));
     await fetch(`${api}/changesets/${cs.id}/publish`, { method: "POST", headers: { "x-role": "cp.admin" } });
 
     const csDelete = await fetch(`${api}/changesets`, { method: "POST", headers: { "x-role": "cp.admin" } }).then((r) => r.json());
+    writeFileSync(join(reviewsDir, `delete-${csDelete.id}.json`), JSON.stringify({ id: `delete-${csDelete.id}`, action: "delete", target_id: csDelete.id, required_approvals: 2, approvals: ["user:admin", "user:admin2"], status: "approved" }, null, 2));
     await fetch(`${api}/studio/pages/${pageId}`, {
       method: "DELETE",
       headers: { "Content-Type": "application/json", "x-role": "cp.admin" },

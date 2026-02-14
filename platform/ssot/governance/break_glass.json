@@ -1,0 +1,9 @@
+{
+  "enabled": false,
+  "reason": "",
+  "requested_by": "",
+  "approved_by": [],
+  "expires_at": "",
+  "scope": "platform:*",
+  "allowed_actions": []
+}

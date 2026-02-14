@@ -53,6 +53,9 @@ const steps = [
   "node scripts/ci/test-active-release-stability.mjs",
   "node scripts/ci/test-active-release-ssot.mjs",
   "node scripts/ci/test-cp-down-client-works.mjs",
+  "node scripts/ci/test-governance-authz.mjs",
+  "node scripts/ci/test-quorum.mjs",
+  "node scripts/ci/test-break-glass.mjs",
   "node scripts/ci/test-token-gate.mjs",
   "node scripts/ci/test-audit.mjs"
 ];

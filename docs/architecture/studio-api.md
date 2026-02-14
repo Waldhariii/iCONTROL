@@ -26,6 +26,11 @@ All requests require header `x-role: cp.admin`.
 - GET `/api/runtime/manifest?release=<id>`
 - GET `/api/runtime/active-release`
 
+## Governance
+- POST `/api/governance/break-glass/request`
+- POST `/api/governance/break-glass/approve`
+- POST `/api/governance/break-glass/disable`
+
 ## Releases
 - GET `/api/releases`
 - POST `/api/releases/:id/activate`

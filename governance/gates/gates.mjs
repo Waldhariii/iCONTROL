@@ -1,4 +1,4 @@
-import { readFileSync } from "fs";
+import { readFileSync, existsSync, readdirSync } from "fs";
 import { stableStringify, sha256 } from "../../platform/compilers/utils.mjs";
 import { validateOrThrow } from "../../core/contracts/schema/validate.mjs";
 import { validateSsotDir } from "../../core/contracts/schema/validate-ssot.mjs";
@@ -176,17 +176,44 @@ export function noFallbackGate() {
   return { ok, gate: "NoFallback Gate", details: details.join(" | ") };
 }
 
+export function governanceGate({ ssotDir }) {
+  const policies = readJson(`${ssotDir}/governance/policies.json`);
+  const bindings = readJson(`${ssotDir}/governance/policy_bindings.json`);
+  const breakGlass = readJson(`${ssotDir}/governance/break_glass.json`);
+  const critical = ["studio.releases.publish", "studio.releases.activate", "studio.releases.rollback", "studio.delete", "breakglass.request", "breakglass.approve", "breakglass.disable"];
+  const policyIds = new Set(bindings.filter((b) => b.scope === "platform:*").map((b) => b.policy_id));
+  const missing = [];
+  for (const action of critical) {
+    const ok = policies.some((p) => policyIds.has(p.id) && (p.actions || []).includes(action));
+    if (!ok) missing.push(action);
+  }
+  const bgOk = !breakGlass.enabled || (breakGlass.expires_at && (breakGlass.allowed_actions || []).length > 0);
+  const ok = missing.length === 0 && bgOk;
+  const details = [];
+  if (missing.length) details.push(`Missing platform policy for: ${missing.join(", ")}`);
+  if (!bgOk) details.push("Break-glass invalid (expires_at or allowlist missing)");
+  return { ok, gate: "Governance Gate", details: details.join(" | ") };
+}
+
+export function quorumGate({ ssotDir }) {
+  const dir = `${ssotDir}/changes/reviews`;
+  if (!existsSync(dir)) return { ok: true, gate: "Quorum Gate", details: "" };
+  const files = readdirSync(dir).filter((f) => f.endsWith(".json"));
+  const bad = [];
+  for (const f of files) {
+    const r = readJson(`${dir}/${f}`);
+    if (!r.action) continue;
+    const required = r.required_approvals || 0;
+    const approvals = (r.approvals || []).length;
+    if (required > approvals || r.status !== "approved") bad.push(f);
+  }
+  const ok = bad.length === 0;
+  return { ok, gate: "Quorum Gate", details: ok ? "" : `Unapproved reviews: ${bad.join(", ")}` };
+}
+
 export function designFreezeGate({ ssotDir }) {
   const constraints = readJson(`${ssotDir}/design/ux_constraints.json`);
   const freeze = constraints.find((c) => c.freeze_design === true);
   const ok = !freeze;
   return { ok, gate: "Design Freeze Gate", details: ok ? "" : "Design is frozen" };
-}
-
-export function quorumGate({ ssotDir }) {
-  const reviews = readJsonIfExists(`${ssotDir}/changes/reviews/reviews.json`);
-  if (!reviews) return { ok: true, gate: "Quorum Gate", details: "" };
-  const approvals = Array.isArray(reviews) ? reviews.filter((r) => r.status === "approved").length : 0;
-  const quorumOk = approvals >= (reviews.quorum || 0);
-  return { ok: quorumOk, gate: "Quorum Gate", details: quorumOk ? "" : "Quorum not met" };
 }

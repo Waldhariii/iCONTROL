@@ -16,7 +16,8 @@ const kindToPath = {
   widget_instance: "studio/widgets/widget_instances.json",
   design_token: "design/design_tokens.json",
   theme: "design/themes.json",
-  active_release: "changes/active_release.json"
+  active_release: "changes/active_release.json",
+  break_glass: "governance/break_glass.json"
 };
 
 const kindToSchema = {
@@ -27,7 +28,8 @@ const kindToSchema = {
   widget_instance: "array_of_objects.v1",
   design_token: "design_token.v1",
   theme: "theme.v1",
-  active_release: "active_release.v1"
+  active_release: "active_release.v1",
+  break_glass: "break_glass.v1"
 };
 
 function readJson(path) {

@@ -56,16 +56,112 @@ function appendAudit(entry) {
   writeJson(path, ledger);
 }
 
-function requireAdmin(req) {
-  const role = req.headers["x-role"];
-  if (role !== "cp.admin") throw new Error("Forbidden");
+function scopeMatches(pattern, scope) {
+  if (pattern === scope) return true;
+  if (pattern.endsWith(":*")) return scope.startsWith(pattern.slice(0, -1));
+  if (pattern === "platform:*" && scope.startsWith("platform:")) return true;
+  if (pattern === "tenant:*" && scope.startsWith("tenant:")) return true;
+  return false;
+}
+
+function getGovernanceData() {
+  return {
+    users: readJson(ssotPath("governance/users.json")),
+    memberships: readJson(ssotPath("governance/org_memberships.json")),
+    roles: readJson(ssotPath("governance/roles.json")),
+    permissions: readJson(ssotPath("governance/permissions.json")),
+    permissionSets: readJson(ssotPath("governance/permission_sets.json")),
+    policies: readJson(ssotPath("governance/policies.json")),
+    bindings: readJson(ssotPath("governance/policy_bindings.json")),
+    breakGlass: readJson(ssotPath("governance/break_glass.json"))
+  };
+}
+
+function getUserRoles(userId, memberships) {
+  return memberships.filter((m) => m.user_id === userId).map((m) => m.role_id);
+}
+
+function hasPermission(roleIds, permissionSets, action) {
+  const allowed = new Set();
+  for (const ps of permissionSets) {
+    if (!roleIds.includes(ps.role_id)) continue;
+    for (const p of ps.permission_ids || []) allowed.add(p);
+  }
+  return allowed.has(action);
+}
+
+function policyAllows({ action, scope, resource, roles, policies, bindings }) {
+  const bound = bindings.filter((b) => roles.includes(b.role_id) && scopeMatches(b.scope, scope));
+  const policyIds = new Set(bound.map((b) => b.policy_id));
+  for (const p of policies.filter((p) => policyIds.has(p.id))) {
+    if (!p.actions?.includes(action)) continue;
+    const scopes = p.scopes || [];
+    if (scopes.length && !scopes.some((s) => scopeMatches(s, scope))) continue;
+    const c = p.conditions || {};
+    if (c.surface && resource.surface && c.surface !== resource.surface) continue;
+    if (c.env && resource.env && c.env !== resource.env) continue;
+    return true;
+  }
+  return false;
+}
+
+function breakGlassAllows({ breakGlass, action, scope }) {
+  if (!breakGlass?.enabled) return false;
+  if (!breakGlass.expires_at) return false;
+  const now = Date.now();
+  const exp = Date.parse(breakGlass.expires_at);
+  if (!Number.isFinite(exp) || exp <= now) return false;
+  if (!breakGlass.allowed_actions?.includes(action)) return false;
+  if (!scopeMatches(breakGlass.scope, scope)) return false;
+  return true;
+}
+
+function expireBreakGlassIfNeeded(breakGlass) {
+  if (!breakGlass?.enabled || !breakGlass.expires_at) return;
+  const exp = Date.parse(breakGlass.expires_at);
+  if (Number.isFinite(exp) && exp <= Date.now()) {
+    const updated = { ...breakGlass, enabled: false };
+    writeJson(ssotPath("governance/break_glass.json"), updated);
+    appendAudit({ event: "break_glass_expired", at: new Date().toISOString() });
+  }
+}
+
+function reviewFilename(action, targetId) {
+  const safe = action.replace(/[^a-z0-9-]/gi, "_");
+  return ssotPath(`changes/reviews/${safe}-${targetId}.json`);
+}
+
+function requireQuorum(action, targetId, required = 2) {
+  const path = reviewFilename(action, targetId);
+  if (!existsSync(path)) throw new Error("Quorum not met");
+  const review = readJson(path);
+  const approvals = review.approvals || [];
+  if ((review.required_approvals || required) > approvals.length) throw new Error("Quorum not met");
+  if (review.status !== "approved") throw new Error("Quorum not met");
+}
+
+function authorizeOrDeny(req, action, resource = {}) {
+  const userId = req.headers["x-user-id"] || "user:admin";
+  const tenantId = req.headers["x-tenant-id"];
+  const scope = req.headers["x-scope"] || (tenantId ? `tenant:${tenantId}:*` : "platform:*");
+  const gov = getGovernanceData();
+  expireBreakGlassIfNeeded(gov.breakGlass);
+  const roles = getUserRoles(userId, gov.memberships);
+
+  const allowed =
+    breakGlassAllows({ breakGlass: gov.breakGlass, action, scope }) ||
+    (hasPermission(roles, gov.permissionSets, action) && policyAllows({ action, scope, resource, roles, policies: gov.policies, bindings: gov.bindings }));
+
+  appendAudit({ event: "authz_decision", action, scope, user_id: userId, decision: allowed ? "allow" : "deny", at: new Date().toISOString() });
+  if (!allowed) throw new Error("Forbidden");
+}
+
+function requireAdmin(_req) {
+  return true;
 }
 
 function requirePermission(req, perm) {
-  const role = req.headers["x-role"];
-  if (role === "cp.admin") return;
-  const perms = (req.headers["x-permissions"] || "").split(",").map((s) => s.trim());
-  if (!perms.includes(perm)) throw new Error("Forbidden");
+  authorizeOrDeny(req, perm, { surface: "cp" });
 }
 
 function copyDir(src, dest) {
@@ -166,6 +262,7 @@ const server = http.createServer(async (req, res) => {
     if (req.method === "POST" && req.url?.startsWith("/api/changesets/") && req.url?.endsWith("/publish")) {
       requirePermission(req, "studio.releases.publish");
       const id = req.url.split("/")[3];
+      requireQuorum("publish", id, 2);
       execSync(`node scripts/ci/release.mjs --from-changeset ${id} --env dev --strategy canary`, {
         stdio: "inherit",
         env: { ...process.env, SSOT_DIR }
@@ -320,6 +417,7 @@ const server = http.createServer(async (req, res) => {
       const pageId = req.url.split("/")[4];
       const payload = await bodyToJson(req);
       const { changeset_id } = payload;
+      requireQuorum("delete", changeset_id, 2);
       ensureChangeset(changeset_id);
       const op = { op: "delete_request", target: { kind: "page_definition", ref: pageId }, preconditions: { expected_exists: true }, reason: "studio delete" };
       const cs = readJson(ssotPath(`changes/changesets/${changeset_id}.json`));
@@ -353,6 +451,7 @@ const server = http.createServer(async (req, res) => {
     if (req.method === "POST" && req.url?.startsWith("/api/releases/") && req.url?.endsWith("/activate")) {
       requirePermission(req, "studio.releases.activate");
       const id = req.url.split("/")[3];
+      requireQuorum("activate", id, 2);
       const payload = await bodyToJson(req);
       const changesetId = payload?.changeset_id || `cs-activate-${Date.now()}`;
       const csPath = ssotPath(`changes/changesets/${changesetId}.json`);
@@ -382,7 +481,60 @@ const server = http.createServer(async (req, res) => {
     if (req.method === "POST" && req.url?.startsWith("/api/releases/") && req.url?.endsWith("/rollback")) {
       requirePermission(req, "studio.releases.rollback");
       const id = req.url.split("/")[3];
+      requireQuorum("rollback", id, 2);
       execSync(`node -e \"import {rollback} from './platform/runtime/release/orchestrator.mjs'; rollback('${id}','manual');\"`, { stdio: "inherit" });
+      return json(res, 200, { ok: true });
+    }
+
+    if (req.method === "POST" && req.url === "/api/governance/break-glass/request") {
+      requirePermission(req, "breakglass.request");
+      const payload = await bodyToJson(req);
+      const changesetId = `cs-breakglass-${Date.now()}`;
+      const expiresAt = payload.expires_at || new Date(Date.now() + 60 * 60 * 1000).toISOString();
+      const update = {
+        enabled: false,
+        reason: payload.reason || "",
+        requested_by: payload.requested_by || "user:admin",
+        approved_by: [],
+        expires_at: expiresAt,
+        scope: payload.scope || "platform:*",
+        allowed_actions: payload.allowed_actions || []
+      };
+      writeJson(ssotPath(`changes/changesets/${changesetId}.json`), { id: changesetId, status: "draft", created_by: "api", created_at: new Date().toISOString(), scope: "global", ops: [
+        { op: "update", target: { kind: "break_glass", ref: "break_glass" }, value: update, preconditions: { expected_exists: true } }
+      ] });
+      execSync(`node scripts/ci/apply-changeset.mjs ${changesetId}`, { stdio: "inherit", env: { ...process.env, SSOT_DIR } });
+      writeJson(reviewFilename("breakglass", "enable"), { id: "breakglass-enable", action: "breakglass.enable", target_id: "break_glass", required_approvals: 2, approvals: [], status: "pending" });
+      appendAudit({ event: "break_glass_request", at: new Date().toISOString() });
+      return json(res, 200, { ok: true });
+    }
+
+    if (req.method === "POST" && req.url === "/api/governance/break-glass/approve") {
+      requirePermission(req, "breakglass.approve");
+      const payload = await bodyToJson(req);
+      const userId = payload.user_id || req.headers["x-user-id"] || "user:admin";
+      const reviewPath = reviewFilename("breakglass", "enable");
+      if (!existsSync(reviewPath)) return json(res, 400, { error: "No break-glass request" });
+      const review = readJson(reviewPath);
+      review.approvals = Array.from(new Set([...(review.approvals || []), userId]));
+      if (review.approvals.length >= (review.required_approvals || 2)) review.status = "approved";
+      writeJson(reviewPath, review);
+      const bgPath = ssotPath("governance/break_glass.json");
+      const bg = readJson(bgPath);
+      bg.approved_by = review.approvals;
+      if (review.status === "approved") bg.enabled = true;
+      writeJson(bgPath, bg);
+      appendAudit({ event: "break_glass_approve", at: new Date().toISOString(), user_id: userId });
+      return json(res, 200, { ok: true, status: review.status });
+    }
+
+    if (req.method === "POST" && req.url === "/api/governance/break-glass/disable") {
+      requirePermission(req, "breakglass.disable");
+      const bgPath = ssotPath("governance/break_glass.json");
+      const bg = readJson(bgPath);
+      bg.enabled = false;
+      writeJson(bgPath, bg);
+      appendAudit({ event: "break_glass_disable", at: new Date().toISOString() });
       return json(res, 200, { ok: true });
     }
 

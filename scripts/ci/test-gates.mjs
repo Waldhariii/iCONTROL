@@ -104,6 +104,32 @@ try {
   }
   if (!failedNoFallback) throw new Error("Expected NoFallback gate failure did not occur");
 
+  // governance gate (invalid break-glass)
+  copyDir(`${root}/platform`, `${temp}/platform`);
+  run("node -e \"const fs=require('fs');const p='platform/ssot/governance/break_glass.json';fs.writeFileSync(p,JSON.stringify({enabled:true,reason:'',requested_by:'',approved_by:[],expires_at:'',scope:'platform:*',allowed_actions:[]},null,2));\"",
+      temp);
+  run("node scripts/ci/compile.mjs test-006 dev", temp);
+  let failedGov = false;
+  try {
+    run("node governance/gates/run-gates.mjs test-006", temp);
+  } catch {
+    failedGov = true;
+  }
+  if (!failedGov) throw new Error("Expected Governance gate failure did not occur");
+
+  // quorum gate (pending review)
+  copyDir(`${root}/platform`, `${temp}/platform`);
+  run("node -e \"const fs=require('fs');const dir='platform/ssot/changes/reviews';fs.mkdirSync(dir,{recursive:true});fs.writeFileSync(dir+'/publish-test.json',JSON.stringify({id:'publish-test',action:'publish',target_id:'test',required_approvals:2,approvals:['a'],status:'pending'},null,2));\"",
+      temp);
+  run("node scripts/ci/compile.mjs test-007 dev", temp);
+  let failedQuorum = false;
+  try {
+    run("node governance/gates/run-gates.mjs test-007", temp);
+  } catch {
+    failedQuorum = true;
+  }
+  if (!failedQuorum) throw new Error("Expected Quorum gate failure did not occur");
+
   console.log("Gate tests PASS");
 } finally {
   rmSync(temp, { recursive: true, force: true });

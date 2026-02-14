@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "break_glass.v1",
+  "title": "break_glass",
+  "type": "object",
+  "required": ["enabled", "reason", "requested_by", "approved_by", "expires_at", "scope", "allowed_actions"],
+  "additionalProperties": false,
+  "properties": {
+    "enabled": {"type": "boolean"},
+    "reason": {"type": "string"},
+    "requested_by": {"type": "string"},
+    "approved_by": {"type": "array", "items": {"type": "string"}},
+    "expires_at": {"type": "string"},
+    "scope": {"type": "string"},
+    "allowed_actions": {"type": "array", "items": {"type": "string"}}
+  }
+}

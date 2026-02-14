@@ -1,1 +1,16 @@
-[]
+[
+  {
+    "id": "m:admin",
+    "org_id": "org:platform",
+    "user_id": "user:admin",
+    "role_id": "platform.admin",
+    "scope": "platform:*"
+  },
+  {
+    "id": "m:admin2",
+    "org_id": "org:platform",
+    "user_id": "user:admin2",
+    "role_id": "platform.security.admin",
+    "scope": "platform:*"
+  }
+]

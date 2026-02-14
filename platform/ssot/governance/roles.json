@@ -1,1 +1,42 @@
-[]
+[
+  {
+    "id": "platform.admin",
+    "name": "Platform Admin",
+    "scope": "platform:*"
+  },
+  {
+    "id": "platform.security.admin",
+    "name": "Platform Security Admin",
+    "scope": "platform:*"
+  },
+  {
+    "id": "platform.release.admin",
+    "name": "Platform Release Admin",
+    "scope": "platform:*"
+  },
+  {
+    "id": "platform.studio.admin",
+    "name": "Platform Studio Admin",
+    "scope": "platform:*"
+  },
+  {
+    "id": "platform.support.impersonate",
+    "name": "Platform Support Impersonate",
+    "scope": "platform:*"
+  },
+  {
+    "id": "tenant.admin",
+    "name": "Tenant Admin",
+    "scope": "tenant:*"
+  },
+  {
+    "id": "tenant.studio.editor",
+    "name": "Tenant Studio Editor",
+    "scope": "tenant:*"
+  },
+  {
+    "id": "default",
+    "name": "Default",
+    "scope": "platform:*"
+  }
+]

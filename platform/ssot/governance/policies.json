@@ -1,1 +1,54 @@
-[]
+[
+  {
+    "id": "policy:platform.write",
+    "name": "Platform Write",
+    "effect": "allow",
+    "actions": [
+      "studio.pages.edit",
+      "studio.routes.edit",
+      "studio.nav.edit",
+      "studio.releases.publish",
+      "studio.releases.activate",
+      "studio.releases.rollback",
+      "studio.delete",
+      "studio.pages.view",
+      "studio.routes.view",
+      "studio.nav.view",
+      "studio.releases.view"
+    ],
+    "scopes": [
+      "platform:*"
+    ],
+    "conditions": {
+      "surface": "cp"
+    }
+  },
+  {
+    "id": "policy:platform.release",
+    "name": "Platform Release",
+    "effect": "allow",
+    "actions": [
+      "studio.releases.publish",
+      "studio.releases.activate",
+      "studio.releases.rollback"
+    ],
+    "scopes": [
+      "platform:*"
+    ],
+    "conditions": {}
+  },
+  {
+    "id": "policy:breakglass",
+    "name": "Break Glass",
+    "effect": "allow",
+    "actions": [
+      "breakglass.request",
+      "breakglass.approve",
+      "breakglass.disable"
+    ],
+    "scopes": [
+      "platform:*"
+    ],
+    "conditions": {}
+  }
+]

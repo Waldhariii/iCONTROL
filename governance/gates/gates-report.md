@@ -8,3 +8,5 @@ PASS - Perf Budget Gate
 PASS - Isolation Gate
 PASS - Drift Gate
 PASS - NoFallback Gate
+PASS - Governance Gate
+PASS - Quorum Gate

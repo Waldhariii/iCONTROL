@@ -1,1 +1,90 @@
-[]
+[
+  {
+    "id": "ps:platform.admin",
+    "role_id": "platform.admin",
+    "permission_ids": [
+      "studio.pages.edit",
+      "studio.routes.edit",
+      "studio.nav.edit",
+      "studio.releases.publish",
+      "studio.releases.activate",
+      "studio.releases.rollback",
+      "studio.delete",
+      "breakglass.request",
+      "breakglass.approve",
+      "breakglass.disable",
+      "studio.pages.view",
+      "studio.routes.view",
+      "studio.nav.view",
+      "studio.releases.view"
+    ]
+  },
+  {
+    "id": "ps:platform.security.admin",
+    "role_id": "platform.security.admin",
+    "permission_ids": [
+      "breakglass.request",
+      "breakglass.approve",
+      "breakglass.disable"
+    ]
+  },
+  {
+    "id": "ps:platform.release.admin",
+    "role_id": "platform.release.admin",
+    "permission_ids": [
+      "studio.releases.publish",
+      "studio.releases.activate",
+      "studio.releases.rollback",
+      "studio.releases.view"
+    ]
+  },
+  {
+    "id": "ps:platform.studio.admin",
+    "role_id": "platform.studio.admin",
+    "permission_ids": [
+      "studio.pages.edit",
+      "studio.routes.edit",
+      "studio.nav.edit",
+      "studio.delete",
+      "studio.pages.view",
+      "studio.routes.view",
+      "studio.nav.view"
+    ]
+  },
+  {
+    "id": "ps:platform.support.impersonate",
+    "role_id": "platform.support.impersonate",
+    "permission_ids": [
+      "platform.support.impersonate"
+    ]
+  },
+  {
+    "id": "ps:tenant.admin",
+    "role_id": "tenant.admin",
+    "permission_ids": [
+      "studio.pages.edit",
+      "studio.routes.edit",
+      "studio.nav.edit",
+      "studio.pages.view",
+      "studio.routes.view",
+      "studio.nav.view"
+    ]
+  },
+  {
+    "id": "ps:tenant.studio.editor",
+    "role_id": "tenant.studio.editor",
+    "permission_ids": [
+      "studio.pages.edit",
+      "studio.routes.edit",
+      "studio.nav.edit",
+      "studio.pages.view",
+      "studio.routes.view",
+      "studio.nav.view"
+    ]
+  },
+  {
+    "id": "ps:default",
+    "role_id": "default",
+    "permission_ids": []
+  }
+]

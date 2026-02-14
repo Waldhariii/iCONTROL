@@ -1,1 +1,38 @@
-[]
+[
+  {
+    "id": "bind:platform.admin",
+    "role_id": "platform.admin",
+    "policy_id": "policy:platform.write",
+    "scope": "platform:*"
+  },
+  {
+    "id": "bind:platform.release.admin",
+    "role_id": "platform.release.admin",
+    "policy_id": "policy:platform.release",
+    "scope": "platform:*"
+  },
+  {
+    "id": "bind:platform.security.admin",
+    "role_id": "platform.security.admin",
+    "policy_id": "policy:breakglass",
+    "scope": "platform:*"
+  },
+  {
+    "id": "bind:platform.support.impersonate",
+    "role_id": "platform.support.impersonate",
+    "policy_id": "policy:platform.write",
+    "scope": "platform:*"
+  },
+  {
+    "id": "bind:tenant.admin",
+    "role_id": "tenant.admin",
+    "policy_id": "policy:platform.write",
+    "scope": "tenant:*"
+  },
+  {
+    "id": "bind:platform.admin.breakglass",
+    "role_id": "platform.admin",
+    "policy_id": "policy:breakglass",
+    "scope": "platform:*"
+  }
+]

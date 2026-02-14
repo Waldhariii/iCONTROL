@@ -1,1 +1,62 @@
-[]
+[
+  {
+    "id": "studio.pages.edit",
+    "scope": "surface:cp"
+  },
+  {
+    "id": "studio.routes.edit",
+    "scope": "surface:cp"
+  },
+  {
+    "id": "studio.nav.edit",
+    "scope": "surface:cp"
+  },
+  {
+    "id": "studio.releases.publish",
+    "scope": "platform:*"
+  },
+  {
+    "id": "studio.releases.activate",
+    "scope": "platform:*"
+  },
+  {
+    "id": "studio.releases.rollback",
+    "scope": "platform:*"
+  },
+  {
+    "id": "studio.delete",
+    "scope": "platform:*"
+  },
+  {
+    "id": "breakglass.request",
+    "scope": "platform:*"
+  },
+  {
+    "id": "breakglass.approve",
+    "scope": "platform:*"
+  },
+  {
+    "id": "breakglass.disable",
+    "scope": "platform:*"
+  },
+  {
+    "id": "platform.support.impersonate",
+    "scope": "platform:*"
+  },
+  {
+    "id": "studio.pages.view",
+    "scope": "surface:cp"
+  },
+  {
+    "id": "studio.routes.view",
+    "scope": "surface:cp"
+  },
+  {
+    "id": "studio.nav.view",
+    "scope": "surface:cp"
+  },
+  {
+    "id": "studio.releases.view",
+    "scope": "platform:*"
+  }
+]

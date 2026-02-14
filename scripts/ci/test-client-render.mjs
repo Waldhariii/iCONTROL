@@ -1,4 +1,6 @@
 import { spawn } from "child_process";
+import { writeFileSync, mkdirSync } from "fs";
+import { join } from "path";
 import { renderFromManifest } from "../../apps/client-app/renderer.mjs";
 import { createTempSsot } from "./test-utils.mjs";
 
@@ -69,6 +71,9 @@ async function run() {
       body: JSON.stringify({ changeset_id: cs.id, route_spec })
     });
 
+    const reviewsDir = join(temp.ssotDir, "changes/reviews");
+    mkdirSync(reviewsDir, { recursive: true });
+    writeFileSync(join(reviewsDir, `publish-${cs.id}.json`), JSON.stringify({ id: `publish-${cs.id}`, action: "publish", target_id: cs.id, required_approvals: 2, approvals: ["user:admin", "user:admin2"], status: "approved" }, null, 2));
     const published = await fetch(`${api}/changesets/${cs.id}/publish`, { method: "POST", headers: { "x-role": "cp.admin" } }).then((r) => r.json());
     const releaseId = published.release_id;
     const manifest = await fetch(`${api}/runtime/manifest?release=${releaseId}`, { headers: { "x-role": "cp.admin" } }).then((r) => r.json());

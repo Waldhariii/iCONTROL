@@ -9,7 +9,9 @@ import {
   perfBudgetGate,
   isolationGate,
   driftGate,
-  noFallbackGate
+  noFallbackGate,
+  governanceGate,
+  quorumGate
 } from "./gates.mjs";
 
 const releaseId = process.argv[2];
@@ -31,7 +33,9 @@ const gates = [
   () => perfBudgetGate({ ssotDir }),
   () => isolationGate({ ssotDir, manifestsDir, releaseId }),
   () => driftGate({ manifestsDir, releaseId }),
-  () => noFallbackGate()
+  () => noFallbackGate(),
+  () => governanceGate({ ssotDir }),
+  () => quorumGate({ ssotDir })
 ];
 
 const results = [];
