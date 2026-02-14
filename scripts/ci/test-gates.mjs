@@ -7,8 +7,8 @@ import { readdirSync, statSync, readFileSync, writeFileSync, mkdirSync, symlinkS
 const root = process.cwd();
 const temp = mkdtempSync(join(tmpdir(), "icontrol-test-"));
 
-function run(cmd, cwd) {
-  execSync(cmd, { stdio: "inherit", cwd });
+function run(cmd, cwd, stdio = "inherit") {
+  execSync(cmd, { stdio, cwd });
 }
 
 function copyDir(src, dest) {
@@ -44,7 +44,7 @@ try {
       temp);
   let failed = false;
   try {
-    run("node governance/gates/run-gates.mjs test-001", temp);
+    run("node governance/gates/run-gates.mjs test-001", temp, "ignore");
   } catch {
     failed = true;
   }
