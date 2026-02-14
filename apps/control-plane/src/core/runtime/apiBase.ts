@@ -1,17 +1,12 @@
+/**
+ * Get API base URL
+ */
 export function getApiBase(): string {
-  try {
-    const v = (import.meta as any)?.env?.VITE_API_BASE;
-    if (v && String(v).trim()) return String(v).trim();
-  } catch {}
-
-  try {
-    if (typeof window !== "undefined") {
-      const host = window.location.hostname;
-      const isLocal = host === "localhost" || host === "127.0.0.1";
-      if (isLocal) return "http://localhost:3001";
-      return window.location.origin;
-    }
-  } catch {}
-
-  return "http://localhost:3001";
+  // En développement, utiliser le backend local
+  if (import.meta.env.DEV) {
+    return 'http://localhost:3001';
+  }
+  
+  // En production, utiliser l'URL configurée ou relative
+  return import.meta.env.VITE_API_URL || '';
 }
