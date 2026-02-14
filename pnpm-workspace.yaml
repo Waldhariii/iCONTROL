@@ -1,0 +1,8 @@
+packages:
+  - "apps/*"
+  - "core/*"
+  - "governance/*"
+  - "platform/*"
+  - "design-system/*"
+  - "runtime/*"
+  - "scripts/*"

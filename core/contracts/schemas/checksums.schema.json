@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "checksums.v1",
+  "title": "checksums",
+  "type": "object",
+  "required": ["manifest", "routes", "nav", "themes", "guards", "render_graph", "datasource_contracts", "workflow_dags"],
+  "additionalProperties": false,
+  "properties": {
+    "manifest": {"type": "string"},
+    "routes": {"type": "string"},
+    "nav": {"type": "string"},
+    "themes": {"type": "string"},
+    "guards": {"type": "string"},
+    "render_graph": {"type": "string"},
+    "datasource_contracts": {"type": "string"},
+    "workflow_dags": {"type": "string"}
+  }
+}

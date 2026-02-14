@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "theme_manifest.v1",
+  "title": "theme_manifest",
+  "type": "object",
+  "required": ["release_id", "tokens", "themes", "layers"],
+  "additionalProperties": false,
+  "properties": {
+    "release_id": {"type": "string"},
+    "tokens": {"type": "array", "items": {"$ref": "design_token.v1"}},
+    "themes": {"type": "array", "items": {"$ref": "theme.v1"}},
+    "layers": {"type": "array", "items": {"type": "object"}}
+  }
+}

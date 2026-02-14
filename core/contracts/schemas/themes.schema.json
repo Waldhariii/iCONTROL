@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "theme.v1",
+  "title": "theme",
+  "type": "object",
+  "required": ["theme_id", "layer", "inherits_from"],
+  "additionalProperties": false,
+  "properties": {
+    "theme_id": {"type": "string"},
+    "layer": {"type": "string", "enum": ["base", "brand", "tenant", "runtime"]},
+    "inherits_from": {"type": "string"}
+  }
+}

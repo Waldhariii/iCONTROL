@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "platform_manifest.v1",
+  "title": "platform_manifest",
+  "type": "object",
+  "required": ["manifest_id", "manifest_version", "manifest_env", "release_id", "signature", "checksums", "compat_matrix", "routes", "nav", "pages", "widgets", "themes", "permissions", "datasources", "workflows", "capabilities", "modules"],
+  "additionalProperties": false,
+  "properties": {
+    "manifest_id": {"type": "string"},
+    "manifest_version": {"type": "string"},
+    "manifest_env": {"type": "string"},
+    "release_id": {"type": "string"},
+    "signature": {"type": "string"},
+    "checksums": {"$ref": "checksums.v1"},
+    "compat_matrix": {"$ref": "compat_matrix.v1"},
+    "routes": {"$ref": "route_catalog.v1"},
+    "nav": {"$ref": "nav_manifest.v1"},
+    "pages": {"$ref": "render_graph.v1"},
+    "widgets": {"type": "array", "items": {"type": "object"}},
+    "themes": {"$ref": "theme_manifest.v1"},
+    "permissions": {"$ref": "guards.v1"},
+    "datasources": {"$ref": "datasource_contracts.v1"},
+    "workflows": {"$ref": "workflow_dags.v1"},
+    "capabilities": {"type": "array", "items": {"type": "string"}},
+    "modules": {"type": "array", "items": {"type": "string"}}
+  }
+}

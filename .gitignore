@@ -1,0 +1,13 @@
+node_modules/
+.DS_Store
+*.log
+*.tmp
+.env*
+*.pem
+*.key
+platform/runtime/**/locks/
+runtime/cache/
+runtime/manifests/*.json
+runtime/manifests/*.sig
+runtime/manifests/.gitkeep
+platform/runtime/keys/

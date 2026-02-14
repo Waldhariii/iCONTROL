@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "page_definition.v1",
+  "title": "page_definition",
+  "type": "object",
+  "required": ["id", "surface", "key", "slug", "title_key", "module_id", "default_layout_template_id", "capabilities_required", "owner_team", "tags", "state"],
+  "additionalProperties": false,
+  "properties": {
+    "id": {"type": "string"},
+    "surface": {"type": "string", "enum": ["cp", "client"]},
+    "key": {"type": "string"},
+    "slug": {"type": "string", "pattern": "^[a-z0-9-]+$"},
+    "title_key": {"type": "string"},
+    "module_id": {"type": "string"},
+    "default_layout_template_id": {"type": "string"},
+    "capabilities_required": {"type": "array", "items": {"type": "string"}},
+    "owner_team": {"type": "string"},
+    "tags": {"type": "array", "items": {"type": "string"}},
+    "state": {"type": "string", "enum": ["active", "deprecated"]}
+  }
+}

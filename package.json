@@ -1,0 +1,25 @@
+{
+  "name": "icontrol",
+  "private": true,
+  "version": "0.0.0",
+  "packageManager": "pnpm@9.15.0",
+  "devDependencies": {
+    "ajv": "^8.17.1"
+  },
+  "scripts": {
+    "ssot:validate": "node scripts/ci/validate-ssot.mjs",
+    "build:release": "node scripts/ci/compile.mjs",
+    "gates": "node scripts/ci/run-gates.mjs",
+    "studio:dev": "node apps/control-plane/server.mjs",
+    "api:dev": "node apps/backend-api/server.mjs"
+  },
+  "workspaces": [
+    "apps/*",
+    "core/*",
+    "governance/*",
+    "platform/*",
+    "design-system/*",
+    "runtime/*",
+    "scripts/*"
+  ]
+}

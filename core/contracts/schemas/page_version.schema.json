@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "page_version.v1",
+  "title": "page_version",
+  "type": "object",
+  "required": ["page_id", "version", "status", "layout_instance_id", "widget_instance_ids", "nav_binding_ids", "design_version_lock", "checksum", "rollback_ref", "created_by", "created_at", "diff_ref"],
+  "additionalProperties": false,
+  "properties": {
+    "page_id": {"type": "string"},
+    "version": {"type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$"},
+    "status": {"type": "string", "enum": ["draft", "released"]},
+    "layout_instance_id": {"type": "string"},
+    "widget_instance_ids": {"type": "array", "items": {"type": "string"}},
+    "nav_binding_ids": {"type": "array", "items": {"type": "string"}},
+    "design_version_lock": {"type": "string"},
+    "checksum": {"type": "string"},
+    "rollback_ref": {"type": "string"},
+    "created_by": {"type": "string"},
+    "created_at": {"type": "string", "format": "date-time"},
+    "diff_ref": {"type": "string"}
+  }
+}

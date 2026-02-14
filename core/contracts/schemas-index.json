@@ -1,0 +1,19 @@
+{
+  "array_of_objects.v1": "core/contracts/schemas/array_of_objects.schema.json",
+  "array_of_strings.v1": "core/contracts/schemas/array_of_strings.schema.json",
+  "checksums.v1": "core/contracts/schemas/checksums.schema.json",
+  "compat_matrix.v1": "core/contracts/schemas/compat_matrix.schema.json",
+  "datasource_contracts.v1": "core/contracts/schemas/datasource_contracts.schema.json",
+  "design_token.v1": "core/contracts/schemas/design_tokens.schema.json",
+  "guards.v1": "core/contracts/schemas/guards.schema.json",
+  "nav_manifest.v1": "core/contracts/schemas/nav_manifest.schema.json",
+  "page_definition.v1": "core/contracts/schemas/page_definition.schema.json",
+  "page_version.v1": "core/contracts/schemas/page_version.schema.json",
+  "platform_manifest.v1": "core/contracts/schemas/platform_manifest.schema.json",
+  "render_graph.v1": "core/contracts/schemas/render_graph.schema.json",
+  "route_catalog.v1": "core/contracts/schemas/route_catalog.schema.json",
+  "route_spec.v1": "core/contracts/schemas/route_spec.schema.json",
+  "theme_manifest.v1": "core/contracts/schemas/theme_manifest.schema.json",
+  "theme.v1": "core/contracts/schemas/themes.schema.json",
+  "workflow_dags.v1": "core/contracts/schemas/workflow_dags.schema.json"
+}

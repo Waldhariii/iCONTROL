@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "route_catalog.v1",
+  "title": "route_catalog",
+  "type": "object",
+  "required": ["release_id", "routes", "aliases"],
+  "additionalProperties": false,
+  "properties": {
+    "release_id": {"type": "string"},
+    "routes": {"type": "array", "items": {"$ref": "route_spec.v1"}},
+    "aliases": {"type": "array", "items": {"type": "object"}}
+  }
+}

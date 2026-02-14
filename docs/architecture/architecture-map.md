@@ -1,0 +1,9 @@
+# Architecture Map
+
+Control Plane First platform with SSOT -> Compilers -> Signed Platform Manifest -> Runtime Loader.
+
+Key paths:
+- SSOT: `platform/ssot`
+- Compilers: `platform/compilers`
+- Runtime Manifests: `runtime/manifests`
+- Gates: `governance/gates`

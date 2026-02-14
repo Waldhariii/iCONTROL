@@ -1,0 +1,7 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "compat_matrix.v1",
+  "title": "compat_matrix",
+  "type": "object",
+  "additionalProperties": {"type": "string"}
+}

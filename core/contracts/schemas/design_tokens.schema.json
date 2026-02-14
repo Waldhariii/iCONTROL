@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "design_token.v1",
+  "title": "design_token",
+  "type": "object",
+  "required": ["token_key", "token_group", "type", "value", "units", "constraints", "token_version"],
+  "additionalProperties": false,
+  "properties": {
+    "token_key": {"type": "string"},
+    "token_group": {"type": "string"},
+    "type": {"type": "string"},
+    "value": {},
+    "units": {"type": "string"},
+    "constraints": {"type": "object"},
+    "token_version": {"type": "string"}
+  }
+}

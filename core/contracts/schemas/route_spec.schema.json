@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "route_spec.v1",
+  "title": "route_spec",
+  "type": "object",
+  "required": ["route_id", "surface", "path", "page_id", "guard_pack_id", "flag_gate_id", "entitlement_gate_id", "priority", "canonical", "aliases", "deprecation_date", "redirect_to"],
+  "additionalProperties": false,
+  "properties": {
+    "route_id": {"type": "string"},
+    "surface": {"type": "string", "enum": ["cp", "client"]},
+    "path": {"type": "string"},
+    "page_id": {"type": "string"},
+    "guard_pack_id": {"type": "string"},
+    "flag_gate_id": {"type": "string"},
+    "entitlement_gate_id": {"type": "string"},
+    "priority": {"type": "integer"},
+    "canonical": {"type": "boolean"},
+    "aliases": {"type": "array", "items": {"type": "string"}},
+    "deprecation_date": {"type": "string"},
+    "redirect_to": {"type": "string"}
+  }
+}

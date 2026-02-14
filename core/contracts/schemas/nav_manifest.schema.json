@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "nav_manifest.v1",
+  "title": "nav_manifest",
+  "type": "object",
+  "required": ["release_id", "nav_specs", "nav_instances"],
+  "additionalProperties": false,
+  "properties": {
+    "release_id": {"type": "string"},
+    "nav_specs": {"type": "array", "items": {"type": "object"}},
+    "nav_instances": {"type": "array", "items": {"type": "object"}}
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "workflow_dags.v1",
+  "title": "workflow_dags",
+  "type": "object",
+  "required": ["release_id", "workflows", "triggers", "actions", "variables", "retry_policies", "compensation_rules"],
+  "additionalProperties": false,
+  "properties": {
+    "release_id": {"type": "string"},
+    "workflows": {"type": "array", "items": {"type": "object"}},
+    "triggers": {"type": "array", "items": {"type": "object"}},
+    "actions": {"type": "array", "items": {"type": "object"}},
+    "variables": {"type": "array", "items": {"type": "object"}},
+    "retry_policies": {"type": "array", "items": {"type": "object"}},
+    "compensation_rules": {"type": "array", "items": {"type": "object"}}
+  }
+}

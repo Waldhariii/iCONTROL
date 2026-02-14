@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "datasource_contracts.v1",
+  "title": "datasource_contracts",
+  "type": "object",
+  "required": ["release_id", "data_contracts", "datasources", "queries", "query_budgets", "cache_policies"],
+  "additionalProperties": false,
+  "properties": {
+    "release_id": {"type": "string"},
+    "data_contracts": {"type": "array", "items": {"type": "object"}},
+    "datasources": {"type": "array", "items": {"type": "object"}},
+    "queries": {"type": "array", "items": {"type": "object"}},
+    "query_budgets": {"type": "array", "items": {"type": "object"}},
+    "cache_policies": {"type": "array", "items": {"type": "object"}}
+  }
+}

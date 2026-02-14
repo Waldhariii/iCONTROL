@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "render_graph.v1",
+  "title": "render_graph",
+  "type": "object",
+  "required": ["release_id", "pages", "page_versions", "layouts", "widgets"],
+  "additionalProperties": false,
+  "properties": {
+    "release_id": {"type": "string"},
+    "pages": {"type": "array", "items": {"$ref": "page_definition.v1"}},
+    "page_versions": {"type": "array", "items": {"$ref": "page_version.v1"}},
+    "layouts": {"type": "array", "items": {"type": "object"}},
+    "widgets": {"type": "array", "items": {"type": "object"}}
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "array_of_objects.v1",
+  "title": "array_of_objects",
+  "type": "array",
+  "items": {
+    "type": "object"
+  }
+}
