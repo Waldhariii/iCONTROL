@@ -1,5 +1,36 @@
-import { writeFileSync, mkdirSync, existsSync } from "fs";
+import { writeFileSync, mkdirSync, existsSync, readdirSync, statSync } from "fs";
 import { execSync } from "child_process";
+
+const ROOT_FORBIDDEN_FILES = [
+  "CI_REPORT.md"
+];
+const ROOT_FORBIDDEN_EXTS = [".log", ".tmp"];
+const ROOT_FORBIDDEN_PREFIXES = [
+  "platform_manifest.",
+  "route_catalog.",
+  "theme_manifest.",
+  "guards.",
+  "render_graph.",
+  "datasource_contracts.",
+  "workflow_dags.",
+  "checksums.",
+  "compat_matrix."
+];
+
+function assertNoRootGeneratedFiles(when) {
+  const entries = readdirSync(".");
+  const offenders = [];
+  for (const name of entries) {
+    const st = statSync(name);
+    if (st.isDirectory()) continue;
+    if (ROOT_FORBIDDEN_FILES.includes(name)) offenders.push(name);
+    if (ROOT_FORBIDDEN_EXTS.some((ext) => name.endsWith(ext))) offenders.push(name);
+    if (ROOT_FORBIDDEN_PREFIXES.some((p) => name.startsWith(p))) offenders.push(name);
+  }
+  if (offenders.length) {
+    throw new Error(`[${when}] Root generated files detected: ${offenders.join(", ")}`);
+  }
+}
 
 const steps = [
   "pnpm install",
@@ -25,6 +56,8 @@ const steps = [
   "node scripts/ci/test-audit.mjs"
 ];
 
+assertNoRootGeneratedFiles("pre-run");
+
 const report = [];
 for (const cmd of steps) {
   try {
@@ -41,7 +74,6 @@ const reportDir = "runtime/reports";
 mkdirSync(reportDir, { recursive: true });
 const reportPath = `${reportDir}/CI_REPORT.md`;
 writeFileSync(reportPath, md + "\n");
-if (existsSync("CI_REPORT.md")) {
-  throw new Error("CI_REPORT.md must not be written to repo root");
-}
+if (existsSync("CI_REPORT.md")) throw new Error("CI_REPORT.md must not be written to repo root");
+assertNoRootGeneratedFiles("post-run");
 console.log(`CI report written: ${reportPath}`);
