@@ -598,32 +598,6 @@
       "tenant_visibility": "all",
       "status": "ACTIVE",
       "nav_visibility": "sidebar"
-    },
-    {
-      "route_id": "observability_cp",
-      "path": "#/observability",
-      "app_surface": "CP",
-      "page_module_id": "cp.observability",
-      "permissions_required": [
-        "canAccessSettings"
-      ],
-      "feature_flag_id": null,
-      "tenant_visibility": "all",
-      "status": "ACTIVE",
-      "nav_visibility": "sidebar"
-    },
-    {
-      "route_id": "observability_cp",
-      "path": "#/observability",
-      "app_surface": "CP",
-      "page_module_id": "cp.observability",
-      "permissions_required": [
-        "canAccessSettings"
-      ],
-      "feature_flag_id": null,
-      "tenant_visibility": "all",
-      "status": "ACTIVE",
-      "nav_visibility": "sidebar"
     }
   ]
 }
