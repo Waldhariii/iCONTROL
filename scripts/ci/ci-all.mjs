@@ -1,4 +1,5 @@
 import { writeFileSync, mkdirSync, existsSync, readdirSync, statSync } from "fs";
+import path from "path";
 import { execSync } from "child_process";
 
 const ROOT_FORBIDDEN_FILES = [
@@ -70,10 +71,11 @@ for (const cmd of steps) {
 }
 
 const md = report.map((r) => `- ${r.status} ${r.cmd}`).join("\n");
-const reportDir = "runtime/reports";
-mkdirSync(reportDir, { recursive: true });
-const reportPath = `${reportDir}/CI_REPORT.md`;
+if (existsSync("CI_REPORT.md")) throw new Error("CI_REPORT.md must not exist at repo root (pre-run)");
+const reportPath = path.join(process.cwd(), "runtime", "reports", "CI_REPORT.md");
+mkdirSync(path.dirname(reportPath), { recursive: true });
 writeFileSync(reportPath, md + "\n");
-if (existsSync("CI_REPORT.md")) throw new Error("CI_REPORT.md must not be written to repo root");
+if (existsSync("CI_REPORT.md")) throw new Error("CI_REPORT.md must not exist at repo root (post-run)");
+if (!existsSync(reportPath)) throw new Error("CI report missing at runtime/reports/CI_REPORT.md");
 assertNoRootGeneratedFiles("post-run");
 console.log(`CI report written: ${reportPath}`);
