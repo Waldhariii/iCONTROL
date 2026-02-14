@@ -19,3 +19,4 @@ platform/ssot/changes/snapshots/
 platform/ssot/changes/releases/
 platform/ssot/changes/changesets/*.json
 platform/ssot/changes/reviews/*.json
+governance/gates/gates-report.json
