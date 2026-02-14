@@ -17,12 +17,15 @@ document.getElementById("loadManifest").onclick = async () => {
 
 function renderNav() {
   nav.innerHTML = "";
-  const links = [
-    { label: "Pages", hash: "#pages" },
-    { label: "Routes", hash: "#routes" },
-    { label: "Navigation", hash: "#nav" },
-    { label: "Releases", hash: "#releases" }
-  ];
+  const routes = (manifest?.routes?.routes || []).filter((r) => r.surface === "cp");
+  const links = routes.length
+    ? routes.map((r) => ({ label: r.path, hash: `#route:${r.route_id}` }))
+    : [
+        { label: "Pages", hash: "#pages" },
+        { label: "Routes", hash: "#routes" },
+        { label: "Navigation", hash: "#nav" },
+        { label: "Releases", hash: "#releases" }
+      ];
   for (const l of links) {
     const a = document.createElement("a");
     a.href = l.hash;
