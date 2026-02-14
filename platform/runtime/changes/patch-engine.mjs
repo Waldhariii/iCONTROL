@@ -17,7 +17,8 @@ const kindToPath = {
   design_token: "design/design_tokens.json",
   theme: "design/themes.json",
   active_release: "changes/active_release.json",
-  break_glass: "governance/break_glass.json"
+  break_glass: "governance/break_glass.json",
+  change_freeze: "governance/change_freeze.json"
 };
 
 const kindToSchema = {
@@ -29,7 +30,8 @@ const kindToSchema = {
   design_token: "design_token.v1",
   theme: "theme.v1",
   active_release: "active_release.v1",
-  break_glass: "break_glass.v1"
+  break_glass: "break_glass.v1",
+  change_freeze: "change_freeze.v1"
 };
 
 function readJson(path) {

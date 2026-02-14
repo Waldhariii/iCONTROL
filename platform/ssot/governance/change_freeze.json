@@ -1,0 +1,15 @@
+{
+  "enabled": true,
+  "scope": "platform:*",
+  "reason": "Governance hardening phase — no Studio content changes",
+  "enabled_at": "2026-02-14T17:50:00.000Z",
+  "enabled_by": "system",
+  "allow_actions": [
+    "governance.*",
+    "studio.releases.activate",
+    "studio.releases.rollback",
+    "breakglass.*",
+    "audit.read",
+    "observability.read"
+  ]
+}

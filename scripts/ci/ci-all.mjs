@@ -56,6 +56,7 @@ const steps = [
   "node scripts/ci/test-governance-authz.mjs",
   "node scripts/ci/test-quorum.mjs",
   "node scripts/ci/test-break-glass.mjs",
+  "node scripts/ci/test-freeze-mode.mjs",
   "node scripts/ci/test-token-gate.mjs",
   "node scripts/ci/test-audit.mjs"
 ];

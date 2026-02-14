@@ -3,6 +3,7 @@
   "array_of_objects.v1": "core/contracts/schemas/array_of_objects.schema.json",
   "array_of_strings.v1": "core/contracts/schemas/array_of_strings.schema.json",
   "break_glass.v1": "core/contracts/schemas/break_glass.schema.json",
+  "change_freeze.v1": "core/contracts/schemas/change_freeze.schema.json",
   "checksums.v1": "core/contracts/schemas/checksums.schema.json",
   "compat_matrix.v1": "core/contracts/schemas/compat_matrix.schema.json",
   "datasource_contracts.v1": "core/contracts/schemas/datasource_contracts.schema.json",

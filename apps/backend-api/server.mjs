@@ -73,7 +73,8 @@ function getGovernanceData() {
     permissionSets: readJson(ssotPath("governance/permission_sets.json")),
     policies: readJson(ssotPath("governance/policies.json")),
     bindings: readJson(ssotPath("governance/policy_bindings.json")),
-    breakGlass: readJson(ssotPath("governance/break_glass.json"))
+    breakGlass: readJson(ssotPath("governance/break_glass.json")),
+    changeFreeze: readJson(ssotPath("governance/change_freeze.json"))
   };
 }
 
@@ -116,6 +117,19 @@ function breakGlassAllows({ breakGlass, action, scope }) {
   return true;
 }
 
+function actionMatches(pattern, action) {
+  const normalize = (s) => String(s || "").replace(/_/g, "");
+  const p = String(pattern || "");
+  if (p.endsWith(".*")) return normalize(action).startsWith(normalize(p.slice(0, -1)));
+  return normalize(action) === normalize(p);
+}
+
+function freezeAllows({ changeFreeze, action }) {
+  if (!changeFreeze?.enabled) return true;
+  const allow = changeFreeze.allow_actions || [];
+  return allow.some((p) => actionMatches(p, action));
+}
+
 function expireBreakGlassIfNeeded(breakGlass) {
   if (!breakGlass?.enabled || !breakGlass.expires_at) return;
   const exp = Date.parse(breakGlass.expires_at);
@@ -145,6 +159,10 @@ function authorizeOrDeny(req, action, resource = {}) {
   const tenantId = req.headers["x-tenant-id"];
   const scope = req.headers["x-scope"] || (tenantId ? `tenant:${tenantId}:*` : "platform:*");
   const gov = getGovernanceData();
+  if (!freezeAllows({ changeFreeze: gov.changeFreeze, action })) {
+    appendAudit({ event: "freeze_denied", action, scope, user_id: userId, at: new Date().toISOString() });
+    throw new Error("Forbidden");
+  }
   expireBreakGlassIfNeeded(gov.breakGlass);
   const roles = getUserRoles(userId, gov.memberships);
 

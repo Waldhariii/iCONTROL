@@ -9,4 +9,4 @@ PASS - Isolation Gate
 PASS - Drift Gate
 PASS - NoFallback Gate
 PASS - Governance Gate
-PASS - Quorum Gate
+FAIL - Freeze Gate: Frozen changes present: cs-freeze-001:page_definition

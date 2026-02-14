@@ -9,7 +9,8 @@ const specificMap = new Map([
   ["design_tokens.json", "design_token.v1"],
   ["themes.json", "theme.v1"],
   ["active_release.json", "active_release.v1"],
-  ["break_glass.json", "break_glass.v1"]
+  ["break_glass.json", "break_glass.v1"],
+  ["change_freeze.json", "change_freeze.v1"]
 ]);
 
 function inferSchemaForFile(path, data) {

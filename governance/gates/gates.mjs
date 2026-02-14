@@ -195,6 +195,41 @@ export function governanceGate({ ssotDir }) {
   return { ok, gate: "Governance Gate", details: details.join(" | ") };
 }
 
+export function freezeGate({ ssotDir }) {
+  const freeze = readJsonIfExists(`${ssotDir}/governance/change_freeze.json`);
+  if (!freeze?.enabled) return { ok: true, gate: "Freeze Gate", details: "" };
+  const dir = `${ssotDir}/changes/changesets`;
+  if (!existsSync(dir)) return { ok: true, gate: "Freeze Gate", details: "" };
+  const files = readdirSync(dir).filter((f) => f.endsWith(".json"));
+  const freezeAt = Date.parse(freeze.enabled_at || "");
+  const blocked = new Set([
+    "page_definition",
+    "page_version",
+    "route_spec",
+    "nav_spec",
+    "widget_instance",
+    "form_schema",
+    "workflow_definition",
+    "design_token",
+    "theme"
+  ]);
+  const offenders = [];
+  for (const f of files) {
+    const cs = readJson(`${dir}/${f}`);
+    if (cs.status !== "draft" && cs.status !== "pending") continue;
+    if (Number.isFinite(freezeAt)) {
+      const createdAt = Date.parse(cs.created_at || "");
+      if (Number.isFinite(createdAt) && createdAt < freezeAt) continue;
+    }
+    for (const op of cs.ops || []) {
+      const kind = op?.target?.kind || "";
+      if (blocked.has(kind)) offenders.push(`${cs.id}:${kind}`);
+    }
+  }
+  const ok = offenders.length === 0;
+  return { ok, gate: "Freeze Gate", details: ok ? "" : `Frozen changes present: ${offenders.join(", ")}` };
+}
+
 export function quorumGate({ ssotDir }) {
   const dir = `${ssotDir}/changes/reviews`;
   if (!existsSync(dir)) return { ok: true, gate: "Quorum Gate", details: "" };

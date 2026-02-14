@@ -11,6 +11,7 @@ import {
   driftGate,
   noFallbackGate,
   governanceGate,
+  freezeGate,
   quorumGate
 } from "./gates.mjs";
 
@@ -35,6 +36,7 @@ const gates = [
   () => driftGate({ manifestsDir, releaseId }),
   () => noFallbackGate(),
   () => governanceGate({ ssotDir }),
+  () => freezeGate({ ssotDir }),
   () => quorumGate({ ssotDir })
 ];
 

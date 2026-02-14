@@ -19,6 +19,14 @@ export function createTempSsot() {
   const temp = mkdtempSync(join(tmpdir(), "icontrol-ssot-"));
   const ssotDest = join(temp, "platform", "ssot");
   copyDir("./platform/ssot", ssotDest);
+  try {
+    const freezePath = join(ssotDest, "governance", "change_freeze.json");
+    const freeze = JSON.parse(readFileSync(freezePath, "utf-8"));
+    freeze.enabled = false;
+    writeFileSync(freezePath, JSON.stringify(freeze, null, 2) + "\n");
+  } catch {
+    // ignore if change_freeze not present
+  }
   return {
     ssotDir: ssotDest,
     cleanup() {
