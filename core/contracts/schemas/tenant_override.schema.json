@@ -1,0 +1,11 @@
+{
+  "$id": "tenant_override.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["tenant_id", "plan_id", "effective_from"],
+  "properties": {
+    "tenant_id": { "type": "string", "minLength": 1 },
+    "plan_id": { "type": "string", "minLength": 1 },
+    "effective_from": { "type": "string", "format": "date-time" }
+  }
+}

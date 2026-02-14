@@ -19,6 +19,23 @@ function unique(values) {
   return new Set(values).size === values.length;
 }
 
+function parseSemver(v) {
+  const [maj, min, pat] = String(v || "0.0.0").split(".").map((n) => Number(n));
+  return { maj: maj || 0, min: min || 0, pat: pat || 0 };
+}
+
+function semverGte(a, b) {
+  if (a.maj !== b.maj) return a.maj > b.maj;
+  if (a.min !== b.min) return a.min > b.min;
+  return a.pat >= b.pat;
+}
+
+function compareSemver(a, b) {
+  if (a.maj !== b.maj) return a.maj - b.maj;
+  if (a.min !== b.min) return a.min - b.min;
+  return a.pat - b.pat;
+}
+
 export function schemaGate({ ssotDir, manifestsDir, releaseId }) {
   validateSsotDir(ssotDir);
 
@@ -129,6 +146,67 @@ export function accessGate({ ssotDir }) {
   }
   const ok = missing.length === 0;
   return { ok, gate: "Access Gate", details: ok ? "" : `Missing capabilities: ${missing.join(", ")}` };
+}
+
+export function quotaGate({ ssotDir }) {
+  const planVersions = readJson(`${ssotDir}/tenancy/plan_versions.json`);
+  const bad = [];
+  const byPlan = new Map();
+  for (const pv of planVersions) {
+    if (!pv.quotas || Object.keys(pv.quotas).length === 0) bad.push(`${pv.plan_id}@${pv.version}:missing_quotas`);
+    for (const [k, v] of Object.entries(pv.quotas || {})) {
+      if (typeof v !== "number" || v < 0) bad.push(`${pv.plan_id}@${pv.version}:${k}`);
+    }
+    if (!byPlan.has(pv.plan_id)) byPlan.set(pv.plan_id, []);
+    byPlan.get(pv.plan_id).push(pv);
+  }
+
+  for (const [planId, versions] of byPlan.entries()) {
+    const sorted = versions.slice().sort((a, b) => compareSemver(parseSemver(a.version), parseSemver(b.version)));
+    let prev = null;
+    for (const v of sorted) {
+      if (prev && parseSemver(prev.version).maj === parseSemver(v.version).maj) {
+        for (const [k, val] of Object.entries(v.quotas || {})) {
+          const prior = prev.quotas?.[k];
+          if (typeof prior === "number" && val < prior) bad.push(`${planId}:${k}:${prev.version}->${v.version}`);
+        }
+      }
+      prev = v;
+    }
+  }
+
+  const ok = bad.length === 0;
+  return { ok, gate: "Quota Gate", details: ok ? "" : `Invalid quotas: ${bad.join(", ")}` };
+}
+
+export function planIntegrityGate({ ssotDir }) {
+  const plans = readJson(`${ssotDir}/tenancy/plans.json`);
+  const tenants = readJson(`${ssotDir}/tenancy/tenants.json`);
+  const overrides = readJson(`${ssotDir}/tenancy/tenant_overrides.json`);
+  const tenantQuotas = readJson(`${ssotDir}/tenancy/tenant_quotas.json`);
+  const planIds = new Set(plans.map((p) => p.plan_id));
+  const defaultPlan = plans.find((p) => p.is_default);
+
+  const invalid = [];
+  for (const t of tenants) {
+    const override = overrides.find((o) => o.tenant_id === t.tenant_id);
+    const planId = override?.plan_id || t.plan_id || defaultPlan?.plan_id;
+    if (!planId || !planIds.has(planId)) invalid.push(`${t.tenant_id}:missing_plan`);
+  }
+  for (const o of overrides) {
+    if (!planIds.has(o.plan_id)) invalid.push(`${o.tenant_id}:override_plan_missing`);
+  }
+  for (const q of tenantQuotas) {
+    const planId = overrides.find((o) => o.tenant_id === q.tenant_id)?.plan_id || tenants.find((t) => t.tenant_id === q.tenant_id)?.plan_id || defaultPlan?.plan_id;
+    const plan = plans.find((p) => p.plan_id === planId);
+    const ceiling = plan?.hard_quota_ceiling || {};
+    for (const [k, v] of Object.entries(q.quotas || {})) {
+      if (typeof ceiling[k] === "number" && v > ceiling[k]) invalid.push(`${q.tenant_id}:${k}:exceeds_ceiling`);
+    }
+  }
+
+  const ok = invalid.length === 0;
+  return { ok, gate: "Plan Integrity Gate", details: ok ? "" : `Invalid plans: ${invalid.join(", ")}` };
 }
 
 export function perfBudgetGate({ ssotDir }) {

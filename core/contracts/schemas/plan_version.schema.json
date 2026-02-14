@@ -1,0 +1,27 @@
+{
+  "$id": "plan_version.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["plan_id", "version", "status", "effective_from", "included_entitlements", "quotas", "perf_tier"],
+  "properties": {
+    "plan_id": { "type": "string", "minLength": 1 },
+    "version": { "type": "string", "minLength": 1 },
+    "status": { "type": "string", "enum": ["active", "inactive", "deprecated"] },
+    "effective_from": { "type": "string", "format": "date-time" },
+    "included_entitlements": { "type": "array", "items": { "type": "string" } },
+    "quotas": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": { "type": "number", "minimum": 0 }
+    },
+    "perf_tier": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["latency_budget_ms", "cache_policy_id"],
+      "properties": {
+        "latency_budget_ms": { "type": "number", "minimum": 0 },
+        "cache_policy_id": { "type": "string", "minLength": 1 }
+      }
+    }
+  }
+}

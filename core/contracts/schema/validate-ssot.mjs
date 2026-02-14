@@ -10,7 +10,15 @@ const specificMap = new Map([
   ["themes.json", "theme.v1"],
   ["active_release.json", "active_release.v1"],
   ["break_glass.json", "break_glass.v1"],
-  ["change_freeze.json", "change_freeze.v1"]
+  ["change_freeze.json", "change_freeze.v1"],
+  ["plans.json", "plan.v1"],
+  ["plan_versions.json", "plan_version.v1"],
+  ["tenant_overrides.json", "tenant_override.v1"],
+  ["tenant_quotas.json", "tenant_quota.v1"],
+  ["metering_catalog.json", "metering_catalog.v1"],
+  ["metering_versions.json", "metering_version.v1"],
+  ["rate_cards.json", "rate_card.v1"],
+  ["budgets.json", "budget.v1"]
 ]);
 
 function inferSchemaForFile(path, data) {

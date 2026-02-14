@@ -13,6 +13,12 @@ export function compilePlatform({ ssotDir, outDir, releaseId, env, privateKeyPat
   const capabilities = readJson(`${ssotDir}/registry/capabilities.json`);
   const modules = readJson(`${ssotDir}/registry/modules.json`);
   const entitlements = readJson(`${ssotDir}/tenancy/entitlements.json`);
+  const plans = readJson(`${ssotDir}/tenancy/plans.json`);
+  const planVersions = readJson(`${ssotDir}/tenancy/plan_versions.json`);
+  const tenantEntitlements = readJson(`${ssotDir}/tenancy/tenant_entitlements.json`);
+  const tenantQuotas = readJson(`${ssotDir}/tenancy/tenant_quotas.json`);
+  const meteringCatalog = readJson(`${ssotDir}/finops/metering_catalog.json`);
+  const budgetPolicies = readJson(`${ssotDir}/finops/budgets.json`);
 
   const manifest = {
     manifest_id: `manifest:${releaseId}`,
@@ -32,7 +38,13 @@ export function compilePlatform({ ssotDir, outDir, releaseId, env, privateKeyPat
     workflows: workflowDags,
     capabilities,
     modules,
-    entitlements
+    entitlements,
+    plans,
+    plan_versions: planVersions,
+    tenant_entitlements: tenantEntitlements,
+    tenant_quotas: tenantQuotas,
+    metering_catalog: meteringCatalog,
+    budget_policies: budgetPolicies
   };
 
   const checksums = {

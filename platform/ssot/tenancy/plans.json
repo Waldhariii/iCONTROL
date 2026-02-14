@@ -1,1 +1,14 @@
-[]
+[
+  {
+    "plan_id": "plan:free",
+    "name": "FREE",
+    "status": "active",
+    "is_default": true,
+    "hard_quota_ceiling": {
+      "requests_per_day": 1000000,
+      "cpu_ms_per_day": 3600000,
+      "storage_mb": 10240,
+      "ocr_pages_per_month": 0
+    }
+  }
+]

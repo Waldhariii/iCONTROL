@@ -1,0 +1,9 @@
+[
+  {
+    "budget_id": "budget:default",
+    "scope": "tenant:*",
+    "metric": "requests_per_day",
+    "limit": 100000,
+    "alert_percent": 0.8
+  }
+]

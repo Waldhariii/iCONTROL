@@ -14,7 +14,8 @@
       "studio.pages.view",
       "studio.routes.view",
       "studio.nav.view",
-      "studio.releases.view"
+      "studio.releases.view",
+      "observability.read"
     ],
     "scopes": [
       "platform:*"
@@ -30,7 +31,8 @@
     "actions": [
       "studio.releases.publish",
       "studio.releases.activate",
-      "studio.releases.rollback"
+      "studio.releases.rollback",
+      "observability.read"
     ],
     "scopes": [
       "platform:*"

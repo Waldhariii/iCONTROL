@@ -1,1 +1,8 @@
-[]
+[
+  {
+    "tenant_id": "tenant:default",
+    "name": "Default",
+    "status": "active",
+    "plan_id": "plan:free"
+  }
+]

@@ -78,6 +78,143 @@ function getGovernanceData() {
   };
 }
 
+function getFinopsData() {
+  return {
+    plans: readJson(ssotPath("tenancy/plans.json")),
+    planVersions: readJson(ssotPath("tenancy/plan_versions.json")),
+    tenantOverrides: readJson(ssotPath("tenancy/tenant_overrides.json")),
+    tenantQuotas: readJson(ssotPath("tenancy/tenant_quotas.json")),
+    tenants: readJson(ssotPath("tenancy/tenants.json")),
+    budgets: readJson(ssotPath("finops/budgets.json"))
+  };
+}
+
+function parseSemver(v) {
+  const [maj, min, pat] = String(v || "0.0.0").split(".").map((n) => Number(n));
+  return { maj: maj || 0, min: min || 0, pat: pat || 0 };
+}
+
+function semverGte(a, b) {
+  if (a.maj !== b.maj) return a.maj > b.maj;
+  if (a.min !== b.min) return a.min > b.min;
+  return a.pat >= b.pat;
+}
+
+function pickPlanId(tenantId, finops) {
+  const override = (finops.tenantOverrides || []).find((o) => o.tenant_id === tenantId);
+  if (override?.plan_id) return override.plan_id;
+  const tenant = (finops.tenants || []).find((t) => t.tenant_id === tenantId);
+  if (tenant?.plan_id) return tenant.plan_id;
+  const def = (finops.plans || []).find((p) => p.is_default);
+  return def?.plan_id || (finops.plans[0]?.plan_id || "");
+}
+
+function pickPlanVersion(planId, finops) {
+  const versions = (finops.planVersions || []).filter((v) => v.plan_id === planId);
+  if (versions.length === 0) return null;
+  const now = Date.now();
+  let candidate = null;
+  for (const v of versions) {
+    const eff = Date.parse(v.effective_from || "");
+    if (!Number.isFinite(eff) || eff > now) continue;
+    if (!candidate || semverGte(parseSemver(v.version), parseSemver(candidate.version))) candidate = v;
+  }
+  return candidate || versions[0];
+}
+
+function effectiveQuotas(tenantId, finops) {
+  const planId = pickPlanId(tenantId, finops);
+  const pv = pickPlanVersion(planId, finops);
+  const base = pv?.quotas || {};
+  const override = (finops.tenantQuotas || []).find((q) => q.tenant_id === tenantId);
+  const quotas = { ...base, ...(override?.quotas || {}) };
+  return { plan_id: planId, plan_version: pv?.version || "", quotas };
+}
+
+function getTenantPlanDetails(tenantId) {
+  const finops = getFinopsData();
+  const planId = pickPlanId(tenantId, finops);
+  const plan = (finops.plans || []).find((p) => p.plan_id === planId) || null;
+  const planVersion = pickPlanVersion(planId, finops);
+  const quotas = effectiveQuotas(tenantId, finops).quotas;
+  return { plan, plan_version: planVersion, quotas };
+}
+
+function listUsage(tenantId, range) {
+  const safe = tenantId.replace(/[^a-z0-9-_]/gi, "_");
+  const dir = join("./platform/runtime/finops/usage", safe);
+  if (!existsSync(dir)) return [];
+  const files = readdirSync(dir).filter((f) => f.endsWith(".json"));
+  if (!range) return files.map((f) => readJson(join(dir, f)));
+  if (range.includes("-")) {
+    const [start, end] = range.split("-");
+    return files
+      .filter((f) => f.replace(".json", "") >= start && f.replace(".json", "") <= end)
+      .map((f) => readJson(join(dir, f)));
+  }
+  const single = join(dir, `${range}.json`);
+  if (!existsSync(single)) return [];
+  return [readJson(single)];
+}
+
+function usagePath(tenantId, dateKey) {
+  const safe = tenantId.replace(/[^a-z0-9-_]/gi, "_");
+  return join("./platform/runtime/finops/usage", safe, `${dateKey}.json`);
+}
+
+function readUsage(tenantId, dateKey) {
+  const path = usagePath(tenantId, dateKey);
+  if (existsSync(path)) return readJson(path);
+  return {
+    tenant_id: tenantId,
+    date: dateKey,
+    requests_per_day: 0,
+    cpu_ms_per_day: 0,
+    storage_mb: 0,
+    ocr_pages_per_month: 0
+  };
+}
+
+function writeUsage(tenantId, dateKey, usage) {
+  const path = usagePath(tenantId, dateKey);
+  mkdirSync(dirname(path), { recursive: true });
+  writeJson(path, usage);
+}
+
+function checkBudgets({ tenantId, usage, finops }) {
+  const budgets = finops.budgets || [];
+  const scope = `tenant:${tenantId}`;
+  for (const b of budgets) {
+    if (!scopeMatches(b.scope, scope)) continue;
+    const metric = b.metric;
+    const current = usage[metric] || 0;
+    const limit = b.limit || 0;
+    const threshold = limit * (b.alert_percent || 0);
+    if (limit > 0 && current >= threshold) {
+      appendAudit({ event: "budget_alert", tenant_id: tenantId, metric, current, limit, at: new Date().toISOString() });
+    }
+  }
+}
+
+function enforceQuotasAndBudgets(tenantId) {
+  const finops = getFinopsData();
+  const { quotas } = effectiveQuotas(tenantId, finops);
+  const dateKey = new Date().toISOString().slice(0, 10).replace(/-/g, "");
+  const usage = readUsage(tenantId, dateKey);
+
+  if (quotas.requests_per_day !== undefined && usage.requests_per_day >= quotas.requests_per_day) {
+    throw new Error("Quota exceeded: requests_per_day");
+  }
+  if (quotas.cpu_ms_per_day !== undefined && usage.cpu_ms_per_day >= quotas.cpu_ms_per_day) {
+    throw new Error("Quota exceeded: cpu_ms_per_day");
+  }
+
+  usage.requests_per_day += 1;
+  writeUsage(tenantId, dateKey, usage);
+  checkBudgets({ tenantId, usage, finops });
+  return { tenantId, dateKey, quotas };
+}
+
 function getUserRoles(userId, memberships) {
   return memberships.filter((m) => m.user_id === userId).map((m) => m.role_id);
 }
@@ -213,6 +350,18 @@ function readActiveRelease() {
 const server = http.createServer(async (req, res) => {
   try {
     if (req.url?.startsWith("/api/")) requireAdmin(req);
+    const tenantHeader = req.headers["x-tenant-id"];
+    const tenantId = typeof tenantHeader === "string" && tenantHeader ? tenantHeader : null;
+    const startAt = Date.now();
+    const meterCtx = tenantId ? enforceQuotasAndBudgets(tenantId) : null;
+    if (meterCtx) {
+      res.on("finish", () => {
+        const elapsed = Date.now() - startAt;
+        const usage = readUsage(meterCtx.tenantId, meterCtx.dateKey);
+        usage.cpu_ms_per_day += Math.max(0, elapsed);
+        writeUsage(meterCtx.tenantId, meterCtx.dateKey, usage);
+      });
+    }
 
     if (req.method === "POST" && req.url === "/api/changesets") {
       requirePermission(req, "studio.pages.edit");
@@ -464,6 +613,38 @@ const server = http.createServer(async (req, res) => {
         .filter((f) => f.endsWith(".json"))
         .map((f) => readJson(join(dir, f)));
       return json(res, 200, releases);
+    }
+
+    if (req.method === "GET" && req.url?.startsWith("/api/finops/usage")) {
+      requirePermission(req, "observability.read");
+      const url = new URL(req.url, "http://localhost");
+      const tenant = url.searchParams.get("tenant") || "tenant:default";
+      const range = url.searchParams.get("range") || "";
+      return json(res, 200, { tenant_id: tenant, usage: listUsage(tenant, range) });
+    }
+
+    if (req.method === "GET" && req.url?.startsWith("/api/finops/budgets")) {
+      requirePermission(req, "observability.read");
+      const url = new URL(req.url, "http://localhost");
+      const tenant = url.searchParams.get("tenant") || "tenant:default";
+      const finops = getFinopsData();
+      const scope = `tenant:${tenant}`;
+      const budgets = (finops.budgets || []).filter((b) => scopeMatches(b.scope, scope));
+      return json(res, 200, { tenant_id: tenant, budgets });
+    }
+
+    if (req.method === "GET" && req.url?.startsWith("/api/tenants/") && req.url?.endsWith("/quotas")) {
+      requirePermission(req, "observability.read");
+      const tenantId = req.url.split("/")[3];
+      const details = getTenantPlanDetails(tenantId);
+      return json(res, 200, { tenant_id: tenantId, quotas: details.quotas });
+    }
+
+    if (req.method === "GET" && req.url?.startsWith("/api/tenants/") && req.url?.endsWith("/plan")) {
+      requirePermission(req, "observability.read");
+      const tenantId = req.url.split("/")[3];
+      const details = getTenantPlanDetails(tenantId);
+      return json(res, 200, details);
     }
 
     if (req.method === "POST" && req.url?.startsWith("/api/releases/") && req.url?.endsWith("/activate")) {

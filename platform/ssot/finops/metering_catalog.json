@@ -1,0 +1,22 @@
+[
+  {
+    "meter_id": "meter:requests",
+    "unit": "requests",
+    "description": "API requests per day"
+  },
+  {
+    "meter_id": "meter:cpu_ms",
+    "unit": "ms",
+    "description": "CPU milliseconds per day (approx)"
+  },
+  {
+    "meter_id": "meter:storage_mb",
+    "unit": "mb",
+    "description": "Storage megabytes"
+  },
+  {
+    "meter_id": "meter:ocr_pages",
+    "unit": "pages",
+    "description": "OCR pages per month"
+  }
+]

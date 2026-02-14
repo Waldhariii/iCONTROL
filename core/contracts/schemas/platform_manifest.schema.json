@@ -3,7 +3,7 @@
   "$id": "platform_manifest.v1",
   "title": "platform_manifest",
   "type": "object",
-  "required": ["manifest_id", "manifest_version", "manifest_env", "release_id", "signature", "checksums", "compat_matrix", "routes", "nav", "pages", "widgets", "themes", "permissions", "datasources", "workflows", "capabilities", "modules", "entitlements"],
+  "required": ["manifest_id", "manifest_version", "manifest_env", "release_id", "signature", "checksums", "compat_matrix", "routes", "nav", "pages", "widgets", "themes", "permissions", "datasources", "workflows", "capabilities", "modules", "entitlements", "plans", "plan_versions", "tenant_entitlements", "tenant_quotas", "metering_catalog", "budget_policies"],
   "additionalProperties": false,
   "properties": {
     "manifest_id": {"type": "string"},
@@ -23,6 +23,12 @@
     "workflows": {"$ref": "workflow_dags.v1"},
     "capabilities": {"type": "array", "items": {"type": "string"}},
     "modules": {"type": "array", "items": {"type": "string"}},
-    "entitlements": {"type": "array", "items": {"type": "object"}}
+    "entitlements": {"type": "array", "items": {"type": "object"}},
+    "plans": {"type": "array", "items": {"type": "object"}},
+    "plan_versions": {"type": "array", "items": {"type": "object"}},
+    "tenant_entitlements": {"type": "array", "items": {"type": "object"}},
+    "tenant_quotas": {"type": "array", "items": {"type": "object"}},
+    "metering_catalog": {"type": "array", "items": {"type": "object"}},
+    "budget_policies": {"type": "array", "items": {"type": "object"}}
   }
 }

@@ -1,0 +1,16 @@
+{
+  "$id": "plan.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["plan_id", "name", "status", "is_default"],
+  "properties": {
+    "plan_id": { "type": "string", "minLength": 1 },
+    "name": { "type": "string", "minLength": 1 },
+    "status": { "type": "string", "enum": ["active", "inactive", "deprecated"] },
+    "is_default": { "type": "boolean" },
+    "hard_quota_ceiling": {
+      "type": "object",
+      "additionalProperties": { "type": "number", "minimum": 0 }
+    }
+  }
+}

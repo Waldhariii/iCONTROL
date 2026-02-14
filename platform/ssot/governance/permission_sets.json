@@ -16,7 +16,8 @@
       "studio.pages.view",
       "studio.routes.view",
       "studio.nav.view",
-      "studio.releases.view"
+      "studio.releases.view",
+      "observability.read"
     ]
   },
   {
@@ -35,7 +36,8 @@
       "studio.releases.publish",
       "studio.releases.activate",
       "studio.releases.rollback",
-      "studio.releases.view"
+      "studio.releases.view",
+      "observability.read"
     ]
   },
   {

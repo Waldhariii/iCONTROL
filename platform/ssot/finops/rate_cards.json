@@ -1,0 +1,10 @@
+[
+  {
+    "rate_card_id": "ratecard:free",
+    "plan_id": "plan:free",
+    "meter_id": "meter:requests",
+    "currency": "USD",
+    "rate": 0,
+    "status": "dormant"
+  }
+]

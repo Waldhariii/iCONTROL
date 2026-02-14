@@ -1,0 +1,14 @@
+{
+  "$id": "tenant_quota.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["tenant_id", "quotas"],
+  "properties": {
+    "tenant_id": { "type": "string", "minLength": 1 },
+    "quotas": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": { "type": "number", "minimum": 0 }
+    }
+  }
+}

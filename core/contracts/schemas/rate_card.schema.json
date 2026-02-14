@@ -1,0 +1,14 @@
+{
+  "$id": "rate_card.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["rate_card_id", "plan_id", "meter_id", "currency", "rate", "status"],
+  "properties": {
+    "rate_card_id": { "type": "string", "minLength": 1 },
+    "plan_id": { "type": "string", "minLength": 1 },
+    "meter_id": { "type": "string", "minLength": 1 },
+    "currency": { "type": "string", "minLength": 1 },
+    "rate": { "type": "number", "minimum": 0 },
+    "status": { "type": "string", "enum": ["dormant", "active"] }
+  }
+}

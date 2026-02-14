@@ -3,10 +3,4 @@ PASS - Collision Gate
 PASS - Orphan Gate
 PASS - Policy Gate
 PASS - Access Gate
-PASS - Token Gate
-PASS - Perf Budget Gate
-PASS - Isolation Gate
-PASS - Drift Gate
-PASS - NoFallback Gate
-PASS - Governance Gate
-FAIL - Freeze Gate: Frozen changes present: cs-freeze-001:page_definition
+FAIL - Quota Gate: Invalid quotas: plan:free:requests_per_day:1.0.0->1.0.1

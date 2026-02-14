@@ -1,0 +1,13 @@
+{
+  "$id": "budget.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["budget_id", "scope", "metric", "limit", "alert_percent"],
+  "properties": {
+    "budget_id": { "type": "string", "minLength": 1 },
+    "scope": { "type": "string", "minLength": 1 },
+    "metric": { "type": "string", "minLength": 1 },
+    "limit": { "type": "number", "minimum": 0 },
+    "alert_percent": { "type": "number", "minimum": 0, "maximum": 1 }
+  }
+}

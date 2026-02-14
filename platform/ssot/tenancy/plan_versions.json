@@ -1,0 +1,19 @@
+[
+  {
+    "plan_id": "plan:free",
+    "version": "1.0.0",
+    "status": "active",
+    "effective_from": "2026-02-14T00:00:00.000Z",
+    "included_entitlements": ["entitlement:default"],
+    "quotas": {
+      "requests_per_day": 100000,
+      "cpu_ms_per_day": 600000,
+      "storage_mb": 1024,
+      "ocr_pages_per_month": 0
+    },
+    "perf_tier": {
+      "latency_budget_ms": 2000,
+      "cache_policy_id": "cache:default"
+    }
+  }
+]

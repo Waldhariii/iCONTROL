@@ -1,0 +1,13 @@
+{
+  "$id": "metering_version.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["metering_id", "version", "status", "effective_from", "meters"],
+  "properties": {
+    "metering_id": { "type": "string", "minLength": 1 },
+    "version": { "type": "string", "minLength": 1 },
+    "status": { "type": "string", "enum": ["active", "inactive", "deprecated"] },
+    "effective_from": { "type": "string", "format": "date-time" },
+    "meters": { "type": "array", "items": { "type": "string", "minLength": 1 } }
+  }
+}
