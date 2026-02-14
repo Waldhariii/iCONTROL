@@ -12,3 +12,10 @@ runtime/manifests/*.sig
 runtime/manifests/.gitkeep
 platform/runtime/keys/
 platform/runtime/preview/
+platform/runtime/build_artifacts/
+platform/runtime/release/*.json
+platform/runtime/deletion/*.json
+platform/ssot/changes/snapshots/
+platform/ssot/changes/releases/
+platform/ssot/changes/changesets/*.json
+platform/ssot/changes/reviews/*.json
