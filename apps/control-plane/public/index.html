@@ -9,14 +9,22 @@
     <div id="app">
       <header>
         <h1>iCONTROL Studio</h1>
-        <div class="controls">
-          <label>Release ID <input id="releaseId" value="dev-001" /></label>
-          <button id="loadManifest">Load Manifest</button>
-        </div>
+    <div class="controls">
+      <label>Mode
+        <select id="mode">
+          <option value="active">Active Release</option>
+          <option value="preview">Preview Session</option>
+        </select>
+      </label>
+      <label>Release ID <input id="releaseId" value="dev-001" /></label>
+      <label>Preview Changeset ID <input id="previewId" placeholder="cs-123" /></label>
+      <button id="loadManifest">Load Manifest</button>
+    </div>
       </header>
       <nav id="nav"></nav>
       <main id="view"></main>
     </div>
+    <script>window.STRICT_MANIFEST_MODE = true;</script>
     <script type="module" src="/app.js"></script>
   </body>
 </html>

@@ -1,4 +1,5 @@
 import { spawn } from "child_process";
+import { createTempSsot } from "./test-utils.mjs";
 
 const api = "http://localhost:7070/api";
 
@@ -7,7 +8,8 @@ function sleep(ms) {
 }
 
 async function run() {
-  const server = spawn("node", ["apps/backend-api/server.mjs"], { stdio: "inherit" });
+  const temp = createTempSsot();
+  const server = spawn("node", ["apps/backend-api/server.mjs"], { stdio: "inherit", env: { ...process.env, SSOT_DIR: temp.ssotDir } });
   await sleep(500);
 
   try {
@@ -22,7 +24,7 @@ async function run() {
       title_key: "studio.test",
       module_id: "studio",
       default_layout_template_id: "layout-1",
-      capabilities_required: [],
+      capabilities_required: ["studio.access"],
       owner_team: "studio",
       tags: [],
       state: "active"
@@ -49,6 +51,32 @@ async function run() {
       body: JSON.stringify({ changeset_id: cs.id, page_definition, page_version })
     });
 
+    const route_spec = {
+      route_id: `route:${pageId}`,
+      surface: "cp",
+      path: `/cp/studio/pages/${pageId}`,
+      page_id: pageId,
+      guard_pack_id: "guard:default",
+      flag_gate_id: "flag:default",
+      entitlement_gate_id: "entitlement:default",
+      priority: 10,
+      canonical: true,
+      aliases: [],
+      deprecation_date: "",
+      redirect_to: ""
+    };
+    await fetch(`${api}/studio/routes`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "x-role": "cp.admin" },
+      body: JSON.stringify({ changeset_id: cs.id, route_spec })
+    });
+
+    await fetch(`${api}/studio/nav`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "x-role": "cp.admin" },
+      body: JSON.stringify({ changeset_id: cs.id, nav_spec: { id: `nav-${pageId}`, route_id: route_spec.route_id } })
+    });
+
     const previewRes = await fetch(`${api}/changesets/${cs.id}/preview`, { method: "POST", headers: { "x-role": "cp.admin" } });
     if (!previewRes.ok) {
       const txt = await previewRes.text();
@@ -66,6 +94,7 @@ async function run() {
     console.log("Studio flow PASS", published.release_id);
   } finally {
     server.kill();
+    temp.cleanup();
   }
 }
 

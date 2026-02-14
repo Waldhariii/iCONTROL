@@ -1,4 +1,5 @@
 import { spawn } from "child_process";
+import { renderFromManifest } from "../../apps/client-app/renderer.mjs";
 import { createTempSsot } from "./test-utils.mjs";
 
 const api = "http://localhost:7070/api";
@@ -14,22 +15,20 @@ async function run() {
 
   try {
     const cs = await fetch(`${api}/changesets`, { method: "POST", headers: { "x-role": "cp.admin" } }).then((r) => r.json());
-
-    const pageId = `delete-test-${Date.now()}`;
+    const pageId = `client-test-${Date.now()}`;
     const page_definition = {
       id: pageId,
-      surface: "cp",
+      surface: "client",
       key: pageId,
       slug: pageId,
-      title_key: "delete.test",
-      module_id: "studio",
+      title_key: "client.test",
+      module_id: "client",
       default_layout_template_id: "layout-1",
-      capabilities_required: ["studio.access"],
-      owner_team: "studio",
+      capabilities_required: ["client.access"],
+      owner_team: "client",
       tags: [],
       state: "active"
     };
-
     const page_version = {
       page_id: pageId,
       version: "1.0.0",
@@ -44,23 +43,38 @@ async function run() {
       created_at: new Date().toISOString(),
       diff_ref: ""
     };
-
     await fetch(`${api}/studio/pages`, {
       method: "POST",
       headers: { "Content-Type": "application/json", "x-role": "cp.admin" },
       body: JSON.stringify({ changeset_id: cs.id, page_definition, page_version })
     });
 
-    await fetch(`${api}/changesets/${cs.id}/publish`, { method: "POST", headers: { "x-role": "cp.admin" } });
-
-    const csDelete = await fetch(`${api}/changesets`, { method: "POST", headers: { "x-role": "cp.admin" } }).then((r) => r.json());
-    await fetch(`${api}/studio/pages/${pageId}`, {
-      method: "DELETE",
+    const route_spec = {
+      route_id: `route:${pageId}`,
+      surface: "client",
+      path: `/${pageId}`,
+      page_id: pageId,
+      guard_pack_id: "guard:default",
+      flag_gate_id: "flag:default",
+      entitlement_gate_id: "entitlement:default",
+      priority: 10,
+      canonical: true,
+      aliases: [],
+      deprecation_date: "",
+      redirect_to: ""
+    };
+    await fetch(`${api}/studio/routes`, {
+      method: "POST",
       headers: { "Content-Type": "application/json", "x-role": "cp.admin" },
-      body: JSON.stringify({ changeset_id: csDelete.id })
+      body: JSON.stringify({ changeset_id: cs.id, route_spec })
     });
 
-    console.log("Delete flow PASS");
+    const published = await fetch(`${api}/changesets/${cs.id}/publish`, { method: "POST", headers: { "x-role": "cp.admin" } }).then((r) => r.json());
+    const releaseId = published.release_id;
+    const manifest = await fetch(`${api}/runtime/manifest?release=${releaseId}`, { headers: { "x-role": "cp.admin" } }).then((r) => r.json());
+    const path = `/${pageId}`;
+    renderFromManifest(manifest, path);
+    console.log("Client render PASS");
   } finally {
     server.kill();
     temp.cleanup();

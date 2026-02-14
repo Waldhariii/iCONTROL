@@ -1,4 +1,5 @@
 import { spawn } from "child_process";
+import { createTempSsot } from "./test-utils.mjs";
 
 const api = "http://localhost:7070/api";
 
@@ -7,7 +8,8 @@ function sleep(ms) {
 }
 
 async function run() {
-  const server = spawn("node", ["apps/backend-api/server.mjs"], { stdio: "inherit" });
+  const temp = createTempSsot();
+  const server = spawn("node", ["apps/backend-api/server.mjs"], { stdio: "inherit", env: { ...process.env, SSOT_DIR: temp.ssotDir } });
   await sleep(500);
 
   try {
@@ -32,7 +34,7 @@ async function run() {
         title_key: "api.page",
         module_id: "studio",
         default_layout_template_id: "layout-1",
-        capabilities_required: [],
+        capabilities_required: ["studio.access"],
         owner_team: "studio",
         tags: [],
         state: "active"
@@ -52,6 +54,7 @@ async function run() {
     console.log("API tests PASS");
   } finally {
     server.kill();
+    temp.cleanup();
   }
 }
 
