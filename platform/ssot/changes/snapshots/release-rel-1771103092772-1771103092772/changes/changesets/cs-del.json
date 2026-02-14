@@ -1,0 +1,82 @@
+{
+  "id": "cs-del",
+  "status": "applied",
+  "created_by": "system",
+  "created_at": "2026-02-14T21:02:06.956Z",
+  "scope": "global",
+  "ops": [
+    {
+      "op": "add",
+      "target": {
+        "kind": "page_definition",
+        "ref": "page-test"
+      },
+      "value": {
+        "id": "page-test",
+        "surface": "cp",
+        "key": "page-test",
+        "slug": "page-test",
+        "title_key": "page.test",
+        "module_id": "studio",
+        "default_layout_template_id": "layout-1",
+        "capabilities_required": [],
+        "owner_team": "studio",
+        "tags": [],
+        "state": "active"
+      },
+      "preconditions": {
+        "expected_exists": false
+      }
+    },
+    {
+      "op": "add",
+      "target": {
+        "kind": "page_version",
+        "ref": "page-test"
+      },
+      "value": {
+        "page_id": "page-test",
+        "version": "1.0.0",
+        "status": "draft",
+        "layout_instance_id": "layout-1",
+        "widget_instance_ids": [],
+        "nav_binding_ids": [],
+        "design_version_lock": "v1",
+        "checksum": "x",
+        "rollback_ref": "",
+        "created_by": "test",
+        "created_at": "2026-02-14T21:02:07.038Z",
+        "diff_ref": ""
+      },
+      "preconditions": {
+        "expected_exists": false
+      }
+    },
+    {
+      "op": "add",
+      "target": {
+        "kind": "route_spec",
+        "ref": "route:page-test"
+      },
+      "value": {
+        "route_id": "route:page-test",
+        "surface": "cp",
+        "path": "/cp/page-test",
+        "page_id": "page-test",
+        "guard_pack_id": "guard:default",
+        "flag_gate_id": "flag:default",
+        "entitlement_gate_id": "entitlement:default",
+        "priority": 10,
+        "canonical": true,
+        "aliases": [],
+        "deprecation_date": "",
+        "redirect_to": ""
+      },
+      "preconditions": {
+        "expected_exists": false
+      }
+    }
+  ],
+  "applied_at": "2026-02-14T21:02:07.239Z",
+  "snapshot_ref": "platform/ssot/changes/snapshots/preapply-cs-del-1771102927178"
+}

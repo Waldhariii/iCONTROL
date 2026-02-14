@@ -6,6 +6,11 @@ if (!releaseId) {
   process.exit(1);
 }
 
+if (process.env.SLO_FORCE_FAIL === "1") {
+  console.error("SLO synthetic check FAIL: forced");
+  process.exit(2);
+}
+
 try {
   loadManifest({ releaseId, stalenessMs: 0 });
   console.log("SLO synthetic check PASS");

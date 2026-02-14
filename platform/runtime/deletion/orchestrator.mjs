@@ -19,9 +19,6 @@ export function orchestrateDelete({ changesetId, releaseId }) {
   const deletes = (cs.ops || []).filter((o) => o.op === "delete_request");
   if (!deletes.length) throw new Error("No delete_request ops");
 
-  // impact report
-  execSync(`node platform/runtime/dependency-graph/build-graph.mjs ${releaseId}`, { stdio: "inherit" });
-
   for (const op of deletes) {
     const target = op.target;
     if (target.kind === "page_definition") {
@@ -67,6 +64,7 @@ export function orchestrateDelete({ changesetId, releaseId }) {
     }
   }
 
+  execSync(`node scripts/ci/compile.mjs ${releaseId} dev`, { stdio: "inherit" });
   // rebuild graph and ensure no strong refs to deleted targets
   execSync(`node platform/runtime/dependency-graph/build-graph.mjs ${releaseId}`, { stdio: "inherit" });
   const graph = readJson(`./runtime/manifests/dependency_graph.${releaseId}.json`);

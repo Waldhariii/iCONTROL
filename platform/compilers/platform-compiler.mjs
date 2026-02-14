@@ -33,14 +33,8 @@ export function compilePlatform({ ssotDir, outDir, releaseId, env, privateKeyPat
     modules
   };
 
-  const manifestPayload = stableStringify({ ...manifest, signature: "" });
-  const privateKey = readKey(privateKeyPath);
-  const signature = signPayload(manifestPayload, privateKey);
-  manifest.signature = signature;
-
-  const manifestJson = stableStringify(manifest);
   const checksums = {
-    manifest: sha256(manifestJson),
+    manifest: "",
     routes: sha256(stableStringify(routeCatalog)),
     nav: sha256(stableStringify(navManifest)),
     themes: sha256(stableStringify(themeManifest)),
@@ -51,6 +45,13 @@ export function compilePlatform({ ssotDir, outDir, releaseId, env, privateKeyPat
   };
 
   manifest.checksums = checksums;
+  const manifestJson = stableStringify({ ...manifest, signature: "" });
+  manifest.checksums.manifest = sha256(manifestJson);
+
+  const manifestPayload = stableStringify({ ...manifest, signature: "" });
+  const privateKey = readKey(privateKeyPath);
+  const signature = signPayload(manifestPayload, privateKey);
+  manifest.signature = signature;
 
   writeJson(`${outDir}/platform_manifest.${releaseId}.json`, manifest);
   writeText(`${outDir}/platform_manifest.${releaseId}.sig`, signature);

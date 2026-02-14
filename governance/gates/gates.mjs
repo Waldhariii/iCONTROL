@@ -58,10 +58,21 @@ export function collisionGate({ ssotDir, manifestsDir, releaseId }) {
 export function orphanGate({ ssotDir, manifestsDir, releaseId }) {
   const pages = readJson(`${ssotDir}/studio/pages/page_definitions.json`);
   const routes = readJson(`${manifestsDir || "./runtime/manifests"}/route_catalog.${releaseId}.json`).routes;
+  const pageVersions = readJson(`${ssotDir}/studio/pages/page_instances.json`);
+  const widgets = readJson(`${ssotDir}/studio/widgets/widget_instances.json`);
   const pageIds = new Set(pages.map((p) => p.id));
   const orphanRoutes = routes.filter((r) => !pageIds.has(r.page_id));
+  const referencedWidgets = new Set();
+  for (const pv of pageVersions) {
+    for (const wid of pv.widget_instance_ids || []) referencedWidgets.add(wid);
+  }
+  const orphanWidgets = widgets.filter((w) => !referencedWidgets.has(w.id));
   const ok = orphanRoutes.length === 0;
-  return { ok, gate: "Orphan Gate", details: ok ? "" : `Orphan routes: ${orphanRoutes.map((r) => r.route_id).join(", ")}` };
+  const widgetOk = orphanWidgets.length === 0;
+  const details = [];
+  if (!ok) details.push(`Orphan routes: ${orphanRoutes.map((r) => r.route_id).join(", ")}`);
+  if (!widgetOk) details.push(`Orphan widgets: ${orphanWidgets.map((w) => w.id).join(", ")}`);
+  return { ok: ok && widgetOk, gate: "Orphan Gate", details: details.join(" | ") };
 }
 
 export function policyGate({ manifestsDir, releaseId }) {
@@ -118,7 +129,7 @@ export function isolationGate({ ssotDir, manifestsDir, releaseId }) {
 export function driftGate({ manifestsDir, releaseId }) {
   const manifest = readJson(`${manifestsDir || "./runtime/manifests"}/platform_manifest.${releaseId}.json`);
   const checksums = manifest.checksums || {};
-  const manifestChecksum = sha256(stableStringify(manifest));
+  const manifestChecksum = sha256(stableStringify({ ...manifest, signature: "", checksums: { ...checksums, manifest: "" } }));
   const ok = checksums.manifest === manifestChecksum;
   return { ok, gate: "Drift Gate", details: ok ? "" : "Manifest checksum mismatch" };
 }

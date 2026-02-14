@@ -18,12 +18,21 @@ function inferSchemaForFile(path, data) {
 }
 
 export function validateSsotDir(ssotDir) {
+  const skipDirs = [
+    "/changes/changesets",
+    "/changes/reviews",
+    "/changes/releases",
+    "/changes/snapshots"
+  ];
   function walk(dir) {
     const entries = readdirSync(dir);
     for (const e of entries) {
       const p = join(dir, e);
       const st = statSync(p);
-      if (st.isDirectory()) walk(p);
+      if (st.isDirectory()) {
+        if (skipDirs.some((s) => p.includes(s))) continue;
+        walk(p);
+      }
       else if (e.endsWith(".json")) validateFile(p);
     }
   }

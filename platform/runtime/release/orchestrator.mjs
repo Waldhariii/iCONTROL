@@ -16,6 +16,7 @@ function copyDir(src, dest) {
   for (const entry of readdirSync(src, { withFileTypes: true })) {
     const s = join(src, entry.name);
     const d = join(dest, entry.name);
+    if (s.includes("/changes/snapshots")) continue;
     if (entry.isDirectory()) copyDir(s, d);
     else writeFileSync(d, readFileSync(s));
   }
@@ -64,8 +65,8 @@ export function rollback(releaseId, reason) {
 
 export function sloCheck(releaseId) {
   try {
-    execSync(`node governance/gates/run-gates.mjs ${releaseId}`, { stdio: "ignore" });
-    execSync(`node platform/runtime/release/slo-check.mjs ${releaseId}`, { stdio: "ignore" });
+    execSync(`node governance/gates/run-gates.mjs ${releaseId}`, { stdio: "ignore", env: process.env });
+    execSync(`node platform/runtime/release/slo-check.mjs ${releaseId}`, { stdio: "ignore", env: process.env });
     return true;
   } catch {
     return false;

@@ -1,8 +1,8 @@
 import { readFileSync, readdirSync } from "fs";
 import { join, dirname } from "path";
-import Ajv from "ajv";
+import Ajv2020 from "ajv/dist/2020.js";
 
-const ajv = new Ajv({ allErrors: true, strict: false });
+const ajv = new Ajv2020({ allErrors: true, strict: false });
 let initialized = false;
 
 function loadSchemas() {

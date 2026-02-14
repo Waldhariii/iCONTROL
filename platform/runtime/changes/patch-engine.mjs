@@ -59,6 +59,7 @@ function copyDir(src, dest) {
   for (const entry of readdirSync(src, { withFileTypes: true })) {
     const s = join(src, entry.name);
     const d = join(dest, entry.name);
+    if (s.includes("/changes/snapshots")) continue;
     if (entry.isDirectory()) copyDir(s, d);
     else writeFileSync(d, readFileSync(s));
   }
@@ -142,9 +143,9 @@ export function applyChangeset(changesetId) {
   if (cs.status !== "draft") throw new Error("Only draft changesets can be applied");
 
   acquireLock();
-  const snapshotPath = snapshot(`preapply-${changesetId}`);
-
+  let snapshotPath = "";
   try {
+    snapshotPath = snapshot(`preapply-${changesetId}`);
     for (const op of cs.ops || []) {
       const relPath = kindToPath[op.target.kind];
       if (!relPath) throw new Error(`Unsupported kind: ${op.target.kind}`);
@@ -182,12 +183,11 @@ export function applyChangeset(changesetId) {
     writeJson(csPath, cs);
     writeJson(`./platform/ssot/changes/reviews/${cs.id}.json`, { id: cs.id, status: "pending", created_at: cs.applied_at });
     appendAudit({ event: "changeset_applied", changeset_id: cs.id, at: cs.applied_at });
-    releaseLock();
     return cs;
   } catch (err) {
-    // rollback
-    copyDir(snapshotPath, SSOT_DIR);
-    releaseLock();
+    if (snapshotPath) copyDir(snapshotPath, SSOT_DIR);
     throw err;
+  } finally {
+    releaseLock();
   }
 }

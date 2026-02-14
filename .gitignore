@@ -11,3 +11,4 @@ runtime/manifests/*.json
 runtime/manifests/*.sig
 runtime/manifests/.gitkeep
 platform/runtime/keys/
+platform/runtime/preview/
