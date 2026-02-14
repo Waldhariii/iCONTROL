@@ -153,5 +153,383 @@
     "at": "2026-02-14T21:04:54.369Z",
     "prev_hash": "a9f11db64fbf5415c415a5f2c5e5ab769138df0d6dd924af35bc7b8a9a70fab9",
     "hash": "0e76e55201ed41823c909fd123684923b9f965ef9923c71946cb7625f80b2be3"
+  },
+  {
+    "event": "changeset_created",
+    "changeset_id": "cs-1771103428244",
+    "at": "2026-02-14T21:10:28.244Z",
+    "prev_hash": "0e76e55201ed41823c909fd123684923b9f965ef9923c71946cb7625f80b2be3",
+    "hash": "9f529a4bf06e5e30044c9bb80d84013929f2e862c86aed43118816621a883ab8"
+  },
+  {
+    "event": "changeset_op_added",
+    "changeset_id": "cs-1771103428244",
+    "at": "2026-02-14T21:10:28.250Z",
+    "prev_hash": "9f529a4bf06e5e30044c9bb80d84013929f2e862c86aed43118816621a883ab8",
+    "hash": "0c996e52911154d6aea60d94a231a76c4301d516578c7695922b4a5b2345ac95"
+  },
+  {
+    "event": "changeset_created",
+    "changeset_id": "cs-1771103428960",
+    "at": "2026-02-14T21:10:28.960Z",
+    "prev_hash": "0c996e52911154d6aea60d94a231a76c4301d516578c7695922b4a5b2345ac95",
+    "hash": "83b3bbf690a5acf51055533bee8961ea82d307d17420ae680f9c036f8b42a201"
+  },
+  {
+    "event": "studio_page_create",
+    "changeset_id": "cs-1771103428960",
+    "at": "2026-02-14T21:10:28.972Z",
+    "prev_hash": "83b3bbf690a5acf51055533bee8961ea82d307d17420ae680f9c036f8b42a201",
+    "hash": "2681cf663606389221682adaf2ce148066c9bf8460acba8c3ef21fd075d6f128"
+  },
+  {
+    "event": "changeset_applied",
+    "changeset_id": "cs-1771103428960",
+    "at": "2026-02-14T21:10:29.391Z",
+    "prev_hash": "2681cf663606389221682adaf2ce148066c9bf8460acba8c3ef21fd075d6f128",
+    "hash": "c9ce30902db4818a1276caaaa218438029eb668603384523650ad20daaea6961"
+  },
+  {
+    "event": "release_candidate",
+    "release_id": "rel-1771103429393",
+    "at": "2026-02-14T21:10:29.409Z",
+    "prev_hash": "c9ce30902db4818a1276caaaa218438029eb668603384523650ad20daaea6961",
+    "hash": "8f43cabcd3adcb1a8243205119682141dd5cd4e51ed7f50ede84c0f04b9b5193"
+  },
+  {
+    "event": "rollout_start",
+    "release_id": "rel-1771103429393",
+    "at": "2026-02-14T21:10:29.954Z",
+    "prev_hash": "8f43cabcd3adcb1a8243205119682141dd5cd4e51ed7f50ede84c0f04b9b5193",
+    "hash": "3fad2846dbe33311c344c0d764b6a7a28b2d2c41cfaf20bbab265ffe250dd048"
+  },
+  {
+    "event": "activate",
+    "release_id": "rel-1771103429393",
+    "at": "2026-02-14T21:10:30.256Z",
+    "prev_hash": "3fad2846dbe33311c344c0d764b6a7a28b2d2c41cfaf20bbab265ffe250dd048",
+    "hash": "9de1ed9f150131c5c2be93b3e75b33f7e7a1cb7e92e4ccfd08b9325e80ccc76c"
+  },
+  {
+    "event": "changeset_publish",
+    "changeset_id": "cs-1771103428960",
+    "at": "2026-02-14T21:10:30.261Z",
+    "prev_hash": "9de1ed9f150131c5c2be93b3e75b33f7e7a1cb7e92e4ccfd08b9325e80ccc76c",
+    "hash": "26064b8234593eeb6a84aa67db7e3333fb542bbb6ed7bdca097b1228b8bb0e48"
+  },
+  {
+    "event": "changeset_created",
+    "changeset_id": "cs-1771103430928",
+    "at": "2026-02-14T21:10:30.928Z",
+    "prev_hash": "26064b8234593eeb6a84aa67db7e3333fb542bbb6ed7bdca097b1228b8bb0e48",
+    "hash": "84819e3acf64b68703dc00245ea58fb2f372e7fecd54acd480504614d7061301"
+  },
+  {
+    "event": "studio_page_create",
+    "changeset_id": "cs-1771103430928",
+    "at": "2026-02-14T21:10:30.943Z",
+    "prev_hash": "84819e3acf64b68703dc00245ea58fb2f372e7fecd54acd480504614d7061301",
+    "hash": "be0d711671968eb1b4f87d15244ba3cb7bb5c731c2af67574903208af01cfa26"
+  },
+  {
+    "event": "changeset_applied",
+    "changeset_id": "cs-1771103430928",
+    "at": "2026-02-14T21:10:31.128Z",
+    "prev_hash": "be0d711671968eb1b4f87d15244ba3cb7bb5c731c2af67574903208af01cfa26",
+    "hash": "629eae36cccdc322c3b01a000b00432fd448468a289ae58706cc2ea973842054"
+  },
+  {
+    "event": "release_candidate",
+    "release_id": "rel-1771103431130",
+    "at": "2026-02-14T21:10:31.150Z",
+    "prev_hash": "629eae36cccdc322c3b01a000b00432fd448468a289ae58706cc2ea973842054",
+    "hash": "fde02000d7b8e5cfd454fcfbe5c37e61fd240cfea08c3a6a7914a8ee60f2f267"
+  },
+  {
+    "event": "rollout_start",
+    "release_id": "rel-1771103431130",
+    "at": "2026-02-14T21:10:31.652Z",
+    "prev_hash": "fde02000d7b8e5cfd454fcfbe5c37e61fd240cfea08c3a6a7914a8ee60f2f267",
+    "hash": "d5449b955bd8d2ac2ec0e7e122b1fd7262b67708a296f70d75376e3806374963"
+  },
+  {
+    "event": "activate",
+    "release_id": "rel-1771103431130",
+    "at": "2026-02-14T21:10:31.954Z",
+    "prev_hash": "d5449b955bd8d2ac2ec0e7e122b1fd7262b67708a296f70d75376e3806374963",
+    "hash": "7c4d99ecafe0932bf8b9639184da7be8ab72a6f5af1c06b2a44cec2daf14b7d7"
+  },
+  {
+    "event": "changeset_publish",
+    "changeset_id": "cs-1771103430928",
+    "at": "2026-02-14T21:10:31.958Z",
+    "prev_hash": "7c4d99ecafe0932bf8b9639184da7be8ab72a6f5af1c06b2a44cec2daf14b7d7",
+    "hash": "5b7b67da7a677f562d3072a2327546a82288bb244abf6028b7a58a29e4375b68"
+  },
+  {
+    "event": "changeset_created",
+    "changeset_id": "cs-1771103431961",
+    "at": "2026-02-14T21:10:31.961Z",
+    "prev_hash": "5b7b67da7a677f562d3072a2327546a82288bb244abf6028b7a58a29e4375b68",
+    "hash": "5918241036a0ffb7c9a6c1f880acbdd73131dbfc202ae18270221e11f7b90171"
+  },
+  {
+    "event": "studio_page_delete",
+    "changeset_id": "cs-1771103431961",
+    "at": "2026-02-14T21:10:32.461Z",
+    "prev_hash": "5918241036a0ffb7c9a6c1f880acbdd73131dbfc202ae18270221e11f7b90171",
+    "hash": "e603944ce9b4ccca55e41d34e445cf005f9cf85d349ad628fa07d25ae937ed85"
+  },
+  {
+    "event": "changeset_created",
+    "changeset_id": "cs-1771103465652",
+    "at": "2026-02-14T21:11:05.653Z",
+    "prev_hash": "e603944ce9b4ccca55e41d34e445cf005f9cf85d349ad628fa07d25ae937ed85",
+    "hash": "82f5ddd6b15f53fe46c800b7e8617dc15fecc95c0c3a6cca70348ab71c8721eb"
+  },
+  {
+    "event": "changeset_op_added",
+    "changeset_id": "cs-1771103465652",
+    "at": "2026-02-14T21:11:05.658Z",
+    "prev_hash": "82f5ddd6b15f53fe46c800b7e8617dc15fecc95c0c3a6cca70348ab71c8721eb",
+    "hash": "2603300176fa5c5cfd80427ed02c31c67fdd0f1658367a5dcac17c54f2344dd8"
+  },
+  {
+    "event": "changeset_created",
+    "changeset_id": "cs-1771103466361",
+    "at": "2026-02-14T21:11:06.361Z",
+    "prev_hash": "2603300176fa5c5cfd80427ed02c31c67fdd0f1658367a5dcac17c54f2344dd8",
+    "hash": "2f29941d3813f7c2013a245f353377be4d07fe7306b8966bf4ae0c0dd37a4689"
+  },
+  {
+    "event": "studio_page_create",
+    "changeset_id": "cs-1771103466361",
+    "at": "2026-02-14T21:11:06.378Z",
+    "prev_hash": "2f29941d3813f7c2013a245f353377be4d07fe7306b8966bf4ae0c0dd37a4689",
+    "hash": "ccfa0dea3fad90d2ac448a2c1aa170ab80a7492840b9e36e53bc5b31ef22bf05"
+  },
+  {
+    "event": "changeset_created",
+    "changeset_id": "cs-1771103467080",
+    "at": "2026-02-14T21:11:07.080Z",
+    "prev_hash": "ccfa0dea3fad90d2ac448a2c1aa170ab80a7492840b9e36e53bc5b31ef22bf05",
+    "hash": "1f94768e77cea20d147be13229a18c450bd298e51692553cdf971b2b1e2d3c0c"
+  },
+  {
+    "event": "studio_page_create",
+    "changeset_id": "cs-1771103467080",
+    "at": "2026-02-14T21:11:07.093Z",
+    "prev_hash": "1f94768e77cea20d147be13229a18c450bd298e51692553cdf971b2b1e2d3c0c",
+    "hash": "13df5012942b18278318278e0e5b399d4c0b8bcd5c016c7246c803f6d47630d3"
+  },
+  {
+    "event": "changeset_applied",
+    "changeset_id": "cs-1771103467080",
+    "at": "2026-02-14T21:11:07.311Z",
+    "prev_hash": "13df5012942b18278318278e0e5b399d4c0b8bcd5c016c7246c803f6d47630d3",
+    "hash": "c07f58e38e4e7e5f8dd2dcd3c9b4fc000516c47dc27b326784594f1b8921c199"
+  },
+  {
+    "event": "release_candidate",
+    "release_id": "rel-1771103467315",
+    "at": "2026-02-14T21:11:07.338Z",
+    "prev_hash": "c07f58e38e4e7e5f8dd2dcd3c9b4fc000516c47dc27b326784594f1b8921c199",
+    "hash": "8bfe8b0c28afce2d21c3658c327b404ade539b6651dcd8e32a14ab65ed563256"
+  },
+  {
+    "event": "rollout_start",
+    "release_id": "rel-1771103467315",
+    "at": "2026-02-14T21:11:07.917Z",
+    "prev_hash": "8bfe8b0c28afce2d21c3658c327b404ade539b6651dcd8e32a14ab65ed563256",
+    "hash": "b4ecc110dc5c1227cd6c18724086311094ddfe1be9eb75c354943654811b5446"
+  },
+  {
+    "event": "activate",
+    "release_id": "rel-1771103467315",
+    "at": "2026-02-14T21:11:08.207Z",
+    "prev_hash": "b4ecc110dc5c1227cd6c18724086311094ddfe1be9eb75c354943654811b5446",
+    "hash": "55fd5a07197c29c7bd8bf8a0b13441a61ca061fa66b852c0be99574c348cc170"
+  },
+  {
+    "event": "changeset_publish",
+    "changeset_id": "cs-1771103467080",
+    "at": "2026-02-14T21:11:08.212Z",
+    "prev_hash": "55fd5a07197c29c7bd8bf8a0b13441a61ca061fa66b852c0be99574c348cc170",
+    "hash": "671bcd6f2b572a2b4a3bdd06557b550aa1aa2d77f48bd951033282ac28ba5dc8"
+  },
+  {
+    "event": "changeset_created",
+    "changeset_id": "cs-1771103468215",
+    "at": "2026-02-14T21:11:08.215Z",
+    "prev_hash": "671bcd6f2b572a2b4a3bdd06557b550aa1aa2d77f48bd951033282ac28ba5dc8",
+    "hash": "7aac2f2f80e6a48580e5d1470b6d81d1728c4954e1f72ff04840ea844b96c75f"
+  },
+  {
+    "event": "studio_page_delete",
+    "changeset_id": "cs-1771103468215",
+    "at": "2026-02-14T21:11:08.713Z",
+    "prev_hash": "7aac2f2f80e6a48580e5d1470b6d81d1728c4954e1f72ff04840ea844b96c75f",
+    "hash": "589f59ee8f7af7e845e0b711b178318ed68178ad2e30200fea27020b807b169f"
+  },
+  {
+    "event": "changeset_created",
+    "changeset_id": "cs-1771103493746",
+    "at": "2026-02-14T21:11:33.747Z",
+    "prev_hash": "589f59ee8f7af7e845e0b711b178318ed68178ad2e30200fea27020b807b169f",
+    "hash": "1343f86fd6426bb4f05bbcba5d1912c08a9b92d850c0ab16d1e79e955ae6e2a9"
+  },
+  {
+    "event": "studio_page_create",
+    "changeset_id": "cs-1771103493746",
+    "at": "2026-02-14T21:11:33.760Z",
+    "prev_hash": "1343f86fd6426bb4f05bbcba5d1912c08a9b92d850c0ab16d1e79e955ae6e2a9",
+    "hash": "1ee1da4e0a822228c280651a6c0754215f43540f58f277456d46961172a4d210"
+  },
+  {
+    "event": "changeset_created",
+    "changeset_id": "cs-1771103510121",
+    "at": "2026-02-14T21:11:50.121Z",
+    "prev_hash": "1ee1da4e0a822228c280651a6c0754215f43540f58f277456d46961172a4d210",
+    "hash": "20a9e4aa3cde74b1ee44a3b09e2e8c9d755afd4deeb95244e2801adc427ccbc9"
+  },
+  {
+    "event": "studio_page_create",
+    "changeset_id": "cs-1771103510121",
+    "at": "2026-02-14T21:11:50.134Z",
+    "prev_hash": "20a9e4aa3cde74b1ee44a3b09e2e8c9d755afd4deeb95244e2801adc427ccbc9",
+    "hash": "f9b2039c498c8ab30ec3fcca734fa0c022c2aeb8506939c8d8b86936f34ab0c1"
+  },
+  {
+    "event": "changeset_preview",
+    "changeset_id": "cs-1771103510121",
+    "at": "2026-02-14T21:11:50.413Z",
+    "prev_hash": "f9b2039c498c8ab30ec3fcca734fa0c022c2aeb8506939c8d8b86936f34ab0c1",
+    "hash": "c47430dae75b16a80bffab693411634283e4717a82e386671c2300ea2cf39d47"
+  },
+  {
+    "event": "changeset_created",
+    "changeset_id": "cs-1771103511266",
+    "at": "2026-02-14T21:11:51.266Z",
+    "prev_hash": "c47430dae75b16a80bffab693411634283e4717a82e386671c2300ea2cf39d47",
+    "hash": "aaf1874445b78a5e9837f1a896c84f08b3fbbfdc7b268e322d3f4e7328fb935e"
+  },
+  {
+    "event": "studio_page_create",
+    "changeset_id": "cs-1771103511266",
+    "at": "2026-02-14T21:11:51.279Z",
+    "prev_hash": "aaf1874445b78a5e9837f1a896c84f08b3fbbfdc7b268e322d3f4e7328fb935e",
+    "hash": "f8c57d78a8738206537fb12c3f3a5e65fa201ecbcae5fbb096c974e2a789f328"
+  },
+  {
+    "event": "changeset_applied",
+    "changeset_id": "cs-1771103511266",
+    "at": "2026-02-14T21:11:51.471Z",
+    "prev_hash": "f8c57d78a8738206537fb12c3f3a5e65fa201ecbcae5fbb096c974e2a789f328",
+    "hash": "ac07b0725d67d783851f147a1e1378a035d3205d1d1a4a0832e77cf516be6600"
+  },
+  {
+    "event": "release_candidate",
+    "release_id": "rel-1771103511473",
+    "at": "2026-02-14T21:11:51.494Z",
+    "prev_hash": "ac07b0725d67d783851f147a1e1378a035d3205d1d1a4a0832e77cf516be6600",
+    "hash": "abb19c0e7cefbac2f5b63943a6da7aafefd69e5d1458e03c440cf7aca5b0f8dd"
+  },
+  {
+    "event": "rollout_start",
+    "release_id": "rel-1771103511473",
+    "at": "2026-02-14T21:11:52.049Z",
+    "prev_hash": "abb19c0e7cefbac2f5b63943a6da7aafefd69e5d1458e03c440cf7aca5b0f8dd",
+    "hash": "efce8156196f1ae7db3a259045987ec5e45eeea02372953c5d2040a53e9d773f"
+  },
+  {
+    "event": "activate",
+    "release_id": "rel-1771103511473",
+    "at": "2026-02-14T21:11:52.345Z",
+    "prev_hash": "efce8156196f1ae7db3a259045987ec5e45eeea02372953c5d2040a53e9d773f",
+    "hash": "c432819935c89d74de676c65b4e691bc10ddc6dd4124eed2fd146fcc7ccbef02"
+  },
+  {
+    "event": "changeset_publish",
+    "changeset_id": "cs-1771103511266",
+    "at": "2026-02-14T21:11:52.350Z",
+    "prev_hash": "c432819935c89d74de676c65b4e691bc10ddc6dd4124eed2fd146fcc7ccbef02",
+    "hash": "354a85ff90d16a7fae8799856e07c70f6794959bd65540ff6d297dbce7d9bb0e"
+  },
+  {
+    "event": "changeset_created",
+    "changeset_id": "cs-1771103512353",
+    "at": "2026-02-14T21:11:52.353Z",
+    "prev_hash": "354a85ff90d16a7fae8799856e07c70f6794959bd65540ff6d297dbce7d9bb0e",
+    "hash": "d4cbed9608356fe974cdc2583b118eb90991585466f8328470bed35f32ebe90a"
+  },
+  {
+    "event": "studio_page_delete",
+    "changeset_id": "cs-1771103512353",
+    "at": "2026-02-14T21:11:52.853Z",
+    "prev_hash": "d4cbed9608356fe974cdc2583b118eb90991585466f8328470bed35f32ebe90a",
+    "hash": "02c0194654312614574762df8e98e6e4928fb82881d750d83ffb98f47df57631"
+  },
+  {
+    "event": "changeset_created",
+    "changeset_id": "cs-1771103538869",
+    "at": "2026-02-14T21:12:18.869Z",
+    "prev_hash": "02c0194654312614574762df8e98e6e4928fb82881d750d83ffb98f47df57631",
+    "hash": "3d5b8bf827f733418469787ec60a82d420a7e705b65dce66e0c503658f7bec55"
+  },
+  {
+    "event": "studio_page_create",
+    "changeset_id": "cs-1771103538869",
+    "at": "2026-02-14T21:12:18.885Z",
+    "prev_hash": "3d5b8bf827f733418469787ec60a82d420a7e705b65dce66e0c503658f7bec55",
+    "hash": "2413eee3ddf36184a407474f5b03ac905a1f81e5c701be8759ac412eac9f63ad"
+  },
+  {
+    "event": "changeset_preview",
+    "changeset_id": "cs-1771103538869",
+    "at": "2026-02-14T21:12:19.162Z",
+    "prev_hash": "2413eee3ddf36184a407474f5b03ac905a1f81e5c701be8759ac412eac9f63ad",
+    "hash": "255e2fb912ef350a979e06cc8d512481dc47da7f7f428d0598bdc9cc29a62616"
+  },
+  {
+    "event": "changeset_validate",
+    "changeset_id": "cs-1771103538869",
+    "at": "2026-02-14T21:12:19.359Z",
+    "prev_hash": "255e2fb912ef350a979e06cc8d512481dc47da7f7f428d0598bdc9cc29a62616",
+    "hash": "287247b33a19920790ad8b656e4593801d3ab3d7d06860e7ce81b935c3f3ad83"
+  },
+  {
+    "event": "changeset_applied",
+    "changeset_id": "cs-1771103538869",
+    "at": "2026-02-14T21:12:19.554Z",
+    "prev_hash": "287247b33a19920790ad8b656e4593801d3ab3d7d06860e7ce81b935c3f3ad83",
+    "hash": "70075fa86015e2c860beee4d108f8c6bccd3b8fbaf2cb7eb748301550b90513b"
+  },
+  {
+    "event": "release_candidate",
+    "release_id": "rel-1771103539556",
+    "at": "2026-02-14T21:12:19.575Z",
+    "prev_hash": "70075fa86015e2c860beee4d108f8c6bccd3b8fbaf2cb7eb748301550b90513b",
+    "hash": "9757d7f4aeaa65a0da9fccea018faf83cd4c9174ae0fbe7c8991d2c3d0066905"
+  },
+  {
+    "event": "rollout_start",
+    "release_id": "rel-1771103539556",
+    "at": "2026-02-14T21:12:20.090Z",
+    "prev_hash": "9757d7f4aeaa65a0da9fccea018faf83cd4c9174ae0fbe7c8991d2c3d0066905",
+    "hash": "bff5151840e86f6f6ab9e6300728b1d2279570cb1275ac741dfbca023da4d2b3"
+  },
+  {
+    "event": "activate",
+    "release_id": "rel-1771103539556",
+    "at": "2026-02-14T21:12:20.372Z",
+    "prev_hash": "bff5151840e86f6f6ab9e6300728b1d2279570cb1275ac741dfbca023da4d2b3",
+    "hash": "3bad1e4dfea8f37ddc37018b142fe606ae4735921c71829fc9cf3408ca852d1f"
+  },
+  {
+    "event": "changeset_publish",
+    "changeset_id": "cs-1771103538869",
+    "at": "2026-02-14T21:12:20.377Z",
+    "prev_hash": "3bad1e4dfea8f37ddc37018b142fe606ae4735921c71829fc9cf3408ca852d1f",
+    "hash": "05e332a73d6f7f87d1832c9235063b32ab207071819d33d4e341879c8e430514"
   }
 ]

@@ -1,5 +1,5 @@
 import http from "http";
-import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync } from "fs";
+import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync, statSync } from "fs";
 import { join, normalize } from "path";
 import { execSync } from "child_process";
 import { applyOpsToDir } from "../../platform/runtime/changes/patch-engine.mjs";
@@ -64,9 +64,21 @@ function copyDir(src, dest) {
   for (const entry of readdirSync(src, { withFileTypes: true })) {
     const s = join(src, entry.name);
     const d = join(dest, entry.name);
+    if (s.includes("/changes/snapshots") || s.includes("/changes/changesets") || s.includes("/changes/releases")) continue;
     if (entry.isDirectory()) copyDir(s, d);
     else writeFileSync(d, readFileSync(s));
   }
+}
+
+function latestReleaseId() {
+  const dir = "./platform/ssot/changes/releases";
+  if (!existsSync(dir)) return "";
+  const files = readdirSync(dir).filter((f) => f.endsWith(".json"));
+  if (!files.length) return "";
+  const latest = files
+    .map((f) => ({ f, t: statSync(join(dir, f)).mtimeMs }))
+    .sort((a, b) => b.t - a.t)[0].f;
+  return latest.replace(".json", "");
 }
 
 const server = http.createServer(async (req, res) => {
@@ -116,7 +128,10 @@ const server = http.createServer(async (req, res) => {
 
     if (req.method === "POST" && req.url?.startsWith("/api/changesets/") && req.url?.endsWith("/validate")) {
       const id = req.url.split("/")[3];
-      execSync(`node governance/gates/run-gates.mjs preview-${id}`, { stdio: "inherit" });
+      execSync(`node governance/gates/run-gates.mjs preview-${id}`, {
+        stdio: "inherit",
+        env: { ...process.env, SSOT_DIR: `./platform/runtime/preview/${id}` }
+      });
       appendAudit({ event: "changeset_validate", changeset_id: id, at: new Date().toISOString() });
       return json(res, 200, { ok: true });
     }
@@ -125,7 +140,7 @@ const server = http.createServer(async (req, res) => {
       const id = req.url.split("/")[3];
       execSync(`node scripts/ci/release.mjs --from-changeset ${id} --env dev --strategy canary`, { stdio: "inherit" });
       appendAudit({ event: "changeset_publish", changeset_id: id, at: new Date().toISOString() });
-      return json(res, 200, { ok: true });
+      return json(res, 200, { ok: true, release_id: latestReleaseId() });
     }
 
     if (req.method === "GET" && req.url?.startsWith("/api/runtime/manifest/")) {

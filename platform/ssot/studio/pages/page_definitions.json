@@ -1,1 +1,28 @@
-[]
+[
+  {
+    "id": "studio-test",
+    "surface": "cp",
+    "key": "studio-test",
+    "slug": "studio-test",
+    "title_key": "studio.test",
+    "module_id": "studio",
+    "default_layout_template_id": "layout-1",
+    "capabilities_required": [],
+    "owner_team": "studio",
+    "tags": [],
+    "state": "active"
+  },
+  {
+    "id": "studio-test-1771103538880",
+    "surface": "cp",
+    "key": "studio-test-1771103538880",
+    "slug": "studio-test-1771103538880",
+    "title_key": "studio.test",
+    "module_id": "studio",
+    "default_layout_template_id": "layout-1",
+    "capabilities_required": [],
+    "owner_team": "studio",
+    "tags": [],
+    "state": "active"
+  }
+]

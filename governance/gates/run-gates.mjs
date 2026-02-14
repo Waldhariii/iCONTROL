@@ -17,8 +17,8 @@ if (!releaseId) {
   process.exit(1);
 }
 
-const ssotDir = "./platform/ssot";
-const manifestsDir = "./runtime/manifests";
+const ssotDir = process.env.SSOT_DIR || "./platform/ssot";
+const manifestsDir = process.env.MANIFESTS_DIR || "./runtime/manifests";
 
 const gates = [
   () => schemaGate({ ssotDir, manifestsDir, releaseId }),
