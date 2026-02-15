@@ -35,3 +35,9 @@ platform/runtime/datagov/exports/
 platform/runtime/integrations/dlq/
 runtime/ops/
 runtime/tenancy/
+# --- Generated / runtime reports (must not be committed) ---
+governance/gates/gates-report.md
+# --- Runtime ledgers / indices ---
+platform/ssot/governance/audit_ledger.json
+# --- pnpm store (local) ---
+.pnpm-store/
