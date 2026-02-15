@@ -27,7 +27,18 @@ const specificMap = new Map([
   ["extension_permissions.json", "extension_permissions.v1"],
   ["extension_installations.json", "extension_installation.v1"],
   ["extension_reviews.json", "extension_review.v1"],
-  ["extension_killswitch.json", "extension_killswitch.v1"]
+  ["extension_killswitch.json", "extension_killswitch.v1"],
+  ["data_sources.json", "data_source.v1"],
+  ["data_models.json", "data_model.v1"],
+  ["data_model_versions.json", "data_model_version.v1"],
+  ["data_fields.json", "data_field.v1"],
+  ["data_classifications.json", "data_classification.v1"],
+  ["retention_policies.json", "retention_policy.v1"],
+  ["retention_versions.json", "retention_version.v1"],
+  ["deletion_policies.json", "deletion_policy.v1"],
+  ["deletion_versions.json", "deletion_version.v1"],
+  ["export_controls.json", "export_control.v1"],
+  ["export_control_versions.json", "export_control_version.v1"]
 ]);
 
 function inferSchemaForFile(path, data) {

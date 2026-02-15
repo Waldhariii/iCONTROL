@@ -24,6 +24,13 @@ export function compilePlatform({ ssotDir, outDir, releaseId, env, privateKeyPat
   const extensionPermissions = readJson(`${ssotDir}/extensions/extension_permissions.json`);
   const extensionVersions = readJson(`${ssotDir}/extensions/extension_versions.json`);
   const extensionKillswitch = readJson(`${ssotDir}/extensions/extension_killswitch.json`);
+  const dataSources = readJson(`${ssotDir}/data/catalog/data_sources.json`);
+  const dataModels = readJson(`${ssotDir}/data/catalog/data_models.json`);
+  const dataModelVersions = readJson(`${ssotDir}/data/catalog/data_model_versions.json`);
+  const dataFields = readJson(`${ssotDir}/data/catalog/data_fields.json`);
+  const dataClassifications = readJson(`${ssotDir}/data/catalog/data_classifications.json`);
+  const retentionPolicies = readJson(`${ssotDir}/data/policies/retention_policies.json`);
+  const exportControls = readJson(`${ssotDir}/data/policies/export_controls.json`);
 
   const qosRuntimeConfig = planVersions.map((pv) => {
     const policy = qosPolicies.find((p) => p.tier === pv.perf_tier) || null;
@@ -58,6 +65,14 @@ export function compilePlatform({ ssotDir, outDir, releaseId, env, privateKeyPat
       };
     });
 
+  const dataCatalog = {
+    data_sources: dataSources,
+    data_models: dataModels,
+    data_model_versions: dataModelVersions,
+    data_fields: dataFields,
+    data_classifications: dataClassifications
+  };
+
   const manifest = {
     manifest_id: `manifest:${releaseId}`,
     manifest_version: "1.0.0",
@@ -85,7 +100,10 @@ export function compilePlatform({ ssotDir, outDir, releaseId, env, privateKeyPat
     budget_policies: budgetPolicies,
     qos_policies: qosPolicies,
     qos_runtime_config: qosRuntimeConfig,
-    extensions_runtime: extensionsRuntime
+    extensions_runtime: extensionsRuntime,
+    data_catalog: dataCatalog,
+    retention_policies: retentionPolicies,
+    export_controls: exportControls
   };
 
   const checksums = {

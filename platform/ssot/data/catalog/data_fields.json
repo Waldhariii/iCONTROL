@@ -1,0 +1,23 @@
+[
+  {
+    "field_id": "field:document.id",
+    "data_model_id": "model:document",
+    "path": "id",
+    "type": "string",
+    "classification_id": "public"
+  },
+  {
+    "field_id": "field:document.title",
+    "data_model_id": "model:document",
+    "path": "title",
+    "type": "string",
+    "classification_id": "internal"
+  },
+  {
+    "field_id": "field:document.owner_email",
+    "data_model_id": "model:document",
+    "path": "owner_email",
+    "type": "string",
+    "classification_id": "pii.low"
+  }
+]

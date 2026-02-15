@@ -344,6 +344,50 @@ export function extensionSignatureGate({ ssotDir, manifestsDir }) {
   return { ok, gate: "Extension Signature Gate", details: ok ? "" : `Invalid artifacts: ${bad.join(", ")}` };
 }
 
+export function dataCatalogGate({ ssotDir }) {
+  const models = readJson(`${ssotDir}/data/catalog/data_models.json`);
+  const modelVersions = readJson(`${ssotDir}/data/catalog/data_model_versions.json`);
+  const fields = readJson(`${ssotDir}/data/catalog/data_fields.json`);
+  const classifications = new Set(readJson(`${ssotDir}/data/catalog/data_classifications.json`).map((c) => c.classification_id));
+  const fieldIds = new Set(fields.map((f) => f.field_id));
+  const bad = [];
+  for (const mv of modelVersions) {
+    for (const f of mv.fields || []) {
+      if (!fieldIds.has(f)) bad.push(`${mv.data_model_id}:${f}`);
+    }
+  }
+  for (const f of fields) {
+    if (!classifications.has(f.classification_id)) bad.push(`${f.field_id}:missing_classification`);
+  }
+  const ok = bad.length === 0 && models.length > 0;
+  return { ok, gate: "Data Catalog Gate", details: ok ? "" : `Invalid catalog: ${bad.join(", ")}` };
+}
+
+export function retentionPolicyGate({ ssotDir }) {
+  const fields = readJson(`${ssotDir}/data/catalog/data_fields.json`);
+  const policies = readJson(`${ssotDir}/data/policies/retention_policies.json`);
+  const sensitive = new Set(fields.filter((f) => ["pii.high", "secrets", "financial"].includes(f.classification_id)).map((f) => f.data_model_id));
+  const bad = [];
+  for (const modelId of sensitive) {
+    const p = policies.find((x) => x.target_model_id === modelId);
+    if (!p || p.retain_days === undefined) bad.push(`${modelId}:missing_retention`);
+    if (p && p.legal_hold && (p.purge_strategy === "delete" || p.purge_strategy === "anonymize")) bad.push(`${modelId}:legal_hold_purge`);
+  }
+  const ok = bad.length === 0;
+  return { ok, gate: "Retention Policy Gate", details: ok ? "" : `Invalid retention: ${bad.join(", ")}` };
+}
+
+export function exportControlGate({ ssotDir }) {
+  const controls = readJson(`${ssotDir}/data/policies/export_controls.json`);
+  const bad = [];
+  for (const c of controls) {
+    if (c.export_type === "dataset" && !c.requires_quorum) bad.push(`${c.control_id}:dataset_requires_quorum`);
+    if (c.export_type && c.masking_required !== true && c.export_type === "dataset") bad.push(`${c.control_id}:masking_required`);
+  }
+  const ok = bad.length === 0;
+  return { ok, gate: "Export Control Gate", details: ok ? "" : `Invalid export controls: ${bad.join(", ")}` };
+}
+
 export function perfBudgetGate({ ssotDir }) {
   const queries = readJson(`${ssotDir}/data/query_catalog.json`);
   const budgets = readJson(`${ssotDir}/data/query_budgets.json`);

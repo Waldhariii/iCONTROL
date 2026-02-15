@@ -67,6 +67,10 @@ const steps = [
   "node scripts/ci/test-extensions-installation.mjs",
   "node scripts/ci/test-extensions-permissions.mjs",
   "node scripts/ci/test-extensions-killswitch.mjs",
+  "node scripts/ci/test-datagov-classification.mjs",
+  "node scripts/ci/test-datagov-export-masking.mjs",
+  "node scripts/ci/test-datagov-legal-hold.mjs",
+  "node scripts/ci/test-datagov-retention-runner.mjs",
   "node scripts/ci/test-token-gate.mjs",
   "node scripts/ci/test-audit.mjs"
 ];

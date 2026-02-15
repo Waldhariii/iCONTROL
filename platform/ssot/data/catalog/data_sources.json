@@ -1,0 +1,8 @@
+[
+  {
+    "data_source_id": "ds:primary",
+    "type": "internal",
+    "name": "Primary",
+    "status": "active"
+  }
+]

@@ -25,3 +25,6 @@ platform/ssot/changes/changesets/*.json
 platform/ssot/changes/reviews/*.json
 governance/gates/gates-report.json
 runtime/reports/
+runtime/reports/RETENTION_REPORT_*
+platform/runtime/datagov/records_index/
+platform/runtime/datagov/exports/

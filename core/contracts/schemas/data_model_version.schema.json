@@ -1,0 +1,12 @@
+{
+  "$id": "data_model_version.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["data_model_id", "version", "status", "fields"],
+  "properties": {
+    "data_model_id": { "type": "string", "minLength": 1 },
+    "version": { "type": "string", "minLength": 1 },
+    "status": { "type": "string", "enum": ["active", "inactive"] },
+    "fields": { "type": "array", "items": { "type": "string", "minLength": 1 } }
+  }
+}

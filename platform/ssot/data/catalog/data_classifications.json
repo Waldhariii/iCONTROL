@@ -1,0 +1,9 @@
+[
+  { "classification_id": "public", "level": "public" },
+  { "classification_id": "internal", "level": "internal" },
+  { "classification_id": "confidential", "level": "confidential" },
+  { "classification_id": "pii.low", "level": "pii.low" },
+  { "classification_id": "pii.high", "level": "pii.high" },
+  { "classification_id": "secrets", "level": "secrets" },
+  { "classification_id": "financial", "level": "financial" }
+]

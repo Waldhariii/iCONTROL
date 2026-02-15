@@ -1,0 +1,11 @@
+[
+  {
+    "policy_id": "retention:document",
+    "scope": "platform:*",
+    "target_model_id": "model:document",
+    "retain_days": 365,
+    "purge_strategy": "archive",
+    "legal_hold": false,
+    "hold_reason": ""
+  }
+]

@@ -1,0 +1,10 @@
+[
+  {
+    "policy_id": "deletion:document",
+    "scope": "platform:*",
+    "target_model_id": "model:document",
+    "deletion_flow": "disable->depublish->purge->snapshot->audit",
+    "legal_hold": false,
+    "hold_reason": ""
+  }
+]

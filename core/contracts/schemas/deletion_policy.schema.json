@@ -1,0 +1,14 @@
+{
+  "$id": "deletion_policy.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["policy_id", "scope", "target_model_id", "deletion_flow", "legal_hold", "hold_reason"],
+  "properties": {
+    "policy_id": { "type": "string", "minLength": 1 },
+    "scope": { "type": "string", "minLength": 1 },
+    "target_model_id": { "type": "string", "minLength": 1 },
+    "deletion_flow": { "type": "string", "minLength": 1 },
+    "legal_hold": { "type": "boolean" },
+    "hold_reason": { "type": "string" }
+  }
+}

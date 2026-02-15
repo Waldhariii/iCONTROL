@@ -15,7 +15,8 @@
       "studio.routes.view",
       "studio.nav.view",
       "studio.releases.view",
-      "observability.read"
+      "observability.read",
+      "data.export"
     ],
     "scopes": [
       "platform:*"
@@ -32,7 +33,8 @@
       "studio.releases.publish",
       "studio.releases.activate",
       "studio.releases.rollback",
-      "observability.read"
+      "observability.read",
+      "data.export"
     ],
     "scopes": [
       "platform:*"

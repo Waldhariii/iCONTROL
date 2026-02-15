@@ -196,6 +196,43 @@ function writeUsage(tenantId, dateKey, usage) {
   writeJson(path, usage);
 }
 
+function dataIndexPath(tenantId, modelId) {
+  const safeTenant = tenantId.replace(/[^a-z0-9-_]/gi, "_");
+  const safeModel = modelId.replace(/[^a-z0-9-_]/gi, "_");
+  return join(RUNTIME_DIR, "datagov", "records_index", safeTenant, `${safeModel}.jsonl`);
+}
+
+function appendDataIndex(tenantId, modelId, record) {
+  const path = dataIndexPath(tenantId, modelId);
+  mkdirSync(dirname(path), { recursive: true });
+  writeFileSync(path, JSON.stringify(record) + "\n", { flag: "a" });
+}
+
+function readDataCatalog(manifest) {
+  return manifest?.data_catalog || {};
+}
+
+function classifyField(catalog, fieldId) {
+  const field = (catalog.data_fields || []).find((f) => f.field_id === fieldId);
+  return field?.classification_id || "internal";
+}
+
+function maskingRequired(manifest, exportType) {
+  const controls = manifest?.export_controls || [];
+  const ctrl = controls.find((c) => c.export_type === exportType);
+  return ctrl?.masking_required || false;
+}
+
+function exportControl(manifest, exportType) {
+  const controls = manifest?.export_controls || [];
+  return controls.find((c) => c.export_type === exportType) || null;
+}
+
+function hasLegalHold(manifest, modelId) {
+  const policies = manifest?.retention_policies || [];
+  return policies.some((p) => p.target_model_id === modelId && p.legal_hold === true);
+}
+
 function checkBudgets({ tenantId, usage, finops }) {
   const budgets = finops.budgets || [];
   const scope = `tenant:${tenantId}`;
@@ -491,7 +528,8 @@ function loadActiveManifest() {
   const active = readActiveRelease();
   if (!active.active_release_id) return null;
   try {
-    return loadManifest(active.active_release_id);
+    const manifestsDir = process.env.MANIFESTS_DIR || "./runtime/manifests";
+    return loadManifest({ releaseId: active.active_release_id, manifestsDir });
   } catch {
     return null;
   }
@@ -865,6 +903,47 @@ const server = http.createServer(async (req, res) => {
         }
       }
       return json(res, 200, { tenant_id: tenantId, incidents });
+    }
+
+    if (req.method === "POST" && req.url === "/api/data/ingest") {
+      requirePermission(req, "observability.read");
+      const payload = await bodyToJson(req);
+      const tenantId = payload.tenant_id || "tenant:default";
+      const modelId = payload.model_id;
+      const recordId = payload.record_id || `rec-${Date.now()}`;
+      const manifest = loadActiveManifest();
+      if (!manifest) return json(res, 400, { error: "No active manifest" });
+      appendDataIndex(tenantId, modelId, { record_id: recordId, model_id: modelId, created_at: new Date().toISOString() });
+      return json(res, 200, { ok: true, record_id: recordId });
+    }
+
+    if (req.method === "POST" && req.url === "/api/data/export") {
+      requirePermission(req, "data.export");
+      const payload = await bodyToJson(req);
+      const tenantId = payload.tenant_id || "tenant:default";
+      const exportType = payload.export_type || "json";
+      const records = payload.records || [];
+      const manifest = loadActiveManifest();
+      if (!manifest) return json(res, 400, { error: "No active manifest" });
+      const ctrl = exportControl(manifest, exportType);
+      if (ctrl?.requires_quorum) requireQuorum("data_export", tenantId, 2);
+      const catalog = readDataCatalog(manifest);
+      const mask = maskingRequired(manifest, exportType);
+      let maskedCount = 0;
+      const out = records.map((r) => {
+        const o = { ...r };
+        for (const f of catalog.data_fields || []) {
+          if (!(f.path in o)) continue;
+          const cls = classifyField(catalog, f.field_id);
+          if (mask && cls === "pii.high") {
+            o[f.path] = "***";
+            maskedCount += 1;
+          }
+        }
+        return o;
+      });
+      appendAudit({ event: "export_request", tenant_id: tenantId, export_type: exportType, masked_fields: maskedCount, at: new Date().toISOString() });
+      return json(res, 200, { ok: true, masked_fields: maskedCount, records: out });
     }
 
     if (req.method === "POST" && req.url?.startsWith("/api/releases/") && req.url?.endsWith("/activate")) {

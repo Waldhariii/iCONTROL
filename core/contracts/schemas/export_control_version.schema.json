@@ -1,0 +1,12 @@
+{
+  "$id": "export_control_version.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["control_id", "version", "status", "effective_from"],
+  "properties": {
+    "control_id": { "type": "string", "minLength": 1 },
+    "version": { "type": "string", "minLength": 1 },
+    "status": { "type": "string", "enum": ["active", "inactive"] },
+    "effective_from": { "type": "string", "format": "date-time" }
+  }
+}

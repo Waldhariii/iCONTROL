@@ -1,0 +1,13 @@
+{
+  "$id": "export_control.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["control_id", "scope", "export_type", "masking_required", "requires_quorum"],
+  "properties": {
+    "control_id": { "type": "string", "minLength": 1 },
+    "scope": { "type": "string", "minLength": 1 },
+    "export_type": { "type": "string", "enum": ["csv", "json", "pdf", "audit", "dataset"] },
+    "masking_required": { "type": "boolean" },
+    "requires_quorum": { "type": "boolean" }
+  }
+}

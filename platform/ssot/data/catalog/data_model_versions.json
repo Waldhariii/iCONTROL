@@ -1,0 +1,8 @@
+[
+  {
+    "data_model_id": "model:document",
+    "version": "1.0.0",
+    "status": "active",
+    "fields": ["field:document.id", "field:document.title", "field:document.owner_email"]
+  }
+]

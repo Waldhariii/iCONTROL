@@ -1,0 +1,9 @@
+[
+  {
+    "control_id": "export:document",
+    "scope": "tenant:*",
+    "export_type": "dataset",
+    "masking_required": true,
+    "requires_quorum": true
+  }
+]

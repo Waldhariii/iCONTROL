@@ -1,0 +1,10 @@
+{
+  "$id": "data_classification.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["classification_id", "level"],
+  "properties": {
+    "classification_id": { "type": "string", "minLength": 1 },
+    "level": { "type": "string", "minLength": 1 }
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "$id": "data_model.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["data_model_id", "name", "status"],
+  "properties": {
+    "data_model_id": { "type": "string", "minLength": 1 },
+    "name": { "type": "string", "minLength": 1 },
+    "status": { "type": "string", "enum": ["active", "inactive"] }
+  }
+}
