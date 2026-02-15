@@ -1476,6 +1476,18 @@
     "s2s_scopes": []
   },
   {
+    "id": "scripts:ci:test-core-change-gate.mjs",
+    "path": "scripts/ci/test-core-change-gate.mjs",
+    "purpose": "CI: ensure core change gate blocks restricted paths",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
     "id": "scripts:ci:test-webhook-replay.mjs",
     "path": "scripts/ci/test-webhook-replay.mjs",
     "purpose": "script",

@@ -1,4 +1,5 @@
 import { readFileSync, existsSync, readdirSync } from "fs";
+import { execSync } from "child_process";
 import { join } from "path";
 import { stableStringify, sha256, verifyPayload } from "../../platform/compilers/utils.mjs";
 import { validateOrThrow } from "../../core/contracts/schema/validate.mjs";
@@ -58,6 +59,20 @@ const OPS_ALLOWED_ACTIONS = [
 ];
 const ARTIFACT_PREVIEW_MAX = 200;
 const ARTIFACT_SNAP_MAX = 200;
+const CORE_RESTRICTED_PREFIXES = ["apps/", "core/", "platform/", "governance/", "scripts/"];
+const CORE_ALLOWLIST_PREFIXES = [
+  "docs/",
+  "governance/gates/",
+  "scripts/maintenance/",
+  "scripts/ci/",
+  "platform/ssot/modules/",
+  "apps/backend-api/server.mjs",
+  "apps/control-plane/public/app.js",
+  "platform/ssot/studio/routes/route_specs.json",
+  "platform/ssot/studio/nav/nav_specs.json",
+  "platform/ssot/studio/pages/page_definitions.json"
+];
+const CORE_IGNORE_PATHS = ["platform/ssot/governance/audit_ledger.json"];
 
 
 function parseSemver(v) {
@@ -75,6 +90,43 @@ function compareSemver(a, b) {
   if (a.maj !== b.maj) return a.maj - b.maj;
   if (a.min !== b.min) return a.min - b.min;
   return a.pat - b.pat;
+}
+
+function normalizePath(p) {
+  return String(p || "").replace(/\\/g, "/").replace(/^\.\//, "");
+}
+
+function isAllowedCorePath(p) {
+  const path = normalizePath(p);
+  return CORE_ALLOWLIST_PREFIXES.some((prefix) => path === prefix || path.startsWith(prefix));
+}
+
+function isRestrictedCorePath(p) {
+  const path = normalizePath(p);
+  return CORE_RESTRICTED_PREFIXES.some((prefix) => path.startsWith(prefix));
+}
+
+function getChangedPaths() {
+  if (process.env.CORE_CHANGE_PATHS) {
+    return String(process.env.CORE_CHANGE_PATHS)
+      .split(/[,\n]/)
+      .map((p) => p.trim())
+      .filter(Boolean);
+  }
+  try {
+    const out = execSync("git status --porcelain", { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] }).trim();
+    if (!out) return [];
+    return out
+      .split("\n")
+      .map((line) => line.slice(3).trim())
+      .map((p) => {
+        const arrow = p.lastIndexOf("->");
+        return arrow >= 0 ? p.slice(arrow + 2).trim() : p;
+      })
+      .filter(Boolean);
+  } catch {
+    return [];
+  }
 }
 
 export function schemaGate({ ssotDir, manifestsDir, releaseId }) {
@@ -185,6 +237,22 @@ export function reportPathGate() {
   if (forbidden.length) details.push(`Forbidden root artifacts: ${forbidden.join(", ")}`);
   if (platformHas.length) details.push("Forbidden reports path: platform/runtime/reports");
   return { ok, gate: "Report Path Gate", details: details.join(" | ") };
+}
+
+export function coreChangeGate() {
+  const changed = getChangedPaths();
+  if (changed.length === 0) return { ok: true, gate: "Core Change Gate", details: "" };
+  const violations = [];
+  for (const p of changed) {
+    const path = normalizePath(p);
+    if (CORE_IGNORE_PATHS.includes(path)) continue;
+    if (isRestrictedCorePath(path) && !isAllowedCorePath(path)) violations.push(path);
+  }
+  const ok = violations.length === 0;
+  const details = ok
+    ? ""
+    : `Restricted core changes detected: ${violations.join(", ")} | Allowed: gates/docs/ssot modules/studio module authoring/scripts/maintenance`;
+  return { ok, gate: "Core Change Gate", details };
 }
 
 export function scriptCatalogGate() {

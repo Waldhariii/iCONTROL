@@ -63,6 +63,7 @@ import {
   ratingIntegrityGate,
   invoiceNoSecretsGate,
   noSecretsEvidenceGate,
+  coreChangeGate,
   reportPathGate,
   scriptCatalogGate,
   artifactBudgetGate
@@ -141,6 +142,7 @@ const gates = [
   () => ratingIntegrityGate({ ssotDir }),
   () => invoiceNoSecretsGate(),
   () => noSecretsEvidenceGate(),
+  () => coreChangeGate(),
   () => reportPathGate(),
   () => scriptCatalogGate(),
   () => artifactBudgetGate()
