@@ -80,6 +80,30 @@
     "scope": "platform:*"
   },
   {
+    "id": "marketplace.view",
+    "scope": "platform:*"
+  },
+  {
+    "id": "marketplace.install",
+    "scope": "platform:*"
+  },
+  {
+    "id": "marketplace.enable",
+    "scope": "platform:*"
+  },
+  {
+    "id": "marketplace.disable",
+    "scope": "platform:*"
+  },
+  {
+    "id": "marketplace.uninstall",
+    "scope": "platform:*"
+  },
+  {
+    "id": "marketplace.review",
+    "scope": "platform:*"
+  },
+  {
     "id": "observability.read",
     "scope": "platform:*"
   },

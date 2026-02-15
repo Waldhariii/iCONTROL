@@ -8,6 +8,7 @@
     "name": { "type": "string", "minLength": 1 },
     "publisher": { "type": "string", "minLength": 1 },
     "status": { "type": "string", "enum": ["active", "deprecated"] },
-    "tags": { "type": "array", "items": { "type": "string" } }
+    "tags": { "type": "array", "items": { "type": "string" } },
+    "tier": { "type": "string", "enum": ["free", "pro", "ent"] }
   }
 }

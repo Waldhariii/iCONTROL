@@ -251,6 +251,96 @@ function renderModulesView() {
   };
 }
 
+async function renderMarketplaceCatalog() {
+  const catalog = await fetch(`${apiBase}/marketplace/catalog`, { headers }).then((r) => r.json()).catch(() => []);
+  view.innerHTML = `
+    <section>
+      <h2>Marketplace</h2>
+      <div>
+        <label>Tenant ID</label><input id="marketTenant" value="tenant:default" />
+        <button id="openTenantMarket">Open Tenant Marketplace</button>
+      </div>
+      <h3>Catalog</h3>
+      <ul>${catalog.map((c) => `<li>${c.type} ${c.id} v${c.version} (${c.tier}) [${c.review_status}]</li>`).join("")}</ul>
+    </section>
+  `;
+  document.getElementById("openTenantMarket").onclick = () => {
+    const tenantId = document.getElementById("marketTenant").value;
+    location.hash = `/cp/studio/tenants/${tenantId}/marketplace`;
+  };
+}
+
+async function renderTenantMarketplace(tenantId) {
+  const [catalog, installed] = await Promise.all([
+    fetch(`${apiBase}/marketplace/catalog`, { headers }).then((r) => r.json()).catch(() => []),
+    fetch(`${apiBase}/marketplace/tenants/${tenantId}/installed`, { headers }).then((r) => r.json()).catch(() => ({ modules: [], extensions: [] }))
+  ]);
+  const installedMap = new Map();
+  for (const m of installed.modules || []) installedMap.set(`module:${m.module_id}`, m);
+  for (const e of installed.extensions || []) installedMap.set(`extension:${e.extension_id}`, e);
+  view.innerHTML = `
+    <section>
+      <h2>Tenant Marketplace</h2>
+      <div>Tenant: <strong>${tenantId}</strong></div>
+      <button id="backToCatalog">Back</button>
+      <h3>Catalog</h3>
+      <ul id="marketItems"></ul>
+      <h3>Pending Reviews</h3>
+      <ul id="reviewList"></ul>
+      <pre id="impactOut"></pre>
+    </section>
+  `;
+  document.getElementById("backToCatalog").onclick = () => {
+    location.hash = "/cp/studio/marketplace";
+  };
+  const list = document.getElementById("marketItems");
+  list.innerHTML = catalog.map((c) => {
+    const key = `${c.type}:${c.id}`;
+    const state = installedMap.get(key)?.state || "not_installed";
+    return `<li>
+      ${c.type} ${c.id} v${c.version} (${c.tier}) [${c.review_status}] state=${state}
+      <button data-act="install" data-type="${c.type}" data-id="${c.id}" data-version="${c.version}">Install</button>
+      <button data-act="enable" data-type="${c.type}" data-id="${c.id}" data-version="${c.version}">Enable</button>
+      <button data-act="disable" data-type="${c.type}" data-id="${c.id}" data-version="${c.version}">Disable</button>
+      <button data-act="uninstall" data-type="${c.type}" data-id="${c.id}" data-version="${c.version}">Uninstall</button>
+      <button data-act="impact" data-type="${c.type}" data-id="${c.id}" data-version="${c.version}">Preview Impact</button>
+    </li>`;
+  }).join("");
+  list.querySelectorAll("button").forEach((b) => {
+    b.onclick = async () => {
+      const type = b.dataset.type;
+      const id = b.dataset.id;
+      const version = b.dataset.version;
+      const act = b.dataset.act;
+      const url = act === "impact"
+        ? `${apiBase}/marketplace/tenants/${tenantId}/impact`
+        : `${apiBase}/marketplace/tenants/${tenantId}/${act}`;
+      const res = await fetch(url, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({ type, id, version, reason: "studio" })
+      });
+      const out = await res.text();
+      document.getElementById("impactOut").textContent = out;
+      if (act !== "impact") alert(`${act} done`);
+    };
+  });
+  const reviews = await fetch(`${apiBase}/marketplace/reviews?status=pending`, { headers }).then((r) => r.json()).catch(() => []);
+  const reviewList = document.getElementById("reviewList");
+  reviewList.innerHTML = reviews.map((r) => `<li>${r.id} ${r.extension_id} v${r.version} status=${r.status}
+    <button data-act="approve" data-id="${r.id}">Approve</button>
+    <button data-act="reject" data-id="${r.id}">Reject</button>
+  </li>`).join("");
+  reviewList.querySelectorAll("button").forEach((b) => {
+    b.onclick = async () => {
+      const act = b.dataset.act;
+      const id = b.dataset.id;
+      await fetch(`${apiBase}/marketplace/reviews/${id}/${act}`, { method: "POST", headers });
+      alert(`Review ${act}`);
+    };
+  });
+}
+
 async function renderModuleEditor(moduleId) {
   let moduleData = null;
   if (moduleId && moduleId !== "new") {
@@ -407,6 +497,11 @@ window.onhashchange = () => {
     renderModuleEditor(id);
   }
   else if (path.endsWith("/cp/studio/modules")) renderModulesView();
+  else if (path.startsWith("/cp/studio/tenants/") && path.endsWith("/marketplace")) {
+    const id = path.split("/")[4];
+    renderTenantMarketplace(id);
+  }
+  else if (path.endsWith("/cp/studio/marketplace")) renderMarketplaceCatalog();
   else if (path.endsWith("/cp/studio/releases")) renderReleasesView();
   else if (path.endsWith("/cp/studio/health")) renderHealthView();
 };

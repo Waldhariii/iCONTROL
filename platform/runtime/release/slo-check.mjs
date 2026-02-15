@@ -12,7 +12,8 @@ if (process.env.SLO_FORCE_FAIL === "1") {
 }
 
 try {
-  loadManifest({ releaseId, stalenessMs: 0 });
+  const manifestsDir = process.env.MANIFESTS_DIR || process.env.OUT_DIR;
+  loadManifest({ releaseId, stalenessMs: 0, manifestsDir });
   console.log("SLO synthetic check PASS");
   process.exit(0);
 } catch (err) {

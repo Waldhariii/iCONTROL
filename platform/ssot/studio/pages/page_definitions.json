@@ -193,5 +193,35 @@
     "owner_team": "studio",
     "tags": [],
     "state": "active"
+  },
+  {
+    "id": "cp-studio-marketplace",
+    "surface": "cp",
+    "key": "studio.marketplace",
+    "slug": "cp-studio-marketplace",
+    "title_key": "studio.marketplace",
+    "module_id": "studio",
+    "default_layout_template_id": "layout-1",
+    "capabilities_required": [
+      "studio.access"
+    ],
+    "owner_team": "studio",
+    "tags": [],
+    "state": "active"
+  },
+  {
+    "id": "cp-studio-tenant-marketplace",
+    "surface": "cp",
+    "key": "studio.marketplace.tenant",
+    "slug": "cp-studio-tenant-marketplace",
+    "title_key": "studio.marketplace.tenant",
+    "module_id": "studio",
+    "default_layout_template_id": "layout-1",
+    "capabilities_required": [
+      "studio.access"
+    ],
+    "owner_team": "studio",
+    "tags": [],
+    "state": "active"
   }
 ]

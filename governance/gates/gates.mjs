@@ -898,6 +898,101 @@ export function activationSafetyGate({ ssotDir }) {
   return { ok, gate: "Activation Safety Gate", details: ok ? "" : bad.join(", ") };
 }
 
+function normalizeTier(tier) {
+  if (tier === "enterprise") return "ent";
+  return tier || "free";
+}
+
+function tierRank(tier) {
+  const t = normalizeTier(tier);
+  if (t === "ent") return 3;
+  if (t === "pro") return 2;
+  return 1;
+}
+
+export function marketplacePermissionGate({ ssotDir }) {
+  const perms = readJson(`${ssotDir}/extensions/extension_permissions.json`);
+  const allowed = new Set(["finops.read", "qos.read", "documents.ingest", "jobs.create"]);
+  const bad = [];
+  for (const p of perms) {
+    for (const cap of p.requested_capabilities || []) {
+      if (!allowed.has(cap)) bad.push(`${p.extension_id}:${cap}`);
+    }
+  }
+  const ok = bad.length === 0;
+  return { ok, gate: "Marketplace Permission Gate", details: ok ? "" : bad.join(", ") };
+}
+
+export function marketplacePlanGate({ ssotDir }) {
+  const tenants = readJson(`${ssotDir}/tenancy/tenants.json`);
+  const overrides = readJson(`${ssotDir}/tenancy/tenant_overrides.json`);
+  const plans = readJson(`${ssotDir}/tenancy/plans.json`);
+  const planVersions = readJson(`${ssotDir}/tenancy/plan_versions.json`);
+  const modules = readJson(`${ssotDir}/modules/domain_modules.json`);
+  const activations = readJson(`${ssotDir}/modules/module_activations.json`);
+  const extensions = readJson(`${ssotDir}/extensions/extensions.json`);
+  const installs = readJson(`${ssotDir}/extensions/extension_installations.json`);
+  const tenantSet = new Set(tenants.map((t) => t.tenant_id));
+  const bad = [];
+  for (const a of activations) {
+    if (a.tenant_id === "tenant:default") continue;
+    if (!tenantSet.has(a.tenant_id)) continue;
+    if (a.state !== "active") continue;
+    const override = overrides.find((o) => o.tenant_id === a.tenant_id);
+    const tenant = tenants.find((t) => t.tenant_id === a.tenant_id);
+    const planId = override?.plan_id || tenant?.plan_id || "plan:free";
+    const plan = plans.find((p) => p.plan_id === planId);
+    const pv = planVersions.filter((p) => p.plan_id === planId).slice(-1)[0];
+    const planTier = normalizeTier(pv?.perf_tier || plan?.tier || "free");
+    const mod = modules.find((m) => m.module_id === a.module_id);
+    if (mod && tierRank(mod.tier) > tierRank(planTier)) bad.push(`module:${a.tenant_id}:${a.module_id}:tier_block`);
+  }
+  for (const i of installs) {
+    if (i.tenant_id === "tenant:default") continue;
+    if (!tenantSet.has(i.tenant_id)) continue;
+    if (i.state !== "installed") continue;
+    const override = overrides.find((o) => o.tenant_id === i.tenant_id);
+    const tenant = tenants.find((t) => t.tenant_id === i.tenant_id);
+    const planId = override?.plan_id || tenant?.plan_id || "plan:free";
+    const plan = plans.find((p) => p.plan_id === planId);
+    const pv = planVersions.filter((p) => p.plan_id === planId).slice(-1)[0];
+    const planTier = normalizeTier(pv?.perf_tier || plan?.tier || "free");
+    const ext = extensions.find((e) => e.id === i.extension_id);
+    if (ext && tierRank(ext.tier || "free") > tierRank(planTier)) bad.push(`extension:${i.tenant_id}:${i.extension_id}:tier_block`);
+  }
+  const ok = bad.length === 0;
+  return { ok, gate: "Marketplace Plan Gate", details: ok ? "" : bad.join(", ") };
+}
+
+export function marketplaceImpactGate({ ssotDir }) {
+  const perms = readJson(`${ssotDir}/extensions/extension_permissions.json`);
+  const exportControls = readJson(`${ssotDir}/data/policies/export_controls.json`);
+  const hasMasking = exportControls.some((c) => c.masking_required === true);
+  const risky = perms.some((p) => (p.requested_capabilities || []).includes("documents.ingest"));
+  const ok = !risky || hasMasking;
+  return { ok, gate: "Marketplace Impact Gate", details: ok ? "" : "Missing export masking controls" };
+}
+
+export function marketplaceCompatGate({ ssotDir }) {
+  const activations = readJson(`${ssotDir}/modules/module_activations.json`);
+  const versions = readJson(`${ssotDir}/modules/domain_module_versions.json`);
+  const installs = readJson(`${ssotDir}/extensions/extension_installations.json`);
+  const extVersions = readJson(`${ssotDir}/extensions/extension_versions.json`);
+  const bad = [];
+  for (const a of activations) {
+    if (a.state !== "active") continue;
+    const v = versions.find((x) => x.module_id === a.module_id && x.status === "deprecated");
+    if (v) bad.push(`module:${a.module_id}:deprecated_active`);
+  }
+  for (const i of installs) {
+    if (i.state !== "installed") continue;
+    const v = extVersions.find((x) => x.extension_id === i.extension_id && x.version === i.version);
+    if (v && v.status === "draft") bad.push(`extension:${i.extension_id}@${i.version}:draft_installed`);
+  }
+  const ok = bad.length === 0;
+  return { ok, gate: "Marketplace Compat Gate", details: ok ? "" : bad.join(", ") };
+}
+
 export function runbookIntegrityGate({ ssotDir }) {
   const runbooks = readJson(`${ssotDir}/ops/runbooks.json`);
   const versions = readJson(`${ssotDir}/ops/runbook_versions.json`);

@@ -1,0 +1,9 @@
+[
+  {
+    "id": "catalog:default",
+    "status": "active",
+    "sources": ["domain_modules", "extensions"],
+    "created_at": "2026-02-15T03:30:00.000Z",
+    "description": "Unified marketplace view of modules and extensions"
+  }
+]

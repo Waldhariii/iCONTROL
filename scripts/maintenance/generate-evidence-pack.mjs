@@ -32,6 +32,8 @@ copyIfExists(join(SSOT_DIR, "sre", "canary_policies.json"), join(outDir, "canary
 copyIfExists(join(SSOT_DIR, "governance", "change_freeze.json"), join(outDir, "change_freeze.json"));
 copyIfExists(join(SSOT_DIR, "governance", "break_glass.json"), join(outDir, "break_glass.json"));
 copyIfExists(join(SSOT_DIR, "extensions", "extension_killswitch.json"), join(outDir, "extension_killswitch.json"));
+copyIfExists(join(SSOT_DIR, "extensions", "extension_installations.json"), join(outDir, "extension_installations.json"));
+copyIfExists(join(SSOT_DIR, "extensions", "extension_reviews.json"), join(outDir, "extension_reviews.json"));
 copyIfExists(join(SSOT_DIR, "compat", "compatibility_matrix.json"), join(outDir, "compatibility_matrix.json"));
 copyIfExists(join(SSOT_DIR, "compat", "deprecations.json"), join(outDir, "deprecations.json"));
 copyIfExists(join(SSOT_DIR, "modules", "domain_modules.json"), join(outDir, "domain_modules.json"));
@@ -107,6 +109,8 @@ try {
   if (upgrades[0]) copyIfExists(join(reportsDir, upgrades[0]), join(outDir, upgrades[0]));
   const tenantPlans = reports.filter((f) => f.startsWith("TENANT_FACTORY_PLAN_") && f.endsWith(".md")).slice(-1);
   if (tenantPlans[0]) copyIfExists(join(reportsDir, tenantPlans[0]), join(outDir, tenantPlans[0]));
+  const impacts = reports.filter((f) => f.startsWith("MARKETPLACE_IMPACT_") && f.endsWith(".md")).slice(-1);
+  if (impacts[0]) copyIfExists(join(reportsDir, impacts[0]), join(outDir, impacts[0]));
 } catch {
   // ignore
 }

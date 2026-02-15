@@ -1,4 +1,5 @@
 import { readJson, writeJson, stableStringify, sha256, signPayload, readKey, writeText } from "./utils.mjs";
+import { compareSemver } from "../runtime/compat/semver.mjs";
 import { validateOrThrow } from "../../core/contracts/schema/validate.mjs";
 
 export function compilePlatform({ ssotDir, outDir, releaseId, env, privateKeyPath }) {
@@ -20,9 +21,11 @@ export function compilePlatform({ ssotDir, outDir, releaseId, env, privateKeyPat
   const meteringCatalog = readJson(`${ssotDir}/finops/metering_catalog.json`);
   const budgetPolicies = readJson(`${ssotDir}/finops/budgets.json`);
   const qosPolicies = readJson(`${ssotDir}/qos/qos_policies.json`);
+  const extensions = readJson(`${ssotDir}/extensions/extensions.json`);
   const extensionInstalls = readJson(`${ssotDir}/extensions/extension_installations.json`);
   const extensionPermissions = readJson(`${ssotDir}/extensions/extension_permissions.json`);
   const extensionVersions = readJson(`${ssotDir}/extensions/extension_versions.json`);
+  const extensionReviews = readJson(`${ssotDir}/extensions/extension_reviews.json`);
   const extensionKillswitch = readJson(`${ssotDir}/extensions/extension_killswitch.json`);
   const dataSources = readJson(`${ssotDir}/data/catalog/data_sources.json`);
   const dataModels = readJson(`${ssotDir}/data/catalog/data_models.json`);
@@ -47,7 +50,10 @@ export function compilePlatform({ ssotDir, outDir, releaseId, env, privateKeyPat
   const deprecations = readJson(`${ssotDir}/compat/deprecations.json`);
   const migrationRegistry = readJson(`${ssotDir}/compat/migrations.json`);
   const domainModules = readJson(`${ssotDir}/modules/domain_modules.json`);
+  const domainModuleVersions = readJson(`${ssotDir}/modules/domain_module_versions.json`);
   const moduleActivations = readJson(`${ssotDir}/modules/module_activations.json`);
+  const marketplaceSources = readJson(`${ssotDir}/marketplace/catalog_sources.json`);
+  const marketplaceVersions = readJson(`${ssotDir}/marketplace/catalog_versions.json`);
 
   const domainModuleIds = new Set(domainModules.map((m) => m.module_id));
   const activeModuleIds = new Set(moduleActivations.filter((m) => m.state === "active").map((m) => m.module_id));
@@ -119,6 +125,43 @@ export function compilePlatform({ ssotDir, outDir, releaseId, env, privateKeyPat
     data_classifications: dataClassifications
   };
 
+  function latestVersion(list, idKey, id) {
+    const items = list.filter((v) => v[idKey] === id);
+    if (!items.length) return null;
+    return items.sort((a, b) => compareSemver(a.version, b.version)).slice(-1)[0];
+  }
+  const marketplaceCatalog = [];
+  for (const m of domainModules) {
+    const ver = latestVersion(domainModuleVersions, "module_id", m.module_id);
+    marketplaceCatalog.push({
+      type: "module",
+      id: m.module_id,
+      version: ver?.version || "0.0.0",
+      tier: m.tier || "free",
+      name: m.name || m.module_id,
+      permissions: m.required_capabilities || [],
+      review_status: "n/a",
+      status: "active"
+    });
+  }
+  for (const e of extensions) {
+    const ver = latestVersion(extensionVersions, "extension_id", e.id);
+    const perms = extensionPermissions.find((p) => p.extension_id === e.id);
+    const review = extensionReviews.find((r) => r.extension_id === e.id && r.version === ver?.version);
+    const reviewStatus = review?.status || "pending";
+    marketplaceCatalog.push({
+      type: "extension",
+      id: e.id,
+      version: ver?.version || "0.0.0",
+      tier: e.tier || "free",
+      name: e.name || e.id,
+      permissions: perms?.requested_capabilities || [],
+      review_status: reviewStatus,
+      publisher: e.publisher,
+      status: e.status
+    });
+  }
+
   const manifest = {
     manifest_id: `manifest:${releaseId}`,
     manifest_version: "1.0.0",
@@ -179,7 +222,12 @@ export function compilePlatform({ ssotDir, outDir, releaseId, env, privateKeyPat
       migrations: migrationRegistry
     },
     domain_modules: domainModules,
-    module_activations: moduleActivations
+    module_activations: moduleActivations,
+    marketplace: {
+      catalog: marketplaceCatalog,
+      sources: marketplaceSources,
+      versions: marketplaceVersions
+    }
   };
 
   const checksums = {

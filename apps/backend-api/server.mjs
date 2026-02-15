@@ -9,6 +9,7 @@ import { resolveSecret } from "../../platform/runtime/integrations/dispatcher.mj
 import { getEffectiveQosOverrides } from "../../platform/runtime/ops/actions.mjs";
 import { createIncident, readIncident, executeRunbook, listTimeline } from "../../platform/runtime/ops/engine.mjs";
 import { planTenantCreate, planTenantClone, dryRunCreate, applyCreate, readFactoryStatus } from "../../platform/runtime/tenancy/factory.mjs";
+import { analyzeInstall } from "../../platform/runtime/marketplace/impact.mjs";
 import { sha256, stableStringify } from "../../platform/compilers/utils.mjs";
 import { createHmac, timingSafeEqual } from "crypto";
 
@@ -110,6 +111,17 @@ function readModules() {
     const activeTenants = activations.filter((a) => a.module_id === m.module_id && a.state === "active").length;
     return { ...m, latest_version: latest?.version || "", active_tenants: activeTenants };
   });
+}
+
+function readMarketplaceCatalog() {
+  const active = readActiveRelease();
+  if (!active.active_release_id) return [];
+  try {
+    const manifest = loadManifest({ releaseId: active.active_release_id, manifestsDir: process.env.MANIFESTS_DIR || "./runtime/manifests", stalenessMs: 0 });
+    return manifest.marketplace?.catalog || [];
+  } catch {
+    return [];
+  }
 }
 
 function getFinopsData() {
@@ -630,6 +642,51 @@ function readActiveRelease() {
   };
 }
 
+function normalizeTier(tier) {
+  if (tier === "enterprise") return "ent";
+  return tier || "free";
+}
+
+function tierRank(tier) {
+  const t = normalizeTier(tier);
+  if (t === "ent") return 3;
+  if (t === "pro") return 2;
+  return 1;
+}
+
+function getTenantPlan(tenantId) {
+  const tenants = readJson(ssotPath("tenancy/tenants.json"));
+  const overrides = readJson(ssotPath("tenancy/tenant_overrides.json"));
+  const plans = readJson(ssotPath("tenancy/plans.json"));
+  const versions = readJson(ssotPath("tenancy/plan_versions.json"));
+  const override = overrides.find((o) => o.tenant_id === tenantId);
+  const tenant = tenants.find((t) => t.tenant_id === tenantId);
+  const planId = override?.plan_id || tenant?.plan_id || "plan:free";
+  const plan = plans.find((p) => p.plan_id === planId);
+  const planVersions = versions.filter((v) => v.plan_id === planId);
+  const version = planVersions.length ? planVersions[planVersions.length - 1] : null;
+  return { plan_id: planId, tier: normalizeTier(version?.perf_tier || plan?.tier || "free") };
+}
+
+function buildPreviewFromOps(changesetId, ops) {
+  const previewDir = `./platform/runtime/preview/${changesetId}`;
+  const previewSsot = join(previewDir, "ssot");
+  const previewManifests = join(previewDir, "manifests");
+  mkdirSync(previewSsot, { recursive: true });
+  mkdirSync(previewManifests, { recursive: true });
+  copyDir(SSOT_DIR, previewSsot);
+  applyOpsToDir(previewSsot, ops);
+  execSync(`node scripts/ci/compile.mjs preview-${changesetId} dev`, {
+    stdio: "inherit",
+    env: { ...process.env, SSOT_DIR: previewSsot, OUT_DIR: previewManifests }
+  });
+  execSync(`node governance/gates/run-gates.mjs preview-${changesetId}`, {
+    stdio: "inherit",
+    env: { ...process.env, SSOT_DIR: previewSsot, MANIFESTS_DIR: previewManifests }
+  });
+  return { previewSsot, previewManifests, previewReleaseId: `preview-${changesetId}` };
+}
+
 function loadActiveManifest() {
   const active = readActiveRelease();
   if (!active.active_release_id) return null;
@@ -743,7 +800,7 @@ const server = http.createServer(async (req, res) => {
       const releaseId = url.searchParams.get("release") || readActiveRelease().active_release_id || latestReleaseId();
       const previewId = url.searchParams.get("preview");
       if (!releaseId) return json(res, 404, { error: "No release available" });
-      const manifestsDir = previewId ? `./platform/runtime/preview/${previewId}/manifests` : undefined;
+      const manifestsDir = previewId ? `./platform/runtime/preview/${previewId}/manifests` : (process.env.MANIFESTS_DIR || "./runtime/manifests");
       const manifest = loadManifest({ releaseId, stalenessMs: 0, manifestsDir });
       return json(res, 200, manifest);
     }
@@ -926,10 +983,16 @@ const server = http.createServer(async (req, res) => {
         stdio: "inherit",
         env: { ...process.env, SSOT_DIR: previewSsot, MANIFESTS_DIR: previewManifests }
       });
-      execSync(`node scripts/ci/release.mjs --from-changeset ${changesetId} --env dev --strategy canary`, {
-        stdio: "inherit",
-        env: { ...process.env, SSOT_DIR }
-      });
+      try {
+        execSync(`node scripts/ci/release.mjs --from-changeset ${changesetId} --env dev --strategy canary`, {
+          stdio: "pipe",
+          env: { ...process.env, SSOT_DIR }
+        });
+      } catch (err) {
+        const stderr = err?.stderr ? String(err.stderr) : "";
+        const stdout = err?.stdout ? String(err.stdout) : "";
+        return json(res, 500, { error: `Release failed: ${err.message}`, stdout, stderr });
+      }
       appendAudit({ event: "studio_module_activate", module_id: moduleId, tenant_id: tenantId, at: new Date().toISOString() });
       return json(res, 200, { ok: true, release_id: latestReleaseId() });
     }
@@ -970,12 +1033,199 @@ const server = http.createServer(async (req, res) => {
         stdio: "inherit",
         env: { ...process.env, SSOT_DIR: previewSsot, MANIFESTS_DIR: previewManifests }
       });
-      execSync(`node scripts/ci/release.mjs --from-changeset ${changesetId} --env dev --strategy canary`, {
-        stdio: "inherit",
-        env: { ...process.env, SSOT_DIR }
-      });
+      try {
+        execSync(`node scripts/ci/release.mjs --from-changeset ${changesetId} --env dev --strategy canary`, {
+          stdio: "pipe",
+          env: { ...process.env, SSOT_DIR }
+        });
+      } catch (err) {
+        const stderr = err?.stderr ? String(err.stderr) : "";
+        const stdout = err?.stdout ? String(err.stdout) : "";
+        return json(res, 500, { error: `Release failed: ${err.message}`, stdout, stderr });
+      }
       appendAudit({ event: "studio_module_deactivate", module_id: moduleId, tenant_id: tenantId, at: new Date().toISOString() });
       return json(res, 200, { ok: true, release_id: latestReleaseId() });
+    }
+
+    if (req.method === "GET" && req.url === "/api/marketplace/catalog") {
+      requirePermission(req, "marketplace.view");
+      const catalog = readMarketplaceCatalog();
+      if (!catalog.length) return json(res, 503, { error: "Catalog unavailable" });
+      return json(res, 200, catalog);
+    }
+
+    if (req.method === "GET" && req.url?.startsWith("/api/marketplace/items/")) {
+      requirePermission(req, "marketplace.view");
+      const parts = req.url.split("/");
+      const type = parts[4];
+      const id = decodeURIComponent(parts[5] || "");
+      const catalog = readMarketplaceCatalog();
+      const item = catalog.find((c) => c.type === type && c.id === id);
+      if (!item) return json(res, 404, { error: "Not found" });
+      return json(res, 200, item);
+    }
+
+    if (req.method === "GET" && req.url?.startsWith("/api/marketplace/tenants/") && req.url?.endsWith("/installed")) {
+      requirePermission(req, "marketplace.view");
+      const tenantId = decodeURIComponent(req.url.split("/")[4]);
+      const modules = readJson(ssotPath("modules/module_activations.json")).filter((m) => m.tenant_id === tenantId);
+      const extensions = readJson(ssotPath("extensions/extension_installations.json")).filter((e) => e.tenant_id === tenantId);
+      return json(res, 200, { tenant_id: tenantId, modules, extensions });
+    }
+
+    if (req.method === "POST" && req.url?.startsWith("/api/marketplace/tenants/") && req.url?.endsWith("/impact")) {
+      requirePermission(req, "marketplace.view");
+      const tenantId = decodeURIComponent(req.url.split("/")[4]);
+      const payload = await bodyToJson(req);
+      const { type, id, version } = payload;
+      const changesetId = payload.changeset_id || `cs-marketplace-impact-${Date.now()}`;
+      const csPath = ssotPath(`changes/changesets/${changesetId}.json`);
+      if (!existsSync(csPath)) {
+        mkdirSync(ssotPath("changes/changesets"), { recursive: true });
+        writeJson(csPath, { id: changesetId, status: "draft", created_by: "api", created_at: new Date().toISOString(), scope: "global", ops: [] });
+      }
+      const ops = [];
+      if (type === "module") {
+        const activations = readJson(ssotPath("modules/module_activations.json"));
+        const exists = activations.some((a) => a.tenant_id === tenantId && a.module_id === id);
+        ops.push({
+          op: exists ? "update" : "add",
+          target: { kind: "module_activation", ref: `${tenantId}:${id}` },
+          value: { tenant_id: tenantId, module_id: id, state: "active" },
+          preconditions: { expected_exists: !exists ? false : true }
+        });
+      } else if (type === "extension") {
+        const installs = readJson(ssotPath("extensions/extension_installations.json"));
+        const exists = installs.some((i) => i.tenant_id === tenantId && i.extension_id === id);
+        ops.push({
+          op: exists ? "update" : "add",
+          target: { kind: "extension_installation", ref: `${tenantId}:${id}` },
+          value: { tenant_id: tenantId, extension_id: id, version: version || "1.0.0", state: "installed", installed_at: new Date().toISOString() },
+          preconditions: { expected_exists: !exists ? false : true }
+        });
+      } else {
+        return json(res, 400, { error: "Unknown type" });
+      }
+      const preview = buildPreviewFromOps(changesetId, ops);
+      const active = loadActiveManifest();
+      const previewManifest = loadManifest({ releaseId: preview.previewReleaseId, manifestsDir: preview.previewManifests, stalenessMs: 0 });
+      const { result, report_path } = analyzeInstall({ activeManifest: active, previewManifest, tenantId, item: { type, id, version } });
+      appendAudit({ event: "marketplace_impact", tenant_id: tenantId, item_type: type, item_id: id, at: new Date().toISOString() });
+      return json(res, 200, { impact: result, report_path });
+    }
+
+    if (req.method === "POST" && req.url?.startsWith("/api/marketplace/tenants/") && /\/(install|enable|disable|uninstall)$/.test(req.url)) {
+      const action = req.url.split("/").slice(-1)[0];
+      requirePermission(req, `marketplace.${action === "enable" ? "enable" : action === "disable" ? "disable" : action}`);
+      const tenantId = decodeURIComponent(req.url.split("/")[4]);
+      const payload = await bodyToJson(req);
+      const { type, id, version, reason } = payload;
+      const changesetId = payload.changeset_id || `cs-marketplace-${action}-${Date.now()}`;
+      const csPath = ssotPath(`changes/changesets/${changesetId}.json`);
+      if (!existsSync(csPath)) {
+        mkdirSync(ssotPath("changes/changesets"), { recursive: true });
+        writeJson(csPath, { id: changesetId, status: "draft", created_by: "api", created_at: new Date().toISOString(), scope: "global", ops: [] });
+      }
+      const plan = getTenantPlan(tenantId);
+      const ops = [];
+      if (type === "module") {
+        const modules = readJson(ssotPath("modules/domain_modules.json"));
+        const activations = readJson(ssotPath("modules/module_activations.json"));
+        const mod = modules.find((m) => m.module_id === id);
+        if (!mod) return json(res, 404, { error: "Module not found" });
+        const exists = activations.some((a) => a.tenant_id === tenantId && a.module_id === id);
+        const desiredState = action === "disable" || action === "uninstall" ? "inactive" : "active";
+        const allowed = tierRank(mod.tier) <= tierRank(plan.tier);
+        if ((action === "enable" || action === "install") && !allowed) {
+          const disabledState = "inactive";
+          ops.push({
+            op: exists ? "update" : "add",
+            target: { kind: "module_activation", ref: `${tenantId}:${id}` },
+            value: { tenant_id: tenantId, module_id: id, state: disabledState },
+            preconditions: { expected_exists: !exists ? false : true }
+          });
+        } else {
+          ops.push({
+            op: exists ? "update" : "add",
+            target: { kind: "module_activation", ref: `${tenantId}:${id}` },
+            value: exists ? { state: desiredState } : { tenant_id: tenantId, module_id: id, state: desiredState },
+            preconditions: { expected_exists: !exists ? false : true }
+          });
+        }
+      } else if (type === "extension") {
+        const extensions = readJson(ssotPath("extensions/extensions.json"));
+        const installs = readJson(ssotPath("extensions/extension_installations.json"));
+        const reviews = readJson(ssotPath("extensions/extension_reviews.json"));
+        const ext = extensions.find((e) => e.id === id);
+        if (!ext) return json(res, 404, { error: "Extension not found" });
+        if (action === "install") requireQuorum("extension_install", changesetId, 2);
+        const reviewOk = reviews.some((r) => r.extension_id === id && r.version === version && r.status === "approved");
+        if ((action === "install" || action === "enable") && !reviewOk) return json(res, 400, { error: "Extension review not approved" });
+        const desiredState = action === "disable" || action === "uninstall" ? "disabled" : "installed";
+        const allowed = tierRank(ext.tier || "free") <= tierRank(plan.tier);
+        const state = (action === "enable" || action === "install") && !allowed ? "disabled" : desiredState;
+        const exists = installs.some((i) => i.tenant_id === tenantId && i.extension_id === id);
+        ops.push({
+          op: exists ? "update" : "add",
+          target: { kind: "extension_installation", ref: `${tenantId}:${id}` },
+          value: { tenant_id: tenantId, extension_id: id, version: version || "1.0.0", state, installed_at: new Date().toISOString() },
+          preconditions: { expected_exists: !exists ? false : true }
+        });
+      } else {
+        return json(res, 400, { error: "Unknown type" });
+      }
+      const cs = readJson(csPath);
+      cs.ops.push(...ops);
+      writeJson(csPath, cs);
+      const preview = buildPreviewFromOps(changesetId, cs.ops);
+      const active = loadActiveManifest();
+      const previewManifest = loadManifest({ releaseId: preview.previewReleaseId, manifestsDir: preview.previewManifests, stalenessMs: 0 });
+      const impact = analyzeInstall({ activeManifest: active, previewManifest, tenantId, item: { type, id, version } });
+      const breaking = impact.result.breaking;
+      if (type === "module" && action === "enable" && breaking) requireQuorum("marketplace_enable_module", changesetId, 2);
+      try {
+        execSync(`node scripts/ci/release.mjs --from-changeset ${changesetId} --env dev --strategy canary`, {
+          stdio: "pipe",
+          env: { ...process.env, SSOT_DIR }
+        });
+      } catch (err) {
+        const stderr = err?.stderr ? String(err.stderr) : "";
+        const stdout = err?.stdout ? String(err.stdout) : "";
+        return json(res, 500, { error: `Release failed: ${err.message}`, stdout, stderr });
+      }
+      appendAudit({ event: `marketplace_${action}`, tenant_id: tenantId, item_type: type, item_id: id, reason, at: new Date().toISOString() });
+      return json(res, 200, { ok: true, release_id: latestReleaseId(), impact: impact.result, report_path: impact.report_path });
+    }
+
+    if (req.method === "GET" && req.url?.startsWith("/api/marketplace/reviews")) {
+      requirePermission(req, "marketplace.review");
+      const url = new URL(req.url, "http://localhost");
+      const status = url.searchParams.get("status");
+      const reviews = readJson(ssotPath("extensions/extension_reviews.json"));
+      const list = status ? reviews.filter((r) => r.status === status) : reviews;
+      return json(res, 200, list);
+    }
+
+    if (req.method === "POST" && req.url?.startsWith("/api/marketplace/reviews/") && (req.url.endsWith("/approve") || req.url.endsWith("/reject"))) {
+      requirePermission(req, "marketplace.review");
+      const parts = req.url.split("/");
+      const reviewId = decodeURIComponent(parts[4]);
+      const action = parts[5];
+      const changesetId = `cs-marketplace-review-${Date.now()}`;
+      const csPath = ssotPath(`changes/changesets/${changesetId}.json`);
+      mkdirSync(ssotPath("changes/changesets"), { recursive: true });
+      writeJson(csPath, { id: changesetId, status: "draft", created_by: "api", created_at: new Date().toISOString(), scope: "global", ops: [] });
+      const reviews = readJson(ssotPath("extensions/extension_reviews.json"));
+      const review = reviews.find((r) => r.id === reviewId);
+      if (!review) return json(res, 404, { error: "Review not found" });
+      const updated = { status: action === "approve" ? "approved" : "rejected", approvals: review.approvals || [] };
+      if (action === "approve") updated.approvals = [...new Set([...updated.approvals, "user:admin"])];
+      const cs = readJson(csPath);
+      cs.ops.push({ op: "update", target: { kind: "extension_review", ref: reviewId }, value: updated, preconditions: { expected_exists: true } });
+      writeJson(csPath, cs);
+      execSync(`node scripts/ci/apply-changeset.mjs ${changesetId}`, { stdio: "inherit", env: { ...process.env, SSOT_DIR } });
+      appendAudit({ event: "marketplace_review_update", review_id: reviewId, status: updated.status, at: new Date().toISOString() });
+      return json(res, 200, { ok: true, status: updated.status });
     }
 
     if (req.method === "PATCH" && req.url?.startsWith("/api/studio/pages/")) {

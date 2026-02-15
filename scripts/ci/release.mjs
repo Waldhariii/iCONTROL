@@ -8,6 +8,8 @@ const changesetId = args[args.indexOf("--from-changeset") + 1];
 const env = args[args.indexOf("--env") + 1] || "dev";
 const strategy = args[args.indexOf("--strategy") + 1] || "canary";
 const ssotDir = process.env.SSOT_DIR || "./platform/ssot";
+const manifestsDir = process.env.MANIFESTS_DIR;
+if (manifestsDir && !process.env.OUT_DIR) process.env.OUT_DIR = manifestsDir;
 
 if (!changesetId) {
   console.error("Missing --from-changeset <id>");

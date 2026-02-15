@@ -180,5 +180,33 @@
     "aliases": [],
     "deprecation_date": "",
     "redirect_to": ""
+  },
+  {
+    "route_id": "route:cp-studio-marketplace",
+    "surface": "cp",
+    "path": "/cp/studio/marketplace",
+    "page_id": "cp-studio-marketplace",
+    "guard_pack_id": "guard:default",
+    "flag_gate_id": "flag:default",
+    "entitlement_gate_id": "entitlement:default",
+    "priority": 10,
+    "canonical": true,
+    "aliases": [],
+    "deprecation_date": "",
+    "redirect_to": ""
+  },
+  {
+    "route_id": "route:cp-studio-tenant-marketplace",
+    "surface": "cp",
+    "path": "/cp/studio/tenants/:id/marketplace",
+    "page_id": "cp-studio-tenant-marketplace",
+    "guard_pack_id": "guard:default",
+    "flag_gate_id": "flag:default",
+    "entitlement_gate_id": "entitlement:default",
+    "priority": 10,
+    "canonical": true,
+    "aliases": [],
+    "deprecation_date": "",
+    "redirect_to": ""
   }
 ]

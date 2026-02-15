@@ -3,7 +3,7 @@
   "$id": "platform_manifest.v1",
   "title": "platform_manifest",
   "type": "object",
-  "required": ["manifest_id", "manifest_version", "manifest_env", "release_id", "signature", "checksums", "compat_matrix", "routes", "nav", "pages", "widgets", "themes", "permissions", "datasources", "workflows", "capabilities", "modules", "entitlements", "plans", "plan_versions", "tenant_entitlements", "tenant_quotas", "metering_catalog", "budget_policies", "qos_policies", "qos_runtime_config", "extensions_runtime", "data_catalog", "retention_policies", "export_controls", "integrations", "sre", "ops", "compat", "domain_modules", "module_activations"],
+  "required": ["manifest_id", "manifest_version", "manifest_env", "release_id", "signature", "checksums", "compat_matrix", "routes", "nav", "pages", "widgets", "themes", "permissions", "datasources", "workflows", "capabilities", "modules", "entitlements", "plans", "plan_versions", "tenant_entitlements", "tenant_quotas", "metering_catalog", "budget_policies", "qos_policies", "qos_runtime_config", "extensions_runtime", "data_catalog", "retention_policies", "export_controls", "integrations", "sre", "ops", "compat", "domain_modules", "module_activations", "marketplace"],
   "additionalProperties": false,
   "properties": {
     "manifest_id": {"type": "string"},
@@ -41,6 +41,16 @@
     "ops": {"type": "object"},
     "compat": {"type": "object"},
     "domain_modules": {"type": "array", "items": {"type": "object"}},
-    "module_activations": {"type": "array", "items": {"type": "object"}}
+    "module_activations": {"type": "array", "items": {"type": "object"}},
+    "marketplace": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["catalog"],
+      "properties": {
+        "catalog": {"type": "array", "items": { "$ref": "marketplace_catalog_item.v1" } },
+        "sources": {"type": "array", "items": { "$ref": "marketplace_catalog_source.v1" } },
+        "versions": {"type": "array", "items": { "$ref": "marketplace_catalog_version.v1" } }
+      }
+    }
   }
 }

@@ -1,0 +1,17 @@
+{
+  "$id": "marketplace_catalog_item.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["type", "id", "version", "tier", "name", "review_status"],
+  "properties": {
+    "type": { "type": "string", "enum": ["module", "extension"] },
+    "id": { "type": "string", "minLength": 1 },
+    "version": { "type": "string", "minLength": 1 },
+    "tier": { "type": "string", "enum": ["free", "pro", "ent"] },
+    "name": { "type": "string", "minLength": 1 },
+    "review_status": { "type": "string", "enum": ["pending", "approved", "rejected", "n/a"] },
+    "permissions": { "type": "array", "items": { "type": "string" } },
+    "publisher": { "type": "string" },
+    "status": { "type": "string" }
+  }
+}

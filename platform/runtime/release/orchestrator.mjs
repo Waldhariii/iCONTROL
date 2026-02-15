@@ -96,8 +96,10 @@ export function rollback(releaseId, reason) {
 
 export function sloCheck(releaseId) {
   try {
-    execSync(`node governance/gates/run-gates.mjs ${releaseId}`, { stdio: "ignore", env: process.env });
-    execSync(`node platform/runtime/release/slo-check.mjs ${releaseId}`, { stdio: "ignore", env: process.env });
+    const verbose = process.env.SLO_CHECK_VERBOSE === "1";
+    const stdio = verbose ? "inherit" : "ignore";
+    execSync(`node governance/gates/run-gates.mjs ${releaseId}`, { stdio, env: process.env });
+    execSync(`node platform/runtime/release/slo-check.mjs ${releaseId}`, { stdio, env: process.env });
     return true;
   } catch {
     return false;

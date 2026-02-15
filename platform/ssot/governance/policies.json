@@ -20,6 +20,12 @@
       "studio.modules.publish",
       "studio.modules.activate",
       "studio.modules.deactivate",
+      "marketplace.view",
+      "marketplace.install",
+      "marketplace.enable",
+      "marketplace.disable",
+      "marketplace.uninstall",
+      "marketplace.review",
       "observability.read",
       "data.export"
     ],

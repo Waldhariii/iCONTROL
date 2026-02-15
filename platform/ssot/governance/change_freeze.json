@@ -14,7 +14,8 @@
     "data.export",
     "integrations.*",
     "ops.*",
-    "studio.modules.*"
+    "studio.modules.*",
+    "marketplace.*"
   ],
   "scopes": {
     "content_mutations": true,

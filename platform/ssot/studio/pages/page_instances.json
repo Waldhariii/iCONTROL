@@ -194,5 +194,33 @@
     "created_by": "bootstrap",
     "created_at": "2026-02-15T02:59:18.324Z",
     "diff_ref": ""
+  },
+  {
+    "page_id": "cp-studio-marketplace",
+    "version": "1.0.0",
+    "status": "released",
+    "layout_instance_id": "layout-1",
+    "widget_instance_ids": [],
+    "nav_binding_ids": [],
+    "design_version_lock": "v1",
+    "checksum": "seed",
+    "rollback_ref": "",
+    "created_by": "bootstrap",
+    "created_at": "2026-02-15T03:30:00.000Z",
+    "diff_ref": ""
+  },
+  {
+    "page_id": "cp-studio-tenant-marketplace",
+    "version": "1.0.0",
+    "status": "released",
+    "layout_instance_id": "layout-1",
+    "widget_instance_ids": [],
+    "nav_binding_ids": [],
+    "design_version_lock": "v1",
+    "checksum": "seed",
+    "rollback_ref": "",
+    "created_by": "bootstrap",
+    "created_at": "2026-02-15T03:30:00.000Z",
+    "diff_ref": ""
   }
 ]

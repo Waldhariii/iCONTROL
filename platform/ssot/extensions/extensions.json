@@ -4,6 +4,7 @@
     "name": "Sample Extension",
     "publisher": "publisher:core",
     "status": "active",
-    "tags": ["sample", "core"]
+    "tags": ["sample", "core"],
+    "tier": "free"
   }
 ]

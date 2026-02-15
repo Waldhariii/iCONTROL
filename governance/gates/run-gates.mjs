@@ -49,7 +49,11 @@ import {
   dataGovCoverageGate,
   budgetCoverageGate,
   moduleAuthoringGate,
-  activationSafetyGate
+  activationSafetyGate,
+  marketplacePermissionGate,
+  marketplacePlanGate,
+  marketplaceImpactGate,
+  marketplaceCompatGate
 } from "./gates.mjs";
 
 const releaseId = process.argv[2];
@@ -111,7 +115,11 @@ const gates = [
   () => budgetCoverageGate({ ssotDir }),
   () => moduleActivationGate({ ssotDir, manifestsDir, releaseId }),
   () => moduleAuthoringGate({ ssotDir }),
-  () => activationSafetyGate({ ssotDir })
+  () => activationSafetyGate({ ssotDir }),
+  () => marketplacePermissionGate({ ssotDir }),
+  () => marketplacePlanGate({ ssotDir }),
+  () => marketplaceImpactGate({ ssotDir }),
+  () => marketplaceCompatGate({ ssotDir })
 ];
 
 const results = [];

@@ -26,5 +26,12 @@
     "label": "Modules",
     "path": "/cp/studio/modules",
     "module_id": "studio"
+  },
+  {
+    "id": "nav:cp-studio-marketplace",
+    "surface": "cp",
+    "label": "Marketplace",
+    "path": "/cp/studio/marketplace",
+    "module_id": "studio"
   }
 ]
