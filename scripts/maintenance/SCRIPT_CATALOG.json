@@ -12,6 +12,15 @@
     "s2s_scopes": []
   },
   {
+    "id": "scripts:maintenance:ab-finalize.sh",
+    "path": "scripts/maintenance/ab-finalize.sh",
+    "purpose": "AB finalize: clean worktree, CI full pass, optional patch tag",
+    "outputs": [],
+    "forbidden_outputs": ["CI_REPORT.md", "platform/runtime/reports"],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
     "id": "scripts:maintenance:bootstrap.mjs",
     "path": "scripts/maintenance/bootstrap.mjs",
     "purpose": "script",
