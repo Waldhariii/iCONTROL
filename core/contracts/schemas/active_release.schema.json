@@ -1,14 +1,1 @@
-{
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "active_release.v1",
-  "title": "active_release",
-  "type": "object",
-  "required": ["active_release_id", "active_env", "updated_at", "updated_by"],
-  "additionalProperties": false,
-  "properties": {
-    "active_release_id": {"type": "string"},
-    "active_env": {"type": "string"},
-    "updated_at": {"type": "string"},
-    "updated_by": {"type": "string"}
-  }
-}
+{"$schema":"https://json-schema.org/draft/2020-12/schema","$id":"active_release.v1","title":"active_release","type":"object","required":["active_release_id","active_env","updated_at","updated_by"],"additionalProperties":false,"properties":{"active_release_id":{"type":"string"},"active_env":{"type":"string"},"updated_at":{"type":"string"},"updated_by":{"type":"string"},"active_manifest_sha256":{"type":"string","pattern":"^[a-f0-9]{64}$"}}}

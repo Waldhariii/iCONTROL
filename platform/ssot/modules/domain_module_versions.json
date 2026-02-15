@@ -1,5 +1,32 @@
 [
-  {"module_id": "module:jobs", "version": "1.0.0", "status": "active"},
-  {"module_id": "module:documents", "version": "1.0.0", "status": "active"},
-  {"module_id": "module:billing", "version": "1.0.0", "status": "active"}
+  {
+    "module_id": "module:jobs",
+    "version": "1.0.0",
+    "status": "active"
+  },
+  {
+    "module_id": "module:documents",
+    "version": "1.0.0",
+    "status": "active"
+  },
+  {
+    "module_id": "module:billing",
+    "version": "1.0.0",
+    "status": "active"
+  },
+  {
+    "module_id": "module:pdf_exports",
+    "version": "1.0.0",
+    "status": "active"
+  },
+  {
+    "module_id": "module:ocr_pipeline",
+    "version": "1.0.0",
+    "status": "active"
+  },
+  {
+    "module_id": "module:accounting_sync",
+    "version": "1.0.0",
+    "status": "active"
+  }
 ]

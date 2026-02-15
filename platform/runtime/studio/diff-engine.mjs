@@ -85,6 +85,62 @@ export function diffManifests(activeManifest, previewManifest) {
   return { added, removed, changed };
 }
 
+const NOISE_FIELD_NAMES = new Set([
+  "generated_at",
+  "updated_at",
+  "ts",
+  "correlation_id",
+  "report_path",
+  "path",
+  "report",
+  "evidence",
+  "signature"
+]);
+
+function pathsIn(obj, prefix = "") {
+  if (obj === null || typeof obj !== "object") return [[prefix, obj]];
+  const out = [];
+  for (const k of Object.keys(obj)) {
+    const p = prefix ? `${prefix}.${k}` : k;
+    const v = obj[k];
+    if (v !== null && typeof v === "object" && !Array.isArray(v)) {
+      out.push(...pathsIn(v, p));
+    } else {
+      out.push([p, v]);
+    }
+  }
+  return out;
+}
+
+function isNoisePath(pathStr) {
+  const parts = pathStr.split(".");
+  const last = parts[parts.length - 1];
+  return NOISE_FIELD_NAMES.has(last);
+}
+
+/**
+ * Classify diff between two manifests: if all differing paths are noise-only, return noiseOnly true.
+ * @param {object} activeManifest
+ * @param {object} previewManifest
+ * @returns {{ noiseOnly: boolean, noiseFields: string[] }}
+ */
+export function classifyDiffNoise(activeManifest, previewManifest) {
+  const activePaths = new Map(pathsIn(activeManifest || {}));
+  const previewPaths = new Map(pathsIn(previewManifest || {}));
+  const allKeys = new Set([...activePaths.keys(), ...previewPaths.keys()]);
+  const differing = [];
+  for (const p of allKeys) {
+    const a = activePaths.get(p);
+    const b = previewPaths.get(p);
+    const aStr = JSON.stringify(a);
+    const bStr = JSON.stringify(b);
+    if (aStr !== bStr) differing.push(p);
+  }
+  const noiseFields = differing.filter(isNoisePath);
+  const noiseOnly = differing.length > 0 && noiseFields.length === differing.length;
+  return { noiseOnly, noiseFields: differing };
+}
+
 /**
  * Compare two SSOT file sets (path -> content).
  * @param {Record<string, string>} activeFiles - relative path -> content

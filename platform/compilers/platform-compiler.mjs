@@ -1,4 +1,5 @@
 import { readJson, writeJson, stableStringify, sha256, signPayload, readKey, writeText } from "./utils.mjs";
+import { manifestFingerprint } from "./manifest-stable.mjs";
 import { compareSemver } from "../runtime/compat/semver.mjs";
 import { validateOrThrow } from "../../core/contracts/schema/validate.mjs";
 
@@ -313,6 +314,8 @@ export function compilePlatform({ ssotDir, outDir, releaseId, env, privateKeyPat
   };
 
   manifest.checksums = checksums;
+  manifest.meta = manifest.meta || {};
+  manifest.meta.fingerprint = { sha256: manifestFingerprint(manifest) };
   const manifestJson = stableStringify({ ...manifest, signature: "" });
   manifest.checksums.manifest = sha256(manifestJson);
 

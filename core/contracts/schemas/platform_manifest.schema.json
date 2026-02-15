@@ -83,6 +83,18 @@
         "rating_rules": { "type": "array", "items": { "$ref": "rating_rule.v1" } },
         "rating_versions": { "type": "array", "items": { "$ref": "rating_version.v1" } }
       }
+    },
+    "meta": {
+      "type": "object",
+      "properties": {
+        "fingerprint": {
+          "type": "object",
+          "required": [ "sha256" ],
+          "properties": {
+            "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+          }
+        }
+      }
     }
   }
 }

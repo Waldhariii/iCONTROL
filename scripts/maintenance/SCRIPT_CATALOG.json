@@ -679,6 +679,50 @@
     "category": "ci"
   },
   {
+    "id": "scripts:ci:test-business-docs-modules-present.mjs",
+    "path": "scripts/ci/test-business-docs-modules-present.mjs",
+    "purpose": "CI: temp SSOT compile, assert manifest includes 4 business-docs domain modules",
+    "outputs": [],
+    "forbidden_outputs": ["CI_REPORT.md", "platform/runtime/reports"],
+    "requires_api": false,
+    "s2s_scopes": [],
+    "safety": "temp-ssot",
+    "category": "ci"
+  },
+  {
+    "id": "scripts:ci:test-pdf-export-action-policy.mjs",
+    "path": "scripts/ci/test-pdf-export-action-policy.mjs",
+    "purpose": "CI: temp SSOT changeset widget action kind=export_pdf+policy_id, run-gates ActionPolicyGate PASS",
+    "outputs": [],
+    "forbidden_outputs": ["CI_REPORT.md", "platform/runtime/reports"],
+    "requires_api": false,
+    "s2s_scopes": [],
+    "safety": "temp-ssot",
+    "category": "ci"
+  },
+  {
+    "id": "scripts:ci:test-manifest-determinism.mjs",
+    "path": "scripts/ci/test-manifest-determinism.mjs",
+    "purpose": "CI: temp SSOT double compile, assert identical meta.fingerprint.sha256",
+    "outputs": [],
+    "forbidden_outputs": ["CI_REPORT.md", "platform/runtime/reports"],
+    "requires_api": false,
+    "s2s_scopes": [],
+    "safety": "temp-ssot",
+    "category": "ci"
+  },
+  {
+    "id": "scripts:ci:test-diff-noise-gate.mjs",
+    "path": "scripts/ci/test-diff-noise-gate.mjs",
+    "purpose": "CI: classifyDiffNoise two manifests (only generated_at differs) => noiseOnly true",
+    "outputs": [],
+    "forbidden_outputs": ["CI_REPORT.md", "platform/runtime/reports"],
+    "requires_api": false,
+    "s2s_scopes": [],
+    "safety": "temp-ssot",
+    "category": "ci"
+  },
+  {
     "id": "scripts:ci:test-freeze-designer-blocks-apply.mjs",
     "path": "scripts/ci/test-freeze-designer-blocks-apply.mjs",
     "purpose": "CI: freeze blocks apply/publish (423), temp SSOT",

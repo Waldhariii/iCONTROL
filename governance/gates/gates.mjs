@@ -5,6 +5,7 @@ import { stableStringify, sha256, verifyPayload } from "../../platform/compilers
 import { validateOrThrow } from "../../core/contracts/schema/validate.mjs";
 import { validateSsotDir } from "../../core/contracts/schema/validate-ssot.mjs";
 import { isValidSemver, isMajorBump } from "../../platform/runtime/compat/semver.mjs";
+import { diffManifests, classifyDiffNoise } from "../../platform/runtime/studio/diff-engine.mjs";
 
 function readJson(path) {
   return JSON.parse(readFileSync(path, "utf-8"));
@@ -1772,4 +1773,27 @@ export function actionPolicyGate({ ssotDir }) {
   }
   const ok = bad.length === 0;
   return { ok, gate: "Action Policy Gate", details: ok ? "" : bad.join("; ") };
+}
+
+export function diffNoiseGate({ activeManifestPath, previewManifestPath }) {
+  if (!activeManifestPath || !previewManifestPath) return { ok: true, gate: "Diff Noise Gate", details: "" };
+  const active = readJson(activeManifestPath);
+  const preview = readJson(previewManifestPath);
+  const diff = diffManifests(active, preview);
+  if (diff.changed.length === 0) return { ok: true, gate: "Diff Noise Gate", details: "" };
+  const { noiseOnly, noiseFields } = classifyDiffNoise(active, preview);
+  if (noiseOnly) return { ok: false, gate: "Diff Noise Gate", details: `Only non-semantic changes: ${noiseFields.join(", ")}` };
+  return { ok: true, gate: "Diff Noise Gate", details: "" };
+}
+
+const HEX64 = /^[a-f0-9]{64}$/;
+export function manifestFingerprintGate({ manifestsDir, releaseId }) {
+  const base = manifestsDir || "./runtime/manifests";
+  const path = join(base, `platform_manifest.${releaseId}.json`);
+  if (!existsSync(path)) return { ok: true, gate: "Manifest Fingerprint Gate", details: "" };
+  const manifest = readJson(path);
+  const sha = manifest?.meta?.fingerprint?.sha256;
+  if (!sha || typeof sha !== "string") return { ok: false, gate: "Manifest Fingerprint Gate", details: "meta.fingerprint.sha256 missing" };
+  if (!HEX64.test(sha)) return { ok: false, gate: "Manifest Fingerprint Gate", details: "meta.fingerprint.sha256 must be 64 hex chars" };
+  return { ok: true, gate: "Manifest Fingerprint Gate", details: "" };
 }

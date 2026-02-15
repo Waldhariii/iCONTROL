@@ -78,7 +78,8 @@ import {
   pageGraphGate,
   widgetIsolationGate,
   bindingGate,
-  actionPolicyGate
+  actionPolicyGate,
+  manifestFingerprintGate
 } from "./gates.mjs";
 
 const releaseId = process.argv[2];
@@ -167,6 +168,7 @@ const gates = [
   () => widgetIsolationGate({ ssotDir }),
   () => bindingGate({ ssotDir }),
   () => actionPolicyGate({ ssotDir }),
+  () => manifestFingerprintGate({ manifestsDir, releaseId }),
   () => artifactBudgetGate()
 ];
 

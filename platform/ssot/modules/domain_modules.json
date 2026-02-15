@@ -165,5 +165,91 @@
     "dependencies": [
       "platform:datasource"
     ]
+  },
+  {
+    "module_id": "module:pdf_exports",
+    "name": "PDF Exports",
+    "tier": "free",
+    "surfaces": [],
+    "provides": {
+      "pages": [],
+      "routes": [],
+      "nav": [],
+      "widgets": [],
+      "forms": [],
+      "workflows": [
+        "workflow:pdf_export_invoice",
+        "workflow:pdf_export_quote",
+        "workflow:pdf_export_report"
+      ],
+      "datasources": []
+    },
+    "required_capabilities": [
+      "data.export",
+      "ops.export_pdf"
+    ],
+    "default_entitlements": [
+      "entitlement:default"
+    ],
+    "dependencies": [
+      "platform:workflows",
+      "platform:datasource"
+    ]
+  },
+  {
+    "module_id": "module:ocr_pipeline",
+    "name": "OCR Pipeline",
+    "tier": "free",
+    "surfaces": [],
+    "provides": {
+      "pages": [],
+      "routes": [],
+      "nav": [],
+      "widgets": [],
+      "forms": [],
+      "workflows": [
+        "workflow:ocr_ingest",
+        "workflow:ocr_normalize"
+      ],
+      "datasources": []
+    },
+    "required_capabilities": [
+      "data.ingest",
+      "ops.ocr"
+    ],
+    "default_entitlements": [
+      "entitlement:default"
+    ],
+    "dependencies": [
+      "platform:workflows",
+      "module:documents"
+    ]
+  },
+  {
+    "module_id": "module:accounting_sync",
+    "name": "Accounting Sync",
+    "tier": "pro",
+    "surfaces": [],
+    "provides": {
+      "pages": [],
+      "routes": [],
+      "nav": [],
+      "widgets": [],
+      "forms": [],
+      "workflows": [],
+      "datasources": []
+    },
+    "required_capabilities": [
+      "integrations.outbound",
+      "integrations.inbound",
+      "ops.webhooks"
+    ],
+    "default_entitlements": [
+      "entitlement:default"
+    ],
+    "dependencies": [
+      "platform:datasource",
+      "platform:workflows"
+    ]
   }
 ]
