@@ -18,7 +18,14 @@ import { sha256, stableStringify } from "../../platform/compilers/utils.mjs";
 import { compareSemver } from "../../platform/runtime/compat/semver.mjs";
 import { createHmac, timingSafeEqual, randomUUID } from "crypto";
 
-const PORT = process.env.PORT || 7070;
+/* IC_BIND_CFG */
+const __IC_CI = String(process.env.CI || "").toLowerCase() === "true" || String(process.env.IC_CI || "") === "1";
+const __IC_HOST = process.env.HOST || (__IC_CI ? "127.0.0.1" : "0.0.0.0");
+const __IC_PORT_RAW = process.env.PORT ?? (__IC_CI ? "0" : "7070");
+const __IC_PORT = Number(__IC_PORT_RAW);
+if (!Number.isFinite(__IC_PORT) || __IC_PORT < 0) throw new Error(`Invalid PORT=${__IC_PORT_RAW}`);
+
+const PORT = __IC_PORT;
 const ROOT = process.cwd();
 const SSOT_DIR = process.env.SSOT_DIR ? normalize(process.env.SSOT_DIR) : normalize(join(ROOT, "platform/ssot"));
 const RUNTIME_DIR = process.env.RUNTIME_DIR ? normalize(process.env.RUNTIME_DIR) : normalize(join(dirname(SSOT_DIR), "runtime"));
@@ -2909,6 +2916,11 @@ const server = http.createServer(async (req, res) => {
   );
 });
 
-server.listen(PORT, () => {
-  console.log(`Write Gateway listening on ${PORT}`);
+server.listen(__IC_PORT, __IC_HOST, () => {
+  try {
+    const addr = server.address();
+    const out = { host: __IC_HOST, port: (addr && addr.port) ?? __IC_PORT, ci: __IC_CI };
+    console.log(`__IC_BOUND__=${JSON.stringify(out)}`);
+  } catch {}
+  console.log(`Write Gateway listening on ${__IC_HOST}:${PORT}`);
 });
