@@ -66,5 +66,17 @@
   {
     "id": "data.export",
     "scope": "platform:*"
+  },
+  {
+    "id": "integrations.webhook.in",
+    "scope": "tenant:*"
+  },
+  {
+    "id": "integrations.webhook.out",
+    "scope": "tenant:*"
+  },
+  {
+    "id": "integrations.read",
+    "scope": "tenant:*"
   }
 ]

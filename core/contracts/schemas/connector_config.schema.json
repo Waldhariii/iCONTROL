@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "connector_config.v1",
+  "title": "connector_config",
+  "type": "object",
+  "required": ["config_id", "tenant_id", "connector_id", "version", "state"],
+  "additionalProperties": false,
+  "properties": {
+    "config_id": {"type": "string"},
+    "tenant_id": {"type": "string"},
+    "connector_id": {"type": "string"},
+    "version": {"type": "string"},
+    "state": {"type": "string", "enum": ["active", "disabled"]},
+    "secret_ref_id": {"type": "string"},
+    "settings": {"type": "object"}
+  }
+}

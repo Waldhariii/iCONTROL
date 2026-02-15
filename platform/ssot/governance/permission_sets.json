@@ -18,7 +18,10 @@
       "studio.nav.view",
       "studio.releases.view",
       "observability.read",
-      "data.export"
+      "data.export",
+      "integrations.webhook.in",
+      "integrations.webhook.out",
+      "integrations.read"
     ]
   },
   {
@@ -53,6 +56,10 @@
       "studio.pages.view",
       "studio.routes.view",
       "studio.nav.view"
+      ,
+      "integrations.webhook.in",
+      "integrations.webhook.out",
+      "integrations.read"
     ]
   },
   {
@@ -72,6 +79,10 @@
       "studio.pages.view",
       "studio.routes.view",
       "studio.nav.view"
+      ,
+      "integrations.webhook.in",
+      "integrations.webhook.out",
+      "integrations.read"
     ]
   },
   {

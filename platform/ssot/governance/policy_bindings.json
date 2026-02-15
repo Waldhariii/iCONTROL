@@ -34,5 +34,17 @@
     "role_id": "platform.admin",
     "policy_id": "policy:breakglass",
     "scope": "platform:*"
+  },
+  {
+    "id": "bind:platform.admin.integrations",
+    "role_id": "platform.admin",
+    "policy_id": "policy:integrations",
+    "scope": "tenant:*"
+  },
+  {
+    "id": "bind:tenant.admin.integrations",
+    "role_id": "tenant.admin",
+    "policy_id": "policy:integrations",
+    "scope": "tenant:*"
   }
 ]

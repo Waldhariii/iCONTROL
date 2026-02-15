@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "integration_audit.v1",
+  "title": "integration_audit",
+  "type": "object",
+  "required": ["event", "at"],
+  "additionalProperties": true,
+  "properties": {
+    "event": {"type": "string"},
+    "at": {"type": "string", "format": "date-time"}
+  }
+}

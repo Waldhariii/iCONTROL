@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "event_subscription.v1",
+  "title": "event_subscription",
+  "type": "object",
+  "required": ["subscription_id", "tenant_id", "event", "webhook_id", "enabled"],
+  "additionalProperties": false,
+  "properties": {
+    "subscription_id": {"type": "string"},
+    "tenant_id": {"type": "string"},
+    "event": {"type": "string"},
+    "webhook_id": {"type": "string"},
+    "enabled": {"type": "boolean"}
+  }
+}

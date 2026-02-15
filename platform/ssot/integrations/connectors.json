@@ -1,0 +1,10 @@
+[
+  {
+    "connector_id": "connector:slack",
+    "name": "Slack",
+    "type": "slack",
+    "status": "active",
+    "tags": ["chat", "notifications"],
+    "created_at": "2026-02-14T00:00:00Z"
+  }
+]

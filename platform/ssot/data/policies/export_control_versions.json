@@ -4,5 +4,11 @@
     "version": "1.0.0",
     "status": "active",
     "effective_from": "2026-02-14T00:00:00.000Z"
+  },
+  {
+    "control_id": "export:webhook",
+    "version": "1.0.0",
+    "status": "active",
+    "effective_from": "2026-02-14T00:00:00.000Z"
   }
 ]

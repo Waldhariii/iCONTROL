@@ -1,0 +1,10 @@
+[
+  {
+    "connector_id": "connector:slack",
+    "version": "0.1.0",
+    "status": "draft",
+    "checksum": "",
+    "signature": "",
+    "signed_at": ""
+  }
+]

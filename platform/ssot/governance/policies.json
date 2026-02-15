@@ -54,5 +54,19 @@
       "platform:*"
     ],
     "conditions": {}
+  },
+  {
+    "id": "policy:integrations",
+    "name": "Integrations",
+    "effect": "allow",
+    "actions": [
+      "integrations.webhook.in",
+      "integrations.webhook.out",
+      "integrations.read"
+    ],
+    "scopes": [
+      "tenant:*"
+    ],
+    "conditions": {}
   }
 ]

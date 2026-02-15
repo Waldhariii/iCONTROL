@@ -10,6 +10,8 @@
     "studio.releases.rollback",
     "breakglass.*",
     "audit.read",
-    "observability.read"
+    "observability.read",
+    "data.export",
+    "integrations.*"
   ]
 }

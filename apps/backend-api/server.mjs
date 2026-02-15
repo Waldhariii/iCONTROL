@@ -4,8 +4,10 @@ import { join, normalize, dirname } from "path";
 import { execSync } from "child_process";
 import { applyOpsToDir } from "../../platform/runtime/changes/patch-engine.mjs";
 import { loadManifest } from "../../platform/runtime/loader/loader.mjs";
-import { emitEvent } from "../../platform/runtime/extensions/hooks.mjs";
+import { emitEvent } from "../../platform/runtime/events/bus.mjs";
+import { resolveSecret } from "../../platform/runtime/integrations/dispatcher.mjs";
 import { sha256, stableStringify } from "../../platform/compilers/utils.mjs";
+import { createHmac, timingSafeEqual } from "crypto";
 
 const PORT = process.env.PORT || 7070;
 const ROOT = process.cwd();
@@ -37,6 +39,14 @@ function bodyToJson(req) {
         reject(err);
       }
     });
+  });
+}
+
+function bodyToText(req) {
+  return new Promise((resolve) => {
+    let body = "";
+    req.on("data", (chunk) => (body += chunk));
+    req.on("end", () => resolve(body));
   });
 }
 
@@ -246,7 +256,7 @@ function checkBudgets({ tenantId, usage, finops }) {
       appendAudit({ event: "budget_alert", tenant_id: tenantId, metric, current, limit, at: new Date().toISOString() });
       const manifest = loadActiveManifest();
       if (manifest) {
-        emitEvent({ manifest, tenantId, event: "on_budget_threshold", payload: { metric, current, limit } });
+        emitEvent({ manifest, tenantId, event: "on_budget_threshold", payload: { metric, current, limit }, qosEnforcer: createQosTicket }).catch(() => {});
       }
     }
   }
@@ -263,7 +273,9 @@ const ACTION_COSTS = {
   "api.write": 3,
   "ocr.page": 5,
   "workflow.step": 1,
-  "manifest.load": 1
+  "manifest.load": 1,
+  "integration.webhook.in": 2,
+  "integration.webhook.out": 2
 };
 
 function qosCounterPath(tenantId, dateKey) {
@@ -280,7 +292,9 @@ function readQosCounters(tenantId, dateKey) {
     workloads: {
       api: { total: 0, errors: 0, last_latency_ms: 0, breaker_open_until: 0 },
       ocr: { total: 0, errors: 0, last_latency_ms: 0, breaker_open_until: 0 },
-      workflow: { total: 0, errors: 0, last_latency_ms: 0, breaker_open_until: 0 }
+      workflow: { total: 0, errors: 0, last_latency_ms: 0, breaker_open_until: 0 },
+      webhook: { total: 0, errors: 0, last_latency_ms: 0, breaker_open_until: 0 },
+      egress: { total: 0, errors: 0, last_latency_ms: 0, breaker_open_until: 0 }
     }
   };
 }
@@ -385,6 +399,40 @@ function qosEnforcer({ tenantId, actionType, workload, costHint }) {
     startAt: Date.now(),
     policy,
     costHint
+  };
+}
+
+function finalizeQos(ctx, statusCode, elapsedMs) {
+  const usage = readUsage(ctx.tenantId, ctx.dateKey);
+  usage.cpu_ms_per_day += Math.max(0, elapsedMs);
+  writeUsage(ctx.tenantId, ctx.dateKey, usage);
+
+  const counters = readQosCounters(ctx.tenantId, ctx.dateKey);
+  const wl = counters.workloads[ctx.workload] || counters.workloads.api;
+  wl.total += 1;
+  if (statusCode >= 500) wl.errors += 1;
+  wl.last_latency_ms = elapsedMs;
+  const errRate = wl.total ? wl.errors / wl.total : 0;
+  const threshold = ctx.policy?.shed_on_error_rate_over ?? 1;
+  if (wl.total >= 20 && errRate >= threshold) {
+    const cooldown = ctx.policy?.grace_windows?.breaker_cooldown_s ?? 60;
+    wl.breaker_open_until = Date.now() + cooldown * 1000;
+    const manifest = loadActiveManifest();
+    if (manifest) {
+      emitEvent({ manifest, tenantId: ctx.tenantId, event: "on_qos_incident", payload: { workload: ctx.workload, errRate }, qosEnforcer: createQosTicket }).catch(() => {});
+    }
+  }
+  counters.workloads[ctx.workload] = wl;
+  writeQosCounters(ctx.tenantId, ctx.dateKey, counters);
+  const current = concurrencyMap.get(`${ctx.tenantId}:${ctx.workload}`) || 1;
+  concurrencyMap.set(`${ctx.tenantId}:${ctx.workload}`, Math.max(0, current - 1));
+}
+
+function createQosTicket({ tenantId, actionType, workload, costHint }) {
+  const ctx = qosEnforcer({ tenantId, actionType, workload, costHint });
+  return {
+    ctx,
+    finish: (statusCode, elapsedMs) => finalizeQos(ctx, statusCode, elapsedMs)
   };
 }
 
@@ -541,36 +589,15 @@ const server = http.createServer(async (req, res) => {
     const tenantHeader = req.headers["x-tenant-id"];
     const tenantId = typeof tenantHeader === "string" && tenantHeader ? tenantHeader : null;
     const actionOverride = req.headers["x-action-type"];
-    const actionType = typeof actionOverride === "string" && actionOverride ? actionOverride : (req.method === "GET" ? "api.read" : "api.write");
-    const workload = req.url?.includes("/ocr") ? "ocr" : req.url?.includes("/workflow") ? "workflow" : "api";
+    const inferredAction = req.url?.includes("/api/integrations/webhook/in") ? "integration.webhook.in" : (req.method === "GET" ? "api.read" : "api.write");
+    const actionType = typeof actionOverride === "string" && actionOverride ? actionOverride : inferredAction;
+    const workload = req.url?.includes("/api/integrations/webhook") ? "webhook" : req.url?.includes("/ocr") ? "ocr" : req.url?.includes("/workflow") ? "workflow" : "api";
     const costHint = ACTION_COSTS[actionType] ?? 1;
-    const qosCtx = tenantId ? qosEnforcer({ tenantId, actionType, workload, costHint }) : null;
-    if (qosCtx) {
+    const qosTicket = tenantId ? createQosTicket({ tenantId, actionType, workload, costHint }) : null;
+    if (qosTicket) {
       res.on("finish", () => {
-        const elapsed = Date.now() - qosCtx.startAt;
-        const usage = readUsage(qosCtx.tenantId, qosCtx.dateKey);
-        usage.cpu_ms_per_day += Math.max(0, elapsed);
-        writeUsage(qosCtx.tenantId, qosCtx.dateKey, usage);
-
-        const counters = readQosCounters(qosCtx.tenantId, qosCtx.dateKey);
-        const wl = counters.workloads[qosCtx.workload] || counters.workloads.api;
-        wl.total += 1;
-        if (res.statusCode >= 500) wl.errors += 1;
-        wl.last_latency_ms = elapsed;
-        const errRate = wl.total ? wl.errors / wl.total : 0;
-        const threshold = qosCtx.policy?.shed_on_error_rate_over ?? 1;
-        if (wl.total >= 20 && errRate >= threshold) {
-          const cooldown = qosCtx.policy?.grace_windows?.breaker_cooldown_s ?? 60;
-          wl.breaker_open_until = Date.now() + cooldown * 1000;
-          const manifest = loadActiveManifest();
-          if (manifest) {
-            emitEvent({ manifest, tenantId: qosCtx.tenantId, event: "on_qos_incident", payload: { workload: qosCtx.workload, errRate } });
-          }
-        }
-        counters.workloads[qosCtx.workload] = wl;
-        writeQosCounters(qosCtx.tenantId, qosCtx.dateKey, counters);
-        const current = concurrencyMap.get(`${qosCtx.tenantId}:${qosCtx.workload}`) || 1;
-        concurrencyMap.set(`${qosCtx.tenantId}:${qosCtx.workload}`, Math.max(0, current - 1));
+        const elapsed = Date.now() - qosTicket.ctx.startAt;
+        qosTicket.finish(res.statusCode, elapsed);
       });
     }
     const sleepMs = Number(req.headers["x-qos-sleep-ms"] || 0);
@@ -665,6 +692,44 @@ const server = http.createServer(async (req, res) => {
 
     if (req.method === "GET" && req.url?.startsWith("/api/runtime/active-release")) {
       return json(res, 200, readActiveRelease());
+    }
+
+    if (req.method === "POST" && req.url?.startsWith("/api/integrations/webhook/in/")) {
+      const connectorId = decodeURIComponent(req.url.split("/")[5] || "");
+      if (!tenantId) return json(res, 400, { error: "Missing x-tenant-id" });
+      const manifest = loadActiveManifest();
+      if (!manifest) return json(res, 503, { error: "Manifest not available" });
+      const webhook = (manifest.integrations?.webhooks || []).find(
+        (w) => w.connector_id === connectorId && w.direction === "inbound" && w.tenant_id === tenantId
+      );
+      if (!webhook) return json(res, 404, { error: "Webhook not registered" });
+      const raw = await bodyToText(req);
+      if (webhook.signature_required) {
+        const headerName = (webhook.signature_header || "x-signature").toLowerCase();
+        const sig = req.headers[headerName];
+        if (!sig) {
+          appendAudit({ event: "webhook_in_reject", tenant_id: tenantId, connector_id: connectorId, reason: "missing_signature", at: new Date().toISOString() });
+          return json(res, 401, { error: "Missing signature" });
+        }
+        const secret = resolveSecret(webhook.secret_ref_id, manifest, tenantId);
+        const computed = createHmac("sha256", secret).update(raw).digest("hex");
+        const sigStr = Array.isArray(sig) ? sig[0] : sig;
+        const ok = sigStr.length === computed.length && timingSafeEqual(Buffer.from(sigStr), Buffer.from(computed));
+        if (!ok) {
+          appendAudit({ event: "webhook_in_reject", tenant_id: tenantId, connector_id: connectorId, reason: "invalid_signature", at: new Date().toISOString() });
+          return json(res, 401, { error: "Invalid signature" });
+        }
+      }
+      authorizeOrDeny(req, "integrations.webhook.in", { connector_id: connectorId });
+      appendAudit({ event: "webhook_in_received", tenant_id: tenantId, connector_id: connectorId, at: new Date().toISOString() });
+      let payload = {};
+      try {
+        payload = raw ? JSON.parse(raw) : {};
+      } catch {
+        payload = { raw };
+      }
+      emitEvent({ manifest, tenantId, event: "integration.webhook_received", payload, qosEnforcer: createQosTicket }).catch(() => {});
+      return json(res, 200, { ok: true });
     }
 
     if (req.method === "POST" && req.url === "/api/studio/pages") {

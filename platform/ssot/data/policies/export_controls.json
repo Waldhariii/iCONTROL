@@ -5,5 +5,12 @@
     "export_type": "dataset",
     "masking_required": true,
     "requires_quorum": true
+  },
+  {
+    "control_id": "export:webhook",
+    "scope": "tenant:*",
+    "export_type": "webhook",
+    "masking_required": true,
+    "requires_quorum": false
   }
 ]

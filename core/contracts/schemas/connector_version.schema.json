@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "connector_version.v1",
+  "title": "connector_version",
+  "type": "object",
+  "required": ["connector_id", "version", "status"],
+  "additionalProperties": false,
+  "properties": {
+    "connector_id": {"type": "string"},
+    "version": {"type": "string"},
+    "status": {"type": "string", "enum": ["draft", "released"]},
+    "checksum": {"type": "string"},
+    "signature": {"type": "string"},
+    "signed_at": {"type": "string"}
+  }
+}
