@@ -42,6 +42,10 @@ export function compilePlatform({ ssotDir, outDir, releaseId, env, privateKeyPat
   const sliSources = readJson(`${ssotDir}/sre/sli_sources.json`);
   const errorBudgetPolicies = readJson(`${ssotDir}/sre/error_budget_policies.json`);
   const canaryPolicies = readJson(`${ssotDir}/sre/canary_policies.json`);
+  const compatMatrix = readJson(`${ssotDir}/compat/compatibility_matrix.json`);
+  const compatVersions = readJson(`${ssotDir}/compat/compatibility_versions.json`);
+  const deprecations = readJson(`${ssotDir}/compat/deprecations.json`);
+  const migrationRegistry = readJson(`${ssotDir}/compat/migrations.json`);
   const runbooks = readJson(`${ssotDir}/ops/runbooks.json`);
   const runbookVersions = readJson(`${ssotDir}/ops/runbook_versions.json`);
   const mitigationPolicies = readJson(`${ssotDir}/ops/mitigation_policies.json`);
@@ -141,6 +145,12 @@ export function compilePlatform({ ssotDir, outDir, releaseId, env, privateKeyPat
       mitigation_policies: mitigationPolicies,
       mitigation_versions: mitigationVersions,
       incident_severities: incidentSeverities
+    },
+    compat: {
+      compatibility_matrix: compatMatrix,
+      compatibility_versions: compatVersions,
+      deprecations,
+      migrations: migrationRegistry
     }
   };
 

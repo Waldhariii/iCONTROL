@@ -85,6 +85,10 @@ const steps = [
   "node scripts/ci/test-restore-drill-smoke.mjs",
   "node scripts/ci/test-evidence-pack.mjs",
   "node scripts/ci/test-chaos-smoke.mjs",
+  "node scripts/ci/test-compat-diff.mjs",
+  "node scripts/ci/test-migration-dryrun.mjs",
+  "node scripts/ci/test-deprecation-policy.mjs",
+  "node scripts/ci/test-contract-backcompat-smoke.mjs",
   "node scripts/ci/test-token-gate.mjs",
   "node scripts/ci/test-audit.mjs"
 ];

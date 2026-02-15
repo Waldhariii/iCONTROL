@@ -32,6 +32,8 @@ copyIfExists(join(SSOT_DIR, "sre", "canary_policies.json"), join(outDir, "canary
 copyIfExists(join(SSOT_DIR, "governance", "change_freeze.json"), join(outDir, "change_freeze.json"));
 copyIfExists(join(SSOT_DIR, "governance", "break_glass.json"), join(outDir, "break_glass.json"));
 copyIfExists(join(SSOT_DIR, "extensions", "extension_killswitch.json"), join(outDir, "extension_killswitch.json"));
+copyIfExists(join(SSOT_DIR, "compat", "compatibility_matrix.json"), join(outDir, "compatibility_matrix.json"));
+copyIfExists(join(SSOT_DIR, "compat", "deprecations.json"), join(outDir, "deprecations.json"));
 
 if (existsSync(opsDir)) {
   try {
@@ -79,6 +81,16 @@ try {
     const rollbacks = readdirSync(releaseDir).filter((f) => f.startsWith("rollback.") && f.endsWith(".json")).slice(-3);
     for (const f of rollbacks) copyIfExists(join(releaseDir, f), join(outDir, f));
   }
+} catch {
+  // ignore
+}
+
+try {
+  const reports = readdirSync(reportsDir);
+  const compat = reports.filter((f) => f.startsWith("COMPAT_DIFF_") && f.endsWith(".md")).slice(-1);
+  if (compat[0]) copyIfExists(join(reportsDir, compat[0]), join(outDir, compat[0]));
+  const upgrades = reports.filter((f) => f.startsWith("UPGRADE_PLAN_") && f.endsWith(".md")).slice(-1);
+  if (upgrades[0]) copyIfExists(join(reportsDir, upgrades[0]), join(outDir, upgrades[0]));
 } catch {
   // ignore
 }

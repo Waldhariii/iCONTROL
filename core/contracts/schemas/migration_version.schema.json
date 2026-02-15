@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "migration_version.v1",
+  "title": "migration_version",
+  "type": "object",
+  "required": ["migration_id", "version", "status"],
+  "additionalProperties": false,
+  "properties": {
+    "migration_id": {"type": "string"},
+    "version": {"type": "string"},
+    "status": {"type": "string", "enum": ["active", "deprecated"]}
+  }
+}

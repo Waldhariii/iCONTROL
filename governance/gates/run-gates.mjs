@@ -35,7 +35,12 @@ import {
   quorumGate,
   opsPolicyGate,
   runbookIntegrityGate,
-  breakGlassGate
+  breakGlassGate,
+  compatibilityGate,
+  deprecationGate,
+  migrationGate,
+  contractTestGate,
+  semverGate
 } from "./gates.mjs";
 
 const releaseId = process.argv[2];
@@ -83,7 +88,12 @@ const gates = [
   () => quorumGate({ ssotDir }),
   () => opsPolicyGate({ ssotDir }),
   () => runbookIntegrityGate({ ssotDir }),
-  () => breakGlassGate({ ssotDir })
+  () => breakGlassGate({ ssotDir }),
+  () => semverGate({ ssotDir, manifestsDir, releaseId }),
+  () => compatibilityGate({ ssotDir }),
+  () => deprecationGate({ ssotDir }),
+  () => migrationGate({ ssotDir }),
+  () => contractTestGate({ ssotDir })
 ];
 
 const results = [];

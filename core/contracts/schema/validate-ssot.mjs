@@ -56,7 +56,13 @@ const specificMap = new Map([
   ["runbook_versions.json", "runbook_version.v1"],
   ["mitigation_policies.json", "mitigation_policy.v1"],
   ["mitigation_versions.json", "mitigation_version.v1"],
-  ["incident_severities.json", "incident_severity.v1"]
+  ["incident_severities.json", "incident_severity.v1"],
+  ["compatibility_matrix.json", "compatibility_matrix.v1"],
+  ["compatibility_versions.json", "compatibility_version.v1"],
+  ["deprecations.json", "deprecation.v1"],
+  ["deprecation_versions.json", "deprecation_version.v1"],
+  ["migrations.json", "migration.v1"],
+  ["migration_versions.json", "migration_version.v1"]
 ]);
 
 function inferSchemaForFile(path, data) {

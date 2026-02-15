@@ -1,0 +1,11 @@
+[
+  {
+    "from_version": "1.0.0",
+    "to_version": "1.1.0",
+    "allowed": true,
+    "requires_migration": false,
+    "migration_ids": [],
+    "notes": "current",
+    "deprecation_flags": []
+  }
+]

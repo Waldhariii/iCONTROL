@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "deprecation_version.v1",
+  "title": "deprecation_version",
+  "type": "object",
+  "required": ["target_type", "target_id", "version", "status"],
+  "additionalProperties": false,
+  "properties": {
+    "target_type": {"type": "string"},
+    "target_id": {"type": "string"},
+    "version": {"type": "string"},
+    "status": {"type": "string", "enum": ["active", "deprecated"]},
+    "deprecated_in": {"type": "string"},
+    "removal_in": {"type": "string"}
+  }
+}

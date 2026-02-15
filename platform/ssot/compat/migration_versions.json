@@ -1,0 +1,7 @@
+[
+  {
+    "migration_id": "mig:platform_manifest_v1_to_v2",
+    "version": "1.0.0",
+    "status": "active"
+  }
+]

@@ -1,0 +1,10 @@
+[
+  {
+    "target_type": "schema",
+    "target_id": "platform_manifest.v1",
+    "version": "1.0.0",
+    "status": "active",
+    "deprecated_in": "1.1.0",
+    "removal_in": "2.0.0"
+  }
+]

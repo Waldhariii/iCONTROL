@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "migration.v1",
+  "title": "migration",
+  "type": "object",
+  "required": ["migration_id", "from_contract", "to_contract", "strategy", "reversible", "dry_run_supported", "evidence_required"],
+  "additionalProperties": false,
+  "properties": {
+    "migration_id": {"type": "string"},
+    "from_contract": {"type": "string"},
+    "to_contract": {"type": "string"},
+    "strategy": {"type": "string", "enum": ["transform", "backfill", "noop"]},
+    "reversible": {"type": "boolean"},
+    "dry_run_supported": {"type": "boolean"},
+    "evidence_required": {"type": "boolean"}
+  }
+}

@@ -2,6 +2,7 @@ import { readFileSync, existsSync, readdirSync } from "fs";
 import { stableStringify, sha256, verifyPayload } from "../../platform/compilers/utils.mjs";
 import { validateOrThrow } from "../../core/contracts/schema/validate.mjs";
 import { validateSsotDir } from "../../core/contracts/schema/validate-ssot.mjs";
+import { isValidSemver, isMajorBump } from "../../platform/runtime/compat/semver.mjs";
 
 function readJson(path) {
   return JSON.parse(readFileSync(path, "utf-8"));
@@ -696,6 +697,82 @@ export function breakGlassGate({ ssotDir }) {
   if (forbidden.length) bad.push(`forbidden_actions:${forbidden.join(",")}`);
   const ok = bad.length === 0;
   return { ok, gate: "BreakGlass Gate", details: ok ? "" : bad.join(" | ") };
+}
+
+export function semverGate({ ssotDir, manifestsDir, releaseId }) {
+  const bad = [];
+  const check = (items, label) => {
+    for (const it of items || []) {
+      if (!isValidSemver(it.version)) bad.push(`${label}:${it.version || ""}`);
+    }
+  };
+  check(readJson(`${ssotDir}/tenancy/plan_versions.json`), "plan_version");
+  check(readJson(`${ssotDir}/extensions/extension_versions.json`), "extension_version");
+  check(readJson(`${ssotDir}/integrations/connector_versions.json`), "connector_version");
+  check(readJson(`${ssotDir}/data/catalog/data_model_versions.json`), "data_model_version");
+  check(readJson(`${ssotDir}/qos/qos_versions.json`), "qos_version");
+  check(readJson(`${ssotDir}/finops/metering_versions.json`), "metering_version");
+  check(readJson(`${ssotDir}/ops/runbook_versions.json`), "runbook_version");
+  check(readJson(`${ssotDir}/compat/migration_versions.json`), "migration_version");
+  for (const v of readJson(`${ssotDir}/compat/compatibility_versions.json`)) {
+    if (!isValidSemver(v.from_version) || !isValidSemver(v.to_version)) bad.push(`compatibility_version:${v.from_version}->${v.to_version}`);
+  }
+  check(readJson(`${ssotDir}/compat/deprecation_versions.json`), "deprecation_version");
+  try {
+    const manifest = readJson(`${manifestsDir || "./runtime/manifests"}/platform_manifest.${releaseId}.json`);
+    if (!isValidSemver(manifest.manifest_version)) bad.push(`platform_manifest:${manifest.manifest_version}`);
+  } catch {
+    // ignore if manifest missing
+  }
+  const ok = bad.length === 0;
+  return { ok, gate: "SemVer Gate", details: ok ? "" : bad.join(", ") };
+}
+
+export function compatibilityGate({ ssotDir }) {
+  const matrix = readJson(`${ssotDir}/compat/compatibility_matrix.json`);
+  const versions = readJson(`${ssotDir}/compat/compatibility_versions.json`);
+  const bad = [];
+  for (const m of matrix) {
+    if (!isValidSemver(m.from_version) || !isValidSemver(m.to_version)) bad.push(`${m.from_version}->${m.to_version}:invalid_semver`);
+    if (isMajorBump(m.from_version, m.to_version) && !m.requires_migration) bad.push(`${m.from_version}->${m.to_version}:missing_migration`);
+    if (m.requires_migration && !(m.migration_ids || []).length) bad.push(`${m.from_version}->${m.to_version}:no_migrations`);
+  }
+  for (const v of versions) {
+    if (!isValidSemver(v.from_version) || !isValidSemver(v.to_version)) bad.push(`${v.from_version}->${v.to_version}:invalid_semver`);
+    if (!v.allowed) bad.push(`${v.from_version}->${v.to_version}:disallowed`);
+  }
+  const ok = bad.length === 0;
+  return { ok, gate: "Compatibility Gate", details: ok ? "" : bad.join(", ") };
+}
+
+export function deprecationGate({ ssotDir }) {
+  const deps = readJson(`${ssotDir}/compat/deprecations.json`);
+  const bad = [];
+  for (const d of deps) {
+    if (!isValidSemver(d.introduced_in) || !isValidSemver(d.deprecated_in) || !isValidSemver(d.removal_in)) {
+      bad.push(`${d.target_type}:${d.target_id}:invalid_semver`);
+      continue;
+    }
+    if (!isMajorBump(d.deprecated_in, d.removal_in)) bad.push(`${d.target_type}:${d.target_id}:removal_not_major`);
+  }
+  const ok = bad.length === 0;
+  return { ok, gate: "Deprecation Gate", details: ok ? "" : bad.join(", ") };
+}
+
+export function migrationGate({ ssotDir }) {
+  const migrations = readJson(`${ssotDir}/compat/migrations.json`);
+  const bad = [];
+  for (const m of migrations) {
+    if (!m.dry_run_supported) bad.push(`${m.migration_id}:no_dry_run`);
+  }
+  const ok = bad.length === 0;
+  return { ok, gate: "Migration Gate", details: ok ? "" : bad.join(", ") };
+}
+
+export function contractTestGate({ ssotDir }) {
+  const compat = readJson(`${ssotDir}/compat/compatibility_matrix.json`);
+  const ok = compat.length > 0;
+  return { ok, gate: "Contract Test Gate", details: ok ? "" : "Missing compatibility matrix" };
 }
 
 export function designFreezeGate({ ssotDir }) {

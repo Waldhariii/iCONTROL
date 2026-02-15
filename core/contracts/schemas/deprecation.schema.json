@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "deprecation.v1",
+  "title": "deprecation",
+  "type": "object",
+  "required": ["target_type", "target_id", "introduced_in", "deprecated_in", "removal_in", "auto_block_after"],
+  "additionalProperties": false,
+  "properties": {
+    "target_type": {"type": "string"},
+    "target_id": {"type": "string"},
+    "introduced_in": {"type": "string"},
+    "deprecated_in": {"type": "string"},
+    "removal_in": {"type": "string"},
+    "replacement_ref": {"type": "string"},
+    "auto_block_after": {"type": "boolean"}
+  }
+}

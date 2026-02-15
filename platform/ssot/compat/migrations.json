@@ -1,0 +1,11 @@
+[
+  {
+    "migration_id": "mig:platform_manifest_v1_to_v2",
+    "from_contract": "platform_manifest.v1",
+    "to_contract": "platform_manifest.v2",
+    "strategy": "noop",
+    "reversible": true,
+    "dry_run_supported": true,
+    "evidence_required": false
+  }
+]
