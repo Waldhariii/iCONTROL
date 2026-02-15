@@ -74,6 +74,15 @@ function readJson(path) {
   return JSON.parse(readFileSync(path, "utf-8"));
 }
 
+function readJsonIfExists(path) {
+  try {
+    if (!existsSync(path)) return null;
+    return readJson(path);
+  } catch {
+    return null;
+  }
+}
+
 function writeJson(path, data) {
   writeFileSync(path, JSON.stringify(data, null, 2) + "\n", "utf-8");
 }
@@ -987,11 +996,12 @@ function freezeAllows({ changeFreeze, action }) {
     action.startsWith("ops.runbook.apply") ||
     action.startsWith("ops.tenancy.apply") ||
     action.startsWith("ops.tenancy.clone.apply");
+  const isPublish = action === "studio.releases.publish";
 
   if (scopes.content_mutations === true && isOpsApply) return false;
   if (allow.some((p) => actionMatches(p, action))) return true;
   if (scopes.studio_ui_mutations === true && isStudioUi) return false;
-  if (scopes.content_mutations === true && isContent) return false;
+  if (scopes.content_mutations === true && (isContent || isPublish)) return false;
   return true;
 }
 
@@ -1389,8 +1399,13 @@ const server = http.createServer(async (req, res) => {
     }
 
     if (req.method === "POST" && req.url?.startsWith("/api/changesets/") && req.url?.endsWith("/publish")) {
-      requirePermission(req, "studio.releases.publish");
       const id = req.url.split("/")[3];
+      const gov = getGovernanceData();
+      if (!freezeAllows({ changeFreeze: gov.changeFreeze, action: "studio.releases.publish" })) {
+        appendAudit({ event: "freeze_blocked_publish", at: new Date().toISOString() });
+        return json(res, 423, { error: "Change Freeze active", code: "freeze" });
+      }
+      requirePermission(req, "studio.releases.publish");
       setContext({ changeset_id: id });
       requireQuorum("publish", id, 2);
       execSync(`node scripts/ci/release.mjs --from-changeset ${id} --env dev --strategy canary`, {
@@ -2190,6 +2205,55 @@ const server = http.createServer(async (req, res) => {
     if (req.method === "GET" && req.url === "/api/studio/nav") {
       requirePermission(req, "studio.nav.view");
       return json(res, 200, readJson(ssotPath("studio/nav/nav_specs.json")));
+    }
+
+    if (req.method === "GET" && req.url === "/api/studio/freeze") {
+      requirePermission(req, "studio.pages.view");
+      const freeze = readJson(ssotPath("governance/change_freeze.json"));
+      return json(res, 200, { enabled: !!freeze.enabled, scopes: freeze.scopes || {}, allow_actions: freeze.allow_actions || [] });
+    }
+
+    if (req.method === "GET" && req.url?.startsWith("/api/studio/pages") && req.url.split("?")[0] === "/api/studio/pages") {
+      requirePermission(req, "studio.pages.view");
+      const pageDefs = readJson(ssotPath("studio/pages/page_definitions.json"));
+      const pageVersions = readJson(ssotPath("studio/pages/page_instances.json"));
+      const inventory = pageDefs.map((p) => ({
+        id: p.id,
+        slug: p.slug,
+        title_key: p.title_key,
+        surface: p.surface,
+        versions: pageVersions.filter((pv) => pv.page_id === p.id).length
+      }));
+      return json(res, 200, { pages: inventory });
+    }
+
+    if (req.method === "GET" && req.url?.split("?")[0]?.match(/^\/api\/studio\/pages\/[^/]+$/)) {
+      requirePermission(req, "studio.pages.view");
+      const pageId = decodeURIComponent(req.url.split("?")[0].split("/").pop());
+      const pageDefs = readJson(ssotPath("studio/pages/page_definitions.json"));
+      const pageVersions = readJson(ssotPath("studio/pages/page_instances.json"));
+      const widgets = readJson(ssotPath("studio/widgets/widget_instances.json"));
+      const page = pageDefs.find((p) => p.id === pageId);
+      if (!page) return json(res, 404, { error: "Page not found" });
+      const versions = pageVersions.filter((pv) => pv.page_id === pageId);
+      const widgetIds = new Set();
+      for (const pv of versions) for (const wid of pv.widget_instance_ids || []) widgetIds.add(wid);
+      const pageWidgets = widgets.filter((w) => w.page_id === pageId);
+      return json(res, 200, { page, versions, widgets: pageWidgets });
+    }
+
+    if (req.method === "GET" && req.url === "/api/studio/widgets/catalog") {
+      requirePermission(req, "studio.pages.view");
+      const catalog = readJsonIfExists(ssotPath("studio/widgets/widget_catalog.json"));
+      return json(res, 200, Array.isArray(catalog) ? catalog : (catalog?.widgets || []));
+    }
+
+    if (req.method === "GET" && req.url === "/api/studio/queries") {
+      requirePermission(req, "studio.pages.view");
+      const queries = readJsonIfExists(ssotPath("data/query_catalog.json"));
+      const list = Array.isArray(queries) ? queries : (queries?.queries || []);
+      const budgets = readJsonIfExists(ssotPath("data/query_budgets.json"));
+      return json(res, 200, { queries: list.map((q) => ({ query_id: q.query_id, datasource_id: q.datasource_id })), budgets: budgets || [] });
     }
 
     if (req.method === "POST" && req.url === "/api/studio/action") {

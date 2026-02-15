@@ -56,3 +56,13 @@ input, button, textarea, select {
   grid-template-columns: 1fr 1fr;
   gap: var(--space.4);
 }
+
+.designer { max-width: 100%; }
+.freeze-banner { background: var(--color.accent); color: var(--color.accent.contrast); padding: var(--space.2) var(--space.4); margin-bottom: var(--space.3); border-radius: var(--radius.2); }
+.designer-toolbar { display: flex; flex-wrap: wrap; gap: var(--space.2); align-items: center; margin-bottom: var(--space.3); }
+.designer-grid { display: grid; grid-template-columns: 12.5rem 1fr 17.5rem; gap: var(--space.4); }
+.designer-left ul, .designer-right ul { list-style: none; padding: 0; }
+.designer-left li, .designer-right li { padding: var(--space.1); cursor: pointer; }
+#designerPageList li.selected { background: var(--color.accent); color: var(--color.accent.contrast); }
+.section-tag { display: inline-block; margin: var(--space.1); padding: var(--space.1) var(--space.2); background: var(--color.surface.alt); border-radius: var(--radius.1); }
+#designerDiffOut, #designerImpactOut { max-height: 12.5rem; overflow: auto; font-size: 0.85em; }

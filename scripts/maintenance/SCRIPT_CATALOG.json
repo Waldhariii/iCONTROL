@@ -648,6 +648,39 @@
     "s2s_scopes": []
   },
   {
+    "id": "scripts:ci:test-designer-sections-tabs-flow.mjs",
+    "path": "scripts/ci/test-designer-sections-tabs-flow.mjs",
+    "purpose": "CI: designer sections/tabs flow, sections_v2, no-tabs-routes, run-gates",
+    "outputs": [],
+    "forbidden_outputs": ["CI_REPORT.md", "platform/runtime/reports"],
+    "requires_api": false,
+    "s2s_scopes": [],
+    "safety": "temp-ssot",
+    "category": "ci"
+  },
+  {
+    "id": "scripts:ci:test-designer-widget-binding-action.mjs",
+    "path": "scripts/ci/test-designer-widget-binding-action.mjs",
+    "purpose": "CI: designer widget binding + action (policy_id), preview, run-gates",
+    "outputs": [],
+    "forbidden_outputs": ["CI_REPORT.md", "platform/runtime/reports"],
+    "requires_api": false,
+    "s2s_scopes": [],
+    "safety": "temp-ssot",
+    "category": "ci"
+  },
+  {
+    "id": "scripts:ci:test-freeze-designer-blocks-apply.mjs",
+    "path": "scripts/ci/test-freeze-designer-blocks-apply.mjs",
+    "purpose": "CI: freeze blocks apply/publish (423), temp SSOT",
+    "outputs": [],
+    "forbidden_outputs": ["CI_REPORT.md", "platform/runtime/reports"],
+    "requires_api": false,
+    "s2s_scopes": [],
+    "safety": "temp-ssot",
+    "category": "ci"
+  },
+  {
     "id": "scripts:ci:test-demo-modules-smoke.mjs",
     "path": "scripts/ci/test-demo-modules-smoke.mjs",
     "purpose": "script",
