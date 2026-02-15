@@ -600,6 +600,18 @@
     "s2s_scopes": []
   },
   {
+    "id": "scripts:ci:test-diff-engine-smoke.mjs",
+    "path": "scripts/ci/test-diff-engine-smoke.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
     "id": "scripts:ci:test-demo-modules-smoke.mjs",
     "path": "scripts/ci/test-demo-modules-smoke.mjs",
     "purpose": "script",
@@ -1370,6 +1382,18 @@
   {
     "id": "scripts:ci:test-studio-modules-preview-isolation.mjs",
     "path": "scripts/ci/test-studio-modules-preview-isolation.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:ci:test-studio-preview-flow.mjs",
+    "path": "scripts/ci/test-studio-preview-flow.mjs",
     "purpose": "script",
     "outputs": [],
     "forbidden_outputs": [

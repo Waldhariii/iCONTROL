@@ -10,6 +10,7 @@ import { getEffectiveQosOverrides } from "../../platform/runtime/ops/actions.mjs
 import { createIncident, readIncident, executeRunbook, listTimeline } from "../../platform/runtime/ops/engine.mjs";
 import { planTenantCreate, planTenantClone, dryRunCreate, applyCreate, readFactoryStatus } from "../../platform/runtime/tenancy/factory.mjs";
 import { analyzeInstall } from "../../platform/runtime/marketplace/impact.mjs";
+import { diffManifests, diffSsotFiles } from "../../platform/runtime/studio/diff-engine.mjs";
 import { computeInvoice, persistDraft, publishInvoice, billingMode } from "../../platform/runtime/billing/invoice-engine.mjs";
 import { handleStripeWebhook } from "../../platform/runtime/billing/providers/stripe_webhook.mjs";
 import { sha256, stableStringify } from "../../platform/compilers/utils.mjs";
@@ -2188,6 +2189,120 @@ const server = http.createServer(async (req, res) => {
     if (req.method === "GET" && req.url === "/api/studio/nav") {
       requirePermission(req, "studio.nav.view");
       return json(res, 200, readJson(ssotPath("studio/nav/nav_specs.json")));
+    }
+
+    if (req.method === "GET" && req.url?.startsWith("/api/studio/diff/manifest")) {
+      requirePermission(req, "studio.pages.view");
+      const url = new URL(req.url, "http://localhost");
+      const previewId = url.searchParams.get("preview");
+      if (!previewId) return json(res, 400, { error: "Missing preview" });
+      const active = readActiveRelease();
+      const activeRelease = active.active_release_id || "";
+      if (!activeRelease) return json(res, 404, { error: "No active release" });
+      const manifestsDirActive = process.env.MANIFESTS_DIR || "./runtime/manifests";
+      const manifestsDirPreview = join(ROOT, "platform", "runtime", "preview", previewId, "manifests");
+      if (!existsSync(join(manifestsDirPreview, `platform_manifest.preview-${previewId}.json`))) {
+        return json(res, 404, { error: "Preview manifest not found; run preview first" });
+      }
+      let activeManifest;
+      let previewManifest;
+      try {
+        activeManifest = loadManifest({ releaseId: activeRelease, manifestsDir: manifestsDirActive, stalenessMs: 0 });
+      } catch {
+        return json(res, 503, { error: "Active manifest unavailable" });
+      }
+      try {
+        previewManifest = loadManifest({
+          releaseId: `preview-${previewId}`,
+          manifestsDir: manifestsDirPreview,
+          stalenessMs: 0
+        });
+      } catch {
+        return json(res, 404, { error: "Preview manifest load failed" });
+      }
+      const diff = diffManifests(activeManifest, previewManifest);
+      return json(res, 200, {
+        active_release: activeRelease,
+        preview_release: `preview-${previewId}`,
+        diff,
+        gates: []
+      });
+    }
+
+    if (req.method === "GET" && req.url?.startsWith("/api/studio/diff/ssot")) {
+      requirePermission(req, "studio.pages.view");
+      const url = new URL(req.url, "http://localhost");
+      const previewId = url.searchParams.get("preview");
+      if (!previewId) return json(res, 400, { error: "Missing preview" });
+      const active = readActiveRelease();
+      const activeRelease = active.active_release_id || "";
+      const previewSsotDir = join(ROOT, "platform", "runtime", "preview", previewId, "ssot");
+      if (!existsSync(previewSsotDir)) return json(res, 404, { error: "Preview SSOT not found" });
+      const activeFiles = {};
+      const previewFiles = {};
+      function collectJson(dir, baseRel, out) {
+        if (!existsSync(dir)) return;
+        for (const name of readdirSync(dir)) {
+          const full = join(dir, name);
+          const rel = baseRel ? `${baseRel}/${name}` : name;
+          const st = statSync(full);
+          if (st.isDirectory()) collectJson(full, rel, out);
+          else if (name.endsWith(".json")) out[rel] = readFileSync(full, "utf-8");
+        }
+      }
+      collectJson(SSOT_DIR, "", activeFiles);
+      collectJson(previewSsotDir, "", previewFiles);
+      const diff = diffSsotFiles(activeFiles, previewFiles);
+      return json(res, 200, {
+        active_release: activeRelease,
+        preview_release: `preview-${previewId}`,
+        diff
+      });
+    }
+
+    if (req.method === "GET" && req.url?.startsWith("/api/studio/impact")) {
+      requirePermission(req, "studio.pages.view");
+      const url = new URL(req.url, "http://localhost");
+      const changesetId = url.searchParams.get("changeset");
+      if (!changesetId) return json(res, 400, { error: "Missing changeset" });
+      let cs;
+      try {
+        cs = readJson(ssotPath(`changes/changesets/${changesetId}.json`));
+      } catch {
+        return json(res, 404, { error: "Changeset not found" });
+      }
+      const ops = cs.ops || [];
+      let preview;
+      try {
+        preview = buildPreviewFromOps(changesetId, ops);
+      } catch (e) {
+        return json(res, 500, { error: "Preview build failed", detail: String(e.message) });
+      }
+      const active = loadActiveManifest();
+      if (!active) return json(res, 503, { error: "Active manifest unavailable" });
+      let previewManifest;
+      try {
+        previewManifest = loadManifest({
+          releaseId: preview.previewReleaseId,
+          manifestsDir: preview.previewManifests,
+          stalenessMs: 0
+        });
+      } catch {
+        return json(res, 500, { error: "Preview manifest load failed" });
+      }
+      const tenantId = "tenant:default";
+      const { result } = analyzeInstall({
+        activeManifest: active,
+        previewManifest,
+        tenantId,
+        item: { type: "studio", id: changesetId, version: "1" },
+        meta: {}
+      });
+      return json(res, 200, {
+        active_release: readActiveRelease().active_release_id,
+        preview_release: preview.previewReleaseId,
+        impact: result
+      });
     }
 
     if (req.method === "GET" && req.url === "/api/releases") {

@@ -44,6 +44,8 @@ const steps = [
   "node scripts/ci/test-gates.mjs",
   "node scripts/ci/test-api.mjs",
   "node scripts/ci/test-studio-flow.mjs",
+  "node scripts/ci/test-diff-engine-smoke.mjs",
+  "node scripts/ci/test-studio-preview-flow.mjs",
   "node scripts/ci/test-delete-flow.mjs",
   "node scripts/ci/test-cp-strict.mjs",
   "node scripts/ci/test-client-loader.mjs",

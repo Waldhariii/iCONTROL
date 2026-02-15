@@ -69,6 +69,7 @@ const CORE_ALLOWLIST_PREFIXES = [
   "platform/compilers/nav-compiler.mjs",
   "platform/compilers/token-compiler.mjs",
   "platform/runtime/changes/patch-engine.mjs",
+  "platform/runtime/studio/",
   "core/contracts/schemas/nav_spec.schema.json",
   "core/contracts/schemas/nav_manifest.schema.json",
   "core/contracts/schemas/render_graph.schema.json",
