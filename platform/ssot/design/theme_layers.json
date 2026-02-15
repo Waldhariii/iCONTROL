@@ -1,1 +1,118 @@
-[]
+[
+  {
+    "layer_id": "layer:graphite-light",
+    "theme_id": "theme:graphite",
+    "variant": "light",
+    "token_overrides": []
+  },
+  {
+    "layer_id": "layer:graphite-dark",
+    "theme_id": "theme:graphite",
+    "variant": "dark",
+    "token_overrides": [
+      {
+        "token_key": "color.bg",
+        "value": "#0f141b"
+      },
+      {
+        "token_key": "color.surface",
+        "value": "#141b24"
+      },
+      {
+        "token_key": "color.surface.alt",
+        "value": "#1b2532"
+      },
+      {
+        "token_key": "color.text",
+        "value": "#f4f7fb"
+      },
+      {
+        "token_key": "color.text.muted",
+        "value": "#b6c1cd"
+      },
+      {
+        "token_key": "color.border",
+        "value": "#2a3646"
+      },
+      {
+        "token_key": "color.accent",
+        "value": "#7fb4ff"
+      },
+      {
+        "token_key": "color.accent.contrast",
+        "value": "#0b1f33"
+      },
+      {
+        "token_key": "color.link",
+        "value": "#9bc1ff"
+      }
+    ]
+  },
+  {
+    "layer_id": "layer:graphite-high-contrast",
+    "theme_id": "theme:graphite-high-contrast",
+    "variant": "dark",
+    "token_overrides": [
+      {
+        "token_key": "color.bg",
+        "value": "#0a0a0a"
+      },
+      {
+        "token_key": "color.surface",
+        "value": "#111111"
+      },
+      {
+        "token_key": "color.surface.alt",
+        "value": "#1a1a1a"
+      },
+      {
+        "token_key": "color.text",
+        "value": "#ffffff"
+      },
+      {
+        "token_key": "color.text.muted",
+        "value": "#d6d6d6"
+      },
+      {
+        "token_key": "color.border",
+        "value": "#444444"
+      },
+      {
+        "token_key": "color.accent",
+        "value": "#ffd800"
+      },
+      {
+        "token_key": "color.accent.contrast",
+        "value": "#0a0a0a"
+      },
+      {
+        "token_key": "color.link",
+        "value": "#ffd800"
+      }
+    ]
+  },
+  {
+    "layer_id": "layer:brand-variant",
+    "theme_id": "theme:brand-variant",
+    "variant": "light",
+    "token_overrides": [
+      {
+        "token_key": "color.accent",
+        "value": "#0057ff"
+      },
+      {
+        "token_key": "color.link",
+        "value": "#0057ff"
+      }
+    ]
+  },
+  {
+    "layer_id": "layer:runtime",
+    "layer": "runtime",
+    "active_theme_id": "theme:graphite",
+    "active_theme_variant": "light",
+    "active_density_id": "density:comfortable",
+    "active_typography_id": "type:graphite",
+    "active_motion_id": "motion:standard"
+  }
+]

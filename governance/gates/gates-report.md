@@ -28,12 +28,15 @@ PASS - Canary Gate
 PASS - Drill Gate
 PASS - Chaos Gate
 PASS - Token Gate
+PASS - Token No Hardcode Gate
+PASS - Theme Artifact Gate
 PASS - Perf Budget Gate
 PASS - Isolation Gate
 PASS - Drift Gate
 PASS - NoFallback Gate
 PASS - Governance Gate
 PASS - Freeze Gate
+PASS - Design Freeze Gate
 PASS - Freeze Scope Gate
 PASS - Quorum Gate
 PASS - Ops Policy Gate
@@ -51,6 +54,7 @@ PASS - Domain Isolation Gate
 PASS - DataGov Coverage Gate
 PASS - Budget Coverage Gate
 PASS - Module Activation Gate
+PASS - Module Page Ownership Gate
 PASS - Module Authoring Gate
 PASS - Activation Safety Gate
 PASS - Marketplace Permission Gate
@@ -61,5 +65,9 @@ PASS - Billing Dormant Gate
 PASS - Rating Integrity Gate
 PASS - Invoice No Secrets Gate
 PASS - No Secrets Evidence Gate
+PASS - Core Change Gate
 PASS - Report Path Gate
 PASS - Script Catalog Gate
+PASS - Widget Binding Gate
+PASS - Section No Route Gate
+PASS - Artifact Budget Gate

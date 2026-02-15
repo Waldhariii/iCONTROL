@@ -1584,5 +1584,53 @@
     ],
     "requires_api": false,
     "s2s_scopes": []
+  },
+  {
+    "id": "ci-test-theme-vars-present-in-pack",
+    "path": "scripts/ci/test-theme-vars-present-in-pack.mjs",
+    "purpose": "CI: ensure theme_vars css included in release pack",
+    "outputs": ["runtime/reports/packs/"],
+    "forbidden_outputs": [
+      "./CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "ci-test-design-freeze-gate",
+    "path": "scripts/ci/test-design-freeze-gate.mjs",
+    "purpose": "CI: ensure design changes blocked when freeze enabled",
+    "outputs": [],
+    "forbidden_outputs": [
+      "./CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "ci-test-theme-switch-preview",
+    "path": "scripts/ci/test-theme-switch-preview.mjs",
+    "purpose": "CI: preview theme switch does not alter active",
+    "outputs": [],
+    "forbidden_outputs": [
+      "./CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "ci-test-density-compact",
+    "path": "scripts/ci/test-density-compact.mjs",
+    "purpose": "CI: compact density overrides applied in theme vars",
+    "outputs": [],
+    "forbidden_outputs": [
+      "./CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
   }
 ]

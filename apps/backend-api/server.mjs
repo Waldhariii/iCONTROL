@@ -1410,6 +1410,26 @@ const server = http.createServer(async (req, res) => {
       return json(res, 200, manifest);
     }
 
+    if (req.method === "GET" && req.url?.startsWith("/api/runtime/theme-vars")) {
+      const url = new URL(req.url, "http://localhost");
+      const releaseId = url.searchParams.get("release") || readActiveRelease().active_release_id || latestReleaseId();
+      const previewId = url.searchParams.get("preview");
+      if (!releaseId) return json(res, 404, { error: "No release available" });
+      const manifestsDir = previewId ? `./platform/runtime/preview/${previewId}/manifests` : (process.env.MANIFESTS_DIR || "./runtime/manifests");
+      const buildDir = manifestsDir.includes("/platform/runtime/manifests")
+        ? manifestsDir.replace(/\/platform\/runtime\/manifests$/, "/platform/runtime/build_artifacts")
+        : manifestsDir.includes("/platform/runtime/preview/") && manifestsDir.endsWith("/manifests")
+          ? manifestsDir.replace(/\/manifests$/, "/build_artifacts")
+          : manifestsDir.replace(/\/runtime\/manifests$/, "/platform/runtime/build_artifacts");
+      const cssPath = join(buildDir, `theme_vars.${releaseId}.css`);
+      if (!existsSync(cssPath)) {
+        res.writeHead(404, { "Content-Type": "text/plain" });
+        return res.end("Theme vars not found");
+      }
+      res.writeHead(200, { "Content-Type": "text/css" });
+      return res.end(readFileSync(cssPath, "utf-8"));
+    }
+
     if (req.method === "GET" && req.url?.startsWith("/api/runtime/active-release")) {
       return json(res, 200, readActiveRelease());
     }

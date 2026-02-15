@@ -268,5 +268,20 @@
     "owner_team": "billing",
     "tags": [],
     "state": "active"
+  },
+  {
+    "id": "cp-studio-design",
+    "surface": "cp",
+    "key": "studio.design",
+    "slug": "cp-studio-design",
+    "title_key": "studio.design",
+    "module_id": "studio",
+    "default_layout_template_id": "layout-1",
+    "capabilities_required": [
+      "studio.access"
+    ],
+    "owner_team": "studio",
+    "tags": [],
+    "state": "active"
   }
 ]

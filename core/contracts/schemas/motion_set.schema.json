@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "motion_set.v1",
+  "title": "motion_set",
+  "type": "object",
+  "required": ["motion_id", "name", "overrides"],
+  "additionalProperties": false,
+  "properties": {
+    "motion_id": {"type": "string"},
+    "name": {"type": "string"},
+    "overrides": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["token_key", "value"],
+        "additionalProperties": false,
+        "properties": {
+          "token_key": {"type": "string"},
+          "value": {},
+          "units": {"type": "string"}
+        }
+      }
+    }
+  }
+}

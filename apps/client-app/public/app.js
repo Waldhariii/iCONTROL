@@ -17,9 +17,34 @@ document.getElementById("loadManifest").onclick = async () => {
     return;
   }
   manifest = await res.json();
+  await applyTheme();
   renderNav();
   renderRoute();
 };
+
+async function applyTheme() {
+  const theme = manifest?.themes || {};
+  const releaseId = manifest?.release_id || currentRelease;
+  try {
+    const res = await fetch(`${apiBase}/runtime/theme-vars?release=${releaseId}`, { headers });
+    if (res.ok) {
+      const css = await res.text();
+      let el = document.getElementById("theme-vars");
+      if (!el) {
+        el = document.createElement("style");
+        el.id = "theme-vars";
+        document.head.appendChild(el);
+      }
+      el.textContent = css;
+    }
+  } catch {}
+  const root = document.documentElement;
+  if (theme.active_theme_id) root.dataset.theme = theme.active_theme_id;
+  if (theme.active_theme_variant) root.dataset.themeVariant = theme.active_theme_variant;
+  if (theme.active_density_id) root.dataset.density = theme.active_density_id;
+  if (theme.active_typography_id) root.dataset.typography = theme.active_typography_id;
+  if (theme.active_motion_id) root.dataset.motion = theme.active_motion_id;
+}
 
 function renderNav() {
   nav.innerHTML = "";

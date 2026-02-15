@@ -23,6 +23,7 @@ document.getElementById("loadManifest").onclick = async () => {
       return;
     }
     manifest = await res.json();
+    await applyTheme(previewId);
     renderNav();
     window.onhashchange();
     return;
@@ -36,9 +37,35 @@ document.getElementById("loadManifest").onclick = async () => {
     return;
   }
   manifest = await res.json();
+  await applyTheme();
   renderNav();
   window.onhashchange();
 };
+
+async function applyTheme(previewId = "") {
+  const theme = manifest?.themes || {};
+  const releaseId = manifest?.release_id || currentRelease;
+  const qs = previewId ? `&preview=${previewId}` : "";
+  try {
+    const res = await fetch(`${apiBase}/runtime/theme-vars?release=${releaseId}${qs}`, { headers });
+    if (res.ok) {
+      const css = await res.text();
+      let el = document.getElementById("theme-vars");
+      if (!el) {
+        el = document.createElement("style");
+        el.id = "theme-vars";
+        document.head.appendChild(el);
+      }
+      el.textContent = css;
+    }
+  } catch {}
+  const root = document.documentElement;
+  if (theme.active_theme_id) root.dataset.theme = theme.active_theme_id;
+  if (theme.active_theme_variant) root.dataset.themeVariant = theme.active_theme_variant;
+  if (theme.active_density_id) root.dataset.density = theme.active_density_id;
+  if (theme.active_typography_id) root.dataset.typography = theme.active_typography_id;
+  if (theme.active_motion_id) root.dataset.motion = theme.active_motion_id;
+}
 
 function renderLocked() {
   nav.innerHTML = "";
@@ -480,6 +507,96 @@ async function renderHealthView() {
   `;
 }
 
+async function renderDesignView() {
+  const themeManifest = manifest?.themes || {};
+  const themes = themeManifest.available_themes || (themeManifest.themes || []).map((t) => t.theme_id);
+  const variants = (themeManifest.theme_variants || []).filter((v) => v.theme_id);
+  const densityProfiles = themeManifest.density_profiles || [];
+  const typographySets = themeManifest.typography_sets || [];
+  const motionSets = themeManifest.motion_sets || [];
+  const activeTheme = themeManifest.active_theme_id || "";
+  const activeVariant = themeManifest.active_theme_variant || "";
+  const activeDensity = themeManifest.active_density_id || "";
+  const activeTypography = themeManifest.active_typography_id || "";
+  const activeMotion = themeManifest.active_motion_id || "";
+
+  const variantOptions = variants
+    .filter((v) => v.theme_id === (activeTheme || themes[0]))
+    .map((v) => v.variant)
+    .filter(Boolean);
+
+  view.innerHTML = `
+    <section>
+      <h2>Design</h2>
+      <div class="grid">
+        <div>
+          <label>Theme</label>
+          <select id="themeSelect">${themes.map((t) => `<option value="${t}" ${t === activeTheme ? "selected" : ""}>${t}</option>`).join("")}</select>
+          <label>Variant</label>
+          <select id="variantSelect">${variantOptions.map((v) => `<option value="${v}" ${v === activeVariant ? "selected" : ""}>${v}</option>`).join("")}</select>
+          <label>Density</label>
+          <select id="densitySelect">${densityProfiles.map((d) => `<option value="${d.density_id}" ${d.density_id === activeDensity ? "selected" : ""}>${d.density_id}</option>`).join("")}</select>
+          <label>Typography</label>
+          <select id="typographySelect">${typographySets.map((t) => `<option value="${t.typography_id}" ${t.typography_id === activeTypography ? "selected" : ""}>${t.typography_id}</option>`).join("")}</select>
+          <label>Motion</label>
+          <select id="motionSelect">${motionSets.map((m) => `<option value="${m.motion_id}" ${m.motion_id === activeMotion ? "selected" : ""}>${m.motion_id}</option>`).join("")}</select>
+        </div>
+        <div>
+          <label>Changeset ID</label><input id="designCsId" />
+          <button id="createDesignCs">Create Changeset</button>
+          <button id="previewDesign">Preview</button>
+          <button id="publishDesign">Publish</button>
+        </div>
+      </div>
+    </section>
+  `;
+
+  document.getElementById("createDesignCs").onclick = async () => {
+    const cs = await fetch(`${apiBase}/changesets`, { method: "POST", headers }).then((r) => r.json());
+    document.getElementById("designCsId").value = cs.id;
+  };
+
+  async function addDesignOp(csId) {
+    const themeId = document.getElementById("themeSelect").value;
+    const variant = document.getElementById("variantSelect").value;
+    const densityId = document.getElementById("densitySelect").value;
+    const typographyId = document.getElementById("typographySelect").value;
+    const motionId = document.getElementById("motionSelect").value;
+    await fetch(`${apiBase}/changesets/${csId}/ops`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", ...headers },
+      body: JSON.stringify({
+        op: "update",
+        target: { kind: "theme_layer", ref: "layer:runtime" },
+        value: {
+          active_theme_id: themeId,
+          active_theme_variant: variant,
+          active_density_id: densityId,
+          active_typography_id: typographyId,
+          active_motion_id: motionId
+        }
+      })
+    });
+  }
+
+  document.getElementById("previewDesign").onclick = async () => {
+    const csId = document.getElementById("designCsId").value;
+    await addDesignOp(csId);
+    await fetch(`${apiBase}/changesets/${csId}/preview`, { method: "POST", headers });
+    alert("Preview compiled. Use preview mode to view.");
+  };
+  document.getElementById("publishDesign").onclick = async () => {
+    const csId = document.getElementById("designCsId").value;
+    await addDesignOp(csId);
+    const res = await fetch(`${apiBase}/changesets/${csId}/publish`, { method: "POST", headers });
+    if (!res.ok) {
+      alert("Publish blocked by governance or freeze policy.");
+      return;
+    }
+    alert("Published");
+  };
+}
+
 window.onhashchange = () => {
   if (!manifest) return renderLocked();
   const raw = location.hash ? location.hash.slice(1) : "";
@@ -502,6 +619,7 @@ window.onhashchange = () => {
     renderTenantMarketplace(id);
   }
   else if (path.endsWith("/cp/studio/marketplace")) renderMarketplaceCatalog();
+  else if (path.endsWith("/cp/studio/design")) renderDesignView();
   else if (path.endsWith("/cp/studio/releases")) renderReleasesView();
   else if (path.endsWith("/cp/studio/health")) renderHealthView();
 };

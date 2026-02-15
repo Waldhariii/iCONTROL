@@ -1,6 +1,6 @@
 import { spawn } from "child_process";
 import { writeFileSync, mkdirSync } from "fs";
-import { join } from "path";
+import { join, dirname } from "path";
 import { createTempSsot, getS2SToken } from "./test-utils.mjs";
 
 const api = "http://localhost:7070/api";
@@ -22,9 +22,21 @@ function reviewFilename(action, targetId) {
 
 async function run() {
   const temp = createTempSsot();
+  const previewDir = join(dirname(temp.ssotDir), "runtime", "preview");
+  const snapDir = join(temp.ssotDir, "changes", "snapshots");
+  mkdirSync(previewDir, { recursive: true });
+  mkdirSync(snapDir, { recursive: true });
+
   const server = spawn("node", ["apps/backend-api/server.mjs"], {
     stdio: "inherit",
-    env: { ...process.env, SSOT_DIR: temp.ssotDir, S2S_CP_HMAC: "dummy", S2S_TOKEN_SIGN: "dummy" }
+    env: {
+      ...process.env,
+      SSOT_DIR: temp.ssotDir,
+      S2S_CP_HMAC: "dummy",
+      S2S_TOKEN_SIGN: "dummy",
+      ARTIFACT_PREVIEW_DIR: previewDir,
+      ARTIFACT_SNAPSHOT_DIR: snapDir
+    }
   });
   await sleep(500);
 

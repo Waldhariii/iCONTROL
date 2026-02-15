@@ -1,1 +1,22 @@
-[]
+[
+  {
+    "typography_id": "type:graphite",
+    "name": "Graphite",
+    "overrides": [
+      {
+        "token_key": "font.family.base",
+        "value": "Space Grotesk, IBM Plex Sans, sans-serif"
+      }
+    ]
+  },
+  {
+    "typography_id": "type:graphite-mono",
+    "name": "Graphite Mono",
+    "overrides": [
+      {
+        "token_key": "font.family.base",
+        "value": "IBM Plex Mono, ui-monospace, Menlo, monospace"
+      }
+    ]
+  }
+]

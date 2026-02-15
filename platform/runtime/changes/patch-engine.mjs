@@ -15,6 +15,7 @@ const kindToPath = {
   nav_spec: "studio/nav/nav_specs.json",
   widget_instance: "studio/widgets/widget_instances.json",
   widget_catalog: "studio/widgets/widget_catalog.json",
+  token_set: "design/token_sets.json",
   domain_module: "modules/domain_modules.json",
   domain_module_version: "modules/domain_module_versions.json",
   module_activation: "modules/module_activations.json",
@@ -28,7 +29,11 @@ const kindToPath = {
   extension_installation: "extensions/extension_installations.json",
   extension_review: "extensions/extension_reviews.json",
   design_token: "design/design_tokens.json",
+  theme_layer: "design/theme_layers.json",
   theme: "design/themes.json",
+  typography_set: "design/typography_sets.json",
+  density_profile: "design/density_profiles.json",
+  motion_set: "design/motion_sets.json",
   active_release: "changes/active_release.json",
   break_glass: "governance/break_glass.json",
   change_freeze: "governance/change_freeze.json",
@@ -48,6 +53,7 @@ const kindToSchema = {
   nav_spec: "array_of_objects.v1",
   widget_instance: "array_of_objects.v1",
   widget_catalog: "array_of_objects.v1",
+  token_set: "token_set.v1",
   domain_module: "domain_module.v1",
   domain_module_version: "domain_module_version.v1",
   module_activation: "module_activation.v1",
@@ -61,7 +67,11 @@ const kindToSchema = {
   extension_installation: "extension_installation.v1",
   extension_review: "extension_review.v1",
   design_token: "design_token.v1",
+  theme_layer: "array_of_objects.v1",
   theme: "theme.v1",
+  typography_set: "typography_set.v1",
+  density_profile: "density_profile.v1",
+  motion_set: "motion_set.v1",
   active_release: "active_release.v1",
   break_glass: "break_glass.v1",
   change_freeze: "change_freeze.v1",
@@ -78,6 +88,13 @@ function itemKey(kind, item) {
   if (!item) return "";
   if (kind === "route_spec") return item.route_id;
   if (kind === "page_version") return item.page_id;
+  if (kind === "design_token") return item.token_key;
+  if (kind === "token_set") return item.set_id;
+  if (kind === "theme") return item.theme_id;
+  if (kind === "theme_layer") return item.layer_id || item.id;
+  if (kind === "typography_set") return item.typography_id;
+  if (kind === "density_profile") return item.density_id;
+  if (kind === "motion_set") return item.motion_id;
   if (kind === "domain_module") return item.module_id;
   if (kind === "domain_module_version") return `${item.module_id}@${item.version}`;
   if (kind === "module_activation") return `${item.tenant_id}:${item.module_id}`;

@@ -1,1 +1,17 @@
-[]
+[
+  {
+    "theme_id": "theme:graphite",
+    "layer": "base",
+    "inherits_from": ""
+  },
+  {
+    "theme_id": "theme:graphite-high-contrast",
+    "layer": "base",
+    "inherits_from": "theme:graphite"
+  },
+  {
+    "theme_id": "theme:brand-variant",
+    "layer": "base",
+    "inherits_from": "theme:graphite"
+  }
+]

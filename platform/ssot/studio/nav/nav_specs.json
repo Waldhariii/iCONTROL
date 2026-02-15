@@ -255,5 +255,12 @@
     "section_key": "settings",
     "label_key": "billing.detail.settings",
     "order": 30
+  },
+  {
+    "id": "nav:cp-studio-design",
+    "surface": "cp",
+    "label": "Design",
+    "path": "/cp/studio/design",
+    "module_id": "studio"
   }
 ]

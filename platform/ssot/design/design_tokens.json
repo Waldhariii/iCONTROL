@@ -1,1 +1,245 @@
-[]
+[
+  {
+    "token_key": "color.bg",
+    "token_group": "color",
+    "type": "color",
+    "value": "#f4f7fb",
+    "units": "",
+    "constraints": {},
+    "token_version": "v1"
+  },
+  {
+    "token_key": "color.surface",
+    "token_group": "color",
+    "type": "color",
+    "value": "#ffffff",
+    "units": "",
+    "constraints": {},
+    "token_version": "v1"
+  },
+  {
+    "token_key": "color.surface.alt",
+    "token_group": "color",
+    "type": "color",
+    "value": "#e7edf6",
+    "units": "",
+    "constraints": {},
+    "token_version": "v1"
+  },
+  {
+    "token_key": "color.text",
+    "token_group": "color",
+    "type": "color",
+    "value": "#101820",
+    "units": "",
+    "constraints": {},
+    "token_version": "v1"
+  },
+  {
+    "token_key": "color.text.muted",
+    "token_group": "color",
+    "type": "color",
+    "value": "#4a5b6b",
+    "units": "",
+    "constraints": {},
+    "token_version": "v1"
+  },
+  {
+    "token_key": "color.border",
+    "token_group": "color",
+    "type": "color",
+    "value": "#d7e1ef",
+    "units": "",
+    "constraints": {},
+    "token_version": "v1"
+  },
+  {
+    "token_key": "color.accent",
+    "token_group": "color",
+    "type": "color",
+    "value": "#0b1f33",
+    "units": "",
+    "constraints": {},
+    "token_version": "v1"
+  },
+  {
+    "token_key": "color.accent.contrast",
+    "token_group": "color",
+    "type": "color",
+    "value": "#ffffff",
+    "units": "",
+    "constraints": {},
+    "token_version": "v1"
+  },
+  {
+    "token_key": "color.link",
+    "token_group": "color",
+    "type": "color",
+    "value": "#0b1f33",
+    "units": "",
+    "constraints": {},
+    "token_version": "v1"
+  },
+  {
+    "token_key": "space.1",
+    "token_group": "space",
+    "type": "space",
+    "value": 4,
+    "units": "px",
+    "constraints": {},
+    "token_version": "v1"
+  },
+  {
+    "token_key": "space.2",
+    "token_group": "space",
+    "type": "space",
+    "value": 8,
+    "units": "px",
+    "constraints": {},
+    "token_version": "v1"
+  },
+  {
+    "token_key": "space.3",
+    "token_group": "space",
+    "type": "space",
+    "value": 12,
+    "units": "px",
+    "constraints": {},
+    "token_version": "v1"
+  },
+  {
+    "token_key": "space.4",
+    "token_group": "space",
+    "type": "space",
+    "value": 16,
+    "units": "px",
+    "constraints": {},
+    "token_version": "v1"
+  },
+  {
+    "token_key": "space.5",
+    "token_group": "space",
+    "type": "space",
+    "value": 24,
+    "units": "px",
+    "constraints": {},
+    "token_version": "v1"
+  },
+  {
+    "token_key": "space.6",
+    "token_group": "space",
+    "type": "space",
+    "value": 32,
+    "units": "px",
+    "constraints": {},
+    "token_version": "v1"
+  },
+  {
+    "token_key": "radius.1",
+    "token_group": "radius",
+    "type": "radius",
+    "value": 6,
+    "units": "px",
+    "constraints": {},
+    "token_version": "v1"
+  },
+  {
+    "token_key": "radius.2",
+    "token_group": "radius",
+    "type": "radius",
+    "value": 10,
+    "units": "px",
+    "constraints": {},
+    "token_version": "v1"
+  },
+  {
+    "token_key": "border.width",
+    "token_group": "border",
+    "type": "border",
+    "value": 1,
+    "units": "px",
+    "constraints": {},
+    "token_version": "v1"
+  },
+  {
+    "token_key": "font.family.base",
+    "token_group": "typography",
+    "type": "font",
+    "value": "Space Grotesk, IBM Plex Sans, sans-serif",
+    "units": "",
+    "constraints": {},
+    "token_version": "v1"
+  },
+  {
+    "token_key": "font.family.mono",
+    "token_group": "typography",
+    "type": "font",
+    "value": "IBM Plex Mono, ui-monospace, SFMono-Regular, Menlo, monospace",
+    "units": "",
+    "constraints": {},
+    "token_version": "v1"
+  },
+  {
+    "token_key": "font.size.1",
+    "token_group": "typography",
+    "type": "size",
+    "value": 14,
+    "units": "px",
+    "constraints": {},
+    "token_version": "v1"
+  },
+  {
+    "token_key": "font.size.2",
+    "token_group": "typography",
+    "type": "size",
+    "value": 16,
+    "units": "px",
+    "constraints": {},
+    "token_version": "v1"
+  },
+  {
+    "token_key": "font.size.3",
+    "token_group": "typography",
+    "type": "size",
+    "value": 20,
+    "units": "px",
+    "constraints": {},
+    "token_version": "v1"
+  },
+  {
+    "token_key": "line.height.1",
+    "token_group": "typography",
+    "type": "line",
+    "value": 1.4,
+    "units": "",
+    "constraints": {},
+    "token_version": "v1"
+  },
+  {
+    "token_key": "motion.duration.fast",
+    "token_group": "motion",
+    "type": "duration",
+    "value": 120,
+    "units": "ms",
+    "constraints": {},
+    "token_version": "v1"
+  },
+  {
+    "token_key": "motion.duration.normal",
+    "token_group": "motion",
+    "type": "duration",
+    "value": 220,
+    "units": "ms",
+    "constraints": {},
+    "token_version": "v1"
+  },
+  {
+    "token_key": "motion.easing.standard",
+    "token_group": "motion",
+    "type": "easing",
+    "value": "cubic-bezier(0.2,0.8,0.2,1)",
+    "units": "",
+    "constraints": {},
+    "token_version": "v1"
+  }
+]

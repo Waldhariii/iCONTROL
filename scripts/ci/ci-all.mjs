@@ -142,6 +142,10 @@ const steps = [
   "node scripts/ci/test-airgap-verify.mjs",
   "node scripts/maintenance/bootstrap.mjs --ci-safe",
   "node scripts/ci/test-token-gate.mjs",
+  "node scripts/ci/test-design-freeze-gate.mjs",
+  "node scripts/ci/test-theme-vars-present-in-pack.mjs",
+  "node scripts/ci/test-theme-switch-preview.mjs",
+  "node scripts/ci/test-density-compact.mjs",
   "node scripts/ci/test-audit.mjs",
   "node scripts/ci/test-no-secrets-evidence.mjs"
 ];

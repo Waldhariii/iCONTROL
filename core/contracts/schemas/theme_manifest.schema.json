@@ -3,12 +3,38 @@
   "$id": "theme_manifest.v1",
   "title": "theme_manifest",
   "type": "object",
-  "required": ["release_id", "tokens", "themes", "layers"],
+  "required": [
+    "release_id",
+    "tokens",
+    "token_sets",
+    "themes",
+    "layers",
+    "typography_sets",
+    "density_profiles",
+    "motion_sets",
+    "active_theme_id",
+    "active_density_id",
+    "active_typography_id",
+    "active_motion_id",
+    "css_checksum"
+  ],
   "additionalProperties": false,
   "properties": {
     "release_id": {"type": "string"},
     "tokens": {"type": "array", "items": {"$ref": "design_token.v1"}},
+    "token_sets": {"type": "array", "items": {"$ref": "token_set.v1"}},
     "themes": {"type": "array", "items": {"$ref": "theme.v1"}},
-    "layers": {"type": "array", "items": {"type": "object"}}
+    "layers": {"type": "array", "items": {"type": "object"}},
+    "typography_sets": {"type": "array", "items": {"$ref": "typography_set.v1"}},
+    "density_profiles": {"type": "array", "items": {"$ref": "density_profile.v1"}},
+    "motion_sets": {"type": "array", "items": {"$ref": "motion_set.v1"}},
+    "active_theme_id": {"type": "string"},
+    "active_theme_variant": {"type": "string"},
+    "active_density_id": {"type": "string"},
+    "active_typography_id": {"type": "string"},
+    "active_motion_id": {"type": "string"},
+    "available_themes": {"type": "array", "items": {"type": "string"}},
+    "theme_variants": {"type": "array", "items": {"type": "object"}},
+    "css_checksum": {"type": "string"}
   }
 }

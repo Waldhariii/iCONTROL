@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "token_set.v1",
+  "title": "token_set",
+  "type": "object",
+  "required": ["set_id", "name", "tokens"],
+  "additionalProperties": false,
+  "properties": {
+    "set_id": {"type": "string"},
+    "name": {"type": "string"},
+    "description": {"type": "string"},
+    "tokens": {"type": "array", "items": {"type": "string"}}
+  }
+}

@@ -46,9 +46,13 @@ function copyManifestFiles({ releaseId, manifestsDir, outDir }) {
     copyFileSync(src, dest);
     copied.push(dest);
   }
-  const buildDir = manifestsDir.includes("/runtime/manifests")
-    ? manifestsDir.replace(/\/runtime\/manifests$/, "/platform/runtime/build_artifacts")
-    : `${manifestsDir}/build_artifacts`;
+  const buildDir = manifestsDir.includes("/platform/runtime/manifests")
+    ? manifestsDir.replace(/\/platform\/runtime\/manifests$/, "/platform/runtime/build_artifacts")
+    : manifestsDir.includes("/runtime/manifests")
+      ? manifestsDir.replace(/\/runtime\/manifests$/, "/platform/runtime/build_artifacts")
+      : manifestsDir.endsWith("/manifests")
+        ? manifestsDir.replace(/\/manifests$/, "/build_artifacts")
+        : `${manifestsDir}/build_artifacts`;
   const themeVars = join(buildDir, `theme_vars.${releaseId}.css`);
   if (existsSync(themeVars)) {
     const dest = join(manifestOut, `theme_vars.${releaseId}.css`);

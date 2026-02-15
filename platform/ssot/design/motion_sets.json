@@ -1,1 +1,23 @@
-[]
+[
+  {
+    "motion_id": "motion:standard",
+    "name": "Standard",
+    "overrides": []
+  },
+  {
+    "motion_id": "motion:reduced",
+    "name": "Reduced",
+    "overrides": [
+      {
+        "token_key": "motion.duration.fast",
+        "value": 80,
+        "units": "ms"
+      },
+      {
+        "token_key": "motion.duration.normal",
+        "value": 140,
+        "units": "ms"
+      }
+    ]
+  }
+]

@@ -1,1 +1,43 @@
-[]
+[
+  {
+    "density_id": "density:comfortable",
+    "name": "Comfortable",
+    "overrides": []
+  },
+  {
+    "density_id": "density:compact",
+    "name": "Compact",
+    "overrides": [
+      {
+        "token_key": "space.1",
+        "value": 3,
+        "units": "px"
+      },
+      {
+        "token_key": "space.2",
+        "value": 6,
+        "units": "px"
+      },
+      {
+        "token_key": "space.3",
+        "value": 10,
+        "units": "px"
+      },
+      {
+        "token_key": "space.4",
+        "value": 14,
+        "units": "px"
+      },
+      {
+        "token_key": "space.5",
+        "value": 20,
+        "units": "px"
+      },
+      {
+        "token_key": "space.6",
+        "value": 26,
+        "units": "px"
+      }
+    ]
+  }
+]

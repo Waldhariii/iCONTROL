@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "density_profile.v1",
+  "title": "density_profile",
+  "type": "object",
+  "required": ["density_id", "name", "overrides"],
+  "additionalProperties": false,
+  "properties": {
+    "density_id": {"type": "string"},
+    "name": {"type": "string"},
+    "overrides": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["token_key", "value"],
+        "additionalProperties": false,
+        "properties": {
+          "token_key": {"type": "string"},
+          "value": {},
+          "units": {"type": "string"}
+        }
+      }
+    }
+  }
+}

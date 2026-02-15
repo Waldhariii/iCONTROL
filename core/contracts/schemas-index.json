@@ -24,6 +24,7 @@
   "datasource_contracts.v1": "core/contracts/schemas/datasource_contracts.schema.json",
   "deletion_policy.v1": "core/contracts/schemas/deletion_policy.schema.json",
   "deletion_version.v1": "core/contracts/schemas/deletion_version.schema.json",
+  "density_profile.v1": "core/contracts/schemas/density_profile.schema.json",
   "deprecation.v1": "core/contracts/schemas/deprecation.schema.json",
   "deprecation_version.v1": "core/contracts/schemas/deprecation_version.schema.json",
   "design_token.v1": "core/contracts/schemas/design_tokens.schema.json",
@@ -54,6 +55,7 @@
   "mitigation_policy.v1": "core/contracts/schemas/mitigation_policy.schema.json",
   "mitigation_version.v1": "core/contracts/schemas/mitigation_version.schema.json",
   "module_activation.v1": "core/contracts/schemas/module_activation.schema.json",
+  "motion_set.v1": "core/contracts/schemas/motion_set.schema.json",
   "nav_manifest.v1": "core/contracts/schemas/nav_manifest.schema.json",
   "nav_spec.v1": "core/contracts/schemas/nav_spec.schema.json",
   "page_definition.v1": "core/contracts/schemas/page_definition.schema.json",
@@ -90,6 +92,8 @@
   "theme_manifest.v1": "core/contracts/schemas/theme_manifest.schema.json",
   "theme.v1": "core/contracts/schemas/themes.schema.json",
   "token_exchange_policy.v1": "core/contracts/schemas/token_exchange_policy.schema.json",
+  "token_set.v1": "core/contracts/schemas/token_set.schema.json",
+  "typography_set.v1": "core/contracts/schemas/typography_set.schema.json",
   "webhook.v1": "core/contracts/schemas/webhook.schema.json",
   "workflow_dags.v1": "core/contracts/schemas/workflow_dags.schema.json"
 }

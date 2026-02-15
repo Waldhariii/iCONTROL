@@ -1,1 +1,36 @@
-[]
+[
+  {
+    "set_id": "token-set:core",
+    "name": "Core",
+    "description": "Golden baseline tokens",
+    "tokens": [
+      "color.bg",
+      "color.surface",
+      "color.surface.alt",
+      "color.text",
+      "color.text.muted",
+      "color.border",
+      "color.accent",
+      "color.accent.contrast",
+      "color.link",
+      "space.1",
+      "space.2",
+      "space.3",
+      "space.4",
+      "space.5",
+      "space.6",
+      "radius.1",
+      "radius.2",
+      "border.width",
+      "font.family.base",
+      "font.family.mono",
+      "font.size.1",
+      "font.size.2",
+      "font.size.3",
+      "line.height.1",
+      "motion.duration.fast",
+      "motion.duration.normal",
+      "motion.easing.standard"
+    ]
+  }
+]

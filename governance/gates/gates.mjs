@@ -67,21 +67,30 @@ const CORE_ALLOWLIST_PREFIXES = [
   "scripts/ci/",
   "platform/compilers/page-compiler.mjs",
   "platform/compilers/nav-compiler.mjs",
+  "platform/compilers/token-compiler.mjs",
   "platform/runtime/changes/patch-engine.mjs",
   "core/contracts/schemas/nav_spec.schema.json",
   "core/contracts/schemas/nav_manifest.schema.json",
   "core/contracts/schemas/render_graph.schema.json",
   "core/contracts/schemas/page_version.schema.json",
+  "core/contracts/schemas/theme_manifest.schema.json",
+  "core/contracts/schemas/token_set.schema.json",
+  "core/contracts/schemas/typography_set.schema.json",
+  "core/contracts/schemas/density_profile.schema.json",
+  "core/contracts/schemas/motion_set.schema.json",
   "core/contracts/schema/validate-ssot.mjs",
   "core/contracts/schemas-index.json",
   "platform/ssot/modules/",
+  "platform/ssot/design/",
   "platform/ssot/data/",
   "platform/ssot/studio/pages/page_instances.json",
   "platform/ssot/studio/widgets/",
   "platform/ssot/studio/forms/",
   "platform/ssot/changes/changesets/",
   "apps/backend-api/server.mjs",
+  "apps/control-plane/public/styles.css",
   "apps/control-plane/public/app.js",
+  "apps/client-app/public/styles.css",
   "apps/client-app/public/app.js",
   "platform/ssot/studio/routes/route_specs.json",
   "platform/ssot/studio/nav/nav_specs.json",
@@ -219,18 +228,19 @@ export function tokenGate({ ssotDir, releaseId, manifestsDir }) {
     const hasPx = Object.values(w.props).some((v) => typeof v === "string" && v.includes("px"));
     return hasInline || hasHardcodedColor || hasPx;
   });
-  const expectedCss = `:root{\n${(themeManifest.tokens || [])
-    .map((t) => `--${t.token_key}: ${String(t.value)}${t.units || ""};`)
-    .join("\n")}\n}`;
-  const cssPath = manifestRoot.includes("/platform/runtime/manifests")
-    ? `${manifestRoot.replace(/\/platform\/runtime\/manifests$/, "/platform/runtime/build_artifacts")}/theme_vars.${releaseId}.css`
+  const cssRoot = manifestRoot.includes("/platform/runtime/manifests")
+    ? manifestRoot.replace(/\/platform\/runtime\/manifests$/, "/platform/runtime/build_artifacts")
     : manifestRoot.includes("/runtime/manifests")
-      ? `${manifestRoot.replace(/\/runtime\/manifests$/, "/platform/runtime/build_artifacts")}/theme_vars.${releaseId}.css`
-      : `${manifestRoot}/theme_vars.${releaseId}.css`;
+      ? manifestRoot.replace(/\/runtime\/manifests$/, "/platform/runtime/build_artifacts")
+      : manifestRoot.endsWith("/manifests")
+        ? manifestRoot.replace(/\/manifests$/, "/build_artifacts")
+        : manifestRoot;
+  const cssPath = `${cssRoot}/theme_vars.${releaseId}.css`;
   let cssOk = false;
   try {
     const css = readFileSync(cssPath, "utf-8");
-    cssOk = css.trim() === expectedCss.trim();
+    const checksum = sha256(css.replace(/\r\n/g, "\n"));
+    cssOk = themeManifest.css_checksum === checksum;
   } catch {
     cssOk = false;
   }
@@ -864,7 +874,12 @@ export function freezeGate({ ssotDir }) {
     "form_schema",
     "workflow_definition",
     "design_token",
-    "theme"
+    "token_set",
+    "theme",
+    "theme_layer",
+    "typography_set",
+    "density_profile",
+    "motion_set"
   ]);
   const moduleKinds = new Set([
     "domain_module",
@@ -1622,8 +1637,59 @@ export function tenantFactoryGate({ ssotDir }) {
 }
 
 export function designFreezeGate({ ssotDir }) {
-  const constraints = readJson(`${ssotDir}/design/ux_constraints.json`);
-  const freeze = constraints.find((c) => c.freeze_design === true);
-  const ok = !freeze;
-  return { ok, gate: "Design Freeze Gate", details: ok ? "" : "Design is frozen" };
+  const freeze = readJsonIfExists(`${ssotDir}/governance/change_freeze.json`);
+  if (!freeze?.enabled) return { ok: true, gate: "Design Freeze Gate", details: "" };
+  const allowed = (freeze.allow_actions || []).some((a) => a === "design.*" || a.startsWith("design."));
+  if (allowed || freeze.scopes?.content_mutations === false) return { ok: true, gate: "Design Freeze Gate", details: "" };
+  const dir = `${ssotDir}/changes/changesets`;
+  if (!existsSync(dir)) return { ok: true, gate: "Design Freeze Gate", details: "" };
+  const designKinds = new Set(["design_token", "token_set", "theme", "theme_layer", "typography_set", "density_profile", "motion_set"]);
+  const offenders = [];
+  for (const f of readdirSync(dir).filter((x) => x.endsWith(".json"))) {
+    const cs = readJson(`${dir}/${f}`);
+    if (cs.status !== "draft" && cs.status !== "pending") continue;
+    for (const op of cs.ops || []) {
+      const kind = op?.target?.kind || "";
+      if (designKinds.has(kind)) offenders.push(`${cs.id}:${kind}`);
+    }
+  }
+  const ok = offenders.length === 0;
+  return { ok, gate: "Design Freeze Gate", details: ok ? "" : "Design publish blocked by freeze" };
+}
+
+export function themeArtifactGate({ releaseId, manifestsDir }) {
+  const dir = manifestsDir || "./runtime/manifests";
+  const manifestPath = `${dir}/theme_manifest.${releaseId}.json`;
+  if (!existsSync(manifestPath)) return { ok: false, gate: "Theme Artifact Gate", details: "Missing theme_manifest" };
+  const themeManifest = readJson(manifestPath);
+  const buildDir = dir.includes("/platform/runtime/manifests")
+    ? dir.replace(/\/platform\/runtime\/manifests$/, "/platform/runtime/build_artifacts")
+    : dir.includes("/runtime/manifests")
+      ? dir.replace(/\/runtime\/manifests$/, "/platform/runtime/build_artifacts")
+      : dir.endsWith("/manifests")
+        ? dir.replace(/\/manifests$/, "/build_artifacts")
+        : dir;
+  const cssPath = `${buildDir}/theme_vars.${releaseId}.css`;
+  if (!existsSync(cssPath)) return { ok: false, gate: "Theme Artifact Gate", details: "Missing theme_vars css" };
+  const css = readFileSync(cssPath, "utf-8");
+  const checksum = sha256(css.replace(/\r\n/g, "\n"));
+  const ok = themeManifest.css_checksum === checksum;
+  return { ok, gate: "Theme Artifact Gate", details: ok ? "" : "theme_vars checksum mismatch" };
+}
+
+export function tokenNoHardcodeGate() {
+  const files = [
+    "apps/control-plane/public/styles.css",
+    "apps/client-app/public/styles.css"
+  ];
+  const hex = /#[0-9a-fA-F]{3,8}/;
+  const px = /\b\d+px\b/;
+  const offenders = [];
+  for (const f of files) {
+    if (!existsSync(f)) continue;
+    const txt = readFileSync(f, "utf-8");
+    if (hex.test(txt) || px.test(txt)) offenders.push(f);
+  }
+  const ok = offenders.length === 0;
+  return { ok, gate: "Token No Hardcode Gate", details: ok ? "" : `Hardcoded hex/px in: ${offenders.join(", ")}` };
 }

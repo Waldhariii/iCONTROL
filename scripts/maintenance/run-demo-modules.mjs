@@ -76,7 +76,15 @@ function extractSnapshot({ manifest, tenantId }) {
     acc[s.page_id].push(s.section_key);
     return acc;
   }, {});
-  return { activeModuleIds, routes, nav, pages, sections };
+  const themes = manifest.themes || {};
+  const themeManifest = {
+    active_theme_id: themes.active_theme_id,
+    active_theme_variant: themes.active_theme_variant,
+    active_density_id: themes.active_density_id,
+    available_themes: themes.available_themes || [],
+    density_profiles: (themes.density_profiles || []).map((d) => d.density_id)
+  };
+  return { activeModuleIds, routes, nav, pages, sections, themeManifest };
 }
 
 async function runDemo({ ssotDir, outDir, templateId }) {
@@ -185,16 +193,17 @@ if (billing && jobs) {
 }
 
 writeFileSync(reportPath, lines.join("\n") + "\n", "utf-8");
-  writeJson(snapshotPath, results.map((r) => ({
-    template_id: r.templateId,
-    tenant_id: r.tenantId,
-    release_id: r.releaseId,
-    modules_active: r.snapshot.activeModuleIds,
-    routes: r.snapshot.routes,
-    nav: r.snapshot.nav,
-    pages: r.snapshot.pages,
-    sections: r.snapshot.sections
-  })));
+writeJson(snapshotPath, results.map((r) => ({
+  template_id: r.templateId,
+  tenant_id: r.tenantId,
+  release_id: r.releaseId,
+  modules_active: r.snapshot.activeModuleIds,
+  routes: r.snapshot.routes,
+  nav: r.snapshot.nav,
+  pages: r.snapshot.pages,
+  sections: r.snapshot.sections,
+  theme_manifest: r.snapshot.themeManifest
+})));
 
 console.log(`Demo report written: ${reportPath}`);
 console.log(`Demo snapshot written: ${snapshotPath}`);
