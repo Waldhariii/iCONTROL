@@ -19,6 +19,7 @@ async function run() {
   const freezePath = join(temp.ssotDir, "governance", "change_freeze.json");
   const freeze = JSON.parse(readFileSync(freezePath, "utf-8"));
   freeze.enabled = true;
+  freeze.scopes = { content_mutations: true, studio_ui_mutations: true };
   freeze.allow_actions = [
     "governance.*",
     "studio.releases.activate",

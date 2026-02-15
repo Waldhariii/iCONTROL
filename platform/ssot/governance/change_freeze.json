@@ -13,6 +13,11 @@
     "observability.read",
     "data.export",
     "integrations.*",
-    "ops.*"
-  ]
+    "ops.*",
+    "studio.modules.*"
+  ],
+  "scopes": {
+    "content_mutations": true,
+    "studio_ui_mutations": false
+  }
 }

@@ -7,7 +7,9 @@
     "title_key": "studio.pages",
     "module_id": "studio",
     "default_layout_template_id": "layout-1",
-    "capabilities_required": ["studio.access"],
+    "capabilities_required": [
+      "studio.access"
+    ],
     "owner_team": "studio",
     "tags": [],
     "state": "active"
@@ -20,7 +22,9 @@
     "title_key": "studio.routes",
     "module_id": "studio",
     "default_layout_template_id": "layout-1",
-    "capabilities_required": ["studio.access"],
+    "capabilities_required": [
+      "studio.access"
+    ],
     "owner_team": "studio",
     "tags": [],
     "state": "active"
@@ -33,7 +37,9 @@
     "title_key": "studio.nav",
     "module_id": "studio",
     "default_layout_template_id": "layout-1",
-    "capabilities_required": ["studio.access"],
+    "capabilities_required": [
+      "studio.access"
+    ],
     "owner_team": "studio",
     "tags": [],
     "state": "active"
@@ -46,7 +52,9 @@
     "title_key": "studio.releases",
     "module_id": "studio",
     "default_layout_template_id": "layout-1",
-    "capabilities_required": ["studio.access"],
+    "capabilities_required": [
+      "studio.access"
+    ],
     "owner_team": "studio",
     "tags": [],
     "state": "active"
@@ -59,7 +67,9 @@
     "title_key": "studio.health",
     "module_id": "studio",
     "default_layout_template_id": "layout-1",
-    "capabilities_required": ["studio.access"],
+    "capabilities_required": [
+      "studio.access"
+    ],
     "owner_team": "studio",
     "tags": [],
     "state": "active"
@@ -72,7 +82,9 @@
     "title_key": "Jobs",
     "module_id": "module:jobs",
     "default_layout_template_id": "layout-1",
-    "capabilities_required": ["client.access"],
+    "capabilities_required": [
+      "client.access"
+    ],
     "owner_team": "jobs",
     "tags": [],
     "state": "active"
@@ -85,7 +97,9 @@
     "title_key": "Job Detail",
     "module_id": "module:jobs",
     "default_layout_template_id": "layout-1",
-    "capabilities_required": ["client.access"],
+    "capabilities_required": [
+      "client.access"
+    ],
     "owner_team": "jobs",
     "tags": [],
     "state": "active"
@@ -98,7 +112,9 @@
     "title_key": "Documents",
     "module_id": "module:documents",
     "default_layout_template_id": "layout-1",
-    "capabilities_required": ["client.access"],
+    "capabilities_required": [
+      "client.access"
+    ],
     "owner_team": "documents",
     "tags": [],
     "state": "active"
@@ -111,7 +127,9 @@
     "title_key": "Document Detail",
     "module_id": "module:documents",
     "default_layout_template_id": "layout-1",
-    "capabilities_required": ["client.access"],
+    "capabilities_required": [
+      "client.access"
+    ],
     "owner_team": "documents",
     "tags": [],
     "state": "active"
@@ -124,7 +142,9 @@
     "title_key": "Invoices",
     "module_id": "module:billing",
     "default_layout_template_id": "layout-1",
-    "capabilities_required": ["client.access"],
+    "capabilities_required": [
+      "client.access"
+    ],
     "owner_team": "billing",
     "tags": [],
     "state": "active"
@@ -137,8 +157,40 @@
     "title_key": "Invoice Detail",
     "module_id": "module:billing",
     "default_layout_template_id": "layout-1",
-    "capabilities_required": ["client.access"],
+    "capabilities_required": [
+      "client.access"
+    ],
     "owner_team": "billing",
+    "tags": [],
+    "state": "active"
+  },
+  {
+    "id": "cp-studio-modules",
+    "surface": "cp",
+    "key": "studio.modules",
+    "slug": "cp-studio-modules",
+    "title_key": "studio.modules",
+    "module_id": "studio",
+    "default_layout_template_id": "layout-1",
+    "capabilities_required": [
+      "studio.access"
+    ],
+    "owner_team": "studio",
+    "tags": [],
+    "state": "active"
+  },
+  {
+    "id": "cp-studio-module-editor",
+    "surface": "cp",
+    "key": "studio.module.editor",
+    "slug": "cp-studio-module-editor",
+    "title_key": "studio.module.editor",
+    "module_id": "studio",
+    "default_layout_template_id": "layout-1",
+    "capabilities_required": [
+      "studio.access"
+    ],
+    "owner_team": "studio",
     "tags": [],
     "state": "active"
   }

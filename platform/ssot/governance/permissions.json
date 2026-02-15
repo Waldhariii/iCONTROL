@@ -60,6 +60,26 @@
     "scope": "platform:*"
   },
   {
+    "id": "studio.modules.view",
+    "scope": "platform:*"
+  },
+  {
+    "id": "studio.modules.edit",
+    "scope": "platform:*"
+  },
+  {
+    "id": "studio.modules.publish",
+    "scope": "platform:*"
+  },
+  {
+    "id": "studio.modules.activate",
+    "scope": "platform:*"
+  },
+  {
+    "id": "studio.modules.deactivate",
+    "scope": "platform:*"
+  },
+  {
     "id": "observability.read",
     "scope": "platform:*"
   },

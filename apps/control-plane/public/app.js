@@ -48,7 +48,9 @@ function renderLocked() {
 function renderNav() {
   nav.innerHTML = "";
   const routes = (manifest?.routes?.routes || []).filter((r) => r.surface === "cp");
-  const links = routes.map((r) => ({ label: r.path, hash: `#route:${r.route_id}` }));
+  const navSpecs = (manifest?.nav?.nav_specs || []).filter((n) => n.surface === "cp");
+  const labelByPath = new Map(navSpecs.map((n) => [n.path, n.label || n.id]));
+  const links = routes.map((r) => ({ label: labelByPath.get(r.path) || r.path, hash: `#route:${r.route_id}` }));
   for (const l of links) {
     const a = document.createElement("a");
     a.href = l.hash;
@@ -224,6 +226,136 @@ function renderNavView() {
   };
 }
 
+function renderModulesView() {
+  view.innerHTML = `
+    <section>
+      <h2>Modules</h2>
+      <button id="loadModules">Refresh</button>
+      <button id="newModule">New Module</button>
+      <ul id="modulesList"></ul>
+    </section>
+  `;
+  document.getElementById("loadModules").onclick = async () => {
+    const list = await fetch(`${apiBase}/studio/modules`, { headers }).then((r) => r.json());
+    document.getElementById("modulesList").innerHTML = list
+      .map((m) => `<li>${m.module_id} (${m.tier}) v${m.latest_version || "n/a"} - active_tenants:${m.active_tenants} <button data-id="${m.module_id}" class="edit">Edit</button></li>`)
+      .join("");
+    document.querySelectorAll(".edit").forEach((b) => {
+      b.onclick = () => {
+        location.hash = `/cp/studio/modules/${b.dataset.id}`;
+      };
+    });
+  };
+  document.getElementById("newModule").onclick = () => {
+    location.hash = `/cp/studio/modules/new`;
+  };
+}
+
+async function renderModuleEditor(moduleId) {
+  let moduleData = null;
+  if (moduleId && moduleId !== "new") {
+    moduleData = await fetch(`${apiBase}/studio/modules/${moduleId}`, { headers }).then((r) => r.json());
+  }
+  const mod = moduleData?.module || {
+    module_id: "",
+    name: "",
+    tier: "free",
+    surfaces: ["client"],
+    provides: { pages: [], routes: [], nav: [], widgets: [], forms: [], workflows: [], datasources: [] },
+    required_capabilities: ["client.access"],
+    default_entitlements: ["entitlement:default"],
+    dependencies: ["platform:datasource"]
+  };
+  view.innerHTML = `
+    <section>
+      <h2>Module Editor</h2>
+      <div class="grid">
+        <div>
+          <label>Module ID</label><input id="modId" value="${mod.module_id}" />
+          <label>Name</label><input id="modName" value="${mod.name}" />
+          <label>Tier</label><input id="modTier" value="${mod.tier}" />
+          <label>Capabilities (comma)</label><input id="modCaps" value="${(mod.required_capabilities || []).join(",")}" />
+          <label>Entitlements (comma)</label><input id="modEnts" value="${(mod.default_entitlements || []).join(",")}" />
+          <label>Dependencies (comma)</label><input id="modDeps" value="${(mod.dependencies || []).join(",")}" />
+        </div>
+        <div>
+          <label>Provides (JSON)</label>
+          <textarea id="modProvides" rows="10">${JSON.stringify(mod.provides || {}, null, 2)}</textarea>
+          <label>Changeset ID</label><input id="modCsId" />
+          <button id="createChangesetMod">Create Changeset</button>
+          <button id="saveModule">Save</button>
+          <button id="previewModule">Preview</button>
+          <button id="publishModule">Publish</button>
+          <label>Tenant ID</label><input id="modTenant" value="tenant:default" />
+          <button id="activateModule">Activate</button>
+          <button id="deactivateModule">Deactivate</button>
+        </div>
+      </div>
+    </section>
+  `;
+  document.getElementById("createChangesetMod").onclick = async () => {
+    const cs = await fetch(`${apiBase}/changesets`, { method: "POST", headers }).then((r) => r.json());
+    document.getElementById("modCsId").value = cs.id;
+  };
+  document.getElementById("saveModule").onclick = async () => {
+    const csId = document.getElementById("modCsId").value;
+    const module = {
+      module_id: document.getElementById("modId").value,
+      name: document.getElementById("modName").value,
+      tier: document.getElementById("modTier").value,
+      surfaces: ["client"],
+      provides: JSON.parse(document.getElementById("modProvides").value || "{}"),
+      required_capabilities: document.getElementById("modCaps").value.split(",").map((s) => s.trim()).filter(Boolean),
+      default_entitlements: document.getElementById("modEnts").value.split(",").map((s) => s.trim()).filter(Boolean),
+      dependencies: document.getElementById("modDeps").value.split(",").map((s) => s.trim()).filter(Boolean)
+    };
+    const method = moduleId && moduleId !== "new" ? "PATCH" : "POST";
+    const url = moduleId && moduleId !== "new" ? `${apiBase}/studio/modules/${module.module_id}` : `${apiBase}/studio/modules`;
+    await fetch(url, {
+      method,
+      headers,
+      body: JSON.stringify({ changeset_id: csId, module })
+    });
+    alert("Module saved to changeset");
+  };
+  document.getElementById("previewModule").onclick = async () => {
+    const csId = document.getElementById("modCsId").value;
+    await fetch(`${apiBase}/changesets/${csId}/preview`, { method: "POST", headers });
+    await fetch(`${apiBase}/changesets/${csId}/validate`, { method: "POST", headers });
+    alert("Preview compiled + gates run");
+  };
+  document.getElementById("publishModule").onclick = async () => {
+    const csId = document.getElementById("modCsId").value;
+    const id = document.getElementById("modId").value;
+    await fetch(`${apiBase}/studio/modules/${id}/publish`, {
+      method: "POST",
+      headers,
+      body: JSON.stringify({ changeset_id: csId })
+    });
+    alert("Published");
+  };
+  document.getElementById("activateModule").onclick = async () => {
+    const id = document.getElementById("modId").value;
+    const tenantId = document.getElementById("modTenant").value;
+    await fetch(`${apiBase}/studio/modules/${id}/activate`, {
+      method: "POST",
+      headers,
+      body: JSON.stringify({ tenant_id: tenantId })
+    });
+    alert("Activated");
+  };
+  document.getElementById("deactivateModule").onclick = async () => {
+    const id = document.getElementById("modId").value;
+    const tenantId = document.getElementById("modTenant").value;
+    await fetch(`${apiBase}/studio/modules/${id}/deactivate`, {
+      method: "POST",
+      headers,
+      body: JSON.stringify({ tenant_id: tenantId })
+    });
+    alert("Deactivated");
+  };
+}
+
 async function renderReleasesView() {
   const list = await fetch(`${apiBase}/releases`, { headers }).then((r) => r.json());
   view.innerHTML = `
@@ -260,10 +392,21 @@ async function renderHealthView() {
 
 window.onhashchange = () => {
   if (!manifest) return renderLocked();
-  const path = location.hash ? location.hash.slice(1) : "";
+  const raw = location.hash ? location.hash.slice(1) : "";
+  let path = raw;
+  if (raw.startsWith("route:")) {
+    const routeId = raw.replace(/^route:/, "");
+    const route = (manifest?.routes?.routes || []).find((r) => r.route_id === routeId);
+    if (route?.path) path = route.path;
+  }
   if (path.endsWith("/cp/studio/pages")) renderPagesView();
   else if (path.endsWith("/cp/studio/routes")) renderRoutesView();
   else if (path.endsWith("/cp/studio/nav")) renderNavView();
+  else if (path.startsWith("/cp/studio/modules/")) {
+    const id = path.split("/")[4];
+    renderModuleEditor(id);
+  }
+  else if (path.endsWith("/cp/studio/modules")) renderModulesView();
   else if (path.endsWith("/cp/studio/releases")) renderReleasesView();
   else if (path.endsWith("/cp/studio/health")) renderHealthView();
 };

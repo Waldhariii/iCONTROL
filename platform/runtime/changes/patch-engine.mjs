@@ -14,6 +14,9 @@ const kindToPath = {
   route_spec: "studio/routes/route_specs.json",
   nav_spec: "studio/nav/nav_specs.json",
   widget_instance: "studio/widgets/widget_instances.json",
+  domain_module: "modules/domain_modules.json",
+  domain_module_version: "modules/domain_module_versions.json",
+  module_activation: "modules/module_activations.json",
   design_token: "design/design_tokens.json",
   theme: "design/themes.json",
   active_release: "changes/active_release.json",
@@ -27,12 +30,29 @@ const kindToSchema = {
   route_spec: "route_spec.v1",
   nav_spec: "array_of_objects.v1",
   widget_instance: "array_of_objects.v1",
+  domain_module: "domain_module.v1",
+  domain_module_version: "domain_module_version.v1",
+  module_activation: "module_activation.v1",
   design_token: "design_token.v1",
   theme: "theme.v1",
   active_release: "active_release.v1",
   break_glass: "break_glass.v1",
   change_freeze: "change_freeze.v1"
 };
+
+function itemKey(kind, item) {
+  if (!item) return "";
+  if (kind === "route_spec") return item.route_id;
+  if (kind === "page_version") return item.page_id;
+  if (kind === "domain_module") return item.module_id;
+  if (kind === "domain_module_version") return `${item.module_id}@${item.version}`;
+  if (kind === "module_activation") return `${item.tenant_id}:${item.module_id}`;
+  return item.id;
+}
+
+function findIndexByRef(dataArray, kind, ref) {
+  return dataArray.findIndex((x) => itemKey(kind, x) === ref);
+}
 
 function readJson(path) {
   return JSON.parse(readFileSync(path, "utf-8"));
@@ -88,10 +108,11 @@ function applyOp(dataArray, op) {
     throw new Error(`Unsupported op for object target: ${op.op}`);
   }
   const targetRef = op.target.ref;
+  const kind = op.target.kind;
   if (op.op === "add") {
     dataArray.push(op.value);
   } else if (op.op === "update") {
-    const idx = dataArray.findIndex((x) => x.id === targetRef);
+    const idx = findIndexByRef(dataArray, kind, targetRef);
     if (idx < 0) throw new Error(`Target not found: ${targetRef}`);
     if (op.path) {
       dataArray[idx][op.path] = op.value;
@@ -99,11 +120,11 @@ function applyOp(dataArray, op) {
       dataArray[idx] = { ...dataArray[idx], ...op.value };
     }
   } else if (op.op === "rename") {
-    const idx = dataArray.findIndex((x) => x.id === op.from);
+    const idx = findIndexByRef(dataArray, kind, op.from);
     if (idx < 0) throw new Error(`Target not found: ${op.from}`);
     dataArray[idx].id = op.to;
   } else if (op.op === "deprecate") {
-    const idx = dataArray.findIndex((x) => x.id === targetRef);
+    const idx = findIndexByRef(dataArray, kind, targetRef);
     if (idx < 0) throw new Error(`Target not found: ${targetRef}`);
     dataArray[idx].state = "deprecated";
   } else if (op.op === "delete_request") {
@@ -270,11 +291,11 @@ export function applyOpsToDir(ssotDir, ops) {
     const data = readJson(absPath);
 
     const expectedExists = op.preconditions?.expected_exists;
-    if (expectedExists === false && data.some((x) => x.id === op.target.ref)) {
+    if (expectedExists === false && data.some((x) => itemKey(op.target.kind, x) === op.target.ref)) {
       throw new Error(`Target already exists: ${op.target.ref}`);
     }
     if (op.preconditions?.expected_version) {
-      const item = data.find((x) => x.id === op.target.ref);
+      const item = data.find((x) => itemKey(op.target.kind, x) === op.target.ref);
       if (!item || item.version !== op.preconditions.expected_version) {
         throw new Error(`Version mismatch for ${op.target.ref}`);
       }
@@ -324,12 +345,12 @@ export function applyChangeset(changesetId) {
         throw new Error(`Checksum mismatch for ${relPath}`);
       }
       if (op.preconditions?.expected_version) {
-        const item = data.find((x) => x.id === op.target.ref);
+        const item = data.find((x) => itemKey(op.target.kind, x) === op.target.ref);
         if (!item || item.version !== op.preconditions.expected_version) {
           throw new Error(`Version mismatch for ${op.target.ref}`);
         }
       }
-      if (expectedExists === false && data.some((x) => x.id === op.target.ref)) {
+      if (expectedExists === false && data.some((x) => itemKey(op.target.kind, x) === op.target.ref)) {
         throw new Error(`Target already exists: ${op.target.ref}`);
       }
 

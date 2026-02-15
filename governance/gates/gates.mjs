@@ -612,7 +612,7 @@ export function freezeGate({ ssotDir }) {
   if (!existsSync(dir)) return { ok: true, gate: "Freeze Gate", details: "" };
   const files = readdirSync(dir).filter((f) => f.endsWith(".json"));
   const freezeAt = Date.parse(freeze.enabled_at || "");
-  const blocked = new Set([
+  const contentBlocked = new Set([
     "page_definition",
     "page_version",
     "route_spec",
@@ -623,7 +623,19 @@ export function freezeGate({ ssotDir }) {
     "design_token",
     "theme"
   ]);
+  const moduleKinds = new Set([
+    "domain_module",
+    "domain_module_version",
+    "module_activation"
+  ]);
   const offenders = [];
+  const scopes = freeze.scopes || {};
+  const pages = readJson(`${ssotDir}/studio/pages/page_definitions.json`);
+  const pagesById = new Map(pages.map((p) => [p.id, p]));
+  const routes = readJson(`${ssotDir}/studio/routes/route_specs.json`);
+  const routesById = new Map(routes.map((r) => [r.route_id, r]));
+  const nav = readJson(`${ssotDir}/studio/nav/nav_specs.json`);
+  const navById = new Map(nav.map((n) => [n.id, n]));
   for (const f of files) {
     const cs = readJson(`${dir}/${f}`);
     if (cs.status !== "draft" && cs.status !== "pending") continue;
@@ -633,11 +645,49 @@ export function freezeGate({ ssotDir }) {
     }
     for (const op of cs.ops || []) {
       const kind = op?.target?.kind || "";
-      if (blocked.has(kind)) offenders.push(`${cs.id}:${kind}`);
+      const isContent = contentBlocked.has(kind);
+      const isModule = moduleKinds.has(kind);
+      let isStudioUi = false;
+      if (kind === "page_definition") {
+        const v = op.value || pagesById.get(op.target.ref);
+        if (v?.surface === "cp" || v?.module_id === "studio") isStudioUi = true;
+      }
+      if (kind === "page_version") {
+        const pv = op.value || null;
+        const pid = pv?.page_id || op.target.ref;
+        const page = pagesById.get(pid);
+        if (page?.surface === "cp" || page?.module_id === "studio") isStudioUi = true;
+      }
+      if (kind === "route_spec") {
+        const r = op.value || routesById.get(op.target.ref);
+        if (r?.surface === "cp") isStudioUi = true;
+      }
+      if (kind === "nav_spec") {
+        const n = op.value || navById.get(op.target.ref);
+        if (n?.surface === "cp") isStudioUi = true;
+      }
+
+      if (isModule && scopes.studio_ui_mutations === true) offenders.push(`${cs.id}:${kind}`);
+      if (isContent && scopes.content_mutations === true && !isStudioUi) offenders.push(`${cs.id}:${kind}`);
+      if (isContent && isStudioUi && scopes.studio_ui_mutations === true) offenders.push(`${cs.id}:${kind}`);
     }
   }
   const ok = offenders.length === 0;
   return { ok, gate: "Freeze Gate", details: ok ? "" : `Frozen changes present: ${offenders.join(", ")}` };
+}
+
+export function freezeScopeGate({ ssotDir }) {
+  const freeze = readJsonIfExists(`${ssotDir}/governance/change_freeze.json`);
+  if (!freeze?.enabled) return { ok: true, gate: "Freeze Scope Gate", details: "" };
+  const scopes = freeze.scopes || {};
+  if (scopes.studio_ui_mutations !== false) return { ok: true, gate: "Freeze Scope Gate", details: "" };
+  const dir = `${ssotDir}/changes/reviews`;
+  if (!existsSync(dir)) return { ok: false, gate: "Freeze Scope Gate", details: "Missing quorum review for studio_ui_mutations" };
+  const files = readdirSync(dir).filter((f) => f.endsWith(".json"));
+  const reviews = files.map((f) => readJson(`${dir}/${f}`));
+  const approved = reviews.find((r) => r.action === "freeze.scope" && r.target_id === "change_freeze" && r.status === "approved");
+  const ok = Boolean(approved);
+  return { ok, gate: "Freeze Scope Gate", details: ok ? "" : "studio_ui_mutations enabled without quorum" };
 }
 
 export function quorumGate({ ssotDir }) {
@@ -816,6 +866,36 @@ export function budgetCoverageGate({ ssotDir }) {
   }
   const ok = bad.length === 0;
   return { ok, gate: "Budget Coverage Gate", details: ok ? "" : bad.join(", ") };
+}
+
+export function moduleAuthoringGate({ ssotDir }) {
+  const modules = readJson(`${ssotDir}/modules/domain_modules.json`);
+  const bad = [];
+  for (const m of modules) {
+    if (!m.module_id || !m.name) bad.push(`${m.module_id || "missing"}:metadata`);
+    const provides = m.provides || {};
+    const keys = ["pages", "routes", "nav", "widgets", "forms", "workflows", "datasources"];
+    for (const k of keys) {
+      if (!Array.isArray(provides[k])) bad.push(`${m.module_id}:${k}:missing`);
+    }
+  }
+  const ok = bad.length === 0;
+  return { ok, gate: "Module Authoring Gate", details: ok ? "" : bad.join(", ") };
+}
+
+export function activationSafetyGate({ ssotDir }) {
+  const modules = readJson(`${ssotDir}/modules/domain_modules.json`);
+  const versions = readJson(`${ssotDir}/modules/domain_module_versions.json`);
+  const activations = readJson(`${ssotDir}/modules/module_activations.json`);
+  const moduleIds = new Set(modules.map((m) => m.module_id));
+  const activeModules = new Set(versions.filter((v) => v.status === "active").map((v) => v.module_id));
+  const bad = [];
+  for (const a of activations) {
+    if (!moduleIds.has(a.module_id)) bad.push(`activation:${a.module_id}:missing_module`);
+    if (!activeModules.has(a.module_id)) bad.push(`activation:${a.module_id}:inactive_version`);
+  }
+  const ok = bad.length === 0;
+  return { ok, gate: "Activation Safety Gate", details: ok ? "" : bad.join(", ") };
 }
 
 export function runbookIntegrityGate({ ssotDir }) {

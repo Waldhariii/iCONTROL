@@ -1,10 +1,13 @@
 import { applyChangeset } from "../../platform/runtime/changes/patch-engine.mjs";
+import { mkdirSync, writeFileSync, existsSync } from "fs";
+import { join } from "path";
 import { createReleaseCandidate, compileSignedManifest, rollout, activate, rollback, sloCheck } from "../../platform/runtime/release/orchestrator.mjs";
 
 const args = process.argv.slice(2);
 const changesetId = args[args.indexOf("--from-changeset") + 1];
 const env = args[args.indexOf("--env") + 1] || "dev";
 const strategy = args[args.indexOf("--strategy") + 1] || "canary";
+const ssotDir = process.env.SSOT_DIR || "./platform/ssot";
 
 if (!changesetId) {
   console.error("Missing --from-changeset <id>");
@@ -37,4 +40,27 @@ if (!ok) {
 }
 
 activate(releaseId, "global");
+const activeCsId = `cs-active-release-${releaseId}`;
+const changesetsDir = join(ssotDir, "changes/changesets");
+mkdirSync(changesetsDir, { recursive: true });
+const activeCsPath = join(changesetsDir, `${activeCsId}.json`);
+if (!existsSync(activeCsPath)) {
+  const cs = {
+    id: activeCsId,
+    status: "draft",
+    created_by: "release",
+    created_at: new Date().toISOString(),
+    scope: "global",
+    ops: [
+      {
+        op: "update",
+        target: { kind: "active_release", ref: "active_release" },
+        value: { active_release_id: releaseId, active_env: env, updated_at: new Date().toISOString(), updated_by: "release" },
+        preconditions: { expected_exists: true }
+      }
+    ]
+  };
+  writeFileSync(activeCsPath, JSON.stringify(cs, null, 2));
+}
+applyChangeset(activeCsId);
 console.log(`Release complete: ${releaseId}`);

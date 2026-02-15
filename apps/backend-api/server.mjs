@@ -93,6 +93,25 @@ function getGovernanceData() {
   };
 }
 
+function readModules() {
+  const modules = readJson(ssotPath("modules/domain_modules.json"));
+  const versions = readJson(ssotPath("modules/domain_module_versions.json"));
+  const activations = readJson(ssotPath("modules/module_activations.json"));
+  const byModule = new Map();
+  for (const v of versions) {
+    const key = v.module_id;
+    const list = byModule.get(key) || [];
+    list.push(v);
+    byModule.set(key, list);
+  }
+  return modules.map((m) => {
+    const vlist = (byModule.get(m.module_id) || []).sort((a, b) => (a.version || "").localeCompare(b.version || ""));
+    const latest = vlist[vlist.length - 1] || null;
+    const activeTenants = activations.filter((a) => a.module_id === m.module_id && a.state === "active").length;
+    return { ...m, latest_version: latest?.version || "", active_tenants: activeTenants };
+  });
+}
+
 function getFinopsData() {
   return {
     plans: readJson(ssotPath("tenancy/plans.json")),
@@ -504,7 +523,22 @@ function actionMatches(pattern, action) {
 function freezeAllows({ changeFreeze, action }) {
   if (!changeFreeze?.enabled) return true;
   const allow = changeFreeze.allow_actions || [];
-  return allow.some((p) => actionMatches(p, action));
+  if (allow.some((p) => actionMatches(p, action))) return true;
+  const scopes = changeFreeze.scopes || {};
+  const isStudioUi = action.startsWith("studio.modules");
+  const isContent =
+    action.startsWith("studio.pages") ||
+    action.startsWith("studio.routes") ||
+    action.startsWith("studio.nav") ||
+    action.startsWith("studio.widgets") ||
+    action.startsWith("studio.forms") ||
+    action.startsWith("studio.workflows") ||
+    action.startsWith("design.tokens") ||
+    action.startsWith("design.themes");
+
+  if (scopes.studio_ui_mutations === true && isStudioUi) return false;
+  if (scopes.content_mutations === true && isContent) return false;
+  return true;
 }
 
 function expireBreakGlassIfNeeded(breakGlass) {
@@ -772,6 +806,176 @@ const server = http.createServer(async (req, res) => {
       }
       appendAudit({ event: "studio_page_create", changeset_id: changeset_id, at: new Date().toISOString() });
       return json(res, 200, { ok: true });
+    }
+
+    if (req.method === "GET" && req.url === "/api/studio/modules") {
+      requirePermission(req, "studio.modules.view");
+      return json(res, 200, readModules());
+    }
+
+    if (req.method === "GET" && req.url?.startsWith("/api/studio/modules/") && req.url.split("/").length === 4) {
+      requirePermission(req, "studio.modules.view");
+      const id = req.url.split("/")[3];
+      const modules = readJson(ssotPath("modules/domain_modules.json"));
+      const versions = readJson(ssotPath("modules/domain_module_versions.json"));
+      const activations = readJson(ssotPath("modules/module_activations.json"));
+      const mod = modules.find((m) => m.module_id === id);
+      if (!mod) return json(res, 404, { error: "Module not found" });
+      const modVersions = versions.filter((v) => v.module_id === id);
+      const modActivations = activations.filter((a) => a.module_id === id);
+      return json(res, 200, { module: mod, versions: modVersions, activations: modActivations });
+    }
+
+    if (req.method === "POST" && req.url === "/api/studio/modules") {
+      requirePermission(req, "studio.modules.edit");
+      const payload = await bodyToJson(req);
+      const { changeset_id, module, module_version } = payload;
+      ensureChangeset(changeset_id);
+      if (!module?.module_id) throw new Error("Missing module_id");
+      const version = module_version || { module_id: module.module_id, version: "1.0.0", status: "active" };
+      const ops = [
+        { op: "add", target: { kind: "domain_module", ref: module.module_id }, value: module, preconditions: { expected_exists: false } },
+        { op: "add", target: { kind: "domain_module_version", ref: `${version.module_id}@${version.version}` }, value: version, preconditions: { expected_exists: false } }
+      ];
+      for (const op of ops) {
+        const cs = readJson(ssotPath(`changes/changesets/${changeset_id}.json`));
+        cs.ops.push(op);
+        writeJson(ssotPath(`changes/changesets/${changeset_id}.json`), cs);
+      }
+      appendAudit({ event: "studio_module_create", module_id: module.module_id, changeset_id, at: new Date().toISOString() });
+      return json(res, 200, { ok: true });
+    }
+
+    if (req.method === "PATCH" && req.url?.startsWith("/api/studio/modules/") && req.url.split("/").length === 4) {
+      requirePermission(req, "studio.modules.edit");
+      const moduleId = req.url.split("/")[3];
+      const payload = await bodyToJson(req);
+      const { changeset_id, value } = payload;
+      ensureChangeset(changeset_id);
+      const op = { op: "update", target: { kind: "domain_module", ref: moduleId }, value, preconditions: { expected_exists: true } };
+      const cs = readJson(ssotPath(`changes/changesets/${changeset_id}.json`));
+      cs.ops.push(op);
+      writeJson(ssotPath(`changes/changesets/${changeset_id}.json`), cs);
+      appendAudit({ event: "studio_module_update", module_id: moduleId, changeset_id, at: new Date().toISOString() });
+      return json(res, 200, { ok: true });
+    }
+
+    if (req.method === "POST" && req.url?.startsWith("/api/studio/modules/") && req.url?.endsWith("/publish")) {
+      requirePermission(req, "studio.modules.publish");
+      const moduleId = req.url.split("/")[4];
+      const payload = await bodyToJson(req);
+      const { changeset_id } = payload;
+      requireQuorum("publish", changeset_id, 2);
+      const cs = ensureChangeset(changeset_id);
+      const previewDir = `./platform/runtime/preview/${changeset_id}`;
+      const previewSsot = join(previewDir, "ssot");
+      const previewManifests = join(previewDir, "manifests");
+      mkdirSync(previewSsot, { recursive: true });
+      mkdirSync(previewManifests, { recursive: true });
+      copyDir(SSOT_DIR, previewSsot);
+      applyOpsToDir(previewSsot, cs.ops);
+      execSync(`node scripts/ci/compile.mjs preview-${changeset_id} dev`, {
+        stdio: "inherit",
+        env: { ...process.env, SSOT_DIR: previewSsot, OUT_DIR: previewManifests }
+      });
+      execSync(`node governance/gates/run-gates.mjs preview-${changeset_id}`, {
+        stdio: "inherit",
+        env: { ...process.env, SSOT_DIR: previewSsot, MANIFESTS_DIR: previewManifests }
+      });
+      execSync(`node scripts/ci/release.mjs --from-changeset ${changeset_id} --env dev --strategy canary`, {
+        stdio: "inherit",
+        env: { ...process.env, SSOT_DIR }
+      });
+      appendAudit({ event: "studio_module_publish", module_id: moduleId, changeset_id, at: new Date().toISOString() });
+      return json(res, 200, { ok: true, release_id: latestReleaseId() });
+    }
+
+    if (req.method === "POST" && req.url?.startsWith("/api/studio/modules/") && req.url?.endsWith("/activate")) {
+      requirePermission(req, "studio.modules.activate");
+      const moduleId = req.url.split("/")[4];
+      const payload = await bodyToJson(req);
+      const tenantId = payload.tenant_id || "tenant:default";
+      const changesetId = payload.changeset_id || `cs-activate-module-${Date.now()}`;
+      requireQuorum("activate", changesetId, 2);
+      const csPath = ssotPath(`changes/changesets/${changesetId}.json`);
+      if (!existsSync(csPath)) {
+        mkdirSync(ssotPath("changes/changesets"), { recursive: true });
+        writeJson(csPath, { id: changesetId, status: "draft", created_by: "api", created_at: new Date().toISOString(), scope: "global", ops: [] });
+      }
+      const activations = readJson(ssotPath("modules/module_activations.json"));
+      const key = `${tenantId}:${moduleId}`;
+      const exists = activations.some((a) => `${a.tenant_id}:${a.module_id}` === key);
+      const op = exists
+        ? { op: "update", target: { kind: "module_activation", ref: key }, value: { state: "active" }, preconditions: { expected_exists: true } }
+        : { op: "add", target: { kind: "module_activation", ref: key }, value: { tenant_id: tenantId, module_id: moduleId, state: "active" }, preconditions: { expected_exists: false } };
+      const cs = readJson(csPath);
+      cs.ops.push(op);
+      writeJson(csPath, cs);
+      const previewDir = `./platform/runtime/preview/${changesetId}`;
+      const previewSsot = join(previewDir, "ssot");
+      const previewManifests = join(previewDir, "manifests");
+      mkdirSync(previewSsot, { recursive: true });
+      mkdirSync(previewManifests, { recursive: true });
+      copyDir(SSOT_DIR, previewSsot);
+      applyOpsToDir(previewSsot, cs.ops);
+      execSync(`node scripts/ci/compile.mjs preview-${changesetId} dev`, {
+        stdio: "inherit",
+        env: { ...process.env, SSOT_DIR: previewSsot, OUT_DIR: previewManifests }
+      });
+      execSync(`node governance/gates/run-gates.mjs preview-${changesetId}`, {
+        stdio: "inherit",
+        env: { ...process.env, SSOT_DIR: previewSsot, MANIFESTS_DIR: previewManifests }
+      });
+      execSync(`node scripts/ci/release.mjs --from-changeset ${changesetId} --env dev --strategy canary`, {
+        stdio: "inherit",
+        env: { ...process.env, SSOT_DIR }
+      });
+      appendAudit({ event: "studio_module_activate", module_id: moduleId, tenant_id: tenantId, at: new Date().toISOString() });
+      return json(res, 200, { ok: true, release_id: latestReleaseId() });
+    }
+
+    if (req.method === "POST" && req.url?.startsWith("/api/studio/modules/") && req.url?.endsWith("/deactivate")) {
+      requirePermission(req, "studio.modules.deactivate");
+      const moduleId = req.url.split("/")[4];
+      const payload = await bodyToJson(req);
+      const tenantId = payload.tenant_id || "tenant:default";
+      const changesetId = payload.changeset_id || `cs-deactivate-module-${Date.now()}`;
+      requireQuorum("activate", changesetId, 2);
+      const csPath = ssotPath(`changes/changesets/${changesetId}.json`);
+      if (!existsSync(csPath)) {
+        mkdirSync(ssotPath("changes/changesets"), { recursive: true });
+        writeJson(csPath, { id: changesetId, status: "draft", created_by: "api", created_at: new Date().toISOString(), scope: "global", ops: [] });
+      }
+      const activations = readJson(ssotPath("modules/module_activations.json"));
+      const key = `${tenantId}:${moduleId}`;
+      const exists = activations.some((a) => `${a.tenant_id}:${a.module_id}` === key);
+      const op = exists
+        ? { op: "update", target: { kind: "module_activation", ref: key }, value: { state: "inactive" }, preconditions: { expected_exists: true } }
+        : { op: "add", target: { kind: "module_activation", ref: key }, value: { tenant_id: tenantId, module_id: moduleId, state: "inactive" }, preconditions: { expected_exists: false } };
+      const cs = readJson(csPath);
+      cs.ops.push(op);
+      writeJson(csPath, cs);
+      const previewDir = `./platform/runtime/preview/${changesetId}`;
+      const previewSsot = join(previewDir, "ssot");
+      const previewManifests = join(previewDir, "manifests");
+      mkdirSync(previewSsot, { recursive: true });
+      mkdirSync(previewManifests, { recursive: true });
+      copyDir(SSOT_DIR, previewSsot);
+      applyOpsToDir(previewSsot, cs.ops);
+      execSync(`node scripts/ci/compile.mjs preview-${changesetId} dev`, {
+        stdio: "inherit",
+        env: { ...process.env, SSOT_DIR: previewSsot, OUT_DIR: previewManifests }
+      });
+      execSync(`node governance/gates/run-gates.mjs preview-${changesetId}`, {
+        stdio: "inherit",
+        env: { ...process.env, SSOT_DIR: previewSsot, MANIFESTS_DIR: previewManifests }
+      });
+      execSync(`node scripts/ci/release.mjs --from-changeset ${changesetId} --env dev --strategy canary`, {
+        stdio: "inherit",
+        env: { ...process.env, SSOT_DIR }
+      });
+      appendAudit({ event: "studio_module_deactivate", module_id: moduleId, tenant_id: tenantId, at: new Date().toISOString() });
+      return json(res, 200, { ok: true, release_id: latestReleaseId() });
     }
 
     if (req.method === "PATCH" && req.url?.startsWith("/api/studio/pages/")) {

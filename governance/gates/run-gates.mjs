@@ -32,6 +32,7 @@ import {
   noFallbackGate,
   governanceGate,
   freezeGate,
+  freezeScopeGate,
   quorumGate,
   opsPolicyGate,
   runbookIntegrityGate,
@@ -46,7 +47,9 @@ import {
   domainIsolationGate,
   moduleActivationGate,
   dataGovCoverageGate,
-  budgetCoverageGate
+  budgetCoverageGate,
+  moduleAuthoringGate,
+  activationSafetyGate
 } from "./gates.mjs";
 
 const releaseId = process.argv[2];
@@ -91,6 +94,7 @@ const gates = [
   () => noFallbackGate(),
   () => governanceGate({ ssotDir }),
   () => freezeGate({ ssotDir }),
+  () => freezeScopeGate({ ssotDir }),
   () => quorumGate({ ssotDir }),
   () => opsPolicyGate({ ssotDir }),
   () => runbookIntegrityGate({ ssotDir }),
@@ -105,7 +109,9 @@ const gates = [
   () => domainIsolationGate({ ssotDir }),
   () => dataGovCoverageGate({ ssotDir }),
   () => budgetCoverageGate({ ssotDir }),
-  () => moduleActivationGate({ ssotDir, manifestsDir, releaseId })
+  () => moduleActivationGate({ ssotDir, manifestsDir, releaseId }),
+  () => moduleAuthoringGate({ ssotDir }),
+  () => activationSafetyGate({ ssotDir })
 ];
 
 const results = [];

@@ -19,5 +19,12 @@
     "label": "Billing",
     "path": "/billing/invoices",
     "module_id": "module:billing"
+  },
+  {
+    "id": "nav:cp-studio-modules",
+    "surface": "cp",
+    "label": "Modules",
+    "path": "/cp/studio/modules",
+    "module_id": "studio"
   }
 ]
