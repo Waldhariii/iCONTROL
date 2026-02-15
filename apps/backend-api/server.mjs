@@ -402,6 +402,7 @@ function requiredScopeForPath(method, path) {
     { prefix: "/api/releases", scope: "release.*" },
     { prefix: "/api/tenancy/factory", scope: "tenancy.factory.*" },
     { prefix: "/api/integrations", scope: "integrations.*" },
+    { prefix: "/api/packs", scope: "ops.packs.*" },
     { prefix: "/api/auth/token", scope: null }
   ];
   for (const r of rules) {
@@ -1981,6 +1982,52 @@ const server = http.createServer(async (req, res) => {
       execSync(`node scripts/ci/apply-changeset.mjs ${changesetId}`, { stdio: "inherit", env: { ...process.env, SSOT_DIR } });
       appendAudit({ event: "marketplace_review_update", review_id: reviewId, status: updated.status, at: new Date().toISOString() });
       return json(res, 200, { ok: true, status: updated.status });
+    }
+
+    if (req.method === "GET" && req.url === "/api/packs/list") {
+      requirePermission(req, "ops.packs.read");
+      const packsDir = join(getReportsDir(), "packs");
+      let items = [];
+      if (existsSync(packsDir)) {
+        items = readdirSync(packsDir)
+          .map((d) => join(packsDir, d))
+          .filter((p) => statSync(p).isDirectory())
+          .map((dir) => {
+            const packPath = join(dir, "pack.json");
+            if (!existsSync(packPath)) return { dir, pack: null };
+            try {
+              const pack = readJson(packPath);
+              return { dir, pack };
+            } catch {
+              return { dir, pack: null };
+            }
+          });
+      }
+      return json(res, 200, { items });
+    }
+
+    if (req.method === "POST" && req.url === "/api/packs/import") {
+      requirePermission(req, "ops.packs.import");
+      const body = await bodyToJson(req);
+      const packPath = body.pack_path || "";
+      if (!packPath) return json(res, 400, { error: "pack_path required" });
+      execSync(`node scripts/maintenance/import-release-pack.mjs --pack ${packPath} --mode staging`, {
+        stdio: "inherit",
+        env: { ...process.env, SSOT_DIR: process.env.SSOT_DIR || "./platform/ssot", MANIFESTS_DIR: process.env.MANIFESTS_DIR || "./runtime/manifests" }
+      });
+      return json(res, 200, { status: "staging_imported", pack_path: packPath });
+    }
+
+    if (req.method === "POST" && req.url === "/api/packs/activate") {
+      requirePermission(req, "ops.packs.activate");
+      const body = await bodyToJson(req);
+      const packPath = body.pack_path || "";
+      if (!packPath) return json(res, 400, { error: "pack_path required" });
+      execSync(`node scripts/maintenance/import-release-pack.mjs --pack ${packPath} --mode activate`, {
+        stdio: "inherit",
+        env: { ...process.env, SSOT_DIR: process.env.SSOT_DIR || "./platform/ssot", MANIFESTS_DIR: process.env.MANIFESTS_DIR || "./runtime/manifests" }
+      });
+      return json(res, 200, { status: "activated", pack_path: packPath });
     }
 
     if (req.method === "PATCH" && req.url?.startsWith("/api/studio/pages/")) {

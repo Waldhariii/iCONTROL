@@ -65,6 +65,7 @@
   "rate_card.v1": "core/contracts/schemas/rate_card.schema.json",
   "rating_rule.v1": "core/contracts/schemas/rating_rule.schema.json",
   "rating_version.v1": "core/contracts/schemas/rating_version.schema.json",
+  "release_pack.v1": "core/contracts/schemas/release_pack.schema.json",
   "render_graph.v1": "core/contracts/schemas/render_graph.schema.json",
   "retention_policy.v1": "core/contracts/schemas/retention_policy.schema.json",
   "retention_version.v1": "core/contracts/schemas/retention_version.schema.json",

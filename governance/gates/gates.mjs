@@ -337,7 +337,12 @@ export function extensionSignatureGate({ ssotDir, manifestsDir }) {
   const versions = readJson(`${ssotDir}/extensions/extension_versions.json`).filter((v) => v.status === "released");
   const publishers = readJson(`${ssotDir}/extensions/publishers.json`);
   const base = manifestsDir || "./runtime/manifests";
-  const extDir = base.includes("/runtime/manifests") ? base.replace(/\/runtime\/manifests$/, "/runtime/extensions") : `${base}/extensions`;
+  const stagedExtDir = `${base}/extensions`;
+  const extDir = existsSync(stagedExtDir)
+    ? stagedExtDir
+    : base.includes("/runtime/manifests")
+      ? base.replace(/\/runtime\/manifests$/, "/runtime/extensions")
+      : `${base}/extensions`;
   const bad = [];
   for (const v of versions) {
     const artifactPath = `${extDir}/${v.extension_id.replace(/[:/]/g, "_")}@${v.version}.signed.json`;

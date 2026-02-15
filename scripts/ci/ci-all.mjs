@@ -125,6 +125,11 @@ const steps = [
   "node scripts/ci/test-tenant-factory-apply.mjs",
   "node scripts/ci/test-tenant-factory-quorum.mjs",
   "node scripts/ci/test-tenant-factory-audit.mjs",
+  "node scripts/ci/test-release-pack-export.mjs",
+  "node scripts/ci/test-release-pack-import-staging.mjs",
+  "node scripts/ci/test-release-pack-activate-temp.mjs",
+  "node scripts/ci/test-dr-drill-from-pack-smoke.mjs",
+  "node scripts/ci/test-airgap-verify.mjs",
   "node scripts/ci/test-token-gate.mjs",
   "node scripts/ci/test-audit.mjs",
   "node scripts/ci/test-no-secrets-evidence.mjs"

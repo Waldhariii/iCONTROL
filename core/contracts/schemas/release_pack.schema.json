@@ -1,0 +1,90 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "release_pack.v1",
+  "title": "release_pack",
+  "type": "object",
+  "required": [
+    "pack_version",
+    "created_at",
+    "created_by",
+    "release_id",
+    "env",
+    "manifest",
+    "checksums",
+    "compat_snapshot",
+    "evidence_snapshot"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "pack_version": { "type": "string", "enum": ["1"] },
+    "created_at": { "type": "string", "format": "date-time" },
+    "created_by": { "type": "string" },
+    "release_id": { "type": "string" },
+    "env": { "type": "string" },
+    "manifest": {
+      "type": "object",
+      "required": ["path", "sha256"],
+      "additionalProperties": false,
+      "properties": {
+        "path": { "type": "string" },
+        "sha256": { "type": "string" },
+        "signature": { "type": "string" }
+      }
+    },
+    "checksums": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["path", "sha256", "size"],
+        "additionalProperties": false,
+        "properties": {
+          "path": { "type": "string" },
+          "sha256": { "type": "string" },
+          "size": { "type": "integer", "minimum": 0 }
+        }
+      }
+    },
+    "compat_snapshot": {
+      "type": "object",
+      "required": ["path", "sha256"],
+      "additionalProperties": false,
+      "properties": {
+        "path": { "type": "string" },
+        "sha256": { "type": "string" }
+      }
+    },
+    "evidence_snapshot": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["path", "sha256"],
+        "additionalProperties": false,
+        "properties": {
+          "path": { "type": "string" },
+          "sha256": { "type": "string" }
+        }
+      }
+    },
+    "optional_assets": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["path", "sha256"],
+        "additionalProperties": false,
+        "properties": {
+          "path": { "type": "string" },
+          "sha256": { "type": "string" }
+        }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "git_head": { "type": "string" },
+        "tags": { "type": "array", "items": { "type": "string" } },
+        "build_host": { "type": "string" }
+      }
+    }
+  }
+}
