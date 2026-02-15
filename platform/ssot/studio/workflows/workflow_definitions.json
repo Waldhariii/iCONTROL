@@ -1,4 +1,9 @@
 [
   {"workflow_id": "workflow:job_created_notify", "name": "Job Created Notify", "module_id": "module:jobs", "status": "active"},
-  {"workflow_id": "workflow:doc_ingest_classify", "name": "Doc Ingest Classify", "module_id": "module:documents", "status": "active"}
+  {"workflow_id": "workflow:doc_ingest_classify", "name": "Doc Ingest Classify", "module_id": "module:documents", "status": "active"},
+  {"workflow_id": "workflow:pdf_export_invoice", "name": "PDF Export Invoice", "module_id": "module:pdf_exports", "status": "active"},
+  {"workflow_id": "workflow:pdf_export_quote", "name": "PDF Export Quote", "module_id": "module:pdf_exports", "status": "active"},
+  {"workflow_id": "workflow:pdf_export_report", "name": "PDF Export Report", "module_id": "module:pdf_exports", "status": "active"},
+  {"workflow_id": "workflow:ocr_ingest", "name": "OCR Ingest", "module_id": "module:ocr_pipeline", "status": "active"},
+  {"workflow_id": "workflow:ocr_normalize", "name": "OCR Normalize", "module_id": "module:ocr_pipeline", "status": "active"}
 ]
