@@ -92,11 +92,13 @@ function renderPagesView() {
     <section>
       <h2>Pages</h2>
       <button id="newPageBtn">New Page</button>
+      <button id="openDesignerBtn">Page Designer</button>
       <ul>${pages.map((p) => `<li>${p.id} / ${p.slug}</li>`).join("")}</ul>
     </section>
     <section id="editor"></section>
   `;
   document.getElementById("newPageBtn").onclick = () => renderEditor();
+  document.getElementById("openDesignerBtn").onclick = () => renderPageDesignerView();
 }
 
 function renderEditor() {
@@ -505,6 +507,159 @@ async function renderHealthView() {
       <pre>${JSON.stringify(drift, null, 2)}</pre>
     </section>
   `;
+}
+
+const SAFE_ACTION_KINDS = ["navigate", "open_modal", "submit_form", "call_workflow", "export_pdf"];
+
+async function renderPageDesignerView() {
+  const [freezeRes, pagesRes, catalogRes, queriesRes] = await Promise.all([
+    fetch(`${apiBase}/studio/freeze`, { headers }).then((r) => r.json()).catch(() => ({ enabled: false })),
+    fetch(`${apiBase}/studio/pages`, { headers }).then((r) => r.json()).catch(() => ({ pages: [] })),
+    fetch(`${apiBase}/studio/widgets/catalog`, { headers }).then((r) => r.json()).catch(() => []),
+    fetch(`${apiBase}/studio/queries`, { headers }).then((r) => r.json()).catch(() => ({ queries: [], budgets: [] })))
+  ]);
+  const freeze = freezeRes.enabled && (freezeRes.scopes?.content_mutations === true);
+  const inventory = pagesRes.pages || [];
+  const widgetCatalog = Array.isArray(catalogRes) ? catalogRes : (catalogRes?.widgets || []);
+  const queries = queriesRes.queries || [];
+
+  view.innerHTML = `
+    <section class="designer">
+      ${freeze ? `<div class="freeze-banner" title="Content mutations blocked">Change Freeze active — Preview allowed; Apply/Publish blocked.</div>` : ""}
+      <div class="designer-toolbar">
+        <label>Changeset <input id="designerCsId" placeholder="cs-xxx" /></label>
+        <button id="designerCreateCs">Create Changeset</button>
+        <button id="designerPreview">Preview</button>
+        <button id="designerDiff">Diff</button>
+        <button id="designerImpact">Impact</button>
+        <button id="designerApply" ${freeze ? "disabled title=\"Change Freeze active\"" : ""}>Apply / Publish</button>
+      </div>
+      <div class="designer-grid">
+        <div class="designer-left">
+          <h3>Page Inventory</h3>
+          <input id="designerSearch" placeholder="Search pages" />
+          <ul id="designerPageList">${inventory.map((p) => `<li data-page-id="${p.id}">${p.id} (${p.versions} ver)</li>`).join("")}</ul>
+        </div>
+        <div class="designer-center">
+          <h3>Sections / Tabs</h3>
+          <p id="designerPageHint">Select a page</p>
+          <div id="designerSections"></div>
+          <label>New section key <input id="designerSectionKey" placeholder="tab1" /></label>
+          <label>Label <input id="designerSectionLabel" placeholder="Tab 1" /></label>
+          <label>Kind <select id="designerSectionKind"><option value="tab">tab</option><option value="section">section</option></select></label>
+          <label>Order <input type="number" id="designerSectionOrder" value="0" /></label>
+          <button id="designerAddSection">Add Section</button>
+        </div>
+        <div class="designer-right">
+          <h3>Section Canvas</h3>
+          <ul id="designerWidgetList"></ul>
+          <h4>Widget Palette</h4>
+          <select id="designerWidgetType">${widgetCatalog.map((w) => `<option value="${w.id}">${w.name || w.id}</option>`).join("")}</select>
+          <button id="designerAddWidget">Add Widget to Section</button>
+          <h4>Selected Widget</h4>
+          <div id="designerWidgetBindings">
+            <label>datasource_id <input id="bindingDs" /></label>
+            <label>query_id <input id="bindingQuery" /></label>
+            <select id="bindingQuerySelect">${queries.map((q) => `<option value="${q.query_id}">${q.query_id}</option>`).join("")}</select>
+          </div>
+          <div id="designerWidgetActions">
+            <label>action kind <select id="actionKind">${SAFE_ACTION_KINDS.map((k) => `<option value="${k}">${k}</option>`).join("")}</select></label>
+            <label>policy_id <input id="actionPolicy" placeholder="policy:default" /></label>
+            <button id="designerAddAction">Add Action</button>
+          </div>
+        </div>
+      </div>
+      <pre id="designerDiffOut"></pre>
+      <pre id="designerImpactOut"></pre>
+    </section>
+  `;
+
+  let selectedPageId = null;
+  let selectedSectionKey = null;
+  const csInput = document.getElementById("designerCsId");
+  document.getElementById("designerCreateCs").onclick = async () => {
+    const cs = await fetch(`${apiBase}/changesets`, { method: "POST", headers }).then((r) => r.json());
+    csInput.value = cs.id;
+  };
+  document.getElementById("designerPreview").onclick = async () => {
+    const id = csInput.value.trim();
+    if (!id) { alert("Set changeset ID"); return; }
+    const res = await fetch(`${apiBase}/changesets/${id}/preview`, { method: "POST", headers });
+    if (!res.ok) { alert("Preview failed: " + await res.text()); return; }
+    document.getElementById("designerDiffOut").textContent = "Preview compiled. Use Diff/Impact.";
+  };
+  document.getElementById("designerDiff").onclick = async () => {
+    const id = csInput.value.trim();
+    if (!id) { alert("Set changeset ID"); return; }
+    const res = await fetch(`${apiBase}/studio/diff/manifest?preview=${id}`, { headers });
+    const data = await res.json().catch(() => ({}));
+    document.getElementById("designerDiffOut").textContent = res.ok ? JSON.stringify(data, null, 2) : (data.error || res.statusText);
+  };
+  document.getElementById("designerImpact").onclick = async () => {
+    const id = csInput.value.trim();
+    if (!id) { alert("Set changeset ID"); return; }
+    const res = await fetch(`${apiBase}/studio/impact?changeset=${id}`, { headers });
+    const data = await res.json().catch(() => ({}));
+    document.getElementById("designerImpactOut").textContent = res.ok ? JSON.stringify(data, null, 2) : (data.error || res.statusText);
+  };
+  document.getElementById("designerApply").onclick = async () => {
+    if (freeze) return;
+    const id = csInput.value.trim();
+    if (!id) { alert("Set changeset ID"); return; }
+    const res = await fetch(`${apiBase}/changesets/${id}/publish`, { method: "POST", headers });
+    const data = await res.json().catch(() => ({}));
+    if (res.status === 423) alert("Change Freeze active — Apply blocked.");
+    else if (!res.ok) alert("Publish failed: " + (data.error || res.status));
+    else alert("Published " + (data.release_id || ""));
+  };
+
+  document.querySelectorAll("#designerPageList li").forEach((li) => {
+    li.onclick = async () => {
+      selectedPageId = li.dataset.pageId;
+      document.querySelectorAll("#designerPageList li").forEach((l) => l.classList.remove("selected"));
+      li.classList.add("selected");
+      const detail = await fetch(`${apiBase}/studio/pages/${encodeURIComponent(selectedPageId)}`, { headers }).then((r) => r.json()).catch(() => ({}));
+      document.getElementById("designerPageHint").textContent = selectedPageId;
+      const sections = [...new Set((detail.widgets || []).map((w) => w.section_key).filter(Boolean))];
+      document.getElementById("designerSections").innerHTML = sections.length ? sections.map((s) => `<span class="section-tag">${s}</span>`).join("") : "(no sections yet)";
+      document.getElementById("designerWidgetList").innerHTML = (detail.widgets || []).map((w) => `<li>${w.id} (${w.widget_id})</li>`).join("");
+    };
+  });
+
+  document.getElementById("designerAddSection").onclick = async () => {
+    const id = csInput.value.trim();
+    if (!id || !selectedPageId) { alert("Create changeset and select a page"); return; }
+    const sectionKey = document.getElementById("designerSectionKey").value.trim() || "tab1";
+    const label = document.getElementById("designerSectionLabel").value.trim() || sectionKey;
+    const kind = document.getElementById("designerSectionKind").value;
+    const order = Number(document.getElementById("designerSectionOrder").value) || 0;
+    await fetch(`${apiBase}/studio/nav`, {
+      method: "POST",
+      headers,
+      body: JSON.stringify({
+        changeset_id: id,
+        nav_spec: { id: `nav-${selectedPageId}-${sectionKey}`, surface: "cp", module_id: "studio", type: "section", page_id: selectedPageId, section_key: sectionKey, label, order }
+      })
+    });
+    alert("Section added to changeset");
+  };
+
+  document.getElementById("designerAddWidget").onclick = async () => {
+    const id = csInput.value.trim();
+    if (!id || !selectedPageId) { alert("Create changeset and select a page"); return; }
+    const sectionKey = document.getElementById("designerSectionKey").value.trim() || "__default";
+    const widgetType = document.getElementById("designerWidgetType").value;
+    const wid = `w-${selectedPageId}-${sectionKey}-${Date.now()}`;
+    await fetch(`${apiBase}/studio/widgets`, {
+      method: "POST",
+      headers,
+      body: JSON.stringify({
+        changeset_id: id,
+        widget_instance: { id: wid, widget_id: widgetType, props: {}, props_schema: { allowed_props: [] }, page_id: selectedPageId, module_id: "studio", section_key: sectionKey }
+      })
+    });
+    alert("Widget added");
+  };
 }
 
 async function renderDesignView() {
