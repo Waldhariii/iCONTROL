@@ -1,6 +1,6 @@
 import http from "http";
 import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync, statSync } from "fs";
-import { join, normalize } from "path";
+import { join, normalize, dirname } from "path";
 import { execSync } from "child_process";
 import { applyOpsToDir } from "../../platform/runtime/changes/patch-engine.mjs";
 import { loadManifest } from "../../platform/runtime/loader/loader.mjs";
@@ -9,6 +9,7 @@ import { sha256, stableStringify } from "../../platform/compilers/utils.mjs";
 const PORT = process.env.PORT || 7070;
 const ROOT = process.cwd();
 const SSOT_DIR = process.env.SSOT_DIR ? normalize(process.env.SSOT_DIR) : normalize(join(ROOT, "platform/ssot"));
+const RUNTIME_DIR = process.env.RUNTIME_DIR ? normalize(process.env.RUNTIME_DIR) : normalize(join(dirname(SSOT_DIR), "runtime"));
 const ssotPath = (p) => join(SSOT_DIR, p);
 
 function readJson(path) {
@@ -122,13 +123,25 @@ function pickPlanVersion(planId, finops) {
   return candidate || versions[0];
 }
 
-function effectiveQuotas(tenantId, finops) {
+function getPlanVersionForTenant(tenantId, finops) {
   const planId = pickPlanId(tenantId, finops);
   const pv = pickPlanVersion(planId, finops);
-  const base = pv?.quotas || {};
+  return { plan_id: planId, plan_version: pv };
+}
+
+function effectiveQuotas(tenantId, finops) {
+  const { plan_id, plan_version } = getPlanVersionForTenant(tenantId, finops);
+  const pv = plan_version || {};
   const override = (finops.tenantQuotas || []).find((q) => q.tenant_id === tenantId);
-  const quotas = { ...base, ...(override?.quotas || {}) };
-  return { plan_id: planId, plan_version: pv?.version || "", quotas };
+  const quotas = {
+    requests_per_day: (pv.rate_limits?.rps || 0) * 86400,
+    cpu_ms_per_day: pv.compute_budgets?.cpu_ms_per_day || 0,
+    cost_units_per_day: pv.budgets?.cost_units_per_day || 0,
+    concurrent_ops: pv.rate_limits?.concurrent_ops || 0,
+    burst: pv.rate_limits?.burst || 0,
+    ...(override?.quotas || {})
+  };
+  return { plan_id, plan_version: pv?.version || "", quotas, perf_tier: pv?.perf_tier || "free", priority_weight: pv?.priority_weight || 1 };
 }
 
 function getTenantPlanDetails(tenantId) {
@@ -159,7 +172,7 @@ function listUsage(tenantId, range) {
 
 function usagePath(tenantId, dateKey) {
   const safe = tenantId.replace(/[^a-z0-9-_]/gi, "_");
-  return join("./platform/runtime/finops/usage", safe, `${dateKey}.json`);
+  return join(RUNTIME_DIR, "finops", "usage", safe, `${dateKey}.json`);
 }
 
 function readUsage(tenantId, dateKey) {
@@ -170,6 +183,7 @@ function readUsage(tenantId, dateKey) {
     date: dateKey,
     requests_per_day: 0,
     cpu_ms_per_day: 0,
+    cost_units_per_day: 0,
     storage_mb: 0,
     ocr_pages_per_month: 0
   };
@@ -196,23 +210,140 @@ function checkBudgets({ tenantId, usage, finops }) {
   }
 }
 
-function enforceQuotasAndBudgets(tenantId) {
-  const finops = getFinopsData();
-  const { quotas } = effectiveQuotas(tenantId, finops);
-  const dateKey = new Date().toISOString().slice(0, 10).replace(/-/g, "");
-  const usage = readUsage(tenantId, dateKey);
+function quotaExceededError(message, statusCode = 429) {
+  const err = new Error(message);
+  err.statusCode = statusCode;
+  return err;
+}
 
-  if (quotas.requests_per_day !== undefined && usage.requests_per_day >= quotas.requests_per_day) {
-    throw new Error("Quota exceeded: requests_per_day");
+const ACTION_COSTS = {
+  "api.read": 1,
+  "api.write": 3,
+  "ocr.page": 5,
+  "workflow.step": 1,
+  "manifest.load": 1
+};
+
+function qosCounterPath(tenantId, dateKey) {
+  const safe = tenantId.replace(/[^a-z0-9-_]/gi, "_");
+  return join(RUNTIME_DIR, "qos", "counters", safe, `${dateKey}.json`);
+}
+
+function readQosCounters(tenantId, dateKey) {
+  const path = qosCounterPath(tenantId, dateKey);
+  if (existsSync(path)) return readJson(path);
+  return {
+    tenant_id: tenantId,
+    date: dateKey,
+    workloads: {
+      api: { total: 0, errors: 0, last_latency_ms: 0, breaker_open_until: 0 },
+      ocr: { total: 0, errors: 0, last_latency_ms: 0, breaker_open_until: 0 },
+      workflow: { total: 0, errors: 0, last_latency_ms: 0, breaker_open_until: 0 }
+    }
+  };
+}
+
+function writeQosCounters(tenantId, dateKey, data) {
+  const path = qosCounterPath(tenantId, dateKey);
+  mkdirSync(dirname(path), { recursive: true });
+  writeJson(path, data);
+}
+
+const tokenBuckets = new Map();
+const concurrencyMap = new Map();
+
+function tokenBucketAllow(key, rate, burst) {
+  const now = Date.now();
+  const state = tokenBuckets.get(key) || { tokens: burst, last: now };
+  const refill = ((now - state.last) / 1000) * rate;
+  state.tokens = Math.min(burst, state.tokens + refill);
+  state.last = now;
+  if (state.tokens < 1) {
+    tokenBuckets.set(key, state);
+    return false;
   }
-  if (quotas.cpu_ms_per_day !== undefined && usage.cpu_ms_per_day >= quotas.cpu_ms_per_day) {
-    throw new Error("Quota exceeded: cpu_ms_per_day");
+  state.tokens -= 1;
+  tokenBuckets.set(key, state);
+  return true;
+}
+
+function getQosPolicyForTier(tier) {
+  try {
+    const policies = readJson(ssotPath("qos/qos_policies.json"));
+    return policies.find((p) => p.tier === tier) || null;
+  } catch {
+    return null;
+  }
+}
+
+function qosEnforcer({ tenantId, actionType, workload, costHint }) {
+  const finops = getFinopsData();
+  const { plan_version, plan_id } = getPlanVersionForTenant(tenantId, finops);
+  const pv = plan_version || {};
+  const tier = pv.perf_tier || "free";
+  const policy = getQosPolicyForTier(tier) || {};
+  const rate = pv.rate_limits?.rps || 0;
+  const burst = pv.rate_limits?.burst || 0;
+  const concurrencyLimit = pv.rate_limits?.concurrent_ops || 0;
+  const priority = pv.priority_weight || 1;
+  const p95Target = pv.compute_budgets?.p95_latency_target_ms || 0;
+  const cpuBudget = pv.compute_budgets?.cpu_ms_per_day || 0;
+  const costBudget = pv.budgets?.cost_units_per_day || 0;
+
+  const dateKey = new Date().toISOString().slice(0, 10).replace(/-/g, "");
+  const counters = readQosCounters(tenantId, dateKey);
+  const wl = counters.workloads[workload] || counters.workloads.api;
+  const now = Date.now();
+  if (wl.breaker_open_until && wl.breaker_open_until > now) {
+    throw quotaExceededError("Circuit breaker open", 503);
+  }
+
+  const queueDepth = concurrencyMap.get(`${tenantId}:${workload}`) || 0;
+  const maxQueue = policy.max_queue_depth?.[workload] ?? 0;
+  if (maxQueue > 0 && queueDepth >= maxQueue && priority <= 20) {
+    throw quotaExceededError("Queue depth exceeded", 429);
+  }
+
+  let effectiveRate = rate;
+  if (p95Target > 0 && wl.last_latency_ms > p95Target && priority <= 50) {
+    effectiveRate = Math.max(1, Math.floor(rate * 0.5));
+  }
+
+  if (!tokenBucketAllow(`${tenantId}:${workload}`, effectiveRate, burst)) {
+    throw quotaExceededError("Rate limit exceeded", 429);
+  }
+
+  if (concurrencyLimit > 0 && queueDepth >= concurrencyLimit) {
+    throw quotaExceededError("Concurrency limit exceeded", 429);
+  }
+  concurrencyMap.set(`${tenantId}:${workload}`, queueDepth + 1);
+
+  const usage = readUsage(tenantId, dateKey);
+  if (usage.requests_per_day >= ((rate || 1) * 86400)) {
+    throw quotaExceededError("Quota exceeded: requests_per_day", 429);
+  }
+  if (cpuBudget > 0 && usage.cpu_ms_per_day >= cpuBudget) {
+    throw quotaExceededError("Quota exceeded: cpu_ms_per_day", 429);
+  }
+  if (costBudget > 0 && usage.cost_units_per_day >= costBudget) {
+    throw quotaExceededError("Quota exceeded: cost_units_per_day", 429);
   }
 
   usage.requests_per_day += 1;
+  usage.cost_units_per_day += costHint;
   writeUsage(tenantId, dateKey, usage);
   checkBudgets({ tenantId, usage, finops });
-  return { tenantId, dateKey, quotas };
+
+  return {
+    tenantId,
+    plan_id,
+    tier,
+    workload,
+    dateKey,
+    startAt: Date.now(),
+    policy,
+    costHint
+  };
 }
 
 function getUserRoles(userId, memberships) {
@@ -352,15 +483,38 @@ const server = http.createServer(async (req, res) => {
     if (req.url?.startsWith("/api/")) requireAdmin(req);
     const tenantHeader = req.headers["x-tenant-id"];
     const tenantId = typeof tenantHeader === "string" && tenantHeader ? tenantHeader : null;
-    const startAt = Date.now();
-    const meterCtx = tenantId ? enforceQuotasAndBudgets(tenantId) : null;
-    if (meterCtx) {
+    const actionOverride = req.headers["x-action-type"];
+    const actionType = typeof actionOverride === "string" && actionOverride ? actionOverride : (req.method === "GET" ? "api.read" : "api.write");
+    const workload = req.url?.includes("/ocr") ? "ocr" : req.url?.includes("/workflow") ? "workflow" : "api";
+    const costHint = ACTION_COSTS[actionType] ?? 1;
+    const qosCtx = tenantId ? qosEnforcer({ tenantId, actionType, workload, costHint }) : null;
+    if (qosCtx) {
       res.on("finish", () => {
-        const elapsed = Date.now() - startAt;
-        const usage = readUsage(meterCtx.tenantId, meterCtx.dateKey);
+        const elapsed = Date.now() - qosCtx.startAt;
+        const usage = readUsage(qosCtx.tenantId, qosCtx.dateKey);
         usage.cpu_ms_per_day += Math.max(0, elapsed);
-        writeUsage(meterCtx.tenantId, meterCtx.dateKey, usage);
+        writeUsage(qosCtx.tenantId, qosCtx.dateKey, usage);
+
+        const counters = readQosCounters(qosCtx.tenantId, qosCtx.dateKey);
+        const wl = counters.workloads[qosCtx.workload] || counters.workloads.api;
+        wl.total += 1;
+        if (res.statusCode >= 500) wl.errors += 1;
+        wl.last_latency_ms = elapsed;
+        const errRate = wl.total ? wl.errors / wl.total : 0;
+        const threshold = qosCtx.policy?.shed_on_error_rate_over ?? 1;
+        if (wl.total >= 20 && errRate >= threshold) {
+          const cooldown = qosCtx.policy?.grace_windows?.breaker_cooldown_s ?? 60;
+          wl.breaker_open_until = Date.now() + cooldown * 1000;
+        }
+        counters.workloads[qosCtx.workload] = wl;
+        writeQosCounters(qosCtx.tenantId, qosCtx.dateKey, counters);
+        const current = concurrencyMap.get(`${qosCtx.tenantId}:${qosCtx.workload}`) || 1;
+        concurrencyMap.set(`${qosCtx.tenantId}:${qosCtx.workload}`, Math.max(0, current - 1));
       });
+    }
+    const sleepMs = Number(req.headers["x-qos-sleep-ms"] || 0);
+    if (Number.isFinite(sleepMs) && sleepMs > 0) {
+      await new Promise((r) => setTimeout(r, sleepMs));
     }
 
     if (req.method === "POST" && req.url === "/api/changesets") {
@@ -647,6 +801,49 @@ const server = http.createServer(async (req, res) => {
       return json(res, 200, details);
     }
 
+    if (req.method === "GET" && req.url?.startsWith("/api/qos/status")) {
+      requirePermission(req, "observability.read");
+      const url = new URL(req.url, "http://localhost");
+      const tenantId = url.searchParams.get("tenant") || "tenant:default";
+      const finops = getFinopsData();
+      const { plan_version } = getPlanVersionForTenant(tenantId, finops);
+      const policy = getQosPolicyForTier(plan_version?.perf_tier || "free");
+      return json(res, 200, { tenant_id: tenantId, tier: plan_version?.perf_tier || "free", policy });
+    }
+
+    if (req.method === "GET" && req.url?.startsWith("/api/qos/limits")) {
+      requirePermission(req, "observability.read");
+      const url = new URL(req.url, "http://localhost");
+      const tenantId = url.searchParams.get("tenant") || "tenant:default";
+      const finops = getFinopsData();
+      const { plan_version } = getPlanVersionForTenant(tenantId, finops);
+      return json(res, 200, { tenant_id: tenantId, limits: plan_version || {} });
+    }
+
+    if (req.method === "GET" && req.url?.startsWith("/api/qos/counters")) {
+      requirePermission(req, "observability.read");
+      const url = new URL(req.url, "http://localhost");
+      const tenantId = url.searchParams.get("tenant") || "tenant:default";
+      const day = url.searchParams.get("day") || new Date().toISOString().slice(0, 10).replace(/-/g, "");
+      const counters = readQosCounters(tenantId, day);
+      return json(res, 200, counters);
+    }
+
+    if (req.method === "GET" && req.url?.startsWith("/api/qos/incidents")) {
+      requirePermission(req, "observability.read");
+      const url = new URL(req.url, "http://localhost");
+      const tenantId = url.searchParams.get("tenant") || "tenant:default";
+      const day = url.searchParams.get("day") || new Date().toISOString().slice(0, 10).replace(/-/g, "");
+      const counters = readQosCounters(tenantId, day);
+      const incidents = [];
+      for (const [k, v] of Object.entries(counters.workloads || {})) {
+        if (v.breaker_open_until && v.breaker_open_until > Date.now()) {
+          incidents.push({ workload: k, breaker_open_until: v.breaker_open_until });
+        }
+      }
+      return json(res, 200, { tenant_id: tenantId, incidents });
+    }
+
     if (req.method === "POST" && req.url?.startsWith("/api/releases/") && req.url?.endsWith("/activate")) {
       requirePermission(req, "studio.releases.activate");
       const id = req.url.split("/")[3];
@@ -754,9 +951,14 @@ const server = http.createServer(async (req, res) => {
       return json(res, 200, { report: existsSync(path) ? readFileSync(path, "utf-8") : "" });
     }
 
+    if (req.method === "GET" && req.url === "/api/qos/test-error") {
+      return json(res, 500, { error: "qos test error" });
+    }
+
     return json(res, 404, { error: "Not found" });
   } catch (err) {
-    return json(res, 400, { error: String(err.message || err) });
+    const status = err.statusCode || 400;
+    return json(res, status, { error: String(err.message || err) });
   }
 });
 

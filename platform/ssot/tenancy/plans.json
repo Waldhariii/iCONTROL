@@ -5,10 +5,70 @@
     "status": "active",
     "is_default": true,
     "hard_quota_ceiling": {
-      "requests_per_day": 1000000,
+      "rps": 50,
+      "burst": 200,
+      "concurrent_ops": 20,
       "cpu_ms_per_day": 3600000,
+      "p95_latency_target_ms": 1000,
       "storage_mb": 10240,
-      "ocr_pages_per_month": 0
+      "object_count": 200000,
+      "max_file_mb": 50,
+      "ocr_pages_per_month": 1000,
+      "ocr_parallel_jobs": 2,
+      "ocr_job_timeout_s": 1200,
+      "workflow_runs_per_month": 5000,
+      "workflow_parallel_runs": 5,
+      "workflow_max_steps": 100,
+      "workflow_max_runtime_s": 300,
+      "cost_units_per_day": 5000
+    }
+  },
+  {
+    "plan_id": "plan:pro",
+    "name": "PRO",
+    "status": "active",
+    "is_default": false,
+    "hard_quota_ceiling": {
+      "rps": 200,
+      "burst": 1000,
+      "concurrent_ops": 100,
+      "cpu_ms_per_day": 43200000,
+      "p95_latency_target_ms": 400,
+      "storage_mb": 512000,
+      "object_count": 8000000,
+      "max_file_mb": 500,
+      "ocr_pages_per_month": 30000,
+      "ocr_parallel_jobs": 16,
+      "ocr_job_timeout_s": 2400,
+      "workflow_runs_per_month": 200000,
+      "workflow_parallel_runs": 25,
+      "workflow_max_steps": 500,
+      "workflow_max_runtime_s": 1800,
+      "cost_units_per_day": 50000
+    }
+  },
+  {
+    "plan_id": "plan:enterprise",
+    "name": "ENTERPRISE",
+    "status": "active",
+    "is_default": false,
+    "hard_quota_ceiling": {
+      "rps": 500,
+      "burst": 2000,
+      "concurrent_ops": 500,
+      "cpu_ms_per_day": 259200000,
+      "p95_latency_target_ms": 200,
+      "storage_mb": 4096000,
+      "object_count": 100000000,
+      "max_file_mb": 4096,
+      "ocr_pages_per_month": 500000,
+      "ocr_parallel_jobs": 128,
+      "ocr_job_timeout_s": 14400,
+      "workflow_runs_per_month": 5000000,
+      "workflow_parallel_runs": 200,
+      "workflow_max_steps": 4000,
+      "workflow_max_runtime_s": 14400,
+      "cost_units_per_day": 500000
     }
   }
 ]

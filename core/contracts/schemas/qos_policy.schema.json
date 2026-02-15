@@ -1,0 +1,35 @@
+{
+  "$id": "qos_policy.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["policy_id", "tier", "throttle_on_p95_over_ms", "shed_on_error_rate_over", "max_queue_depth", "kill_switch_conditions", "grace_windows", "tenant_isolation_mode"],
+  "properties": {
+    "policy_id": { "type": "string", "minLength": 1 },
+    "tier": { "type": "string", "enum": ["free", "pro", "enterprise"] },
+    "throttle_on_p95_over_ms": { "type": "number", "minimum": 0 },
+    "shed_on_error_rate_over": { "type": "number", "minimum": 0, "maximum": 1 },
+    "max_queue_depth": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["api", "ocr", "workflow"],
+      "properties": {
+        "api": { "type": "number", "minimum": 0 },
+        "ocr": { "type": "number", "minimum": 0 },
+        "workflow": { "type": "number", "minimum": 0 }
+      }
+    },
+    "kill_switch_conditions": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "grace_windows": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["breaker_cooldown_s"],
+      "properties": {
+        "breaker_cooldown_s": { "type": "number", "minimum": 0 }
+      }
+    },
+    "tenant_isolation_mode": { "type": "string", "enum": ["shared", "logical", "strong"] }
+  }
+}

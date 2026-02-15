@@ -17,6 +17,7 @@ platform/runtime/reports/
 platform/runtime/release/*.json
 platform/runtime/deletion/*.json
 platform/runtime/finops/usage/
+platform/runtime/qos/counters/
 platform/ssot/changes/snapshots/
 platform/ssot/changes/releases/
 platform/ssot/changes/changesets/*.json

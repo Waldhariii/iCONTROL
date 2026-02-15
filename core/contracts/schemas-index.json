@@ -18,6 +18,8 @@
   "plan.v1": "core/contracts/schemas/plan.schema.json",
   "plan_version.v1": "core/contracts/schemas/plan_version.schema.json",
   "platform_manifest.v1": "core/contracts/schemas/platform_manifest.schema.json",
+  "qos_policy.v1": "core/contracts/schemas/qos_policy.schema.json",
+  "qos_version.v1": "core/contracts/schemas/qos_version.schema.json",
   "rate_card.v1": "core/contracts/schemas/rate_card.schema.json",
   "render_graph.v1": "core/contracts/schemas/render_graph.schema.json",
   "route_catalog.v1": "core/contracts/schemas/route_catalog.schema.json",

@@ -18,14 +18,10 @@ try {
   run("node scripts/ci/compile.mjs finops-001 dev", { SSOT_DIR: temp.ssotDir, OUT_DIR: outDir });
   run("node governance/gates/run-gates.mjs finops-001", { SSOT_DIR: temp.ssotDir, MANIFESTS_DIR: outDir });
 
-  // quota gate: monotonic violation within same major
+  // quota gate: non-positive cpu budget
   const pvPath = join(temp.ssotDir, "tenancy", "plan_versions.json");
   const pv = JSON.parse(readFileSync(pvPath, "utf-8"));
-  pv.push({
-    ...pv[0],
-    version: "1.0.1",
-    quotas: { ...pv[0].quotas, requests_per_day: 10 }
-  });
+  pv[0].compute_budgets.cpu_ms_per_day = 0;
   writeFileSync(pvPath, JSON.stringify(pv, null, 2) + "\n");
   run("node scripts/ci/compile.mjs finops-002 dev", { SSOT_DIR: temp.ssotDir, OUT_DIR: outDir });
   let failedQuota = false;

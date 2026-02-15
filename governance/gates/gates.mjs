@@ -153,10 +153,12 @@ export function quotaGate({ ssotDir }) {
   const bad = [];
   const byPlan = new Map();
   for (const pv of planVersions) {
-    if (!pv.quotas || Object.keys(pv.quotas).length === 0) bad.push(`${pv.plan_id}@${pv.version}:missing_quotas`);
-    for (const [k, v] of Object.entries(pv.quotas || {})) {
-      if (typeof v !== "number" || v < 0) bad.push(`${pv.plan_id}@${pv.version}:${k}`);
+    if (!pv.rate_limits || !pv.compute_budgets || !pv.storage_quotas || !pv.ocr_quotas || !pv.workflow_quotas || !pv.budgets) {
+      bad.push(`${pv.plan_id}@${pv.version}:missing_fields`);
     }
+    if (pv.compute_budgets?.cpu_ms_per_day <= 0) bad.push(`${pv.plan_id}@${pv.version}:cpu_ms_per_day`);
+    if (pv.rate_limits?.rps < 0 || pv.rate_limits?.burst < 0 || pv.rate_limits?.concurrent_ops < 0) bad.push(`${pv.plan_id}@${pv.version}:rate_limits`);
+    if (pv.budgets?.cost_units_per_day < 0) bad.push(`${pv.plan_id}@${pv.version}:cost_units_per_day`);
     if (!byPlan.has(pv.plan_id)) byPlan.set(pv.plan_id, []);
     byPlan.get(pv.plan_id).push(pv);
   }
@@ -166,9 +168,15 @@ export function quotaGate({ ssotDir }) {
     let prev = null;
     for (const v of sorted) {
       if (prev && parseSemver(prev.version).maj === parseSemver(v.version).maj) {
-        for (const [k, val] of Object.entries(v.quotas || {})) {
-          const prior = prev.quotas?.[k];
-          if (typeof prior === "number" && val < prior) bad.push(`${planId}:${k}:${prev.version}->${v.version}`);
+        const fields = [
+          ["rps", v.rate_limits?.rps, prev.rate_limits?.rps],
+          ["burst", v.rate_limits?.burst, prev.rate_limits?.burst],
+          ["concurrent_ops", v.rate_limits?.concurrent_ops, prev.rate_limits?.concurrent_ops],
+          ["cpu_ms_per_day", v.compute_budgets?.cpu_ms_per_day, prev.compute_budgets?.cpu_ms_per_day],
+          ["cost_units_per_day", v.budgets?.cost_units_per_day, prev.budgets?.cost_units_per_day]
+        ];
+        for (const [k, val, prior] of fields) {
+          if (typeof prior === "number" && typeof val === "number" && val < prior) bad.push(`${planId}:${k}:${prev.version}->${v.version}`);
         }
       }
       prev = v;
@@ -207,6 +215,45 @@ export function planIntegrityGate({ ssotDir }) {
 
   const ok = invalid.length === 0;
   return { ok, gate: "Plan Integrity Gate", details: ok ? "" : `Invalid plans: ${invalid.join(", ")}` };
+}
+
+export function qosConfigGate({ ssotDir }) {
+  const planVersions = readJson(`${ssotDir}/tenancy/plan_versions.json`);
+  const tiers = { free: null, pro: null, enterprise: null };
+  for (const pv of planVersions) {
+    if (tiers[pv.perf_tier] && tiers[pv.perf_tier].version === pv.version) continue;
+    if (pv.status === "active") tiers[pv.perf_tier] = pv;
+  }
+  const missing = Object.entries(tiers).filter(([, v]) => !v).map(([k]) => k);
+  const bad = [];
+  if (missing.length) bad.push(`missing_tiers:${missing.join(",")}`);
+  const free = tiers.free;
+  const pro = tiers.pro;
+  const ent = tiers.enterprise;
+  if (free && pro && !(free.priority_weight < pro.priority_weight)) bad.push("priority_weight_free_pro");
+  if (pro && ent && !(pro.priority_weight < ent.priority_weight)) bad.push("priority_weight_pro_ent");
+  if (free && pro && !(free.rate_limits.rps < pro.rate_limits.rps)) bad.push("rps_free_pro");
+  if (pro && ent && !(pro.rate_limits.rps < ent.rate_limits.rps)) bad.push("rps_pro_ent");
+  if (free && pro && !(free.rate_limits.concurrent_ops < pro.rate_limits.concurrent_ops)) bad.push("concurrency_free_pro");
+  if (pro && ent && !(pro.rate_limits.concurrent_ops < ent.rate_limits.concurrent_ops)) bad.push("concurrency_pro_ent");
+  const ok = bad.length === 0;
+  return { ok, gate: "QoS Config Gate", details: ok ? "" : `Invalid QoS config: ${bad.join(", ")}` };
+}
+
+export function noisyNeighborGate({ ssotDir }) {
+  const planVersions = readJson(`${ssotDir}/tenancy/plan_versions.json`);
+  const free = planVersions.find((p) => p.perf_tier === "free" && p.status === "active");
+  const pro = planVersions.find((p) => p.perf_tier === "pro" && p.status === "active");
+  const ent = planVersions.find((p) => p.perf_tier === "enterprise" && p.status === "active");
+  const bad = [];
+  if (free && pro && (free.rate_limits.rps >= pro.rate_limits.rps || free.rate_limits.concurrent_ops >= pro.rate_limits.concurrent_ops)) {
+    bad.push("free_vs_pro_limits");
+  }
+  if (pro && ent && (pro.rate_limits.rps >= ent.rate_limits.rps || pro.rate_limits.concurrent_ops >= ent.rate_limits.concurrent_ops)) {
+    bad.push("pro_vs_ent_limits");
+  }
+  const ok = bad.length === 0;
+  return { ok, gate: "Noisy Neighbor Gate", details: ok ? "" : `Limits not tiered: ${bad.join(", ")}` };
 }
 
 export function perfBudgetGate({ ssotDir }) {

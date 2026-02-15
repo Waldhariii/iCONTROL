@@ -2,25 +2,81 @@
   "$id": "plan_version.v1",
   "type": "object",
   "additionalProperties": false,
-  "required": ["plan_id", "version", "status", "effective_from", "included_entitlements", "quotas", "perf_tier"],
+  "required": ["plan_id", "version", "status", "effective_from", "included_entitlements", "perf_tier", "priority_weight", "rate_limits", "compute_budgets", "storage_quotas", "ocr_quotas", "workflow_quotas", "observability", "budgets"],
   "properties": {
     "plan_id": { "type": "string", "minLength": 1 },
     "version": { "type": "string", "minLength": 1 },
     "status": { "type": "string", "enum": ["active", "inactive", "deprecated"] },
     "effective_from": { "type": "string", "format": "date-time" },
     "included_entitlements": { "type": "array", "items": { "type": "string" } },
-    "quotas": {
-      "type": "object",
-      "minProperties": 1,
-      "additionalProperties": { "type": "number", "minimum": 0 }
-    },
-    "perf_tier": {
+    "perf_tier": { "type": "string", "enum": ["free", "pro", "enterprise"] },
+    "priority_weight": { "type": "number", "minimum": 1, "maximum": 100 },
+    "rate_limits": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["latency_budget_ms", "cache_policy_id"],
+      "required": ["rps", "burst", "concurrent_ops"],
       "properties": {
-        "latency_budget_ms": { "type": "number", "minimum": 0 },
-        "cache_policy_id": { "type": "string", "minLength": 1 }
+        "rps": { "type": "number", "minimum": 0 },
+        "burst": { "type": "number", "minimum": 0 },
+        "concurrent_ops": { "type": "number", "minimum": 0 }
+      }
+    },
+    "compute_budgets": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["cpu_ms_per_day", "p95_latency_target_ms"],
+      "properties": {
+        "cpu_ms_per_day": { "type": "number", "minimum": 0 },
+        "p95_latency_target_ms": { "type": "number", "minimum": 0 }
+      }
+    },
+    "storage_quotas": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["storage_mb", "object_count", "max_file_mb"],
+      "properties": {
+        "storage_mb": { "type": "number", "minimum": 0 },
+        "object_count": { "type": "number", "minimum": 0 },
+        "max_file_mb": { "type": "number", "minimum": 0 }
+      }
+    },
+    "ocr_quotas": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["pages_per_month", "parallel_jobs", "job_timeout_s"],
+      "properties": {
+        "pages_per_month": { "type": "number", "minimum": 0 },
+        "parallel_jobs": { "type": "number", "minimum": 0 },
+        "job_timeout_s": { "type": "number", "minimum": 0 }
+      }
+    },
+    "workflow_quotas": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["runs_per_month", "parallel_runs", "max_steps", "max_runtime_s"],
+      "properties": {
+        "runs_per_month": { "type": "number", "minimum": 0 },
+        "parallel_runs": { "type": "number", "minimum": 0 },
+        "max_steps": { "type": "number", "minimum": 0 },
+        "max_runtime_s": { "type": "number", "minimum": 0 }
+      }
+    },
+    "observability": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["metrics_retention_days", "audit_export_enabled"],
+      "properties": {
+        "metrics_retention_days": { "type": "number", "minimum": 0 },
+        "audit_export_enabled": { "type": "boolean" }
+      }
+    },
+    "budgets": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["cost_units_per_day", "anomaly_thresholds"],
+      "properties": {
+        "cost_units_per_day": { "type": "number", "minimum": 0 },
+        "anomaly_thresholds": { "type": "number", "minimum": 0, "maximum": 1 }
       }
     }
   }

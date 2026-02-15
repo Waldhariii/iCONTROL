@@ -1,0 +1,32 @@
+[
+  {
+    "policy_id": "qos:free",
+    "tier": "free",
+    "throttle_on_p95_over_ms": 700,
+    "shed_on_error_rate_over": 0.05,
+    "max_queue_depth": { "api": 50, "ocr": 5, "workflow": 10 },
+    "kill_switch_conditions": { "runaway_workflows": true },
+    "grace_windows": { "breaker_cooldown_s": 60 },
+    "tenant_isolation_mode": "shared"
+  },
+  {
+    "policy_id": "qos:pro",
+    "tier": "pro",
+    "throttle_on_p95_over_ms": 300,
+    "shed_on_error_rate_over": 0.03,
+    "max_queue_depth": { "api": 200, "ocr": 20, "workflow": 50 },
+    "kill_switch_conditions": { "runaway_workflows": true },
+    "grace_windows": { "breaker_cooldown_s": 60 },
+    "tenant_isolation_mode": "logical"
+  },
+  {
+    "policy_id": "qos:enterprise",
+    "tier": "enterprise",
+    "throttle_on_p95_over_ms": 180,
+    "shed_on_error_rate_over": 0.02,
+    "max_queue_depth": { "api": 1000, "ocr": 100, "workflow": 200 },
+    "kill_switch_conditions": { "runaway_workflows": true },
+    "grace_windows": { "breaker_cooldown_s": 60 },
+    "tenant_isolation_mode": "strong"
+  }
+]

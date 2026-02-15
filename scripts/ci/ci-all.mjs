@@ -58,6 +58,11 @@ const steps = [
   "node scripts/ci/test-break-glass.mjs",
   "node scripts/ci/test-freeze-mode.mjs",
   "node scripts/ci/test-finops-gates.mjs",
+  "node scripts/ci/test-qos-rate-limit.mjs",
+  "node scripts/ci/test-qos-concurrency.mjs",
+  "node scripts/ci/test-qos-priority.mjs",
+  "node scripts/ci/test-qos-circuit-breaker.mjs",
+  "node scripts/ci/test-qos-budgets.mjs",
   "node scripts/ci/test-token-gate.mjs",
   "node scripts/ci/test-audit.mjs"
 ];

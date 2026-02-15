@@ -5,15 +5,46 @@
     "status": "active",
     "effective_from": "2026-02-14T00:00:00.000Z",
     "included_entitlements": ["entitlement:default"],
-    "quotas": {
-      "requests_per_day": 100000,
-      "cpu_ms_per_day": 600000,
-      "storage_mb": 1024,
-      "ocr_pages_per_month": 0
-    },
-    "perf_tier": {
-      "latency_budget_ms": 2000,
-      "cache_policy_id": "cache:default"
-    }
+    "perf_tier": "free",
+    "priority_weight": 10,
+    "rate_limits": { "rps": 10, "burst": 30, "concurrent_ops": 5 },
+    "compute_budgets": { "cpu_ms_per_day": 1800000, "p95_latency_target_ms": 600 },
+    "storage_quotas": { "storage_mb": 5120, "object_count": 100000, "max_file_mb": 25 },
+    "ocr_quotas": { "pages_per_month": 500, "parallel_jobs": 1, "job_timeout_s": 600 },
+    "workflow_quotas": { "runs_per_month": 2000, "parallel_runs": 2, "max_steps": 25, "max_runtime_s": 120 },
+    "observability": { "metrics_retention_days": 7, "audit_export_enabled": false },
+    "budgets": { "cost_units_per_day": 1000, "anomaly_thresholds": 0.2 }
+  },
+  {
+    "plan_id": "plan:pro",
+    "version": "1.0.0",
+    "status": "active",
+    "effective_from": "2026-02-14T00:00:00.000Z",
+    "included_entitlements": ["entitlement:default"],
+    "perf_tier": "pro",
+    "priority_weight": 50,
+    "rate_limits": { "rps": 60, "burst": 200, "concurrent_ops": 25 },
+    "compute_budgets": { "cpu_ms_per_day": 21600000, "p95_latency_target_ms": 220 },
+    "storage_quotas": { "storage_mb": 256000, "object_count": 5000000, "max_file_mb": 250 },
+    "ocr_quotas": { "pages_per_month": 15000, "parallel_jobs": 8, "job_timeout_s": 1800 },
+    "workflow_quotas": { "runs_per_month": 100000, "parallel_runs": 10, "max_steps": 200, "max_runtime_s": 900 },
+    "observability": { "metrics_retention_days": 30, "audit_export_enabled": false },
+    "budgets": { "cost_units_per_day": 20000, "anomaly_thresholds": 0.1 }
+  },
+  {
+    "plan_id": "plan:enterprise",
+    "version": "1.0.0",
+    "status": "active",
+    "effective_from": "2026-02-14T00:00:00.000Z",
+    "included_entitlements": ["entitlement:default"],
+    "perf_tier": "enterprise",
+    "priority_weight": 90,
+    "rate_limits": { "rps": 200, "burst": 800, "concurrent_ops": 200 },
+    "compute_budgets": { "cpu_ms_per_day": 172800000, "p95_latency_target_ms": 120 },
+    "storage_quotas": { "storage_mb": 2048000, "object_count": 50000000, "max_file_mb": 2048 },
+    "ocr_quotas": { "pages_per_month": 250000, "parallel_jobs": 64, "job_timeout_s": 7200 },
+    "workflow_quotas": { "runs_per_month": 2000000, "parallel_runs": 100, "max_steps": 2000, "max_runtime_s": 7200 },
+    "observability": { "metrics_retention_days": 365, "audit_export_enabled": true },
+    "budgets": { "cost_units_per_day": 250000, "anomaly_thresholds": 0.05 }
   }
 ]

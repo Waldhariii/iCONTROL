@@ -19,6 +19,25 @@ export function compilePlatform({ ssotDir, outDir, releaseId, env, privateKeyPat
   const tenantQuotas = readJson(`${ssotDir}/tenancy/tenant_quotas.json`);
   const meteringCatalog = readJson(`${ssotDir}/finops/metering_catalog.json`);
   const budgetPolicies = readJson(`${ssotDir}/finops/budgets.json`);
+  const qosPolicies = readJson(`${ssotDir}/qos/qos_policies.json`);
+
+  const qosRuntimeConfig = planVersions.map((pv) => {
+    const policy = qosPolicies.find((p) => p.tier === pv.perf_tier) || null;
+    return {
+      plan_id: pv.plan_id,
+      version: pv.version,
+      tier: pv.perf_tier,
+      priority_weight: pv.priority_weight,
+      rate_limits: pv.rate_limits,
+      compute_budgets: pv.compute_budgets,
+      storage_quotas: pv.storage_quotas,
+      ocr_quotas: pv.ocr_quotas,
+      workflow_quotas: pv.workflow_quotas,
+      observability: pv.observability,
+      budgets: pv.budgets,
+      qos_policy: policy
+    };
+  });
 
   const manifest = {
     manifest_id: `manifest:${releaseId}`,
@@ -44,7 +63,9 @@ export function compilePlatform({ ssotDir, outDir, releaseId, env, privateKeyPat
     tenant_entitlements: tenantEntitlements,
     tenant_quotas: tenantQuotas,
     metering_catalog: meteringCatalog,
-    budget_policies: budgetPolicies
+    budget_policies: budgetPolicies,
+    qos_policies: qosPolicies,
+    qos_runtime_config: qosRuntimeConfig
   };
 
   const checksums = {
