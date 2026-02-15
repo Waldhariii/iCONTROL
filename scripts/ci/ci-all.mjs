@@ -56,6 +56,7 @@ const steps = [
   "node scripts/ci/test-module-activation-billing.mjs",
   "node scripts/ci/test-module-isolation.mjs",
   "node scripts/ci/test-module-datagov-coverage.mjs",
+  "node scripts/ci/test-demo-modules-smoke.mjs",
   "node scripts/ci/test-preview-isolation.mjs",
   "node scripts/ci/test-active-release-stability.mjs",
   "node scripts/ci/test-active-release-ssot.mjs",
