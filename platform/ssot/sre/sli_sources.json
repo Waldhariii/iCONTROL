@@ -28,5 +28,30 @@
     "sli_source_id": "sli:ocr_job_success_rate",
     "name": "OCR Job Success Rate",
     "source": "runtime"
+  },
+  {
+    "sli_source_id": "sli:marketplace_impact_p95",
+    "name": "Marketplace Impact P95",
+    "source": "runtime"
+  },
+  {
+    "sli_source_id": "sli:marketplace_install_p95",
+    "name": "Marketplace Install P95",
+    "source": "runtime"
+  },
+  {
+    "sli_source_id": "sli:release_activate_p95",
+    "name": "Release Activate P95",
+    "source": "runtime"
+  },
+  {
+    "sli_source_id": "sli:billing_compute_p95",
+    "name": "Billing Compute P95",
+    "source": "runtime"
+  },
+  {
+    "sli_source_id": "sli:qos_enforce_p95",
+    "name": "QoS Enforce P95",
+    "source": "runtime"
   }
 ]

@@ -51,5 +51,45 @@
     "window": "30d",
     "sli_source_id": "sli:ocr_job_success_rate",
     "critical": false
+  },
+  {
+    "slo_id": "slo:marketplace_impact_p95",
+    "name": "Marketplace Impact P95",
+    "objective_percent": 99.0,
+    "window": "30d",
+    "sli_source_id": "sli:marketplace_impact_p95",
+    "critical": false
+  },
+  {
+    "slo_id": "slo:marketplace_install_p95",
+    "name": "Marketplace Install P95",
+    "objective_percent": 99.0,
+    "window": "30d",
+    "sli_source_id": "sli:marketplace_install_p95",
+    "critical": false
+  },
+  {
+    "slo_id": "slo:release_activate_p95",
+    "name": "Release Activate P95",
+    "objective_percent": 99.0,
+    "window": "30d",
+    "sli_source_id": "sli:release_activate_p95",
+    "critical": true
+  },
+  {
+    "slo_id": "slo:billing_compute_p95",
+    "name": "Billing Compute P95",
+    "objective_percent": 99.0,
+    "window": "30d",
+    "sli_source_id": "sli:billing_compute_p95",
+    "critical": false
+  },
+  {
+    "slo_id": "slo:qos_enforce_p95",
+    "name": "QoS Enforce P95",
+    "objective_percent": 99.0,
+    "window": "30d",
+    "sli_source_id": "sli:qos_enforce_p95",
+    "critical": false
   }
 ]

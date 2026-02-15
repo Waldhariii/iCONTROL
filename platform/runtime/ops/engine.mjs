@@ -105,10 +105,24 @@ export function executeRunbook({ incidentId, runbookId, version, context, manife
       }
       const res = applyAction({ action: step.action, params: step.params || {}, context: { incident_id: incidentId, runbook_id: runbookId, ...context } });
       results.push({ action: step.action, ok: true, result: res });
-      appendTimeline({ timestamp: new Date().toISOString(), actor: "ops", action: step.action, result: "applied", incident_id: incidentId });
+      appendTimeline({
+        timestamp: new Date().toISOString(),
+        actor: context?.actor_id || "ops",
+        action: step.action,
+        result: "applied",
+        incident_id: incidentId,
+        request_id: context?.request_id || ""
+      });
     } else {
       results.push({ action: step.action, ok: true, result: "dry-run" });
-      appendTimeline({ timestamp: new Date().toISOString(), actor: "ops", action: step.action, result: "dry-run", incident_id: incidentId });
+      appendTimeline({
+        timestamp: new Date().toISOString(),
+        actor: context?.actor_id || "ops",
+        action: step.action,
+        result: "dry-run",
+        incident_id: incidentId,
+        request_id: context?.request_id || ""
+      });
     }
   }
 

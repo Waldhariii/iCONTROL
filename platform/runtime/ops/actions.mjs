@@ -7,6 +7,46 @@ import { planTenantCreate, planTenantClone, dryRunCreate, applyCreate, verifyCre
 
 const SSOT_DIR = process.env.SSOT_DIR || "./platform/ssot";
 const RUNTIME_OPS_DIR = join(process.cwd(), "runtime", "ops");
+const REPORTS_DIR = join(process.cwd(), "runtime", "reports");
+
+function assertNoPlatformReportsPath(path) {
+  if (String(path).includes("platform/runtime/reports")) {
+    throw new Error("Forbidden reports path: platform/runtime/reports");
+  }
+}
+
+function appendOpsReport({ action, params, context, outcome }) {
+  assertNoPlatformReportsPath(REPORTS_DIR);
+  const ts = new Date().toISOString().replace(/[:.]/g, "-");
+  const reportPath = join(REPORTS_DIR, `OPS_EVENT_${ts}.md`);
+  const indexPath = join(REPORTS_DIR, "index", "ops_events.jsonl");
+  const entry = {
+    ts: new Date().toISOString(),
+    request_id: context?.request_id || "",
+    actor_id: context?.actor_id || "ops",
+    tenant_id: context?.tenant_id || "",
+    action,
+    outcome: outcome || "ok",
+    params: { ...params, secret: undefined }
+  };
+  mkdirSync(dirname(reportPath), { recursive: true });
+  mkdirSync(dirname(indexPath), { recursive: true });
+  const lines = [
+    "# Ops Event",
+    `request_id: ${entry.request_id}`,
+    `actor_id: ${entry.actor_id}`,
+    `tenant_id: ${entry.tenant_id}`,
+    `action: ${action}`,
+    `outcome: ${entry.outcome}`,
+    `timestamp: ${entry.ts}`,
+    "",
+    "## Params",
+    JSON.stringify(entry.params, null, 2)
+  ];
+  writeFileSync(reportPath, lines.join("\n") + "\n", "utf-8");
+  writeFileSync(indexPath, JSON.stringify({ ...entry, report_path: reportPath }) + "\n", { flag: "a" });
+  return reportPath;
+}
 
 function readJson(path) {
   return JSON.parse(readFileSync(path, "utf-8"));
@@ -161,7 +201,8 @@ export function applyAction({ action, params, context }) {
     };
     list.push(entry);
     writeOpsOverrides({ overrides: list });
-    appendAudit({ event: "ops_action", action, params, at: new Date().toISOString(), incident_id: context?.incident_id });
+    appendOpsReport({ action, params, context, outcome: "ok" });
+    appendAudit({ event: "ops_action", action, params, at: new Date().toISOString(), incident_id: context?.incident_id, request_id: context?.request_id });
     return { ok: true, entry };
   }
 
@@ -181,14 +222,15 @@ export function applyAction({ action, params, context }) {
     };
     list.push(entry);
     writeOpsOverrides({ overrides: list });
-    appendAudit({ event: "ops_action", action, params, at: new Date().toISOString(), incident_id: context?.incident_id });
+    appendOpsReport({ action, params, context, outcome: "ok" });
+    appendAudit({ event: "ops_action", action, params, at: new Date().toISOString(), incident_id: context?.incident_id, request_id: context?.request_id });
     return { ok: true, entry };
   }
 
   if (action === "release.rollback") {
     const rel = params?.release_id || "active";
     rollback(rel, params?.reason || "ops rollback");
-    appendAudit({ event: "ops_action", action, params, at: new Date().toISOString(), incident_id: context?.incident_id });
+    appendAudit({ event: "ops_action", action, params, at: new Date().toISOString(), incident_id: context?.incident_id, request_id: context?.request_id });
     return { ok: true };
   }
 
@@ -196,7 +238,7 @@ export function applyAction({ action, params, context }) {
     const releaseId = params?.release_id || `rel-${Date.now()}`;
     const env = params?.env || "dev";
     compileSignedManifest(releaseId, env);
-    appendAudit({ event: "ops_action", action, params: { release_id: releaseId }, at: new Date().toISOString(), incident_id: context?.incident_id });
+    appendAudit({ event: "ops_action", action, params: { release_id: releaseId }, at: new Date().toISOString(), incident_id: context?.incident_id, request_id: context?.request_id });
     return { ok: true, release_id: releaseId };
   }
 
@@ -204,7 +246,7 @@ export function applyAction({ action, params, context }) {
     const releaseId = params?.release_id || "active";
     const scope = params?.scope || "platform:*";
     activate(releaseId, scope);
-    appendAudit({ event: "ops_action", action, params: { release_id: releaseId, scope }, at: new Date().toISOString(), incident_id: context?.incident_id });
+    appendAudit({ event: "ops_action", action, params: { release_id: releaseId, scope }, at: new Date().toISOString(), incident_id: context?.incident_id, request_id: context?.request_id });
     return { ok: true };
   }
 
@@ -217,20 +259,20 @@ export function applyAction({ action, params, context }) {
       enabled: params?.enabled !== false,
       reason: params?.reason || "ops killswitch"
     });
-    appendAudit({ event: "ops_action", action, params, at: new Date().toISOString(), incident_id: context?.incident_id });
+    appendAudit({ event: "ops_action", action, params, at: new Date().toISOString(), incident_id: context?.incident_id, request_id: context?.request_id });
     return { ok: true };
   }
 
   if (action === "integration.disable") {
     if (!params?.connector_id || !params?.tenant_id) throw new Error("connector_id and tenant_id required");
     updateConnectorState({ connectorId: params?.connector_id, tenantId: params?.tenant_id, state: "disabled" });
-    appendAudit({ event: "ops_action", action, params, at: new Date().toISOString(), incident_id: context?.incident_id });
+    appendAudit({ event: "ops_action", action, params, at: new Date().toISOString(), incident_id: context?.incident_id, request_id: context?.request_id });
     return { ok: true };
   }
 
   if (action === "change.freeze") {
     const result = applyChangeFreeze({ enabled: params?.enabled !== false, reason: params?.reason || "ops change freeze" });
-    appendAudit({ event: "ops_action", action, params, at: new Date().toISOString(), incident_id: context?.incident_id });
+    appendAudit({ event: "ops_action", action, params, at: new Date().toISOString(), incident_id: context?.incident_id, request_id: context?.request_id });
     return { ok: true, ...result };
   }
 
@@ -243,20 +285,20 @@ export function applyAction({ action, params, context }) {
       scope: params?.scope || "platform:*",
       allowedActions: params?.allowed_actions || []
     });
-    appendAudit({ event: "ops_action", action, params, at: new Date().toISOString(), incident_id: context?.incident_id });
+    appendAudit({ event: "ops_action", action, params, at: new Date().toISOString(), incident_id: context?.incident_id, request_id: context?.request_id });
     return { ok: true };
   }
 
   if (action === "close.break_glass") {
     updateBreakGlass({ enabled: false, reason: params?.reason || "ops close break glass", ttlSeconds: 1, scope: "platform:*", allowedActions: [] });
-    appendAudit({ event: "ops_action", action, params, at: new Date().toISOString(), incident_id: context?.incident_id });
+    appendAudit({ event: "ops_action", action, params, at: new Date().toISOString(), incident_id: context?.incident_id, request_id: context?.request_id });
     return { ok: true };
   }
 
   if (action === "tenancy.factory.plan") {
     const plan = planTenantCreate({ templateId: params?.template_id, tenantKey: params?.tenant_key, displayName: params?.display_name, ownerUserId: params?.owner_user_id });
     const report = dryRunCreate(plan);
-    appendAudit({ event: "ops_action", action, params, at: new Date().toISOString(), incident_id: context?.incident_id });
+    appendAudit({ event: "ops_action", action, params, at: new Date().toISOString(), incident_id: context?.incident_id, request_id: context?.request_id });
     return { ok: true, plan_id: plan.plan_id, report };
   }
 
@@ -264,14 +306,14 @@ export function applyAction({ action, params, context }) {
     const plan = planTenantCreate({ templateId: params?.template_id, tenantKey: params?.tenant_key, displayName: params?.display_name, ownerUserId: params?.owner_user_id });
     const changesetId = applyCreate(plan);
     verifyCreate(plan);
-    appendAudit({ event: "ops_action", action, params, at: new Date().toISOString(), incident_id: context?.incident_id });
+    appendAudit({ event: "ops_action", action, params, at: new Date().toISOString(), incident_id: context?.incident_id, request_id: context?.request_id });
     return { ok: true, changeset_id: changesetId, tenant_id: plan.tenant_id };
   }
 
   if (action === "tenancy.factory.clone.plan") {
     const plan = planTenantClone({ sourceTenantId: params?.source_tenant_id, targetKey: params?.tenant_key, displayName: params?.display_name, ownerUserId: params?.owner_user_id });
     const report = dryRunCreate(plan);
-    appendAudit({ event: "ops_action", action, params, at: new Date().toISOString(), incident_id: context?.incident_id });
+    appendAudit({ event: "ops_action", action, params, at: new Date().toISOString(), incident_id: context?.incident_id, request_id: context?.request_id });
     return { ok: true, plan_id: plan.plan_id, report };
   }
 

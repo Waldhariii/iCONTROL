@@ -40,5 +40,40 @@
     "fast_burn_rate": 8,
     "slow_burn_rate": 3,
     "actions": ["throttle"]
+  },
+  {
+    "policy_id": "ebp:marketplace_impact_p95",
+    "slo_id": "slo:marketplace_impact_p95",
+    "fast_burn_rate": 10,
+    "slow_burn_rate": 4,
+    "actions": ["throttle"]
+  },
+  {
+    "policy_id": "ebp:marketplace_install_p95",
+    "slo_id": "slo:marketplace_install_p95",
+    "fast_burn_rate": 10,
+    "slow_burn_rate": 4,
+    "actions": ["throttle"]
+  },
+  {
+    "policy_id": "ebp:release_activate_p95",
+    "slo_id": "slo:release_activate_p95",
+    "fast_burn_rate": 12,
+    "slow_burn_rate": 5,
+    "actions": ["rollback_release"]
+  },
+  {
+    "policy_id": "ebp:billing_compute_p95",
+    "slo_id": "slo:billing_compute_p95",
+    "fast_burn_rate": 8,
+    "slow_burn_rate": 3,
+    "actions": ["throttle"]
+  },
+  {
+    "policy_id": "ebp:qos_enforce_p95",
+    "slo_id": "slo:qos_enforce_p95",
+    "fast_burn_rate": 8,
+    "slow_burn_rate": 3,
+    "actions": ["throttle"]
   }
 ]

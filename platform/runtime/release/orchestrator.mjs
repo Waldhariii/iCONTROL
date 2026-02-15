@@ -45,13 +45,22 @@ function loadCanaryPolicy() {
   }
 }
 
+function loadSloDefinitions() {
+  try {
+    return JSON.parse(readFileSync(ssotPath("sre/slo_definitions.json"), "utf-8"));
+  } catch {
+    return [];
+  }
+}
+
 export function canaryAnalyze(releaseId) {
   const policy = loadCanaryPolicy();
   if (!policy) return { decision: "warn", reasons: ["missing_policy"] };
   const baseline = process.env.CANARY_BASELINE_JSON ? JSON.parse(process.env.CANARY_BASELINE_JSON) : { error_rate: 0.0, p95_latency_ms: 100 };
   const canary = process.env.CANARY_METRICS_JSON ? JSON.parse(process.env.CANARY_METRICS_JSON) : baseline;
-  const result = analyzeCanary({ baseline, canary, policy });
-  appendAudit({ event: "canary_analysis", release_id: releaseId, decision: result.decision, reasons: result.reasons, at: new Date().toISOString() });
+  const sloDefinitions = loadSloDefinitions();
+  const result = analyzeCanary({ baseline, canary, policy, sloDefinitions });
+  appendAudit({ event: "canary_analysis", release_id: releaseId, decision: result.decision, reasons: result.reasons, slo_ids: result.slo_ids || [], at: new Date().toISOString() });
   return result;
 }
 

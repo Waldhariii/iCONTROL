@@ -2,6 +2,7 @@ import http from "http";
 import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync, statSync } from "fs";
 import { join, normalize, dirname } from "path";
 import { execSync } from "child_process";
+import { AsyncLocalStorage } from "async_hooks";
 import { applyOpsToDir } from "../../platform/runtime/changes/patch-engine.mjs";
 import { loadManifest } from "../../platform/runtime/loader/loader.mjs";
 import { emitEvent } from "../../platform/runtime/events/bus.mjs";
@@ -14,13 +15,59 @@ import { computeInvoice, persistDraft, publishInvoice, billingMode } from "../..
 import { handleStripeWebhook } from "../../platform/runtime/billing/providers/stripe_webhook.mjs";
 import { sha256, stableStringify } from "../../platform/compilers/utils.mjs";
 import { compareSemver } from "../../platform/runtime/compat/semver.mjs";
-import { createHmac, timingSafeEqual } from "crypto";
+import { createHmac, timingSafeEqual, randomUUID } from "crypto";
 
 const PORT = process.env.PORT || 7070;
 const ROOT = process.cwd();
 const SSOT_DIR = process.env.SSOT_DIR ? normalize(process.env.SSOT_DIR) : normalize(join(ROOT, "platform/ssot"));
 const RUNTIME_DIR = process.env.RUNTIME_DIR ? normalize(process.env.RUNTIME_DIR) : normalize(join(dirname(SSOT_DIR), "runtime"));
 const ssotPath = (p) => join(SSOT_DIR, p);
+const REPORTS_DIR = join(ROOT, "runtime", "reports");
+const requestContext = new AsyncLocalStorage();
+
+function getReportsDir() {
+  if (String(REPORTS_DIR).includes("platform/runtime/reports")) {
+    throw new Error("Forbidden reports path: platform/runtime/reports");
+  }
+  return REPORTS_DIR;
+}
+
+function ensureDir(path) {
+  mkdirSync(path, { recursive: true });
+  return path;
+}
+
+function appendJsonl(path, entry) {
+  ensureDir(dirname(path));
+  writeFileSync(path, JSON.stringify(entry) + "\n", { flag: "a" });
+}
+
+function readJsonl(path, { limit = 50, since } = {}) {
+  if (!existsSync(path)) return [];
+  const raw = readFileSync(path, "utf-8").trim();
+  if (!raw) return [];
+  const lines = raw.split("\n");
+  const out = [];
+  for (const line of lines) {
+    try {
+      const obj = JSON.parse(line);
+      if (since && obj.ts && obj.ts < since) continue;
+      out.push(obj);
+    } catch {
+      // ignore
+    }
+  }
+  return out.slice(-limit);
+}
+
+function getContext() {
+  return requestContext.getStore() || {};
+}
+
+function setContext(fields) {
+  const ctx = getContext();
+  if (ctx && fields) Object.assign(ctx, fields);
+}
 
 function readJson(path) {
   return JSON.parse(readFileSync(path, "utf-8"));
@@ -31,7 +78,10 @@ function writeJson(path, data) {
 }
 
 function json(res, code, payload) {
-  res.writeHead(code, { "Content-Type": "application/json" });
+  const ctx = getContext();
+  const headers = { "Content-Type": "application/json" };
+  if (ctx.request_id) headers["x-request-id"] = ctx.request_id;
+  res.writeHead(code, headers);
   res.end(JSON.stringify(payload));
 }
 
@@ -69,10 +119,39 @@ function appendAudit(entry) {
   const path = ssotPath("governance/audit_ledger.json");
   const ledger = existsSync(path) ? readJson(path) : [];
   const prev = ledger.length ? ledger[ledger.length - 1].hash : "GENESIS";
+  const ctx = getContext();
   const payload = { ...entry, prev_hash: prev };
+  if (ctx.request_id && !payload.request_id) payload.request_id = ctx.request_id;
+  if (ctx.trace_id && !payload.trace_id) payload.trace_id = ctx.trace_id;
+  if (ctx.tenant_id && !payload.tenant_id) payload.tenant_id = ctx.tenant_id;
+  if (ctx.actor_id && !payload.actor_id) payload.actor_id = ctx.actor_id;
+  if (ctx.scope && !payload.scope) payload.scope = ctx.scope;
+  if (ctx.action && !payload.action) payload.action = ctx.action;
+  if (ctx.changeset_id && !payload.changeset_id) payload.changeset_id = ctx.changeset_id;
+  if (ctx.release_id && !payload.release_id) payload.release_id = ctx.release_id;
   const hash = sha256(stableStringify(payload));
   ledger.push({ ...payload, hash });
   writeJson(path, ledger);
+}
+
+function appendPolicyDecision({ decision, action, scope, reason_codes = [], policy_ids = [] }) {
+  const ctx = getContext();
+  const dir = ensureDir(join(getReportsDir(), "policy"));
+  const path = join(dir, "decisions.jsonl");
+  const entry = {
+    ts: new Date().toISOString(),
+    request_id: ctx.request_id,
+    trace_id: ctx.trace_id,
+    tenant_id: ctx.tenant_id,
+    actor_id: ctx.actor_id || "system",
+    scope: scope || ctx.scope || "",
+    action: action || ctx.action || "",
+    decision,
+    reason_codes,
+    policy_ids
+  };
+  appendJsonl(path, entry);
+  return entry;
 }
 
 function scopeMatches(pattern, scope) {
@@ -125,6 +204,24 @@ function readMarketplaceCatalog() {
   } catch {
     return [];
   }
+}
+
+function appendMarketplaceEvent(entry) {
+  const path = join(getReportsDir(), "index", "marketplace_events.jsonl");
+  appendJsonl(path, entry);
+  return path;
+}
+
+function appendBillingDraftEvent(entry) {
+  const path = join(getReportsDir(), "index", "billing_drafts.jsonl");
+  appendJsonl(path, entry);
+  return path;
+}
+
+function appendOpsEvent(entry) {
+  const path = join(getReportsDir(), "index", "ops_events.jsonl");
+  appendJsonl(path, entry);
+  return path;
 }
 
 function getFinopsData() {
@@ -533,6 +630,7 @@ function hasPermission(roleIds, permissionSets, action) {
 function policyAllows({ action, scope, resource, roles, policies, bindings }) {
   const bound = bindings.filter((b) => roles.includes(b.role_id) && scopeMatches(b.scope, scope));
   const policyIds = new Set(bound.map((b) => b.policy_id));
+  const matched = [];
   for (const p of policies.filter((p) => policyIds.has(p.id))) {
     if (!p.actions?.includes(action)) continue;
     const scopes = p.scopes || [];
@@ -540,9 +638,9 @@ function policyAllows({ action, scope, resource, roles, policies, bindings }) {
     const c = p.conditions || {};
     if (c.surface && resource.surface && c.surface !== resource.surface) continue;
     if (c.env && resource.env && c.env !== resource.env) continue;
-    return true;
+    matched.push(p.id);
   }
-  return false;
+  return { allowed: matched.length > 0, policy_ids: matched };
 }
 
 function breakGlassAllows({ breakGlass, action, scope }) {
@@ -613,18 +711,35 @@ function authorizeOrDeny(req, action, resource = {}) {
   const tenantId = req.headers["x-tenant-id"];
   const scope = req.headers["x-scope"] || (tenantId ? `tenant:${tenantId}:*` : "platform:*");
   const gov = getGovernanceData();
+  setContext({ action, scope, tenant_id: tenantId || null, actor_id: userId });
   if (!freezeAllows({ changeFreeze: gov.changeFreeze, action })) {
+    appendPolicyDecision({ decision: "deny", action, scope, reason_codes: ["freeze"] });
     appendAudit({ event: "freeze_denied", action, scope, user_id: userId, at: new Date().toISOString() });
     throw new Error("Forbidden");
   }
   expireBreakGlassIfNeeded(gov.breakGlass);
   const roles = getUserRoles(userId, gov.memberships);
+  const breakGlassOk = breakGlassAllows({ breakGlass: gov.breakGlass, action, scope });
+  const permOk = hasPermission(roles, gov.permissionSets, action);
+  const policyRes = policyAllows({ action, scope, resource, roles, policies: gov.policies, bindings: gov.bindings });
+  const allowed = breakGlassOk || (permOk && policyRes.allowed);
+  const reasonCodes = [];
+  if (breakGlassOk) reasonCodes.push("break_glass");
+  if (!breakGlassOk && !permOk) reasonCodes.push("permission_missing");
+  if (!breakGlassOk && permOk && !policyRes.allowed) reasonCodes.push("policy_missing");
+  if (!breakGlassOk && permOk && policyRes.allowed) reasonCodes.push("policy_allow");
 
-  const allowed =
-    breakGlassAllows({ breakGlass: gov.breakGlass, action, scope }) ||
-    (hasPermission(roles, gov.permissionSets, action) && policyAllows({ action, scope, resource, roles, policies: gov.policies, bindings: gov.bindings }));
-
-  appendAudit({ event: "authz_decision", action, scope, user_id: userId, decision: allowed ? "allow" : "deny", at: new Date().toISOString() });
+  appendPolicyDecision({ decision: allowed ? "allow" : "deny", action, scope, reason_codes: reasonCodes, policy_ids: policyRes.policy_ids || [] });
+  appendAudit({
+    event: "authz_decision",
+    action,
+    scope,
+    user_id: userId,
+    decision: allowed ? "allow" : "deny",
+    reason_codes: reasonCodes,
+    policy_ids: policyRes.policy_ids || [],
+    at: new Date().toISOString()
+  });
   if (!allowed) throw new Error("Forbidden");
 }
 
@@ -745,22 +860,32 @@ function loadActiveManifest() {
 }
 
 const server = http.createServer(async (req, res) => {
-  try {
-    if (req.url?.startsWith("/api/")) requireAdmin(req);
-    const tenantHeader = req.headers["x-tenant-id"];
-    const tenantId = typeof tenantHeader === "string" && tenantHeader ? tenantHeader : null;
-    const actionOverride = req.headers["x-action-type"];
-    const inferredAction = req.url?.includes("/api/integrations/webhook/in") ? "integration.webhook.in" : (req.method === "GET" ? "api.read" : "api.write");
-    const actionType = typeof actionOverride === "string" && actionOverride ? actionOverride : inferredAction;
-    const workload = req.url?.includes("/api/integrations/webhook") ? "webhook" : req.url?.includes("/ocr") ? "ocr" : req.url?.includes("/workflow") ? "workflow" : "api";
-    const costHint = ACTION_COSTS[actionType] ?? 1;
-    const qosTicket = tenantId ? createQosTicket({ tenantId, actionType, workload, costHint }) : null;
-    if (qosTicket) {
-      res.on("finish", () => {
-        const elapsed = Date.now() - qosTicket.ctx.startAt;
-        qosTicket.finish(res.statusCode, elapsed);
-      });
-    }
+  const inboundReqId = req.headers["x-request-id"] || req.headers["x-trace-id"];
+  const requestId = typeof inboundReqId === "string" && inboundReqId ? inboundReqId : randomUUID();
+  const traceId = typeof req.headers["x-trace-id"] === "string" && req.headers["x-trace-id"] ? req.headers["x-trace-id"] : requestId;
+  const actorId = req.headers["x-user-id"] || "system";
+  return requestContext.run(
+    { request_id: requestId, trace_id: traceId, actor_id: actorId, tenant_id: null, scope: null, action: null, changeset_id: null, release_id: null },
+    async () => {
+      try {
+        if (req.url?.startsWith("/api/")) requireAdmin(req);
+        const tenantHeader = req.headers["x-tenant-id"];
+        const tenantId = typeof tenantHeader === "string" && tenantHeader ? tenantHeader : null;
+        const scope = req.headers["x-scope"] || (tenantId ? `tenant:${tenantId}:*` : "platform:*");
+        setContext({ tenant_id: tenantId, scope });
+        const actionOverride = req.headers["x-action-type"];
+        const inferredAction = req.url?.includes("/api/integrations/webhook/in") ? "integration.webhook.in" : (req.method === "GET" ? "api.read" : "api.write");
+        const actionType = typeof actionOverride === "string" && actionOverride ? actionOverride : inferredAction;
+        setContext({ action: actionType });
+        const workload = req.url?.includes("/api/integrations/webhook") ? "webhook" : req.url?.includes("/ocr") ? "ocr" : req.url?.includes("/workflow") ? "workflow" : "api";
+        const costHint = ACTION_COSTS[actionType] ?? 1;
+        const qosTicket = tenantId ? createQosTicket({ tenantId, actionType, workload, costHint }) : null;
+        if (qosTicket) {
+          res.on("finish", () => {
+            const elapsed = Date.now() - qosTicket.ctx.startAt;
+            qosTicket.finish(res.statusCode, elapsed);
+          });
+        }
     const sleepMs = Number(req.headers["x-qos-sleep-ms"] || 0);
     if (Number.isFinite(sleepMs) && sleepMs > 0) {
       await new Promise((r) => setTimeout(r, sleepMs));
@@ -832,11 +957,13 @@ const server = http.createServer(async (req, res) => {
     if (req.method === "POST" && req.url?.startsWith("/api/changesets/") && req.url?.endsWith("/publish")) {
       requirePermission(req, "studio.releases.publish");
       const id = req.url.split("/")[3];
+      setContext({ changeset_id: id });
       requireQuorum("publish", id, 2);
       execSync(`node scripts/ci/release.mjs --from-changeset ${id} --env dev --strategy canary`, {
         stdio: "inherit",
         env: { ...process.env, SSOT_DIR }
       });
+      setContext({ release_id: latestReleaseId() });
       appendAudit({ event: "changeset_publish", changeset_id: id, at: new Date().toISOString() });
       return json(res, 200, { ok: true, release_id: latestReleaseId() });
     }
@@ -853,6 +980,18 @@ const server = http.createServer(async (req, res) => {
 
     if (req.method === "GET" && req.url?.startsWith("/api/runtime/active-release")) {
       return json(res, 200, readActiveRelease());
+    }
+
+    if (req.method === "GET" && req.url?.startsWith("/api/observability/policy-decisions")) {
+      requirePermission(req, "observability.read");
+      const url = new URL(req.url, "http://localhost");
+      const tenant = url.searchParams.get("tenant");
+      const since = url.searchParams.get("since") || null;
+      const limit = Number(url.searchParams.get("limit") || 50);
+      const path = join(getReportsDir(), "policy", "decisions.jsonl");
+      let list = readJsonl(path, { limit, since });
+      if (tenant) list = list.filter((d) => d.tenant_id === tenant);
+      return json(res, 200, { decisions: list });
     }
 
     if (req.method === "POST" && req.url?.startsWith("/api/integrations/webhook/in/")) {
@@ -1155,6 +1294,17 @@ const server = http.createServer(async (req, res) => {
       });
     }
 
+    if (req.method === "GET" && req.url?.startsWith("/api/marketplace/tenants/") && req.url?.endsWith("/events")) {
+      requirePermission(req, "marketplace.view");
+      const tenantId = decodeURIComponent(req.url.split("/")[4]);
+      const url = new URL(req.url, "http://localhost");
+      const limit = Number(url.searchParams.get("limit") || 50);
+      const path = join(getReportsDir(), "index", "marketplace_events.jsonl");
+      let events = readJsonl(path, { limit });
+      events = events.filter((e) => e.tenant_id === tenantId).slice(-limit);
+      return json(res, 200, { tenant_id: tenantId, events });
+    }
+
     if (req.method === "POST" && req.url?.startsWith("/api/marketplace/tenants/") && req.url?.endsWith("/impact")) {
       requirePermission(req, "marketplace.view");
       const tenantId = decodeURIComponent(req.url.split("/")[4]);
@@ -1162,6 +1312,7 @@ const server = http.createServer(async (req, res) => {
       const { type, id } = payload;
       let { version } = payload;
       const changesetId = payload.changeset_id || `cs-marketplace-impact-${Date.now()}`;
+      setContext({ changeset_id: changesetId });
       const csPath = ssotPath(`changes/changesets/${changesetId}.json`);
       if (!existsSync(csPath)) {
         mkdirSync(ssotPath("changes/changesets"), { recursive: true });
@@ -1180,7 +1331,10 @@ const server = http.createServer(async (req, res) => {
       } else if (type === "extension") {
         if (!version || version === "latest") {
           const resolved = resolveLatestApprovedExtensionVersion(id);
-          if (!resolved) return json(res, 400, { error: "No approved versions; submit review/approve first" });
+          if (!resolved) {
+            appendPolicyDecision({ decision: "deny", action: "marketplace.impact", scope: req.headers["x-scope"] || "platform:*", reason_codes: ["review_missing"] });
+            return json(res, 400, { error: "No approved versions; submit review/approve first" });
+          }
           version = resolved;
           appendAudit({ event: "marketplace.resolve_latest", extension_id: id, resolved_version: resolved, at: new Date().toISOString() });
         }
@@ -1195,10 +1349,32 @@ const server = http.createServer(async (req, res) => {
       } else {
         return json(res, 400, { error: "Unknown type" });
       }
+      const ctx = getContext();
+      const startAt = Date.now();
       const preview = buildPreviewFromOps(changesetId, ops);
+      const compileMs = Date.now() - startAt;
       const active = loadActiveManifest();
       const previewManifest = loadManifest({ releaseId: preview.previewReleaseId, manifestsDir: preview.previewManifests, stalenessMs: 0 });
-      const { result, report_path } = analyzeInstall({ activeManifest: active, previewManifest, tenantId, item: { type, id, version } });
+      const plan = getTenantPlanDetails(tenantId);
+      const { result, report_path } = analyzeInstall({
+        activeManifest: active,
+        previewManifest,
+        tenantId,
+        item: { type, id, version },
+        meta: {
+          request_id: ctx.request_id,
+          action: "impact",
+          plan_effective: {
+            plan_id: plan?.plan?.plan_id || plan?.plan_id || "plan:free",
+            plan_version: plan?.plan_version?.version || "",
+            tier: normalizeTier(plan?.plan_version?.perf_tier || plan?.plan?.tier || "free")
+          },
+          policy_decision: "allow",
+          changeset_id: changesetId,
+          compile_ms: compileMs,
+          manifest_id: previewManifest?.manifest_id || ""
+        }
+      });
       appendAudit({ event: "marketplace_impact", tenant_id: tenantId, item_type: type, item_id: id, at: new Date().toISOString() });
       return json(res, 200, { impact: result, report_path });
     }
@@ -1210,6 +1386,7 @@ const server = http.createServer(async (req, res) => {
       const payload = await bodyToJson(req);
       const { type, id, version, reason } = payload;
       const changesetId = payload.changeset_id || `cs-marketplace-${action}-${Date.now()}`;
+      setContext({ changeset_id: changesetId });
       const csPath = ssotPath(`changes/changesets/${changesetId}.json`);
       if (!existsSync(csPath)) {
         mkdirSync(ssotPath("changes/changesets"), { recursive: true });
@@ -1251,12 +1428,18 @@ const server = http.createServer(async (req, res) => {
         let effectiveVersion = version || existingInstall?.version;
         if (!effectiveVersion || effectiveVersion === "latest") {
           const resolved = resolveLatestApprovedExtensionVersion(id);
-          if (!resolved) return json(res, 400, { error: "No approved versions; submit review/approve first" });
+          if (!resolved) {
+            appendPolicyDecision({ decision: "deny", action: `marketplace.${action}`, scope: req.headers["x-scope"] || "platform:*", reason_codes: ["review_missing"] });
+            return json(res, 400, { error: "No approved versions; submit review/approve first" });
+          }
           effectiveVersion = resolved;
           appendAudit({ event: "marketplace.resolve_latest", extension_id: id, resolved_version: resolved, at: new Date().toISOString() });
         }
         const reviewOk = reviews.some((r) => r.extension_id === id && r.version === effectiveVersion && r.status === "approved");
-        if ((action === "install" || action === "enable") && !reviewOk) return json(res, 400, { error: "Extension review not approved" });
+        if ((action === "install" || action === "enable") && !reviewOk) {
+          appendPolicyDecision({ decision: "deny", action: `marketplace.${action}`, scope: req.headers["x-scope"] || "platform:*", reason_codes: ["review_missing"] });
+          return json(res, 400, { error: "Extension review not approved" });
+        }
         const desiredState = action === "disable" || action === "uninstall" ? "disabled" : "installed";
         const allowed = tierRank(ext.tier || "free") <= tierRank(plan.tier);
         const state = (action === "enable" || action === "install") && !allowed ? "disabled" : desiredState;
@@ -1273,10 +1456,23 @@ const server = http.createServer(async (req, res) => {
       const cs = readJson(csPath);
       cs.ops.push(...ops);
       writeJson(csPath, cs);
+      const ctx = getContext();
       const preview = buildPreviewFromOps(changesetId, cs.ops);
       const active = loadActiveManifest();
       const previewManifest = loadManifest({ releaseId: preview.previewReleaseId, manifestsDir: preview.previewManifests, stalenessMs: 0 });
-      const impact = analyzeInstall({ activeManifest: active, previewManifest, tenantId, item: { type, id, version } });
+      const impact = analyzeInstall({
+        activeManifest: active,
+        previewManifest,
+        tenantId,
+        item: { type, id, version },
+        meta: {
+          request_id: ctx.request_id,
+          action,
+          policy_decision: "allow",
+          changeset_id: changesetId,
+          manifest_id: previewManifest?.manifest_id || ""
+        }
+      });
       const breaking = impact.result.breaking;
       if (type === "module" && action === "enable" && breaking) requireQuorum("marketplace_enable_module", changesetId, 2);
       try {
@@ -1289,8 +1485,19 @@ const server = http.createServer(async (req, res) => {
         const stdout = err?.stdout ? String(err.stdout) : "";
         return json(res, 500, { error: `Release failed: ${err.message}`, stdout, stderr });
       }
+      const relId = latestReleaseId();
+      setContext({ release_id: relId });
+      appendMarketplaceEvent({
+        ts: new Date().toISOString(),
+        request_id: ctx.request_id,
+        tenant_id: tenantId,
+        action,
+        item: { type, id, version },
+        outcome: "ok",
+        report_path: impact.report_path || ""
+      });
       appendAudit({ event: `marketplace_${action}`, tenant_id: tenantId, item_type: type, item_id: id, reason, at: new Date().toISOString() });
-      return json(res, 200, { ok: true, release_id: latestReleaseId(), impact: impact.result, report_path: impact.report_path });
+      return json(res, 200, { ok: true, release_id: relId, impact: impact.result, report_path: impact.report_path });
     }
 
     if (req.method === "GET" && req.url?.startsWith("/api/marketplace/reviews")) {
@@ -1514,6 +1721,33 @@ const server = http.createServer(async (req, res) => {
       if (!mode.scopes?.invoicing_compute) return json(res, 403, { error: "Billing compute disabled" });
       const invoice = computeInvoice({ tenantId, period });
       const path = persistDraft(invoice);
+      const ctx = getContext();
+      const ts = new Date().toISOString().replace(/[:.]/g, "-");
+      const reportsDir = getReportsDir();
+      ensureDir(reportsDir);
+      const rating = getBillingData().ratingVersions || [];
+      const ratingVersion = rating.length ? rating[rating.length - 1].version : "";
+      const reportPath = join(reportsDir, `BILLING_DRAFT_${ts}.md`);
+      const lines = [
+        "# Billing Draft",
+        `request_id: ${ctx.request_id || ""}`,
+        `tenant_id: ${tenantId}`,
+        `period: ${period}`,
+        `rating_version: ${ratingVersion}`,
+        `total_amount: ${invoice.total_amount}`,
+        `currency: ${invoice.currency}`,
+        `timestamp: ${new Date().toISOString()}`
+      ];
+      writeFileSync(reportPath, lines.join("\n") + "\n", "utf-8");
+      appendBillingDraftEvent({
+        ts: new Date().toISOString(),
+        request_id: ctx.request_id,
+        tenant_id: tenantId,
+        period,
+        rating_version: ratingVersion,
+        total_amount: invoice.total_amount,
+        report_path: reportPath
+      });
       appendAudit({ event: "invoice_computed", tenant_id: tenantId, period, at: new Date().toISOString() });
       return json(res, 200, { ok: true, invoice, path });
     }
@@ -1525,6 +1759,17 @@ const server = http.createServer(async (req, res) => {
       return json(res, 200, { tenant_id: tenantId, drafts: listBillingDrafts(tenantId) });
     }
 
+    if (req.method === "GET" && req.url?.startsWith("/api/billing/drafts/events")) {
+      requirePermission(req, "billing.read");
+      const url = new URL(req.url, "http://localhost");
+      const tenantId = url.searchParams.get("tenant") || "";
+      const limit = Number(url.searchParams.get("limit") || 50);
+      const path = join(getReportsDir(), "index", "billing_drafts.jsonl");
+      let events = readJsonl(path, { limit });
+      if (tenantId) events = events.filter((e) => e.tenant_id === tenantId).slice(-limit);
+      return json(res, 200, { tenant_id: tenantId || null, events });
+    }
+
     if (req.method === "POST" && req.url?.startsWith("/api/billing/invoices/publish")) {
       requirePermission(req, "billing.publish");
       const payload = await bodyToJson(req);
@@ -1534,6 +1779,7 @@ const server = http.createServer(async (req, res) => {
         appendAudit({ event: "invoice_published", tenant_id: invoice?.tenant_id, at: new Date().toISOString() });
         return json(res, 200, { ok: true, invoice: published });
       } catch (err) {
+        appendPolicyDecision({ decision: "deny", action: "billing.publish", scope: req.headers["x-scope"] || "platform:*", reason_codes: ["billing_dormant"] });
         appendAudit({ event: "invoice_publish_blocked", tenant_id: invoice?.tenant_id, reason: String(err.message || err), at: new Date().toISOString() });
         return json(res, 403, { error: String(err.message || err) });
       }
@@ -1654,9 +1900,11 @@ const server = http.createServer(async (req, res) => {
     if (req.method === "POST" && req.url?.startsWith("/api/releases/") && req.url?.endsWith("/activate")) {
       requirePermission(req, "studio.releases.activate");
       const id = req.url.split("/")[3];
+      setContext({ release_id: id });
       requireQuorum("activate", id, 2);
       const payload = await bodyToJson(req);
       const changesetId = payload?.changeset_id || `cs-activate-${Date.now()}`;
+      setContext({ changeset_id: changesetId });
       const csPath = ssotPath(`changes/changesets/${changesetId}.json`);
       if (!existsSync(csPath)) {
         mkdirSync(ssotPath("changes/changesets"), { recursive: true });
@@ -1684,6 +1932,7 @@ const server = http.createServer(async (req, res) => {
     if (req.method === "POST" && req.url?.startsWith("/api/releases/") && req.url?.endsWith("/rollback")) {
       requirePermission(req, "studio.releases.rollback");
       const id = req.url.split("/")[3];
+      setContext({ release_id: id });
       requireQuorum("rollback", id, 2);
       execSync(`node -e \"import {rollback} from './platform/runtime/release/orchestrator.mjs'; rollback('${id}','manual');\"`, { stdio: "inherit" });
       return json(res, 200, { ok: true });
@@ -1755,6 +2004,17 @@ const server = http.createServer(async (req, res) => {
       return json(res, 201, incident);
     }
 
+    if (req.method === "GET" && req.url?.startsWith("/api/ops/events")) {
+      requirePermission(req, "ops.incident.read");
+      const url = new URL(req.url, "http://localhost");
+      const tenantId = url.searchParams.get("tenant") || "";
+      const limit = Number(url.searchParams.get("limit") || 50);
+      const path = join(getReportsDir(), "index", "ops_events.jsonl");
+      let events = readJsonl(path, { limit });
+      if (tenantId) events = events.filter((e) => e.tenant_id === tenantId).slice(-limit);
+      return json(res, 200, { tenant_id: tenantId || null, events });
+    }
+
     if (req.method === "GET" && req.url?.startsWith("/api/ops/incidents/")) {
       requirePermission(req, "ops.incident.read");
       const id = req.url.split("/")[4];
@@ -1771,9 +2031,11 @@ const server = http.createServer(async (req, res) => {
       const manifest = loadActiveManifest();
       if (!manifest) return json(res, 503, { error: "Manifest not available" });
       const gov = getGovernanceData();
+      const ctx = getContext();
       const result = executeRunbook({
         incidentId,
         runbookId,
+        context: { request_id: ctx.request_id, actor_id: ctx.actor_id, tenant_id: ctx.tenant_id },
         manifest,
         authorizeAction: (action, scope, resource) => authorizeAction(req, `ops.action.${action}`, scope, resource),
         requireQuorum,
@@ -1792,9 +2054,11 @@ const server = http.createServer(async (req, res) => {
       const manifest = loadActiveManifest();
       if (!manifest) return json(res, 503, { error: "Manifest not available" });
       const gov = getGovernanceData();
+      const ctx = getContext();
       const result = executeRunbook({
         incidentId,
         runbookId,
+        context: { request_id: ctx.request_id, actor_id: ctx.actor_id, tenant_id: ctx.tenant_id },
         manifest,
         authorizeAction: (action, scope, resource) => authorizeAction(req, `ops.action.${action}`, scope, resource),
         requireQuorum,
@@ -1909,10 +2173,12 @@ const server = http.createServer(async (req, res) => {
     }
 
     return json(res, 404, { error: "Not found" });
-  } catch (err) {
-    const status = err.statusCode || 400;
-    return json(res, status, { error: String(err.message || err) });
-  }
+      } catch (err) {
+        const status = err.statusCode || 400;
+        return json(res, status, { error: String(err.message || err) });
+      }
+    }
+  );
 });
 
 server.listen(PORT, () => {

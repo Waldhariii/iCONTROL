@@ -18,6 +18,22 @@ function copyIfExists(src, dest) {
   if (existsSync(src)) copyFileSync(src, dest);
 }
 
+function readJsonlTail(path, limit) {
+  if (!existsSync(path)) return [];
+  const raw = readFileSync(path, "utf-8").trim();
+  if (!raw) return [];
+  const lines = raw.split("\n").slice(-limit);
+  const out = [];
+  for (const line of lines) {
+    try {
+      out.push(JSON.parse(line));
+    } catch {
+      // ignore
+    }
+  }
+  return out;
+}
+
 const tags = execSync("git tag --list", { encoding: "utf-8" }).trim();
 writeFileSync(join(outDir, "tags.txt"), tags + "\n", "utf-8");
 const head = execSync("git rev-parse HEAD", { encoding: "utf-8" }).trim();
@@ -114,6 +130,21 @@ try {
   if (tenantPlans[0]) copyIfExists(join(reportsDir, tenantPlans[0]), join(outDir, tenantPlans[0]));
   const impacts = reports.filter((f) => f.startsWith("MARKETPLACE_IMPACT_") && f.endsWith(".md")).slice(-1);
   if (impacts[0]) copyIfExists(join(reportsDir, impacts[0]), join(outDir, impacts[0]));
+} catch {
+  // ignore
+}
+
+try {
+  const indexDir = join(reportsDir, "index");
+  const policyDir = join(reportsDir, "policy");
+  const marketplaceEvents = readJsonlTail(join(indexDir, "marketplace_events.jsonl"), 20);
+  const billingDrafts = readJsonlTail(join(indexDir, "billing_drafts.jsonl"), 10);
+  const opsEvents = readJsonlTail(join(indexDir, "ops_events.jsonl"), 20);
+  const policyDecisions = readJsonlTail(join(policyDir, "decisions.jsonl"), 50);
+  writeFileSync(join(outDir, "marketplace_events.json"), JSON.stringify(marketplaceEvents, null, 2) + "\n", "utf-8");
+  writeFileSync(join(outDir, "billing_draft_events.json"), JSON.stringify(billingDrafts, null, 2) + "\n", "utf-8");
+  writeFileSync(join(outDir, "ops_events.json"), JSON.stringify(opsEvents, null, 2) + "\n", "utf-8");
+  writeFileSync(join(outDir, "policy_decisions.json"), JSON.stringify(policyDecisions, null, 2) + "\n", "utf-8");
 } catch {
   // ignore
 }

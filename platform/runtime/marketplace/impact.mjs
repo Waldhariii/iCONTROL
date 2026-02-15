@@ -1,4 +1,4 @@
-import { writeFileSync } from "fs";
+import { writeFileSync, mkdirSync } from "fs";
 import { join } from "path";
 import { getReportsDir, assertNoPlatformReportsPath } from "../../../scripts/ci/test-utils.mjs";
 
@@ -35,7 +35,7 @@ function dataGovRisk(manifest) {
   return { risky_fields: count };
 }
 
-export function analyzeInstall({ activeManifest, previewManifest, tenantId, item }) {
+export function analyzeInstall({ activeManifest, previewManifest, tenantId, item, meta = {} }) {
   const routes = diffSet(listRoutes(activeManifest), listRoutes(previewManifest));
   const nav = diffSet(listNav(activeManifest), listNav(previewManifest));
   const pages = diffSet(listPages(activeManifest), listPages(previewManifest));
@@ -56,10 +56,22 @@ export function analyzeInstall({ activeManifest, previewManifest, tenantId, item
   assertNoPlatformReportsPath(reportsDir);
   const ts = new Date().toISOString().replace(/[:.]/g, "-");
   const path = join(reportsDir, `MARKETPLACE_IMPACT_${ts}.md`);
+  const indexPath = join(reportsDir, "index", "marketplace_events.jsonl");
+  const header = [
+    `request_id: ${meta.request_id || ""}`,
+    `tenant_id: ${tenantId}`,
+    `plan_effective: ${meta.plan_effective?.plan_id || ""} ${meta.plan_effective?.plan_version || ""} ${meta.plan_effective?.tier || ""}`.trim(),
+    `item: ${item.type} ${item.id} v${item.version}`,
+    `action: ${meta.action || "impact"}`,
+    `timestamp: ${new Date().toISOString()}`,
+    `policy_decision: ${meta.policy_decision || ""}`,
+    `changeset_id: ${meta.changeset_id || ""}`,
+    `compile_ms: ${meta.compile_ms || ""}`,
+    `manifest_id: ${meta.manifest_id || ""}`
+  ];
   const lines = [
     `# Marketplace Impact`,
-    `tenant: ${tenantId}`,
-    `item: ${item.type} ${item.id} v${item.version}`,
+    ...header,
     `breaking: ${breaking}`,
     ``,
     `## Routes`,
@@ -82,5 +94,15 @@ export function analyzeInstall({ activeManifest, previewManifest, tenantId, item
     `risky_fields: ${dataGov.risky_fields}`
   ];
   writeFileSync(path, lines.join("\n") + "\n", "utf-8");
+  mkdirSync(join(reportsDir, "index"), { recursive: true });
+  writeFileSync(indexPath, JSON.stringify({
+    ts: new Date().toISOString(),
+    request_id: meta.request_id || "",
+    tenant_id: tenantId,
+    action: meta.action || "impact",
+    item,
+    outcome: "ok",
+    report_path: path
+  }) + "\n", { flag: "a" });
   return { result, report_path: path };
 }
