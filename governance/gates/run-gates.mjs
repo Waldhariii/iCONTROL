@@ -32,7 +32,10 @@ import {
   noFallbackGate,
   governanceGate,
   freezeGate,
-  quorumGate
+  quorumGate,
+  opsPolicyGate,
+  runbookIntegrityGate,
+  breakGlassGate
 } from "./gates.mjs";
 
 const releaseId = process.argv[2];
@@ -77,7 +80,10 @@ const gates = [
   () => noFallbackGate(),
   () => governanceGate({ ssotDir }),
   () => freezeGate({ ssotDir }),
-  () => quorumGate({ ssotDir })
+  () => quorumGate({ ssotDir }),
+  () => opsPolicyGate({ ssotDir }),
+  () => runbookIntegrityGate({ ssotDir }),
+  () => breakGlassGate({ ssotDir })
 ];
 
 const results = [];

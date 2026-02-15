@@ -6,6 +6,8 @@ import { applyOpsToDir } from "../../platform/runtime/changes/patch-engine.mjs";
 import { loadManifest } from "../../platform/runtime/loader/loader.mjs";
 import { emitEvent } from "../../platform/runtime/events/bus.mjs";
 import { resolveSecret } from "../../platform/runtime/integrations/dispatcher.mjs";
+import { getEffectiveQosOverrides } from "../../platform/runtime/ops/actions.mjs";
+import { createIncident, readIncident, executeRunbook, listTimeline } from "../../platform/runtime/ops/engine.mjs";
 import { sha256, stableStringify } from "../../platform/compilers/utils.mjs";
 import { createHmac, timingSafeEqual } from "crypto";
 
@@ -361,15 +363,31 @@ function qosEnforcer({ tenantId, actionType, workload, costHint }) {
   }
 
   let effectiveRate = rate;
+  let effectiveConcurrency = concurrencyLimit;
   if (p95Target > 0 && wl.last_latency_ms > p95Target && priority <= 50) {
     effectiveRate = Math.max(1, Math.floor(rate * 0.5));
+  }
+
+  const overrides = getEffectiveQosOverrides({ tenantId, tier, workload });
+  for (const o of overrides) {
+    if (o.type === "throttle") {
+      const factor = Number(o.factor || 1);
+      effectiveRate = Math.max(1, Math.floor(effectiveRate * factor));
+      if (effectiveConcurrency > 0) effectiveConcurrency = Math.max(1, Math.floor(effectiveConcurrency * factor));
+    }
+    if (o.type === "shed") {
+      const mode = o.mode || "deny";
+      const rateDrop = Math.max(0, Math.min(1, Number(o.rate || 1)));
+      if (mode === "deny") throw quotaExceededError("Load shedding active", 503);
+      if (mode === "probabilistic" && Math.random() < rateDrop) throw quotaExceededError("Load shedding active", 503);
+    }
   }
 
   if (!tokenBucketAllow(`${tenantId}:${workload}`, effectiveRate, burst)) {
     throw quotaExceededError("Rate limit exceeded", 429);
   }
 
-  if (concurrencyLimit > 0 && queueDepth >= concurrencyLimit) {
+  if (effectiveConcurrency > 0 && queueDepth >= effectiveConcurrency) {
     throw quotaExceededError("Concurrency limit exceeded", 429);
   }
   concurrencyMap.set(`${tenantId}:${workload}`, queueDepth + 1);
@@ -538,6 +556,11 @@ function requireAdmin(_req) {
 
 function requirePermission(req, perm) {
   authorizeOrDeny(req, perm, { surface: "cp" });
+}
+
+function authorizeAction(req, action, scope, resource = {}) {
+  const headers = { ...req.headers, "x-scope": scope };
+  authorizeOrDeny({ headers }, action, resource);
 }
 
 function copyDir(src, dest) {
@@ -1099,6 +1122,83 @@ const server = http.createServer(async (req, res) => {
       writeJson(bgPath, bg);
       appendAudit({ event: "break_glass_disable", at: new Date().toISOString() });
       return json(res, 200, { ok: true });
+    }
+
+    if (req.method === "POST" && req.url === "/api/ops/incidents") {
+      requirePermission(req, "ops.incident.create");
+      const payload = await bodyToJson(req);
+      const incident = createIncident({
+        severity_id: payload.severity_id || "sev3",
+        scope: payload.scope || "platform:*",
+        title: payload.title || "Ops Incident",
+        links: payload.links || {},
+        notes: payload.notes || []
+      });
+      appendAudit({ event: "ops_incident_create", incident_id: incident.id, at: new Date().toISOString() });
+      return json(res, 201, incident);
+    }
+
+    if (req.method === "GET" && req.url?.startsWith("/api/ops/incidents/")) {
+      requirePermission(req, "ops.incident.read");
+      const id = req.url.split("/")[4];
+      const incident = readIncident(id);
+      if (!incident) return json(res, 404, { error: "Incident not found" });
+      return json(res, 200, incident);
+    }
+
+    if (req.method === "POST" && req.url?.includes("/api/ops/incidents/") && req.url?.includes("/runbooks/") && req.url?.endsWith("/execute")) {
+      requirePermission(req, "ops.runbook.execute");
+      const parts = req.url.split("/");
+      const incidentId = parts[4];
+      const runbookId = parts[6];
+      const manifest = loadActiveManifest();
+      if (!manifest) return json(res, 503, { error: "Manifest not available" });
+      const gov = getGovernanceData();
+      const result = executeRunbook({
+        incidentId,
+        runbookId,
+        manifest,
+        authorizeAction: (action, scope, resource) => authorizeAction(req, `ops.action.${action}`, scope, resource),
+        requireQuorum,
+        breakGlass: gov.breakGlass,
+        apply: false
+      });
+      appendAudit({ event: "ops_runbook_execute", incident_id: incidentId, runbook_id: runbookId, at: new Date().toISOString() });
+      return json(res, 200, result);
+    }
+
+    if (req.method === "POST" && req.url?.includes("/api/ops/incidents/") && req.url?.includes("/runbooks/") && req.url?.endsWith("/apply")) {
+      requirePermission(req, "ops.runbook.apply");
+      const parts = req.url.split("/");
+      const incidentId = parts[4];
+      const runbookId = parts[6];
+      const manifest = loadActiveManifest();
+      if (!manifest) return json(res, 503, { error: "Manifest not available" });
+      const gov = getGovernanceData();
+      const result = executeRunbook({
+        incidentId,
+        runbookId,
+        manifest,
+        authorizeAction: (action, scope, resource) => authorizeAction(req, `ops.action.${action}`, scope, resource),
+        requireQuorum,
+        breakGlass: gov.breakGlass,
+        apply: true
+      });
+      const incidentPath = join(process.cwd(), "runtime", "ops", "incidents", `${incidentId}.json`);
+      if (existsSync(incidentPath)) {
+        const incident = readJson(incidentPath);
+        incident.status = "mitigating";
+        writeJson(incidentPath, incident);
+      }
+      appendAudit({ event: "ops_runbook_apply", incident_id: incidentId, runbook_id: runbookId, at: new Date().toISOString() });
+      return json(res, 200, result);
+    }
+
+    if (req.method === "GET" && req.url?.startsWith("/api/ops/timeline")) {
+      requirePermission(req, "ops.timeline.read");
+      const url = new URL(req.url, "http://localhost");
+      const day = url.searchParams.get("day") || undefined;
+      return json(res, 200, { events: listTimeline(day) });
     }
 
     if (req.method === "GET" && req.url?.startsWith("/api/gates/") && req.url?.endsWith("/report")) {

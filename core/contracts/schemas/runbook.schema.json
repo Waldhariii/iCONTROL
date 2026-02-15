@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "runbook.v1",
+  "title": "runbook",
+  "type": "object",
+  "required": ["runbook_id", "name", "severity_id", "scope", "latest_version", "status"],
+  "additionalProperties": false,
+  "properties": {
+    "runbook_id": {"type": "string"},
+    "name": {"type": "string"},
+    "severity_id": {"type": "string"},
+    "scope": {"type": "string"},
+    "latest_version": {"type": "string"},
+    "status": {"type": "string", "enum": ["active", "deprecated"]}
+  }
+}

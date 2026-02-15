@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "mitigation_version.v1",
+  "title": "mitigation_version",
+  "type": "object",
+  "required": ["policy_id", "version", "status", "effective_from"],
+  "additionalProperties": false,
+  "properties": {
+    "policy_id": {"type": "string"},
+    "version": {"type": "string"},
+    "status": {"type": "string", "enum": ["active", "deprecated"]},
+    "effective_from": {"type": "string"}
+  }
+}

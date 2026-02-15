@@ -1,0 +1,18 @@
+[
+  {
+    "runbook_id": "rb-qos-throttle",
+    "name": "Throttle Free Tier",
+    "severity_id": "sev2",
+    "scope": "platform:*",
+    "latest_version": "1.0.0",
+    "status": "active"
+  },
+  {
+    "runbook_id": "rb-rollback-active",
+    "name": "Rollback Active Release",
+    "severity_id": "sev1",
+    "scope": "platform:*",
+    "latest_version": "1.0.0",
+    "status": "active"
+  }
+]

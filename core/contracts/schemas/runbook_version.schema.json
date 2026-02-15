@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "runbook_version.v1",
+  "title": "runbook_version",
+  "type": "object",
+  "required": ["runbook_id", "version", "status", "steps"],
+  "additionalProperties": false,
+  "properties": {
+    "runbook_id": {"type": "string"},
+    "version": {"type": "string"},
+    "status": {"type": "string", "enum": ["draft", "released"]},
+    "steps": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["action"],
+        "additionalProperties": false,
+        "properties": {
+          "action": {"type": "string"},
+          "params": {"type": "object"},
+          "critical": {"type": "boolean"}
+        }
+      }
+    }
+  }
+}

@@ -51,7 +51,12 @@ const specificMap = new Map([
   ["slo_versions.json", "slo_version.v1"],
   ["sli_sources.json", "sli_source.v1"],
   ["error_budget_policies.json", "error_budget_policy.v1"],
-  ["canary_policies.json", "canary_policy.v1"]
+  ["canary_policies.json", "canary_policy.v1"],
+  ["runbooks.json", "runbook.v1"],
+  ["runbook_versions.json", "runbook_version.v1"],
+  ["mitigation_policies.json", "mitigation_policy.v1"],
+  ["mitigation_versions.json", "mitigation_version.v1"],
+  ["incident_severities.json", "incident_severity.v1"]
 ]);
 
 function inferSchemaForFile(path, data) {

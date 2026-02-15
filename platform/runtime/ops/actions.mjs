@@ -1,0 +1,241 @@
+import { readFileSync, writeFileSync, existsSync, mkdirSync } from "fs";
+import { join, dirname } from "path";
+import { rollback } from "../release/orchestrator.mjs";
+import { applyChangeset } from "../changes/patch-engine.mjs";
+import { sha256, stableStringify } from "../../compilers/utils.mjs";
+
+const SSOT_DIR = process.env.SSOT_DIR || "./platform/ssot";
+const RUNTIME_OPS_DIR = join(process.cwd(), "runtime", "ops");
+
+function readJson(path) {
+  return JSON.parse(readFileSync(path, "utf-8"));
+}
+
+function writeJson(path, data) {
+  mkdirSync(dirname(path), { recursive: true });
+  writeFileSync(path, JSON.stringify(data, null, 2) + "\n", "utf-8");
+}
+
+function appendAudit(entry) {
+  const path = join(SSOT_DIR, "governance/audit_ledger.json");
+  const ledger = existsSync(path) ? readJson(path) : [];
+  const prev = ledger.length ? ledger[ledger.length - 1].hash : "GENESIS";
+  const payload = { ...entry, prev_hash: prev };
+  const hash = sha256(stableStringify(payload));
+  ledger.push({ ...payload, hash });
+  writeJson(path, ledger);
+}
+
+function readOpsOverrides() {
+  const path = join(RUNTIME_OPS_DIR, "qos_overrides.json");
+  if (!existsSync(path)) return { overrides: [] };
+  return readJson(path);
+}
+
+function writeOpsOverrides(data) {
+  const path = join(RUNTIME_OPS_DIR, "qos_overrides.json");
+  writeJson(path, data);
+}
+
+function pruneExpired(overrides) {
+  const now = Date.now();
+  return overrides.filter((o) => !o.expires_at || Date.parse(o.expires_at) > now);
+}
+
+function matchTarget(override, { tenantId, tier, workload }) {
+  const tgt = override.target || "";
+  if (override.workload && override.workload !== workload) return false;
+  if (tgt.startsWith("tenant:") && tenantId) return tgt === `tenant:${tenantId}`;
+  if (tgt.startsWith("tier:") && tier) return tgt === `tier:${tier}`;
+  if (tgt === "platform:*") return true;
+  return false;
+}
+
+function updateConnectorState({ connectorId, tenantId, state }) {
+  const path = join(SSOT_DIR, "integrations/connector_configs.json");
+  const configs = readJson(path);
+  const updated = configs.map((c) => {
+    if (c.connector_id === connectorId && c.tenant_id === tenantId) return { ...c, state };
+    return c;
+  });
+  writeJson(path, updated);
+}
+
+function upsertKillswitch({ scope, tenantId, extensionId, enabled, reason }) {
+  const path = join(SSOT_DIR, "extensions/extension_killswitch.json");
+  const list = readJson(path);
+  const existing = list.find((k) => k.extension_id === extensionId && k.scope === scope && (k.tenant_id || "") === (tenantId || ""));
+  const payload = {
+    scope,
+    tenant_id: tenantId || "",
+    extension_id: extensionId,
+    enabled: Boolean(enabled),
+    reason: reason || "ops action",
+    enabled_at: new Date().toISOString(),
+    enabled_by: "ops"
+  };
+  if (existing) {
+    Object.assign(existing, payload);
+  } else {
+    list.push(payload);
+  }
+  writeJson(path, list);
+}
+
+function updateBreakGlass({ enabled, reason, ttlSeconds, scope, allowedActions }) {
+  const path = join(SSOT_DIR, "governance/break_glass.json");
+  const now = new Date();
+  const expiresAt = ttlSeconds ? new Date(now.getTime() + ttlSeconds * 1000).toISOString() : new Date(now.getTime() + 900000).toISOString();
+  const updated = {
+    enabled: Boolean(enabled),
+    reason: reason || "ops action",
+    requested_by: "ops",
+    approved_by: ["ops"],
+    expires_at: expiresAt,
+    scope: scope || "platform:*",
+    allowed_actions: allowedActions || []
+  };
+  writeJson(path, updated);
+}
+
+function applyChangeFreeze({ enabled, reason }) {
+  const csId = `cs-ops-freeze-${Date.now()}`;
+  const csPath = join(SSOT_DIR, "changes/changesets", `${csId}.json`);
+  mkdirSync(dirname(csPath), { recursive: true });
+  const current = readJson(join(SSOT_DIR, "governance/change_freeze.json"));
+  const update = {
+    ...current,
+    enabled: Boolean(enabled),
+    reason: reason || current.reason || "ops change freeze",
+    enabled_at: new Date().toISOString(),
+    enabled_by: "ops"
+  };
+  const cs = {
+    id: csId,
+    status: "draft",
+    created_by: "ops",
+    created_at: new Date().toISOString(),
+    scope: "global",
+    ops: [
+      { op: "update", target: { kind: "change_freeze", ref: "change_freeze" }, value: update, preconditions: { expected_exists: true } }
+    ]
+  };
+  writeJson(csPath, cs);
+  applyChangeset(csId);
+  return { changeset_id: csId };
+}
+
+export const BUILTIN_ACTIONS = [
+  "qos.throttle",
+  "qos.shed",
+  "release.rollback",
+  "extension.killswitch",
+  "change.freeze",
+  "integration.disable",
+  "open.break_glass",
+  "close.break_glass"
+];
+
+export function applyAction({ action, params, context }) {
+  if (!BUILTIN_ACTIONS.includes(action)) throw new Error(`Unknown action: ${action}`);
+
+  if (action === "qos.throttle") {
+    const overrides = readOpsOverrides();
+    const list = pruneExpired(overrides.overrides || []);
+    const duration = Number(params?.duration_s || 300);
+    const entry = {
+      id: `qos-throttle-${Date.now()}`,
+      type: "throttle",
+      target: params?.target || "platform:*",
+      workload: params?.workload || "api",
+      factor: Number(params?.factor || 1),
+      created_at: new Date().toISOString(),
+      expires_at: new Date(Date.now() + duration * 1000).toISOString()
+    };
+    list.push(entry);
+    writeOpsOverrides({ overrides: list });
+    appendAudit({ event: "ops_action", action, params, at: new Date().toISOString(), incident_id: context?.incident_id });
+    return { ok: true, entry };
+  }
+
+  if (action === "qos.shed") {
+    const overrides = readOpsOverrides();
+    const list = pruneExpired(overrides.overrides || []);
+    const duration = Number(params?.duration_s || 300);
+    const entry = {
+      id: `qos-shed-${Date.now()}`,
+      type: "shed",
+      target: params?.target || "platform:*",
+      workload: params?.workload || "api",
+      mode: params?.mode || "deny",
+      rate: Number(params?.rate || 1),
+      created_at: new Date().toISOString(),
+      expires_at: new Date(Date.now() + duration * 1000).toISOString()
+    };
+    list.push(entry);
+    writeOpsOverrides({ overrides: list });
+    appendAudit({ event: "ops_action", action, params, at: new Date().toISOString(), incident_id: context?.incident_id });
+    return { ok: true, entry };
+  }
+
+  if (action === "release.rollback") {
+    const rel = params?.release_id || "active";
+    rollback(rel, params?.reason || "ops rollback");
+    appendAudit({ event: "ops_action", action, params, at: new Date().toISOString(), incident_id: context?.incident_id });
+    return { ok: true };
+  }
+
+  if (action === "extension.killswitch") {
+    if (!params?.extension_id) throw new Error("extension_id required");
+    upsertKillswitch({
+      scope: params?.scope || "platform",
+      tenantId: params?.tenant_id || "",
+      extensionId: params?.extension_id,
+      enabled: params?.enabled !== false,
+      reason: params?.reason || "ops killswitch"
+    });
+    appendAudit({ event: "ops_action", action, params, at: new Date().toISOString(), incident_id: context?.incident_id });
+    return { ok: true };
+  }
+
+  if (action === "integration.disable") {
+    if (!params?.connector_id || !params?.tenant_id) throw new Error("connector_id and tenant_id required");
+    updateConnectorState({ connectorId: params?.connector_id, tenantId: params?.tenant_id, state: "disabled" });
+    appendAudit({ event: "ops_action", action, params, at: new Date().toISOString(), incident_id: context?.incident_id });
+    return { ok: true };
+  }
+
+  if (action === "change.freeze") {
+    const result = applyChangeFreeze({ enabled: params?.enabled !== false, reason: params?.reason || "ops change freeze" });
+    appendAudit({ event: "ops_action", action, params, at: new Date().toISOString(), incident_id: context?.incident_id });
+    return { ok: true, ...result };
+  }
+
+  if (action === "open.break_glass") {
+    if (!(params?.allowed_actions || []).length) throw new Error("allowed_actions required");
+    updateBreakGlass({
+      enabled: true,
+      reason: params?.reason || "ops break glass",
+      ttlSeconds: Number(params?.ttl || 900),
+      scope: params?.scope || "platform:*",
+      allowedActions: params?.allowed_actions || []
+    });
+    appendAudit({ event: "ops_action", action, params, at: new Date().toISOString(), incident_id: context?.incident_id });
+    return { ok: true };
+  }
+
+  if (action === "close.break_glass") {
+    updateBreakGlass({ enabled: false, reason: params?.reason || "ops close break glass", ttlSeconds: 1, scope: "platform:*", allowedActions: [] });
+    appendAudit({ event: "ops_action", action, params, at: new Date().toISOString(), incident_id: context?.incident_id });
+    return { ok: true };
+  }
+
+  return { ok: false };
+}
+
+export function getEffectiveQosOverrides({ tenantId, tier, workload }) {
+  const data = readOpsOverrides();
+  const list = pruneExpired(data.overrides || []);
+  const matching = list.filter((o) => matchTarget(o, { tenantId, tier, workload }));
+  return matching;
+}

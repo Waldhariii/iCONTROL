@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "mitigation_policy.v1",
+  "title": "mitigation_policy",
+  "type": "object",
+  "required": ["policy_id", "severity_id", "scope", "allowed_actions", "require_quorum_actions"],
+  "additionalProperties": false,
+  "properties": {
+    "policy_id": {"type": "string"},
+    "severity_id": {"type": "string"},
+    "scope": {"type": "string"},
+    "allowed_actions": {"type": "array", "items": {"type": "string"}},
+    "require_quorum_actions": {"type": "array", "items": {"type": "string"}}
+  }
+}

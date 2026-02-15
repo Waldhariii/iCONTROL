@@ -12,6 +12,7 @@
     "audit.read",
     "observability.read",
     "data.export",
-    "integrations.*"
+    "integrations.*",
+    "ops.*"
   ]
 }

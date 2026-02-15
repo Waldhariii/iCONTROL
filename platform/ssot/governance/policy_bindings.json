@@ -46,5 +46,17 @@
     "role_id": "tenant.admin",
     "policy_id": "policy:integrations",
     "scope": "tenant:*"
+  },
+  {
+    "id": "bind:platform.admin.ops",
+    "role_id": "platform.admin",
+    "policy_id": "policy:ops",
+    "scope": "platform:*"
+  },
+  {
+    "id": "bind:platform.security.admin.ops",
+    "role_id": "platform.security.admin",
+    "policy_id": "policy:ops",
+    "scope": "platform:*"
   }
 ]

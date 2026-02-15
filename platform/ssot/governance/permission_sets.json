@@ -21,7 +21,20 @@
       "data.export",
       "integrations.webhook.in",
       "integrations.webhook.out",
-      "integrations.read"
+      "integrations.read",
+      "ops.incident.create",
+      "ops.incident.read",
+      "ops.runbook.execute",
+      "ops.runbook.apply",
+      "ops.timeline.read",
+      "ops.action.qos.throttle",
+      "ops.action.qos.shed",
+      "ops.action.release.rollback",
+      "ops.action.extension.killswitch",
+      "ops.action.change.freeze",
+      "ops.action.integration.disable",
+      "ops.action.open.break_glass",
+      "ops.action.close.break_glass"
     ]
   },
   {
@@ -30,7 +43,19 @@
     "permission_ids": [
       "breakglass.request",
       "breakglass.approve",
-      "breakglass.disable"
+      "breakglass.disable",
+      "ops.incident.read",
+      "ops.runbook.execute",
+      "ops.runbook.apply",
+      "ops.timeline.read",
+      "ops.action.qos.throttle",
+      "ops.action.qos.shed",
+      "ops.action.release.rollback",
+      "ops.action.extension.killswitch",
+      "ops.action.change.freeze",
+      "ops.action.integration.disable",
+      "ops.action.open.break_glass",
+      "ops.action.close.break_glass"
     ]
   },
   {

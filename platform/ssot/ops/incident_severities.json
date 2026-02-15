@@ -1,0 +1,23 @@
+[
+  {
+    "severity_id": "sev1",
+    "name": "Sev1",
+    "rank": 1,
+    "critical": true,
+    "description": "Major outage or data loss risk"
+  },
+  {
+    "severity_id": "sev2",
+    "name": "Sev2",
+    "rank": 2,
+    "critical": true,
+    "description": "Degraded service with customer impact"
+  },
+  {
+    "severity_id": "sev3",
+    "name": "Sev3",
+    "rank": 3,
+    "critical": false,
+    "description": "Minor impact or internal incident"
+  }
+]

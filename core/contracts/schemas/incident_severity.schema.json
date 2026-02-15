@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "incident_severity.v1",
+  "title": "incident_severity",
+  "type": "object",
+  "required": ["severity_id", "name", "rank", "critical"],
+  "additionalProperties": false,
+  "properties": {
+    "severity_id": {"type": "string"},
+    "name": {"type": "string"},
+    "rank": {"type": "number"},
+    "critical": {"type": "boolean"},
+    "description": {"type": "string"}
+  }
+}

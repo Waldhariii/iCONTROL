@@ -23,6 +23,16 @@ const EXT_ALLOWED_CAPS = ["finops.read", "qos.read", "documents.ingest", "jobs.c
 const EXT_ALLOWED_EVENTS = ["on_document_ingested", "on_workflow_completed", "on_budget_threshold", "on_qos_incident"];
 const EXT_ALLOWED_HANDLERS = ["enqueue_workflow", "write_dead_letter", "emit_webhook"];
 const SECRET_KEYS = ["secret", "token", "api_key", "apikey", "password"];
+const OPS_ALLOWED_ACTIONS = [
+  "qos.throttle",
+  "qos.shed",
+  "release.rollback",
+  "extension.killswitch",
+  "change.freeze",
+  "integration.disable",
+  "open.break_glass",
+  "close.break_glass"
+];
 
 function parseSemver(v) {
   const [maj, min, pat] = String(v || "0.0.0").split(".").map((n) => Number(n));
@@ -637,6 +647,55 @@ export function quorumGate({ ssotDir }) {
   }
   const ok = bad.length === 0;
   return { ok, gate: "Quorum Gate", details: ok ? "" : `Unapproved reviews: ${bad.join(", ")}` };
+}
+
+export function opsPolicyGate({ ssotDir }) {
+  const severities = readJson(`${ssotDir}/ops/incident_severities.json`);
+  const policies = readJson(`${ssotDir}/ops/mitigation_policies.json`);
+  const missing = severities.filter((s) => !policies.some((p) => p.severity_id === s.severity_id));
+  const critical = ["release.rollback", "change.freeze", "extension.killswitch", "open.break_glass"];
+  const bad = [];
+  for (const p of policies) {
+    for (const action of p.allowed_actions || []) {
+      if (critical.includes(action) && !(p.require_quorum_actions || []).includes(action)) {
+        bad.push(`${p.policy_id}:${action}`);
+      }
+    }
+  }
+  const ok = missing.length === 0 && bad.length === 0;
+  const details = [];
+  if (missing.length) details.push(`Missing mitigation policies for: ${missing.map((m) => m.severity_id).join(", ")}`);
+  if (bad.length) details.push(`Critical actions missing quorum: ${bad.join(", ")}`);
+  return { ok, gate: "Ops Policy Gate", details: details.join(" | ") };
+}
+
+export function runbookIntegrityGate({ ssotDir }) {
+  const runbooks = readJson(`${ssotDir}/ops/runbooks.json`);
+  const versions = readJson(`${ssotDir}/ops/runbook_versions.json`);
+  const bad = [];
+  for (const rb of runbooks) {
+    const rv = versions.find((v) => v.runbook_id === rb.runbook_id && v.version === rb.latest_version);
+    if (!rv) bad.push(`${rb.runbook_id}:missing_version`);
+  }
+  for (const rv of versions) {
+    for (const step of rv.steps || []) {
+      if (!OPS_ALLOWED_ACTIONS.includes(step.action)) bad.push(`${rv.runbook_id}@${rv.version}:${step.action}`);
+    }
+  }
+  const ok = bad.length === 0;
+  return { ok, gate: "Runbook Integrity Gate", details: ok ? "" : `Invalid runbooks: ${bad.join(", ")}` };
+}
+
+export function breakGlassGate({ ssotDir }) {
+  const bg = readJson(`${ssotDir}/governance/break_glass.json`);
+  if (!bg?.enabled) return { ok: true, gate: "BreakGlass Gate", details: "" };
+  const bad = [];
+  if (!bg.expires_at) bad.push("missing_expires_at");
+  if (!(bg.allowed_actions || []).length) bad.push("empty_allowlist");
+  const forbidden = (bg.allowed_actions || []).filter((a) => a.startsWith("governance") || a === "governance.*");
+  if (forbidden.length) bad.push(`forbidden_actions:${forbidden.join(",")}`);
+  const ok = bad.length === 0;
+  return { ok, gate: "BreakGlass Gate", details: ok ? "" : bad.join(" | ") };
 }
 
 export function designFreezeGate({ ssotDir }) {

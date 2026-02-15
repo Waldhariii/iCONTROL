@@ -1,0 +1,34 @@
+[
+  {
+    "runbook_id": "rb-qos-throttle",
+    "version": "1.0.0",
+    "status": "released",
+    "steps": [
+      {
+        "action": "qos.throttle",
+        "critical": false,
+        "params": {
+          "target": "tier:free",
+          "workload": "api",
+          "factor": 0.5,
+          "duration_s": 300
+        }
+      }
+    ]
+  },
+  {
+    "runbook_id": "rb-rollback-active",
+    "version": "1.0.0",
+    "status": "released",
+    "steps": [
+      {
+        "action": "release.rollback",
+        "critical": true,
+        "params": {
+          "release_id": "active",
+          "reason": "ops runbook rollback"
+        }
+      }
+    ]
+  }
+]

@@ -42,6 +42,11 @@ export function compilePlatform({ ssotDir, outDir, releaseId, env, privateKeyPat
   const sliSources = readJson(`${ssotDir}/sre/sli_sources.json`);
   const errorBudgetPolicies = readJson(`${ssotDir}/sre/error_budget_policies.json`);
   const canaryPolicies = readJson(`${ssotDir}/sre/canary_policies.json`);
+  const runbooks = readJson(`${ssotDir}/ops/runbooks.json`);
+  const runbookVersions = readJson(`${ssotDir}/ops/runbook_versions.json`);
+  const mitigationPolicies = readJson(`${ssotDir}/ops/mitigation_policies.json`);
+  const mitigationVersions = readJson(`${ssotDir}/ops/mitigation_versions.json`);
+  const incidentSeverities = readJson(`${ssotDir}/ops/incident_severities.json`);
 
   const qosRuntimeConfig = planVersions.map((pv) => {
     const policy = qosPolicies.find((p) => p.tier === pv.perf_tier) || null;
@@ -129,6 +134,13 @@ export function compilePlatform({ ssotDir, outDir, releaseId, env, privateKeyPat
       sli_sources: sliSources,
       error_budget_policies: errorBudgetPolicies,
       canary_policies: canaryPolicies
+    },
+    ops: {
+      runbooks,
+      runbook_versions: runbookVersions,
+      mitigation_policies: mitigationPolicies,
+      mitigation_versions: mitigationVersions,
+      incident_severities: incidentSeverities
     }
   };
 

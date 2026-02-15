@@ -208,7 +208,10 @@ export function applyChangeset(changesetId) {
     cs.applied_at = new Date().toISOString();
     cs.snapshot_ref = snapshotPath;
     writeJson(csPath, cs);
-    writeJson(join(SSOT_DIR, `changes/reviews/${cs.id}.json`), { id: cs.id, status: "pending", created_at: cs.applied_at });
+    const reviewPath = join(SSOT_DIR, `changes/reviews/${cs.id}.json`);
+    if (!existsSync(reviewPath)) {
+      writeJson(reviewPath, { id: cs.id, status: "pending", created_at: cs.applied_at });
+    }
     appendAudit({ event: "changeset_applied", changeset_id: cs.id, at: cs.applied_at });
     return cs;
   } catch (err) {

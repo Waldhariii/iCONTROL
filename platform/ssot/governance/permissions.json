@@ -78,5 +78,57 @@
   {
     "id": "integrations.read",
     "scope": "tenant:*"
+  },
+  {
+    "id": "ops.incident.create",
+    "scope": "platform:*"
+  },
+  {
+    "id": "ops.incident.read",
+    "scope": "platform:*"
+  },
+  {
+    "id": "ops.runbook.execute",
+    "scope": "platform:*"
+  },
+  {
+    "id": "ops.runbook.apply",
+    "scope": "platform:*"
+  },
+  {
+    "id": "ops.timeline.read",
+    "scope": "platform:*"
+  },
+  {
+    "id": "ops.action.qos.throttle",
+    "scope": "platform:*"
+  },
+  {
+    "id": "ops.action.qos.shed",
+    "scope": "platform:*"
+  },
+  {
+    "id": "ops.action.release.rollback",
+    "scope": "platform:*"
+  },
+  {
+    "id": "ops.action.extension.killswitch",
+    "scope": "platform:*"
+  },
+  {
+    "id": "ops.action.change.freeze",
+    "scope": "platform:*"
+  },
+  {
+    "id": "ops.action.integration.disable",
+    "scope": "platform:*"
+  },
+  {
+    "id": "ops.action.open.break_glass",
+    "scope": "platform:*"
+  },
+  {
+    "id": "ops.action.close.break_glass",
+    "scope": "platform:*"
   }
 ]

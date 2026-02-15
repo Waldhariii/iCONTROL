@@ -1,0 +1,50 @@
+[
+  {
+    "policy_id": "mp-sev1-platform",
+    "severity_id": "sev1",
+    "scope": "platform:*",
+    "allowed_actions": [
+      "qos.throttle",
+      "qos.shed",
+      "release.rollback",
+      "extension.killswitch",
+      "integration.disable",
+      "change.freeze",
+      "open.break_glass",
+      "close.break_glass"
+    ],
+    "require_quorum_actions": [
+      "release.rollback",
+      "extension.killswitch",
+      "change.freeze",
+      "open.break_glass"
+    ]
+  },
+  {
+    "policy_id": "mp-sev2-platform",
+    "severity_id": "sev2",
+    "scope": "platform:*",
+    "allowed_actions": [
+      "qos.throttle",
+      "qos.shed",
+      "release.rollback",
+      "extension.killswitch",
+      "integration.disable"
+    ],
+    "require_quorum_actions": [
+      "release.rollback",
+      "extension.killswitch"
+    ]
+  },
+  {
+    "policy_id": "mp-sev3-platform",
+    "severity_id": "sev3",
+    "scope": "platform:*",
+    "allowed_actions": [
+      "qos.throttle",
+      "qos.shed",
+      "integration.disable"
+    ],
+    "require_quorum_actions": []
+  }
+]

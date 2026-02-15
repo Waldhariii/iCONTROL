@@ -32,3 +32,4 @@ runtime/reports/RETENTION_REPORT_*
 platform/runtime/datagov/records_index/
 platform/runtime/datagov/exports/
 platform/runtime/integrations/dlq/
+runtime/ops/
