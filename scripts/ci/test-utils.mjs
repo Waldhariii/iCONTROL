@@ -1,4 +1,4 @@
-import { mkdtempSync, readdirSync, statSync, readFileSync, writeFileSync, mkdirSync, rmSync } from "fs";
+import { mkdtempSync, readdirSync, statSync, readFileSync, writeFileSync, mkdirSync, rmSync, existsSync } from "fs";
 import { tmpdir } from "os";
 import { join } from "path";
 
@@ -33,4 +33,42 @@ export function createTempSsot() {
       rmSync(temp, { recursive: true, force: true });
     }
   };
+}
+
+export function getReportsDir() {
+  return join(process.cwd(), "runtime", "reports");
+}
+
+export function assertNoPlatformReportsPath(str) {
+  if (String(str).includes("platform/runtime/reports")) {
+    throw new Error("Forbidden reports path: platform/runtime/reports");
+  }
+}
+
+export function rotateReports({ prefix, keep, dir }) {
+  const reportsDir = dir || getReportsDir();
+  if (!existsSync(reportsDir)) return 0;
+  const files = readdirSync(reportsDir)
+    .filter((f) => f.startsWith(prefix))
+    .map((f) => ({ f, t: statSync(join(reportsDir, f)).mtimeMs }))
+    .sort((a, b) => b.t - a.t);
+  const toRemove = files.slice(keep);
+  for (const entry of toRemove) {
+    rmSync(join(reportsDir, entry.f));
+  }
+  return toRemove.length;
+}
+
+export async function waitForServer(url, timeoutMs = 5000) {
+  const start = Date.now();
+  while (Date.now() - start < timeoutMs) {
+    try {
+      const res = await fetch(url);
+      if (res) return true;
+    } catch {
+      // ignore until timeout
+    }
+    await new Promise((r) => setTimeout(r, 200));
+  }
+  throw new Error(`Server not ready: ${url}`);
 }

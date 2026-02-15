@@ -1,5 +1,5 @@
 import { spawn } from "child_process";
-import { createTempSsot } from "./test-utils.mjs";
+import { createTempSsot, waitForServer } from "./test-utils.mjs";
 import { readFileSync, writeFileSync } from "fs";
 import { join } from "path";
 
@@ -21,7 +21,7 @@ async function run() {
   writeFileSync(qosPath, JSON.stringify(qos, null, 2) + "\n");
 
   const server = spawn("node", ["apps/backend-api/server.mjs"], { stdio: "inherit", env: { ...process.env, SSOT_DIR: temp.ssotDir } });
-  await sleep(500);
+  await waitForServer(`${api}/runtime/active-release`, 8000);
 
   try {
     for (let i = 0; i < 25; i++) {

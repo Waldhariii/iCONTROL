@@ -2,6 +2,7 @@ import { readFileSync, writeFileSync, existsSync, mkdirSync, readdirSync } from 
 import { join } from "path";
 import { loadManifest } from "../../platform/runtime/loader/loader.mjs";
 import { sha256, stableStringify } from "../../platform/compilers/utils.mjs";
+import { getReportsDir, assertNoPlatformReportsPath, rotateReports } from "../ci/test-utils.mjs";
 
 const ROOT = process.cwd();
 const SSOT_DIR = process.env.SSOT_DIR || "./platform/ssot";
@@ -60,8 +61,12 @@ if (existsSync(indexRoot)) {
   }
 }
 
-const reportDir = join(ROOT, "runtime", "reports");
+const reportDir = getReportsDir();
+assertNoPlatformReportsPath(reportDir);
 mkdirSync(reportDir, { recursive: true });
 const outPath = join(reportDir, `RETENTION_REPORT_${Date.now()}.md`);
+assertNoPlatformReportsPath(outPath);
 writeFileSync(outPath, report.join("\n") + "\n");
+const removed = rotateReports({ prefix: "RETENTION_REPORT_", keep: 20, dir: reportDir });
+if (removed) console.log(`Retention report rotation: removed ${removed}`);
 console.log(`Retention report written: ${outPath}`);

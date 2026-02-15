@@ -1,5 +1,5 @@
 import { execSync } from "child_process";
-import { createTempSsot } from "./test-utils.mjs";
+import { createTempSsot, getReportsDir, assertNoPlatformReportsPath } from "./test-utils.mjs";
 import { join } from "path";
 import { mkdirSync, existsSync, readdirSync } from "fs";
 
@@ -10,7 +10,9 @@ async function run() {
 
   execSync("node scripts/maintenance/generate-evidence-pack.mjs", { stdio: "inherit", env: { ...process.env, SSOT_DIR: temp.ssotDir, RUNTIME_DIR: runtimeDir } });
 
-  const evidenceDir = join(runtimeDir, "reports", "evidence");
+  const reportsDir = getReportsDir();
+  assertNoPlatformReportsPath(reportsDir);
+  const evidenceDir = join(reportsDir, "evidence");
   const entries = existsSync(evidenceDir) ? readdirSync(evidenceDir) : [];
   if (!entries.length) throw new Error("Evidence pack missing");
 

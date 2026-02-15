@@ -1,11 +1,15 @@
-import { mkdirSync, writeFileSync, existsSync, readFileSync, readdirSync, copyFileSync } from "fs";
+import { mkdirSync, writeFileSync, existsSync, readFileSync, copyFileSync } from "fs";
 import { join } from "path";
 import { execSync } from "child_process";
+import { getReportsDir, assertNoPlatformReportsPath } from "../ci/test-utils.mjs";
 
 const SSOT_DIR = process.env.SSOT_DIR || "./platform/ssot";
 const RUNTIME_DIR = process.env.RUNTIME_DIR || join(SSOT_DIR, "..", "runtime");
 const ts = new Date().toISOString().replace(/[:.]/g, "-");
-const outDir = join(RUNTIME_DIR, "reports", "evidence", ts);
+const reportsDir = getReportsDir();
+assertNoPlatformReportsPath(reportsDir);
+const outDir = join(reportsDir, "evidence", ts);
+assertNoPlatformReportsPath(outDir);
 mkdirSync(outDir, { recursive: true });
 
 function copyIfExists(src, dest) {
@@ -17,7 +21,7 @@ writeFileSync(join(outDir, "tags.txt"), tags + "\n", "utf-8");
 const head = execSync("git rev-parse HEAD", { encoding: "utf-8" }).trim();
 writeFileSync(join(outDir, "HEAD.txt"), head + "\n", "utf-8");
 
-copyIfExists(join(RUNTIME_DIR, "reports", "CI_REPORT.md"), join(outDir, "CI_REPORT.md"));
+copyIfExists(join(reportsDir, "CI_REPORT.md"), join(outDir, "CI_REPORT.md"));
 copyIfExists("./governance/gates/gates-report.md", join(outDir, "gates-report.md"));
 copyIfExists("./platform/runtime/drift/drift-report.md", join(outDir, "drift-report.md"));
 

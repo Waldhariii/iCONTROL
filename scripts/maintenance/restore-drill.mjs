@@ -3,6 +3,7 @@ import { join } from "path";
 import { execSync } from "child_process";
 import { applyOpsToDir } from "../../platform/runtime/changes/patch-engine.mjs";
 import { sha256, stableStringify } from "../../platform/compilers/utils.mjs";
+import { getReportsDir, assertNoPlatformReportsPath, rotateReports } from "../ci/test-utils.mjs";
 
 const SSOT_DIR = process.env.SSOT_DIR || "./platform/ssot";
 const RUNTIME_DIR = process.env.RUNTIME_DIR || join(SSOT_DIR, "..", "runtime");
@@ -56,9 +57,11 @@ function verifyAuditChain() {
 }
 
 const ts = new Date().toISOString().replace(/[:.]/g, "-");
-const reportDir = join(RUNTIME_DIR, "reports");
+const reportDir = getReportsDir();
+assertNoPlatformReportsPath(reportDir);
 mkdirSync(reportDir, { recursive: true });
 const reportPath = join(reportDir, `RESTORE_DRILL_${ts}.md`);
+assertNoPlatformReportsPath(reportPath);
 
 const activePath = join(SSOT_DIR, "changes", "active_release.json");
 const activeBefore = existsSync(activePath) ? readJson(activePath) : { active_release_id: "" };
@@ -99,4 +102,6 @@ const lines = [
 writeFileSync(reportPath, lines.join("\n") + "\n", "utf-8");
 appendAudit({ event: "drill_success", at: new Date().toISOString(), report: reportPath });
 
+const removed = rotateReports({ prefix: "RESTORE_DRILL_", keep: 10, dir: reportDir });
+if (removed) console.log(`Restore drill rotation: removed ${removed}`);
 console.log(`Restore drill report: ${reportPath}`);
