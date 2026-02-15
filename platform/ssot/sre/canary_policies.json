@@ -1,0 +1,10 @@
+[
+  {
+    "policy_id": "canary:default",
+    "window_minutes": 15,
+    "max_error_rate": 0.02,
+    "max_p95_latency_increase": 0.25,
+    "action_on_warn": "hold",
+    "action_on_fail": "rollback"
+  }
+]

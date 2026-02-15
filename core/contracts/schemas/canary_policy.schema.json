@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "canary_policy.v1",
+  "title": "canary_policy",
+  "type": "object",
+  "required": ["policy_id", "window_minutes", "max_error_rate", "max_p95_latency_increase", "action_on_warn", "action_on_fail"],
+  "additionalProperties": false,
+  "properties": {
+    "policy_id": {"type": "string"},
+    "window_minutes": {"type": "number"},
+    "max_error_rate": {"type": "number"},
+    "max_p95_latency_increase": {"type": "number"},
+    "action_on_warn": {"type": "string", "enum": ["hold", "rollback", "continue"]},
+    "action_on_fail": {"type": "string", "enum": ["rollback"]}
+  }
+}

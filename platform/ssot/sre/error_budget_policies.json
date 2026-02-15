@@ -1,0 +1,44 @@
+[
+  {
+    "policy_id": "ebp:api_availability",
+    "slo_id": "slo:api_availability",
+    "fast_burn_rate": 14,
+    "slow_burn_rate": 6,
+    "actions": ["rollback_release", "open_breaker"]
+  },
+  {
+    "policy_id": "ebp:api_latency_p95",
+    "slo_id": "slo:api_latency_p95",
+    "fast_burn_rate": 10,
+    "slow_burn_rate": 4,
+    "actions": ["throttle", "rollback_release"]
+  },
+  {
+    "policy_id": "ebp:manifest_load_success",
+    "slo_id": "slo:manifest_load_success",
+    "fast_burn_rate": 16,
+    "slow_burn_rate": 8,
+    "actions": ["rollback_release"]
+  },
+  {
+    "policy_id": "ebp:write_gateway_success",
+    "slo_id": "slo:write_gateway_success",
+    "fast_burn_rate": 12,
+    "slow_burn_rate": 5,
+    "actions": ["throttle", "rollback_release"]
+  },
+  {
+    "policy_id": "ebp:workflow_success_rate",
+    "slo_id": "slo:workflow_success_rate",
+    "fast_burn_rate": 8,
+    "slow_burn_rate": 3,
+    "actions": ["throttle"]
+  },
+  {
+    "policy_id": "ebp:ocr_job_success_rate",
+    "slo_id": "slo:ocr_job_success_rate",
+    "fast_burn_rate": 8,
+    "slow_burn_rate": 3,
+    "actions": ["throttle"]
+  }
+]

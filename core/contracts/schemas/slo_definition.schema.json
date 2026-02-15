@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "slo_definition.v1",
+  "title": "slo_definition",
+  "type": "object",
+  "required": ["slo_id", "name", "objective_percent", "window", "sli_source_id"],
+  "additionalProperties": false,
+  "properties": {
+    "slo_id": {"type": "string"},
+    "name": {"type": "string"},
+    "objective_percent": {"type": "number"},
+    "window": {"type": "string"},
+    "sli_source_id": {"type": "string"},
+    "critical": {"type": "boolean"},
+    "tier_targets": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "free": {"type": "number"},
+        "pro": {"type": "number"},
+        "enterprise": {"type": "number"}
+      }
+    }
+  }
+}

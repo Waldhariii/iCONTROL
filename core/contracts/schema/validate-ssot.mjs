@@ -38,7 +38,20 @@ const specificMap = new Map([
   ["deletion_policies.json", "deletion_policy.v1"],
   ["deletion_versions.json", "deletion_version.v1"],
   ["export_controls.json", "export_control.v1"],
-  ["export_control_versions.json", "export_control_version.v1"]
+  ["export_control_versions.json", "export_control_version.v1"],
+  ["connectors.json", "connector.v1"],
+  ["connector_versions.json", "connector_version.v1"],
+  ["connector_configs.json", "connector_config.v1"],
+  ["webhooks.json", "webhook.v1"],
+  ["event_subscriptions.json", "event_subscription.v1"],
+  ["event_dead_letters.json", "event_dead_letter.v1"],
+  ["integration_audit.json", "integration_audit.v1"],
+  ["secrets_vault_refs.json", "secret_vault_ref.v1"],
+  ["slo_definitions.json", "slo_definition.v1"],
+  ["slo_versions.json", "slo_version.v1"],
+  ["sli_sources.json", "sli_source.v1"],
+  ["error_budget_policies.json", "error_budget_policy.v1"],
+  ["canary_policies.json", "canary_policy.v1"]
 ]);
 
 function inferSchemaForFile(path, data) {

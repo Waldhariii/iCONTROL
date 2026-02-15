@@ -71,6 +71,15 @@ const steps = [
   "node scripts/ci/test-datagov-export-masking.mjs",
   "node scripts/ci/test-datagov-legal-hold.mjs",
   "node scripts/ci/test-datagov-retention-runner.mjs",
+  "node scripts/ci/test-integration-inbound-signature.mjs",
+  "node scripts/ci/test-integration-outbound-masking.mjs",
+  "node scripts/ci/test-integration-retry-dlq.mjs",
+  "node scripts/ci/test-integration-secretref-scan.mjs",
+  "node scripts/ci/test-slo-config.mjs",
+  "node scripts/ci/test-canary-analyzer.mjs",
+  "node scripts/ci/test-restore-drill-smoke.mjs",
+  "node scripts/ci/test-evidence-pack.mjs",
+  "node scripts/ci/test-chaos-smoke.mjs",
   "node scripts/ci/test-token-gate.mjs",
   "node scripts/ci/test-audit.mjs"
 ];

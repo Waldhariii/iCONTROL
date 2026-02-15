@@ -23,7 +23,10 @@ export function compileTokens({ ssotDir, outDir, releaseId }) {
 
   writeJson(`${outDir}/theme_manifest.${releaseId}.json`, themeManifest);
   validateOrThrow("theme_manifest.v1", themeManifest, "theme_manifest");
-  writeText(`${outDir.replace(/\/runtime\/manifests$/, "/platform/runtime/build_artifacts")}/theme_vars.${releaseId}.css`, `:root{\n${cssVars}\n}`);
+  const cssOutDir = outDir.includes("/platform/runtime/manifests")
+    ? outDir.replace(/\/platform\/runtime\/manifests$/, "/platform/runtime/build_artifacts")
+    : outDir.replace(/\/runtime\/manifests$/, "/platform/runtime/build_artifacts");
+  writeText(`${cssOutDir}/theme_vars.${releaseId}.css`, `:root{\n${cssVars}\n}`);
 
   return themeManifest;
 }

@@ -31,6 +31,17 @@ export function compilePlatform({ ssotDir, outDir, releaseId, env, privateKeyPat
   const dataClassifications = readJson(`${ssotDir}/data/catalog/data_classifications.json`);
   const retentionPolicies = readJson(`${ssotDir}/data/policies/retention_policies.json`);
   const exportControls = readJson(`${ssotDir}/data/policies/export_controls.json`);
+  const connectors = readJson(`${ssotDir}/integrations/connectors.json`);
+  const connectorVersions = readJson(`${ssotDir}/integrations/connector_versions.json`);
+  const connectorConfigs = readJson(`${ssotDir}/integrations/connector_configs.json`);
+  const webhooks = readJson(`${ssotDir}/integrations/webhooks.json`);
+  const eventSubscriptions = readJson(`${ssotDir}/integrations/event_subscriptions.json`);
+  const secretsVaultRefs = readJson(`${ssotDir}/integrations/secrets_vault_refs.json`);
+  const sloDefinitions = readJson(`${ssotDir}/sre/slo_definitions.json`);
+  const sloVersions = readJson(`${ssotDir}/sre/slo_versions.json`);
+  const sliSources = readJson(`${ssotDir}/sre/sli_sources.json`);
+  const errorBudgetPolicies = readJson(`${ssotDir}/sre/error_budget_policies.json`);
+  const canaryPolicies = readJson(`${ssotDir}/sre/canary_policies.json`);
 
   const qosRuntimeConfig = planVersions.map((pv) => {
     const policy = qosPolicies.find((p) => p.tier === pv.perf_tier) || null;
@@ -103,7 +114,22 @@ export function compilePlatform({ ssotDir, outDir, releaseId, env, privateKeyPat
     extensions_runtime: extensionsRuntime,
     data_catalog: dataCatalog,
     retention_policies: retentionPolicies,
-    export_controls: exportControls
+    export_controls: exportControls,
+    integrations: {
+      connectors,
+      connector_versions: connectorVersions,
+      connector_configs: connectorConfigs,
+      webhooks,
+      event_subscriptions: eventSubscriptions,
+      secrets_vault_refs: secretsVaultRefs
+    },
+    sre: {
+      slo_definitions: sloDefinitions,
+      slo_versions: sloVersions,
+      sli_sources: sliSources,
+      error_budget_policies: errorBudgetPolicies,
+      canary_policies: canaryPolicies
+    }
   };
 
   const checksums = {

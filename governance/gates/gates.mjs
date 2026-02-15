@@ -22,6 +22,7 @@ function unique(values) {
 const EXT_ALLOWED_CAPS = ["finops.read", "qos.read", "documents.ingest", "jobs.create"];
 const EXT_ALLOWED_EVENTS = ["on_document_ingested", "on_workflow_completed", "on_budget_threshold", "on_qos_incident"];
 const EXT_ALLOWED_HANDLERS = ["enqueue_workflow", "write_dead_letter", "emit_webhook"];
+const SECRET_KEYS = ["secret", "token", "api_key", "apikey", "password"];
 
 function parseSemver(v) {
   const [maj, min, pat] = String(v || "0.0.0").split(".").map((n) => Number(n));
@@ -118,9 +119,11 @@ export function tokenGate({ ssotDir, releaseId, manifestsDir }) {
   const expectedCss = `:root{\n${(themeManifest.tokens || [])
     .map((t) => `--${t.token_key}: ${String(t.value)}${t.units || ""};`)
     .join("\n")}\n}`;
-  const cssPath = manifestRoot.includes("/runtime/manifests")
-    ? `./platform/runtime/build_artifacts/theme_vars.${releaseId}.css`
-    : `${manifestRoot}/theme_vars.${releaseId}.css`;
+  const cssPath = manifestRoot.includes("/platform/runtime/manifests")
+    ? `${manifestRoot.replace(/\/platform\/runtime\/manifests$/, "/platform/runtime/build_artifacts")}/theme_vars.${releaseId}.css`
+    : manifestRoot.includes("/runtime/manifests")
+      ? `${manifestRoot.replace(/\/runtime\/manifests$/, "/platform/runtime/build_artifacts")}/theme_vars.${releaseId}.css`
+      : `${manifestRoot}/theme_vars.${releaseId}.css`;
   let cssOk = false;
   try {
     const css = readFileSync(cssPath, "utf-8");
@@ -386,6 +389,139 @@ export function exportControlGate({ ssotDir }) {
   }
   const ok = bad.length === 0;
   return { ok, gate: "Export Control Gate", details: ok ? "" : `Invalid export controls: ${bad.join(", ")}` };
+}
+
+export function connectorConfigGate({ ssotDir }) {
+  const connectors = readJson(`${ssotDir}/integrations/connectors.json`);
+  const versions = readJson(`${ssotDir}/integrations/connector_versions.json`);
+  const configs = readJson(`${ssotDir}/integrations/connector_configs.json`);
+  const connectorIds = new Set(connectors.map((c) => c.connector_id));
+  const versionKeys = new Set(versions.map((v) => `${v.connector_id}@${v.version}`));
+  const bad = [];
+  for (const v of versions.filter((x) => x.status === "released")) {
+    if (!v.signature || !v.checksum) bad.push(`${v.connector_id}@${v.version}:missing_signature`);
+  }
+  for (const cfg of configs) {
+    if (!connectorIds.has(cfg.connector_id)) bad.push(`${cfg.config_id}:missing_connector`);
+    if (!versionKeys.has(`${cfg.connector_id}@${cfg.version}`)) bad.push(`${cfg.config_id}:missing_version`);
+  }
+  const ok = bad.length === 0;
+  return { ok, gate: "Connector Config Gate", details: ok ? "" : `Invalid configs: ${bad.join(", ")}` };
+}
+
+export function webhookSecurityGate({ ssotDir }) {
+  const webhooks = readJson(`${ssotDir}/integrations/webhooks.json`);
+  const bad = [];
+  for (const w of webhooks) {
+    if (w.direction === "inbound") {
+      if (!w.signature_required) bad.push(`${w.webhook_id}:signature_required`);
+      if (!w.secret_ref_id) bad.push(`${w.webhook_id}:secret_ref_id_missing`);
+    }
+  }
+  const ok = bad.length === 0;
+  return { ok, gate: "Webhook Security Gate", details: ok ? "" : `Invalid webhooks: ${bad.join(", ")}` };
+}
+
+export function secretRefGate({ ssotDir }) {
+  const refs = readJson(`${ssotDir}/integrations/secrets_vault_refs.json`);
+  const configs = readJson(`${ssotDir}/integrations/connector_configs.json`);
+  const webhooks = readJson(`${ssotDir}/integrations/webhooks.json`);
+  const refIds = new Set(refs.map((r) => r.ref_id));
+  const bad = [];
+
+  function scan(obj, path = "") {
+    if (!obj || typeof obj !== "object") return;
+    for (const [k, v] of Object.entries(obj)) {
+      const key = String(k).toLowerCase();
+      if (SECRET_KEYS.some((s) => key.includes(s)) && !key.includes("ref")) {
+        if (typeof v === "string" && v.trim().length > 0) bad.push(`${path}${k}:plaintext`);
+      }
+      if (v && typeof v === "object") scan(v, `${path}${k}.`);
+    }
+  }
+
+  for (const cfg of configs) {
+    if (cfg.secret_ref_id && !refIds.has(cfg.secret_ref_id)) bad.push(`${cfg.config_id}:secret_ref_missing`);
+    scan(cfg, `connector_config:${cfg.config_id}.`);
+  }
+  for (const w of webhooks) {
+    if (w.secret_ref_id && !refIds.has(w.secret_ref_id)) bad.push(`${w.webhook_id}:secret_ref_missing`);
+    scan(w, `webhook:${w.webhook_id}.`);
+  }
+
+  const ok = bad.length === 0;
+  return { ok, gate: "Secret Ref Gate", details: ok ? "" : `Secrets violations: ${bad.join(", ")}` };
+}
+
+export function egressGovernanceGate({ ssotDir }) {
+  const webhooks = readJson(`${ssotDir}/integrations/webhooks.json`);
+  const controls = readJson(`${ssotDir}/data/policies/export_controls.json`);
+  const controlTypes = new Set(controls.map((c) => c.export_type));
+  const bad = [];
+  for (const w of webhooks) {
+    if (w.direction !== "outbound") continue;
+    if (!w.export_type) bad.push(`${w.webhook_id}:missing_export_type`);
+    if (w.export_type && !controlTypes.has(w.export_type)) bad.push(`${w.webhook_id}:missing_export_control`);
+    if (!w.data_model_id) bad.push(`${w.webhook_id}:missing_data_model_id`);
+  }
+  const ok = bad.length === 0;
+  return { ok, gate: "Egress Governance Gate", details: ok ? "" : `Invalid outbound webhooks: ${bad.join(", ")}` };
+}
+
+export function retryDlqGate({ ssotDir }) {
+  const webhooks = readJson(`${ssotDir}/integrations/webhooks.json`);
+  const bad = [];
+  for (const w of webhooks) {
+    if (w.direction !== "outbound") continue;
+    if (!w.retry_policy || w.retry_policy.max_attempts === undefined) bad.push(`${w.webhook_id}:missing_retry_policy`);
+    if (w.dlq_enabled !== true) bad.push(`${w.webhook_id}:dlq_disabled`);
+  }
+  const ok = bad.length === 0;
+  return { ok, gate: "Retry DLQ Gate", details: ok ? "" : `Invalid retry/DLQ: ${bad.join(", ")}` };
+}
+
+export function sloGate({ ssotDir }) {
+  const slos = readJson(`${ssotDir}/sre/slo_definitions.json`);
+  const budgets = readJson(`${ssotDir}/sre/error_budget_policies.json`);
+  const bad = [];
+  for (const slo of slos) {
+    if (slo.slo_id.includes("latency") || slo.tier_targets) {
+      const t = slo.tier_targets || {};
+      if (!(t.free && t.pro && t.enterprise)) bad.push(`${slo.slo_id}:missing_tier_targets`);
+    }
+    const policy = budgets.find((b) => b.slo_id === slo.slo_id);
+    if (!policy) bad.push(`${slo.slo_id}:missing_budget_policy`);
+    if (slo.critical && policy && !(policy.actions || []).some((a) => a.includes("rollback"))) {
+      bad.push(`${slo.slo_id}:missing_rollback_action`);
+    }
+  }
+  const ok = bad.length === 0 && slos.length > 0;
+  return { ok, gate: "SLO Gate", details: ok ? "" : `Invalid SLO config: ${bad.join(", ")}` };
+}
+
+export function canaryGate({ ssotDir }) {
+  const policies = readJson(`${ssotDir}/sre/canary_policies.json`);
+  const bad = [];
+  if (!policies.length) bad.push("missing_canary_policy");
+  for (const p of policies) {
+    if (!p.window_minutes || p.window_minutes <= 0) bad.push(`${p.policy_id}:window`);
+  }
+  const ok = bad.length === 0;
+  return { ok, gate: "Canary Gate", details: ok ? "" : `Invalid canary policies: ${bad.join(", ")}` };
+}
+
+export function drillGate() {
+  const hasRestore = existsSync("./scripts/maintenance/restore-drill.mjs");
+  const hasEvidence = existsSync("./scripts/maintenance/generate-evidence-pack.mjs");
+  const ok = hasRestore && hasEvidence;
+  return { ok, gate: "Drill Gate", details: ok ? "" : "Missing restore-drill or evidence pack script" };
+}
+
+export function chaosGate() {
+  const hasChaos = existsSync("./scripts/chaos/chaos-run.mjs");
+  const hasFaults = existsSync("./scripts/chaos/faults") && readdirSync("./scripts/chaos/faults").some((f) => f.endsWith(".mjs"));
+  const ok = hasChaos && hasFaults;
+  return { ok, gate: "Chaos Gate", details: ok ? "" : "Chaos toolkit missing" };
 }
 
 export function perfBudgetGate({ ssotDir }) {

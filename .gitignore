@@ -13,6 +13,9 @@ runtime/manifests/.gitkeep
 platform/runtime/keys/
 platform/runtime/preview/
 platform/runtime/build_artifacts/
+platform/runtime/manifests/
+platform/runtime/extensions/
+platform/platform/
 platform/runtime/reports/
 platform/runtime/release/*.json
 platform/runtime/deletion/*.json
@@ -28,3 +31,4 @@ runtime/reports/
 runtime/reports/RETENTION_REPORT_*
 platform/runtime/datagov/records_index/
 platform/runtime/datagov/exports/
+platform/runtime/integrations/dlq/

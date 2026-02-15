@@ -1,0 +1,38 @@
+[
+  {
+    "slo_id": "slo:api_availability",
+    "version": "1.0.0",
+    "status": "active",
+    "effective_from": "2026-02-01T00:00:00Z"
+  },
+  {
+    "slo_id": "slo:api_latency_p95",
+    "version": "1.0.0",
+    "status": "active",
+    "effective_from": "2026-02-01T00:00:00Z"
+  },
+  {
+    "slo_id": "slo:manifest_load_success",
+    "version": "1.0.0",
+    "status": "active",
+    "effective_from": "2026-02-01T00:00:00Z"
+  },
+  {
+    "slo_id": "slo:write_gateway_success",
+    "version": "1.0.0",
+    "status": "active",
+    "effective_from": "2026-02-01T00:00:00Z"
+  },
+  {
+    "slo_id": "slo:workflow_success_rate",
+    "version": "1.0.0",
+    "status": "active",
+    "effective_from": "2026-02-01T00:00:00Z"
+  },
+  {
+    "slo_id": "slo:ocr_job_success_rate",
+    "version": "1.0.0",
+    "status": "active",
+    "effective_from": "2026-02-01T00:00:00Z"
+  }
+]

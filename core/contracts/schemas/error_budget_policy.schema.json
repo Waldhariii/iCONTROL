@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "error_budget_policy.v1",
+  "title": "error_budget_policy",
+  "type": "object",
+  "required": ["policy_id", "slo_id", "fast_burn_rate", "slow_burn_rate", "actions"],
+  "additionalProperties": false,
+  "properties": {
+    "policy_id": {"type": "string"},
+    "slo_id": {"type": "string"},
+    "fast_burn_rate": {"type": "number"},
+    "slow_burn_rate": {"type": "number"},
+    "actions": {"type": "array", "items": {"type": "string"}}
+  }
+}

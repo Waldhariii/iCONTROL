@@ -2,6 +2,7 @@ import { execSync } from "child_process";
 import { writeFileSync, readFileSync, existsSync, mkdirSync, readdirSync } from "fs";
 import { join } from "path";
 import { sha256, stableStringify } from "../../compilers/utils.mjs";
+import { analyzeCanary } from "./canary-analyzer.mjs";
 
 const SSOT_DIR = process.env.SSOT_DIR || "./platform/ssot";
 const ssotPath = (p) => join(SSOT_DIR, p);
@@ -35,6 +36,25 @@ function appendAudit(entry) {
   writeFileSync(path, JSON.stringify(ledger, null, 2) + "\n");
 }
 
+function loadCanaryPolicy() {
+  try {
+    const policies = JSON.parse(readFileSync(ssotPath("sre/canary_policies.json"), "utf-8"));
+    return policies[0] || null;
+  } catch {
+    return null;
+  }
+}
+
+export function canaryAnalyze(releaseId) {
+  const policy = loadCanaryPolicy();
+  if (!policy) return { decision: "warn", reasons: ["missing_policy"] };
+  const baseline = process.env.CANARY_BASELINE_JSON ? JSON.parse(process.env.CANARY_BASELINE_JSON) : { error_rate: 0.0, p95_latency_ms: 100 };
+  const canary = process.env.CANARY_METRICS_JSON ? JSON.parse(process.env.CANARY_METRICS_JSON) : baseline;
+  const result = analyzeCanary({ baseline, canary, policy });
+  appendAudit({ event: "canary_analysis", release_id: releaseId, decision: result.decision, reasons: result.reasons, at: new Date().toISOString() });
+  return result;
+}
+
 export function createReleaseCandidate(changesetId) {
   const releaseId = `rel-${Date.now()}`;
   const snapshotRef = snapshot(`release-${releaseId}`);
@@ -49,9 +69,17 @@ export function compileSignedManifest(releaseId, env) {
 }
 
 export function rollout(releaseId, strategy) {
-  const rollout = { release_id: releaseId, strategy, started_at: new Date().toISOString() };
+  let decision = "pass";
+  let reasons = [];
+  if (strategy === "canary") {
+    const result = canaryAnalyze(releaseId);
+    decision = result.decision;
+    reasons = result.reasons || [];
+  }
+  const rollout = { release_id: releaseId, strategy, decision, reasons, started_at: new Date().toISOString() };
   writeFileSync(`./platform/runtime/release/rollout.${releaseId}.json`, JSON.stringify(rollout, null, 2) + "\n");
   appendAudit({ event: "rollout_start", release_id: releaseId, at: rollout.started_at });
+  return { decision, reasons };
 }
 
 export function activate(releaseId, scope) {

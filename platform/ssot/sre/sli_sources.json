@@ -1,0 +1,32 @@
+[
+  {
+    "sli_source_id": "sli:api_availability",
+    "name": "API Availability",
+    "source": "runtime"
+  },
+  {
+    "sli_source_id": "sli:api_latency_p95",
+    "name": "API Latency P95",
+    "source": "runtime"
+  },
+  {
+    "sli_source_id": "sli:manifest_load_success",
+    "name": "Manifest Load Success",
+    "source": "runtime"
+  },
+  {
+    "sli_source_id": "sli:write_gateway_success",
+    "name": "Write Gateway Success",
+    "source": "runtime"
+  },
+  {
+    "sli_source_id": "sli:workflow_success_rate",
+    "name": "Workflow Success Rate",
+    "source": "runtime"
+  },
+  {
+    "sli_source_id": "sli:ocr_job_success_rate",
+    "name": "OCR Job Success Rate",
+    "source": "runtime"
+  }
+]

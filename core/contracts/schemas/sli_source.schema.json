@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "sli_source.v1",
+  "title": "sli_source",
+  "type": "object",
+  "required": ["sli_source_id", "name", "source"],
+  "additionalProperties": false,
+  "properties": {
+    "sli_source_id": {"type": "string"},
+    "name": {"type": "string"},
+    "source": {"type": "string"}
+  }
+}

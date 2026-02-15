@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "slo_version.v1",
+  "title": "slo_version",
+  "type": "object",
+  "required": ["slo_id", "version", "status"],
+  "additionalProperties": false,
+  "properties": {
+    "slo_id": {"type": "string"},
+    "version": {"type": "string"},
+    "status": {"type": "string", "enum": ["active", "deprecated"]},
+    "effective_from": {"type": "string", "format": "date-time"}
+  }
+}

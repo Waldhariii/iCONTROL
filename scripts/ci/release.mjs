@@ -20,7 +20,15 @@ if (!gatesOk) {
   process.exit(2);
 }
 
-rollout(releaseId, strategy);
+const rolloutResult = rollout(releaseId, strategy);
+if (rolloutResult.decision === "fail") {
+  rollback(releaseId, "Canary analysis failed");
+  process.exit(2);
+}
+if (rolloutResult.decision === "warn") {
+  console.error("Canary analysis WARN: hold for quorum");
+  process.exit(3);
+}
 
 const ok = sloCheck(releaseId);
 if (!ok) {

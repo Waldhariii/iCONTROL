@@ -1,0 +1,55 @@
+[
+  {
+    "slo_id": "slo:api_availability",
+    "name": "API Availability",
+    "objective_percent": 99.9,
+    "window": "30d",
+    "sli_source_id": "sli:api_availability",
+    "critical": true
+  },
+  {
+    "slo_id": "slo:api_latency_p95",
+    "name": "API Latency P95",
+    "objective_percent": 99.0,
+    "window": "30d",
+    "sli_source_id": "sli:api_latency_p95",
+    "critical": true,
+    "tier_targets": {
+      "free": 600,
+      "pro": 220,
+      "enterprise": 120
+    }
+  },
+  {
+    "slo_id": "slo:manifest_load_success",
+    "name": "Manifest Load Success",
+    "objective_percent": 99.99,
+    "window": "30d",
+    "sli_source_id": "sli:manifest_load_success",
+    "critical": true
+  },
+  {
+    "slo_id": "slo:write_gateway_success",
+    "name": "Write Gateway Success",
+    "objective_percent": 99.9,
+    "window": "30d",
+    "sli_source_id": "sli:write_gateway_success",
+    "critical": true
+  },
+  {
+    "slo_id": "slo:workflow_success_rate",
+    "name": "Workflow Success Rate",
+    "objective_percent": 99.5,
+    "window": "30d",
+    "sli_source_id": "sli:workflow_success_rate",
+    "critical": false
+  },
+  {
+    "slo_id": "slo:ocr_job_success_rate",
+    "name": "OCR Job Success Rate",
+    "objective_percent": 99.0,
+    "window": "30d",
+    "sli_source_id": "sli:ocr_job_success_rate",
+    "critical": false
+  }
+]
