@@ -56,6 +56,9 @@ const OPS_ALLOWED_ACTIONS = [
   "tenancy.factory.clone.plan",
   "tenancy.factory.clone.apply"
 ];
+const ARTIFACT_PREVIEW_MAX = 200;
+const ARTIFACT_SNAP_MAX = 200;
+
 
 function parseSemver(v) {
   const [maj, min, pat] = String(v || "0.0.0").split(".").map((n) => Number(n));
@@ -222,6 +225,23 @@ export function scriptCatalogGate() {
   if (missingPaths.length) details.push(`Missing files: ${missingPaths.join(", ")}`);
   if (missing.length) details.push(`Unlisted scripts: ${missing.join(", ")}`);
   return { ok, gate: "Script Catalog Gate", details: details.join(" | ") };
+}
+
+export function artifactBudgetGate() {
+  const previewDir = process.env.ARTIFACT_PREVIEW_DIR || join(process.cwd(), "platform", "runtime", "preview");
+  const snapDir = process.env.ARTIFACT_SNAPSHOT_DIR || join(process.cwd(), "platform", "ssot", "changes", "snapshots");
+  const previewCount = existsSync(previewDir)
+    ? readdirSync(previewDir, { withFileTypes: true }).filter((e) => e.isDirectory()).length
+    : 0;
+  const snapCount = existsSync(snapDir)
+    ? readdirSync(snapDir, { withFileTypes: true }).filter((e) => e.isDirectory()).length
+    : 0;
+  const ok = previewCount <= ARTIFACT_PREVIEW_MAX && snapCount <= ARTIFACT_SNAP_MAX;
+  const details = ok
+    ? ""
+    : `preview_dirs=${previewCount} (max ${ARTIFACT_PREVIEW_MAX}) | snapshot_dirs=${snapCount} (max ${ARTIFACT_SNAP_MAX}) | ` +
+      "Prune: CAP_ONLY=1 KEEP_PREVIEW_COUNT=50 KEEP_SNAP_COUNT=150 APPLY=1 scripts/maintenance/deep-clean-v5.sh";
+  return { ok, gate: "Artifact Budget Gate", details };
 }
 
 export function accessGate({ ssotDir }) {

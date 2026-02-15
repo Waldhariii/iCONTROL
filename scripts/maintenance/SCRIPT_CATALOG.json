@@ -1510,5 +1510,31 @@
     ],
     "requires_api": false,
     "s2s_scopes": []
+  },
+  {
+    "id": "deep-clean-v5",
+    "path": "scripts/maintenance/deep-clean-v5.sh",
+    "purpose": "Prune preview/snapshot artifacts by TTL or count cap",
+    "outputs": [
+      "runtime/reports/DEEP_CLEAN_V5_*.md"
+    ],
+    "forbidden_outputs": [
+      "./CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "ci-test-artifact-budget-gate",
+    "path": "scripts/ci/test-artifact-budget-gate.mjs",
+    "purpose": "CI: ensure artifact budget gate fails when over budget",
+    "outputs": [],
+    "forbidden_outputs": [
+      "./CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
   }
 ]

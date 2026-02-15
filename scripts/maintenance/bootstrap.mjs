@@ -1,5 +1,5 @@
 import { execSync } from "child_process";
-import { existsSync, readFileSync } from "fs";
+import { existsSync, readFileSync, readdirSync, statSync } from "fs";
 import { join } from "path";
 import { writeReport, rotateReports, writeIndexLine, assertNoForbiddenReportPaths } from "./report-utils.mjs";
 import { pickLatestPackDir } from "./release-pack-utils.mjs";
@@ -44,6 +44,11 @@ function gitTags() {
   }
 }
 
+function countDirs(path) {
+  if (!existsSync(path)) return 0;
+  return readdirSync(path, { withFileTypes: true }).filter((e) => e.isDirectory()).length;
+}
+
 async function main() {
   const args = parseArgs();
 
@@ -54,6 +59,14 @@ async function main() {
   if (!args.skipInstall) run("pnpm -s install");
   run("node scripts/maintenance/generate-keys.mjs");
   run("node scripts/maintenance/generate-schemas-index.mjs");
+
+  // Deep clean dry-run + cap-only prune if budgets exceeded
+  run("APPLY=0 CAP_ONLY=0 scripts/maintenance/deep-clean-v5.sh");
+  const previewCount = countDirs(join(process.cwd(), "platform", "runtime", "preview"));
+  const snapCount = countDirs(join(process.cwd(), "platform", "ssot", "changes", "snapshots"));
+  if (previewCount > 200 || snapCount > 200) {
+    run("CAP_ONLY=1 KEEP_PREVIEW_COUNT=50 KEEP_SNAP_COUNT=150 APPLY=1 scripts/maintenance/deep-clean-v5.sh");
+  }
 
   if (!args.skipCi) run("node scripts/ci/ci-all.mjs");
 

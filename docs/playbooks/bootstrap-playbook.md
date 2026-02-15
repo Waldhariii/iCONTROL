@@ -23,3 +23,11 @@ Failure handling:
 1. Read the summary report for failing step.
 2. Re-run the failing step only.
 3. Confirm no root artifacts are created.
+
+Artifact budgets:
+- Bootstrap runs a deep-clean dry-run before CI.
+- If preview/snapshot counts exceed budgets, it auto-prunes using CAP_ONLY.
+- Manual prune:
+```bash
+CAP_ONLY=1 KEEP_PREVIEW_COUNT=50 KEEP_SNAP_COUNT=150 APPLY=1 scripts/maintenance/deep-clean-v5.sh
+```

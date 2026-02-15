@@ -64,7 +64,8 @@ import {
   invoiceNoSecretsGate,
   noSecretsEvidenceGate,
   reportPathGate,
-  scriptCatalogGate
+  scriptCatalogGate,
+  artifactBudgetGate
 } from "./gates.mjs";
 
 const releaseId = process.argv[2];
@@ -141,7 +142,8 @@ const gates = [
   () => invoiceNoSecretsGate(),
   () => noSecretsEvidenceGate(),
   () => reportPathGate(),
-  () => scriptCatalogGate()
+  () => scriptCatalogGate(),
+  () => artifactBudgetGate()
 ];
 
 const results = [];

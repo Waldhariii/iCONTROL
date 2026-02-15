@@ -70,6 +70,7 @@ const steps = [
   "node scripts/ci/test-marketplace-preflight.mjs",
   "node scripts/ci/test-observability-correlation.mjs",
   "node scripts/ci/test-report-path-guard.mjs",
+  "node scripts/ci/test-artifact-budget-gate.mjs",
   "node scripts/ci/test-preview-isolation.mjs",
   "node scripts/ci/test-active-release-stability.mjs",
   "node scripts/ci/test-active-release-ssot.mjs",
