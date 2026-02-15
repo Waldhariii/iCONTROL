@@ -50,6 +50,7 @@ async function run() {
 
     const page_version = {
       page_id: pageId,
+      module_id: "module:demo",
       version: "1.0.0",
       status: "draft",
       layout_instance_id: "layout-1",

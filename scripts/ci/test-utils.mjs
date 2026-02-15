@@ -156,12 +156,21 @@ export function buildS2SHmacHeaders({ principalId, secret, method, path, body })
 export async function getS2SToken({ baseUrl, principalId, secret, scopes }) {
   const body = JSON.stringify({ principal_id: principalId, requested_scopes: scopes, audience: "backend-api" });
   const headers = buildS2SHmacHeaders({ principalId, secret, method: "POST", path: "/api/auth/token", body });
-  const res = await fetch(`${baseUrl}/api/auth/token`, {
-    method: "POST",
-    headers: { "content-type": "application/json", ...headers },
-    body
-  });
-  if (!res.ok) throw new Error(`Token exchange failed: ${res.status}`);
-  const data = await res.json();
-  return data.access_token;
+  let lastErr = null;
+  for (let i = 0; i < 10; i++) {
+    try {
+      const res = await fetch(`${baseUrl}/api/auth/token`, {
+        method: "POST",
+        headers: { "content-type": "application/json", ...headers },
+        body
+      });
+      if (!res.ok) throw new Error(`Token exchange failed: ${res.status}`);
+      const data = await res.json();
+      return data.access_token;
+    } catch (err) {
+      lastErr = err;
+      await new Promise((r) => setTimeout(r, 250));
+    }
+  }
+  throw lastErr || new Error("Token exchange failed");
 }

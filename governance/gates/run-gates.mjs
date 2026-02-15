@@ -51,6 +51,7 @@ import {
   tenantFactoryGate,
   domainIsolationGate,
   moduleActivationGate,
+  modulePageOwnershipGate,
   dataGovCoverageGate,
   budgetCoverageGate,
   moduleAuthoringGate,
@@ -66,7 +67,9 @@ import {
   coreChangeGate,
   reportPathGate,
   scriptCatalogGate,
-  artifactBudgetGate
+  artifactBudgetGate,
+  widgetBindingGate,
+  sectionNoRouteGate
 } from "./gates.mjs";
 
 const releaseId = process.argv[2];
@@ -132,6 +135,7 @@ const gates = [
   () => dataGovCoverageGate({ ssotDir }),
   () => budgetCoverageGate({ ssotDir }),
   () => moduleActivationGate({ ssotDir, manifestsDir, releaseId }),
+  () => modulePageOwnershipGate({ ssotDir }),
   () => moduleAuthoringGate({ ssotDir }),
   () => activationSafetyGate({ ssotDir }),
   () => marketplacePermissionGate({ ssotDir }),
@@ -145,6 +149,8 @@ const gates = [
   () => coreChangeGate(),
   () => reportPathGate(),
   () => scriptCatalogGate(),
+  () => widgetBindingGate({ ssotDir }),
+  () => sectionNoRouteGate({ ssotDir }),
   () => artifactBudgetGate()
 ];
 

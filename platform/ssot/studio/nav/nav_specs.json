@@ -33,5 +33,227 @@
     "label": "Marketplace",
     "path": "/cp/studio/marketplace",
     "module_id": "studio"
+  },
+  {
+    "id": "nav:jobs-dashboard",
+    "surface": "client",
+    "label": "Jobs Dashboard",
+    "path": "/jobs/dashboard",
+    "module_id": "module:jobs"
+  },
+  {
+    "id": "nav:docs-dashboard",
+    "surface": "client",
+    "label": "Documents Dashboard",
+    "path": "/documents/dashboard",
+    "module_id": "module:documents"
+  },
+  {
+    "id": "nav:billing-dashboard",
+    "surface": "client",
+    "label": "Billing Dashboard",
+    "path": "/billing/dashboard",
+    "module_id": "module:billing"
+  },
+  {
+    "id": "nav:jobs-detail:overview",
+    "surface": "client",
+    "module_id": "module:jobs",
+    "type": "section",
+    "page_id": "client-jobs-detail",
+    "section_key": "overview",
+    "label_key": "jobs.detail.overview",
+    "order": 10
+  },
+  {
+    "id": "nav:jobs-detail:activity",
+    "surface": "client",
+    "module_id": "module:jobs",
+    "type": "section",
+    "page_id": "client-jobs-detail",
+    "section_key": "activity",
+    "label_key": "jobs.detail.activity",
+    "order": 20
+  },
+  {
+    "id": "nav:jobs-detail:settings",
+    "surface": "client",
+    "module_id": "module:jobs",
+    "type": "section",
+    "page_id": "client-jobs-detail",
+    "section_key": "settings",
+    "label_key": "jobs.detail.settings",
+    "order": 30
+  },
+  {
+    "id": "nav:docs-detail:overview",
+    "surface": "client",
+    "module_id": "module:documents",
+    "type": "section",
+    "page_id": "client-docs-detail",
+    "section_key": "overview",
+    "label_key": "docs.detail.overview",
+    "order": 10
+  },
+  {
+    "id": "nav:docs-detail:activity",
+    "surface": "client",
+    "module_id": "module:documents",
+    "type": "section",
+    "page_id": "client-docs-detail",
+    "section_key": "activity",
+    "label_key": "docs.detail.activity",
+    "order": 20
+  },
+  {
+    "id": "nav:docs-detail:settings",
+    "surface": "client",
+    "module_id": "module:documents",
+    "type": "section",
+    "page_id": "client-docs-detail",
+    "section_key": "settings",
+    "label_key": "docs.detail.settings",
+    "order": 30
+  },
+  {
+    "id": "nav:billing-detail:overview",
+    "surface": "client",
+    "module_id": "module:billing",
+    "type": "section",
+    "page_id": "client-billing-invoice-detail",
+    "section_key": "overview",
+    "label_key": "billing.detail.overview",
+    "order": 10
+  },
+  {
+    "id": "nav:billing-detail:activity",
+    "surface": "client",
+    "module_id": "module:billing",
+    "type": "section",
+    "page_id": "client-billing-invoice-detail",
+    "section_key": "activity",
+    "label_key": "billing.detail.activity",
+    "order": 20
+  },
+  {
+    "id": "nav:billing-detail:settings",
+    "surface": "client",
+    "module_id": "module:billing",
+    "type": "section",
+    "page_id": "client-billing-invoice-detail",
+    "section_key": "settings",
+    "label_key": "billing.detail.settings",
+    "order": 30
+  },
+  {
+    "id": "nav:jobs-dashboard",
+    "surface": "client",
+    "label": "Jobs Dashboard",
+    "path": "/jobs/dashboard",
+    "module_id": "module:jobs"
+  },
+  {
+    "id": "nav:docs-dashboard",
+    "surface": "client",
+    "label": "Documents Dashboard",
+    "path": "/documents/dashboard",
+    "module_id": "module:documents"
+  },
+  {
+    "id": "nav:billing-dashboard",
+    "surface": "client",
+    "label": "Billing Dashboard",
+    "path": "/billing/dashboard",
+    "module_id": "module:billing"
+  },
+  {
+    "id": "nav:jobs-detail:overview",
+    "surface": "client",
+    "module_id": "module:jobs",
+    "type": "section",
+    "page_id": "client-jobs-detail",
+    "section_key": "overview",
+    "label_key": "jobs.detail.overview",
+    "order": 10
+  },
+  {
+    "id": "nav:jobs-detail:activity",
+    "surface": "client",
+    "module_id": "module:jobs",
+    "type": "section",
+    "page_id": "client-jobs-detail",
+    "section_key": "activity",
+    "label_key": "jobs.detail.activity",
+    "order": 20
+  },
+  {
+    "id": "nav:jobs-detail:settings",
+    "surface": "client",
+    "module_id": "module:jobs",
+    "type": "section",
+    "page_id": "client-jobs-detail",
+    "section_key": "settings",
+    "label_key": "jobs.detail.settings",
+    "order": 30
+  },
+  {
+    "id": "nav:docs-detail:overview",
+    "surface": "client",
+    "module_id": "module:documents",
+    "type": "section",
+    "page_id": "client-docs-detail",
+    "section_key": "overview",
+    "label_key": "docs.detail.overview",
+    "order": 10
+  },
+  {
+    "id": "nav:docs-detail:activity",
+    "surface": "client",
+    "module_id": "module:documents",
+    "type": "section",
+    "page_id": "client-docs-detail",
+    "section_key": "activity",
+    "label_key": "docs.detail.activity",
+    "order": 20
+  },
+  {
+    "id": "nav:docs-detail:settings",
+    "surface": "client",
+    "module_id": "module:documents",
+    "type": "section",
+    "page_id": "client-docs-detail",
+    "section_key": "settings",
+    "label_key": "docs.detail.settings",
+    "order": 30
+  },
+  {
+    "id": "nav:billing-detail:overview",
+    "surface": "client",
+    "module_id": "module:billing",
+    "type": "section",
+    "page_id": "client-billing-invoice-detail",
+    "section_key": "overview",
+    "label_key": "billing.detail.overview",
+    "order": 10
+  },
+  {
+    "id": "nav:billing-detail:activity",
+    "surface": "client",
+    "module_id": "module:billing",
+    "type": "section",
+    "page_id": "client-billing-invoice-detail",
+    "section_key": "activity",
+    "label_key": "billing.detail.activity",
+    "order": 20
+  },
+  {
+    "id": "nav:billing-detail:settings",
+    "surface": "client",
+    "module_id": "module:billing",
+    "type": "section",
+    "page_id": "client-billing-invoice-detail",
+    "section_key": "settings",
+    "label_key": "billing.detail.settings",
+    "order": 30
   }
 ]

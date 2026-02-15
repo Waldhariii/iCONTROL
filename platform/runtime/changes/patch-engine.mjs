@@ -14,9 +14,15 @@ const kindToPath = {
   route_spec: "studio/routes/route_specs.json",
   nav_spec: "studio/nav/nav_specs.json",
   widget_instance: "studio/widgets/widget_instances.json",
+  widget_catalog: "studio/widgets/widget_catalog.json",
   domain_module: "modules/domain_modules.json",
   domain_module_version: "modules/domain_module_versions.json",
   module_activation: "modules/module_activations.json",
+  query_catalog: "data/query_catalog.json",
+  query_budget: "data/query_budgets.json",
+  retention_policy: "data/policies/retention_policies.json",
+  retention_version: "data/policies/retention_versions.json",
+  form_schema: "studio/forms/form_schemas.json",
   tenant_template: "tenancy/tenant_templates.json",
   tenant_template_version: "tenancy/tenant_template_versions.json",
   extension_installation: "extensions/extension_installations.json",
@@ -41,9 +47,15 @@ const kindToSchema = {
   route_spec: "route_spec.v1",
   nav_spec: "array_of_objects.v1",
   widget_instance: "array_of_objects.v1",
+  widget_catalog: "array_of_objects.v1",
   domain_module: "domain_module.v1",
   domain_module_version: "domain_module_version.v1",
   module_activation: "module_activation.v1",
+  query_catalog: "array_of_objects.v1",
+  query_budget: "array_of_objects.v1",
+  retention_policy: "retention_policy.v1",
+  retention_version: "retention_version.v1",
+  form_schema: "array_of_objects.v1",
   tenant_template: "tenant_template.v1",
   tenant_template_version: "tenant_template_version.v1",
   extension_installation: "extension_installation.v1",
@@ -140,6 +152,10 @@ function applyOp(dataArray, op) {
   const kind = op.target.kind;
   if (op.op === "add") {
     dataArray.push(op.value);
+  } else if (op.op === "replace_all") {
+    if (!Array.isArray(op.value)) throw new Error("replace_all requires array value");
+    dataArray.length = 0;
+    dataArray.push(...op.value);
   } else if (op.op === "update") {
     const idx = findIndexByRef(dataArray, kind, targetRef);
     if (idx < 0) throw new Error(`Target not found: ${targetRef}`);

@@ -51,8 +51,15 @@ function guardAllowed(route) {
   return true;
 }
 
+function parseHash() {
+  const raw = location.hash ? location.hash.slice(1) : "/";
+  const [path, query] = raw.split("?");
+  const params = new URLSearchParams(query || "");
+  return { path: path || "/", section: params.get("section") || "" };
+}
+
 function renderRoute() {
-  const path = location.hash ? location.hash.slice(1) : "/";
+  const { path, section } = parseHash();
   const routes = (manifest?.routes?.routes || []).filter((r) => r.surface === "client");
   const route = routes.find((r) => r.path === path);
   if (!route) {
@@ -74,14 +81,39 @@ function renderRoute() {
   const widgets = manifest.pages?.widgets || [];
   const widgetIds = version.widget_instance_ids || [];
   const widgetsForPage = widgets.filter((w) => widgetIds.includes(w.id));
+  const sections = (manifest.pages?.sections || []).filter((s) => s.page_id === route.page_id);
+  const ordered = sections.slice().sort((a, b) => (a.order || 0) - (b.order || 0));
+  const activeKey = section || (ordered[0] && ordered[0].section_key) || "__default";
+  const active = ordered.find((s) => s.section_key === activeKey) || ordered[0];
+  const activeWidgetIds = new Set(active?.widget_instance_ids || widgetIds);
+  const widgetsForSection = widgetsForPage.filter((w) => activeWidgetIds.has(w.id));
+  const rendered = widgetsForSection.map((w) => safeRender(w));
 
-  const rendered = widgetsForPage.map((w) => safeRender(w));
+  const tabs = ordered
+    .map((s) => {
+      const key = s.section_key;
+      const label = s.title_key || key;
+      const isActive = key === (active?.section_key || "__default");
+      return `<button data-section="${key}" ${isActive ? "data-active=\"1\"" : ""}>${label}</button>`;
+    })
+    .join("");
+
   view.innerHTML = `
     <section>
       <h2>${page?.title_key || page?.id}</h2>
+      ${ordered.length ? `<div id="tabs">${tabs}</div>` : ""}
       <pre>${JSON.stringify(rendered, null, 2)}</pre>
     </section>
   `;
+  const tabEl = document.getElementById("tabs");
+  if (tabEl) {
+    tabEl.onclick = (e) => {
+      const btn = e.target.closest("button[data-section]");
+      if (!btn) return;
+      const next = btn.getAttribute("data-section");
+      location.hash = `${path}?section=${next}`;
+    };
+  }
 }
 
 function safeRender(widget) {

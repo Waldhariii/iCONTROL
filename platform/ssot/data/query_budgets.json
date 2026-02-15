@@ -1,25 +1,218 @@
 [
-  {"query_id": "query:jobs.list", "tier": "free", "max_ms": 1000, "cache_policy_id": "cache:default"},
-  {"query_id": "query:jobs.list", "tier": "pro", "max_ms": 500, "cache_policy_id": "cache:default"},
-  {"query_id": "query:jobs.list", "tier": "enterprise", "max_ms": 200, "cache_policy_id": "cache:default"},
-
-  {"query_id": "query:jobs.detail", "tier": "free", "max_ms": 1000, "cache_policy_id": "cache:default"},
-  {"query_id": "query:jobs.detail", "tier": "pro", "max_ms": 500, "cache_policy_id": "cache:default"},
-  {"query_id": "query:jobs.detail", "tier": "enterprise", "max_ms": 200, "cache_policy_id": "cache:default"},
-
-  {"query_id": "query:docs.list", "tier": "free", "max_ms": 1000, "cache_policy_id": "cache:default"},
-  {"query_id": "query:docs.list", "tier": "pro", "max_ms": 500, "cache_policy_id": "cache:default"},
-  {"query_id": "query:docs.list", "tier": "enterprise", "max_ms": 200, "cache_policy_id": "cache:default"},
-
-  {"query_id": "query:docs.detail", "tier": "free", "max_ms": 1000, "cache_policy_id": "cache:default"},
-  {"query_id": "query:docs.detail", "tier": "pro", "max_ms": 500, "cache_policy_id": "cache:default"},
-  {"query_id": "query:docs.detail", "tier": "enterprise", "max_ms": 200, "cache_policy_id": "cache:default"},
-
-  {"query_id": "query:billing.invoices", "tier": "free", "max_ms": 1200, "cache_policy_id": "cache:default"},
-  {"query_id": "query:billing.invoices", "tier": "pro", "max_ms": 600, "cache_policy_id": "cache:default"},
-  {"query_id": "query:billing.invoices", "tier": "enterprise", "max_ms": 250, "cache_policy_id": "cache:default"},
-
-  {"query_id": "query:billing.invoice.detail", "tier": "free", "max_ms": 1200, "cache_policy_id": "cache:default"},
-  {"query_id": "query:billing.invoice.detail", "tier": "pro", "max_ms": 600, "cache_policy_id": "cache:default"},
-  {"query_id": "query:billing.invoice.detail", "tier": "enterprise", "max_ms": 250, "cache_policy_id": "cache:default"}
+  {
+    "query_id": "query:jobs.list",
+    "tier": "free",
+    "max_ms": 1000,
+    "cache_policy_id": "cache:default"
+  },
+  {
+    "query_id": "query:jobs.list",
+    "tier": "pro",
+    "max_ms": 500,
+    "cache_policy_id": "cache:default"
+  },
+  {
+    "query_id": "query:jobs.list",
+    "tier": "enterprise",
+    "max_ms": 200,
+    "cache_policy_id": "cache:default"
+  },
+  {
+    "query_id": "query:jobs.detail",
+    "tier": "free",
+    "max_ms": 1000,
+    "cache_policy_id": "cache:default"
+  },
+  {
+    "query_id": "query:jobs.detail",
+    "tier": "pro",
+    "max_ms": 500,
+    "cache_policy_id": "cache:default"
+  },
+  {
+    "query_id": "query:jobs.detail",
+    "tier": "enterprise",
+    "max_ms": 200,
+    "cache_policy_id": "cache:default"
+  },
+  {
+    "query_id": "query:docs.list",
+    "tier": "free",
+    "max_ms": 1000,
+    "cache_policy_id": "cache:default"
+  },
+  {
+    "query_id": "query:docs.list",
+    "tier": "pro",
+    "max_ms": 500,
+    "cache_policy_id": "cache:default"
+  },
+  {
+    "query_id": "query:docs.list",
+    "tier": "enterprise",
+    "max_ms": 200,
+    "cache_policy_id": "cache:default"
+  },
+  {
+    "query_id": "query:docs.detail",
+    "tier": "free",
+    "max_ms": 1000,
+    "cache_policy_id": "cache:default"
+  },
+  {
+    "query_id": "query:docs.detail",
+    "tier": "pro",
+    "max_ms": 500,
+    "cache_policy_id": "cache:default"
+  },
+  {
+    "query_id": "query:docs.detail",
+    "tier": "enterprise",
+    "max_ms": 200,
+    "cache_policy_id": "cache:default"
+  },
+  {
+    "query_id": "query:billing.invoices",
+    "tier": "free",
+    "max_ms": 1200,
+    "cache_policy_id": "cache:default"
+  },
+  {
+    "query_id": "query:billing.invoices",
+    "tier": "pro",
+    "max_ms": 600,
+    "cache_policy_id": "cache:default"
+  },
+  {
+    "query_id": "query:billing.invoices",
+    "tier": "enterprise",
+    "max_ms": 250,
+    "cache_policy_id": "cache:default"
+  },
+  {
+    "query_id": "query:billing.invoice.detail",
+    "tier": "free",
+    "max_ms": 1200,
+    "cache_policy_id": "cache:default"
+  },
+  {
+    "query_id": "query:billing.invoice.detail",
+    "tier": "pro",
+    "max_ms": 600,
+    "cache_policy_id": "cache:default"
+  },
+  {
+    "query_id": "query:billing.invoice.detail",
+    "tier": "enterprise",
+    "max_ms": 250,
+    "cache_policy_id": "cache:default"
+  },
+  {
+    "query_id": "query:jobs.dashboard",
+    "tier": "free",
+    "max_ms": 1000,
+    "cache_policy_id": "cache:default"
+  },
+  {
+    "query_id": "query:jobs.dashboard",
+    "tier": "pro",
+    "max_ms": 500,
+    "cache_policy_id": "cache:default"
+  },
+  {
+    "query_id": "query:jobs.dashboard",
+    "tier": "enterprise",
+    "max_ms": 200,
+    "cache_policy_id": "cache:default"
+  },
+  {
+    "query_id": "query:jobs.activity",
+    "tier": "free",
+    "max_ms": 1000,
+    "cache_policy_id": "cache:default"
+  },
+  {
+    "query_id": "query:jobs.activity",
+    "tier": "pro",
+    "max_ms": 500,
+    "cache_policy_id": "cache:default"
+  },
+  {
+    "query_id": "query:jobs.activity",
+    "tier": "enterprise",
+    "max_ms": 200,
+    "cache_policy_id": "cache:default"
+  },
+  {
+    "query_id": "query:docs.dashboard",
+    "tier": "free",
+    "max_ms": 1000,
+    "cache_policy_id": "cache:default"
+  },
+  {
+    "query_id": "query:docs.dashboard",
+    "tier": "pro",
+    "max_ms": 500,
+    "cache_policy_id": "cache:default"
+  },
+  {
+    "query_id": "query:docs.dashboard",
+    "tier": "enterprise",
+    "max_ms": 200,
+    "cache_policy_id": "cache:default"
+  },
+  {
+    "query_id": "query:docs.activity",
+    "tier": "free",
+    "max_ms": 1000,
+    "cache_policy_id": "cache:default"
+  },
+  {
+    "query_id": "query:docs.activity",
+    "tier": "pro",
+    "max_ms": 500,
+    "cache_policy_id": "cache:default"
+  },
+  {
+    "query_id": "query:docs.activity",
+    "tier": "enterprise",
+    "max_ms": 200,
+    "cache_policy_id": "cache:default"
+  },
+  {
+    "query_id": "query:billing.dashboard",
+    "tier": "free",
+    "max_ms": 1200,
+    "cache_policy_id": "cache:default"
+  },
+  {
+    "query_id": "query:billing.dashboard",
+    "tier": "pro",
+    "max_ms": 600,
+    "cache_policy_id": "cache:default"
+  },
+  {
+    "query_id": "query:billing.dashboard",
+    "tier": "enterprise",
+    "max_ms": 250,
+    "cache_policy_id": "cache:default"
+  },
+  {
+    "query_id": "query:billing.activity",
+    "tier": "free",
+    "max_ms": 1200,
+    "cache_policy_id": "cache:default"
+  },
+  {
+    "query_id": "query:billing.activity",
+    "tier": "pro",
+    "max_ms": 600,
+    "cache_policy_id": "cache:default"
+  },
+  {
+    "query_id": "query:billing.activity",
+    "tier": "enterprise",
+    "max_ms": 250,
+    "cache_policy_id": "cache:default"
+  }
 ]

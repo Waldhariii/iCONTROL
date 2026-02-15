@@ -18,7 +18,9 @@
         "datasource_id",
         "columns"
       ]
-    }
+    },
+    "page_id": "client-jobs-list",
+    "module_id": "module:jobs"
   },
   {
     "id": "w-jobs-detail",
@@ -39,7 +41,10 @@
         "datasource_id",
         "fields"
       ]
-    }
+    },
+    "page_id": "client-jobs-detail",
+    "module_id": "module:jobs",
+    "section_key": "overview"
   },
   {
     "id": "w-jobs-form",
@@ -56,7 +61,10 @@
         "submit_action",
         "datasource_id"
       ]
-    }
+    },
+    "page_id": "client-jobs-detail",
+    "module_id": "module:jobs",
+    "section_key": "settings"
   },
   {
     "id": "w-docs-list",
@@ -75,7 +83,9 @@
         "datasource_id",
         "columns"
       ]
-    }
+    },
+    "page_id": "client-docs-list",
+    "module_id": "module:documents"
   },
   {
     "id": "w-docs-detail",
@@ -94,7 +104,10 @@
         "datasource_id",
         "fields"
       ]
-    }
+    },
+    "page_id": "client-docs-detail",
+    "module_id": "module:documents",
+    "section_key": "overview"
   },
   {
     "id": "w-invoices-list",
@@ -115,7 +128,9 @@
         "datasource_id",
         "columns"
       ]
-    }
+    },
+    "page_id": "client-billing-invoices",
+    "module_id": "module:billing"
   },
   {
     "id": "w-invoice-detail",
@@ -136,7 +151,10 @@
         "datasource_id",
         "fields"
       ]
-    }
+    },
+    "page_id": "client-billing-invoice-detail",
+    "module_id": "module:billing",
+    "section_key": "overview"
   },
   {
     "id": "w-invoice-form",
@@ -152,6 +170,413 @@
         "submit_action",
         "datasource_id"
       ]
-    }
+    },
+    "page_id": "client-billing-invoice-detail",
+    "module_id": "module:billing",
+    "section_key": "settings"
+  },
+  {
+    "id": "w-jobs-activity",
+    "widget_id": "widget:timeline",
+    "props": {
+      "title": "Activity",
+      "datasource_id": "query:jobs.activity",
+      "timestamp_field": "scheduled_at",
+      "label_field": "technician_name"
+    },
+    "props_schema": {
+      "allowed_props": [
+        "title",
+        "datasource_id",
+        "timestamp_field",
+        "label_field"
+      ]
+    },
+    "page_id": "client-jobs-detail",
+    "module_id": "module:jobs",
+    "section_key": "activity"
+  },
+  {
+    "id": "w-jobs-kpi",
+    "widget_id": "widget:kpi",
+    "props": {
+      "title": "Open Jobs",
+      "datasource_id": "query:jobs.dashboard",
+      "metric": "open_count"
+    },
+    "props_schema": {
+      "allowed_props": [
+        "title",
+        "datasource_id",
+        "metric"
+      ]
+    },
+    "page_id": "client-jobs-dashboard",
+    "module_id": "module:jobs"
+  },
+  {
+    "id": "w-jobs-chart",
+    "widget_id": "widget:chart",
+    "props": {
+      "title": "Jobs by Status",
+      "datasource_id": "query:jobs.dashboard",
+      "chart_type": "bar",
+      "x_field": "status",
+      "y_field": "count"
+    },
+    "props_schema": {
+      "allowed_props": [
+        "title",
+        "datasource_id",
+        "chart_type",
+        "x_field",
+        "y_field"
+      ]
+    },
+    "page_id": "client-jobs-dashboard",
+    "module_id": "module:jobs"
+  },
+  {
+    "id": "w-docs-activity",
+    "widget_id": "widget:timeline",
+    "props": {
+      "title": "Ingestion Activity",
+      "datasource_id": "query:docs.activity",
+      "timestamp_field": "status",
+      "label_field": "status"
+    },
+    "props_schema": {
+      "allowed_props": [
+        "title",
+        "datasource_id",
+        "timestamp_field",
+        "label_field"
+      ]
+    },
+    "page_id": "client-docs-detail",
+    "module_id": "module:documents",
+    "section_key": "activity"
+  },
+  {
+    "id": "w-docs-form",
+    "widget_id": "widget:entity_form",
+    "props": {
+      "title": "Update Document",
+      "form_schema_id": "form:document_update"
+    },
+    "props_schema": {
+      "allowed_props": [
+        "title",
+        "form_schema_id",
+        "submit_action",
+        "datasource_id"
+      ]
+    },
+    "page_id": "client-docs-detail",
+    "module_id": "module:documents",
+    "section_key": "settings"
+  },
+  {
+    "id": "w-docs-kpi",
+    "widget_id": "widget:kpi",
+    "props": {
+      "title": "Documents",
+      "datasource_id": "query:docs.dashboard",
+      "metric": "total_count"
+    },
+    "props_schema": {
+      "allowed_props": [
+        "title",
+        "datasource_id",
+        "metric"
+      ]
+    },
+    "page_id": "client-docs-dashboard",
+    "module_id": "module:documents"
+  },
+  {
+    "id": "w-docs-chart",
+    "widget_id": "widget:chart",
+    "props": {
+      "title": "Docs by Status",
+      "datasource_id": "query:docs.dashboard",
+      "chart_type": "bar",
+      "x_field": "status",
+      "y_field": "count"
+    },
+    "props_schema": {
+      "allowed_props": [
+        "title",
+        "datasource_id",
+        "chart_type",
+        "x_field",
+        "y_field"
+      ]
+    },
+    "page_id": "client-docs-dashboard",
+    "module_id": "module:documents"
+  },
+  {
+    "id": "w-invoice-activity",
+    "widget_id": "widget:timeline",
+    "props": {
+      "title": "Payments",
+      "datasource_id": "query:billing.activity",
+      "timestamp_field": "id",
+      "label_field": "method"
+    },
+    "props_schema": {
+      "allowed_props": [
+        "title",
+        "datasource_id",
+        "timestamp_field",
+        "label_field"
+      ]
+    },
+    "page_id": "client-billing-invoice-detail",
+    "module_id": "module:billing",
+    "section_key": "activity"
+  },
+  {
+    "id": "w-billing-kpi",
+    "widget_id": "widget:kpi",
+    "props": {
+      "title": "Outstanding Invoices",
+      "datasource_id": "query:billing.dashboard",
+      "metric": "outstanding_count"
+    },
+    "props_schema": {
+      "allowed_props": [
+        "title",
+        "datasource_id",
+        "metric"
+      ]
+    },
+    "page_id": "client-billing-dashboard",
+    "module_id": "module:billing"
+  },
+  {
+    "id": "w-billing-chart",
+    "widget_id": "widget:chart",
+    "props": {
+      "title": "Invoice Status",
+      "datasource_id": "query:billing.dashboard",
+      "chart_type": "bar",
+      "x_field": "status",
+      "y_field": "count"
+    },
+    "props_schema": {
+      "allowed_props": [
+        "title",
+        "datasource_id",
+        "chart_type",
+        "x_field",
+        "y_field"
+      ]
+    },
+    "page_id": "client-billing-dashboard",
+    "module_id": "module:billing"
+  },
+  {
+    "id": "w-jobs-activity",
+    "widget_id": "widget:timeline",
+    "props": {
+      "title": "Activity",
+      "datasource_id": "query:jobs.activity",
+      "timestamp_field": "scheduled_at",
+      "label_field": "technician_name"
+    },
+    "props_schema": {
+      "allowed_props": [
+        "title",
+        "datasource_id",
+        "timestamp_field",
+        "label_field"
+      ]
+    },
+    "page_id": "client-jobs-detail",
+    "module_id": "module:jobs",
+    "section_key": "activity"
+  },
+  {
+    "id": "w-jobs-kpi",
+    "widget_id": "widget:kpi",
+    "props": {
+      "title": "Open Jobs",
+      "datasource_id": "query:jobs.dashboard",
+      "metric": "open_count"
+    },
+    "props_schema": {
+      "allowed_props": [
+        "title",
+        "datasource_id",
+        "metric"
+      ]
+    },
+    "page_id": "client-jobs-dashboard",
+    "module_id": "module:jobs"
+  },
+  {
+    "id": "w-jobs-chart",
+    "widget_id": "widget:chart",
+    "props": {
+      "title": "Jobs by Status",
+      "datasource_id": "query:jobs.dashboard",
+      "chart_type": "bar",
+      "x_field": "status",
+      "y_field": "count"
+    },
+    "props_schema": {
+      "allowed_props": [
+        "title",
+        "datasource_id",
+        "chart_type",
+        "x_field",
+        "y_field"
+      ]
+    },
+    "page_id": "client-jobs-dashboard",
+    "module_id": "module:jobs"
+  },
+  {
+    "id": "w-docs-activity",
+    "widget_id": "widget:timeline",
+    "props": {
+      "title": "Ingestion Activity",
+      "datasource_id": "query:docs.activity",
+      "timestamp_field": "status",
+      "label_field": "status"
+    },
+    "props_schema": {
+      "allowed_props": [
+        "title",
+        "datasource_id",
+        "timestamp_field",
+        "label_field"
+      ]
+    },
+    "page_id": "client-docs-detail",
+    "module_id": "module:documents",
+    "section_key": "activity"
+  },
+  {
+    "id": "w-docs-form",
+    "widget_id": "widget:entity_form",
+    "props": {
+      "title": "Update Document",
+      "form_schema_id": "form:document_update"
+    },
+    "props_schema": {
+      "allowed_props": [
+        "title",
+        "form_schema_id",
+        "submit_action",
+        "datasource_id"
+      ]
+    },
+    "page_id": "client-docs-detail",
+    "module_id": "module:documents",
+    "section_key": "settings"
+  },
+  {
+    "id": "w-docs-kpi",
+    "widget_id": "widget:kpi",
+    "props": {
+      "title": "Documents",
+      "datasource_id": "query:docs.dashboard",
+      "metric": "total_count"
+    },
+    "props_schema": {
+      "allowed_props": [
+        "title",
+        "datasource_id",
+        "metric"
+      ]
+    },
+    "page_id": "client-docs-dashboard",
+    "module_id": "module:documents"
+  },
+  {
+    "id": "w-docs-chart",
+    "widget_id": "widget:chart",
+    "props": {
+      "title": "Docs by Status",
+      "datasource_id": "query:docs.dashboard",
+      "chart_type": "bar",
+      "x_field": "status",
+      "y_field": "count"
+    },
+    "props_schema": {
+      "allowed_props": [
+        "title",
+        "datasource_id",
+        "chart_type",
+        "x_field",
+        "y_field"
+      ]
+    },
+    "page_id": "client-docs-dashboard",
+    "module_id": "module:documents"
+  },
+  {
+    "id": "w-invoice-activity",
+    "widget_id": "widget:timeline",
+    "props": {
+      "title": "Payments",
+      "datasource_id": "query:billing.activity",
+      "timestamp_field": "id",
+      "label_field": "method"
+    },
+    "props_schema": {
+      "allowed_props": [
+        "title",
+        "datasource_id",
+        "timestamp_field",
+        "label_field"
+      ]
+    },
+    "page_id": "client-billing-invoice-detail",
+    "module_id": "module:billing",
+    "section_key": "activity"
+  },
+  {
+    "id": "w-billing-kpi",
+    "widget_id": "widget:kpi",
+    "props": {
+      "title": "Outstanding Invoices",
+      "datasource_id": "query:billing.dashboard",
+      "metric": "outstanding_count"
+    },
+    "props_schema": {
+      "allowed_props": [
+        "title",
+        "datasource_id",
+        "metric"
+      ]
+    },
+    "page_id": "client-billing-dashboard",
+    "module_id": "module:billing"
+  },
+  {
+    "id": "w-billing-chart",
+    "widget_id": "widget:chart",
+    "props": {
+      "title": "Invoice Status",
+      "datasource_id": "query:billing.dashboard",
+      "chart_type": "bar",
+      "x_field": "status",
+      "y_field": "count"
+    },
+    "props_schema": {
+      "allowed_props": [
+        "title",
+        "datasource_id",
+        "chart_type",
+        "x_field",
+        "y_field"
+      ]
+    },
+    "page_id": "client-billing-dashboard",
+    "module_id": "module:billing"
   }
 ]

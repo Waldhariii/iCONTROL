@@ -130,6 +130,49 @@ try {
   }
   if (!failedQuorum) throw new Error("Expected Quorum gate failure did not occur");
 
+  // widget binding gate (missing page_id)
+  copyDir(`${root}/platform`, `${temp}/platform`);
+  run("node -e \"const fs=require('fs');const p='platform/ssot/studio/widgets/widget_instances.json';const d=JSON.parse(fs.readFileSync(p,'utf-8'));d.push({id:'w-missing-page',widget_id:'widget:entity_list',module_id:'module:jobs'});fs.writeFileSync(p,JSON.stringify(d,null,2));\"",
+      temp);
+  run("node scripts/ci/compile.mjs test-008 dev", temp);
+  let failedWidgetBinding = false;
+  try {
+    run("node governance/gates/run-gates.mjs test-008", temp);
+  } catch {
+    failedWidgetBinding = true;
+  }
+  if (!failedWidgetBinding) throw new Error("Expected Widget Binding gate failure did not occur");
+
+  // section no route gate (section declares route path)
+  copyDir(`${root}/platform`, `${temp}/platform`);
+  run(
+    "node -e \"const fs=require('fs');const p='platform/ssot/studio/nav/nav_specs.json';const d=JSON.parse(fs.readFileSync(p,'utf-8'));d.push({id:'nav:section-bad',surface:'client',module_id:'module:jobs',type:'section',page_id:'client-jobs-detail',section_key:'overview',path:'/jobs/overview'});fs.writeFileSync(p,JSON.stringify(d,null,2));\"",
+    temp
+  );
+  run("node scripts/ci/compile.mjs test-009 dev", temp);
+  let failedSection = false;
+  try {
+    run("node governance/gates/run-gates.mjs test-009", temp);
+  } catch {
+    failedSection = true;
+  }
+  if (!failedSection) throw new Error("Expected Section No Route gate failure did not occur");
+
+  // module page ownership gate (page_version missing module_id)
+  copyDir(`${root}/platform`, `${temp}/platform`);
+  run(
+    "node -e \"const fs=require('fs');const p='platform/ssot/studio/pages/page_instances.json';const d=JSON.parse(fs.readFileSync(p,'utf-8'));if(d[0]){d[0].module_id='';}fs.writeFileSync(p,JSON.stringify(d,null,2));\"",
+    temp
+  );
+  run("node scripts/ci/compile.mjs test-010 dev", temp);
+  let failedOwnership = false;
+  try {
+    run("node governance/gates/run-gates.mjs test-010", temp);
+  } catch {
+    failedOwnership = true;
+  }
+  if (!failedOwnership) throw new Error("Expected Module Page Ownership gate failure did not occur");
+
   console.log("Gate tests PASS");
 } finally {
   rmSync(temp, { recursive: true, force: true });

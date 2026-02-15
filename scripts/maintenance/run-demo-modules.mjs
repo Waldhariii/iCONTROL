@@ -71,7 +71,12 @@ function extractSnapshot({ manifest, tenantId }) {
   const pages = (manifest.pages?.pages || [])
     .filter((p) => p.surface === "client")
     .map((p) => p.key || p.id);
-  return { activeModuleIds, routes, nav, pages };
+  const sections = (manifest.pages?.sections || []).reduce((acc, s) => {
+    acc[s.page_id] = acc[s.page_id] || [];
+    acc[s.page_id].push(s.section_key);
+    return acc;
+  }, {});
+  return { activeModuleIds, routes, nav, pages, sections };
 }
 
 async function runDemo({ ssotDir, outDir, templateId }) {
@@ -180,15 +185,16 @@ if (billing && jobs) {
 }
 
 writeFileSync(reportPath, lines.join("\n") + "\n", "utf-8");
-writeJson(snapshotPath, results.map((r) => ({
-  template_id: r.templateId,
-  tenant_id: r.tenantId,
-  release_id: r.releaseId,
-  modules_active: r.snapshot.activeModuleIds,
-  routes: r.snapshot.routes,
-  nav: r.snapshot.nav,
-  pages: r.snapshot.pages
-})));
+  writeJson(snapshotPath, results.map((r) => ({
+    template_id: r.templateId,
+    tenant_id: r.tenantId,
+    release_id: r.releaseId,
+    modules_active: r.snapshot.activeModuleIds,
+    routes: r.snapshot.routes,
+    nav: r.snapshot.nav,
+    pages: r.snapshot.pages,
+    sections: r.snapshot.sections
+  })));
 
 console.log(`Demo report written: ${reportPath}`);
 console.log(`Demo snapshot written: ${snapshotPath}`);

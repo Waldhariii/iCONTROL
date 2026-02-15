@@ -68,6 +68,7 @@ const specificMap = new Map([
   ["domain_modules.json", "domain_module.v1"],
   ["domain_module_versions.json", "domain_module_version.v1"],
   ["module_activations.json", "module_activation.v1"],
+  ["nav_specs.json", "nav_spec.v1"],
   ["catalog_sources.json", "marketplace_catalog_source.v1"],
   ["catalog_versions.json", "marketplace_catalog_version.v1"],
   ["billing_mode.json", "billing_mode.v1"],

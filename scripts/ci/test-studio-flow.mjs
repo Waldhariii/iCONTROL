@@ -39,6 +39,7 @@ async function run() {
 
     const page_version = {
       page_id: pageId,
+      module_id: "studio",
       version: "1.0.0",
       status: "draft",
       layout_instance_id: "layout-1",
@@ -81,7 +82,10 @@ async function run() {
     await fetch(`${api}/studio/nav`, {
       method: "POST",
       headers: { "Content-Type": "application/json", ...authHeaders },
-      body: JSON.stringify({ changeset_id: cs.id, nav_spec: { id: `nav-${pageId}`, route_id: route_spec.route_id } })
+      body: JSON.stringify({
+        changeset_id: cs.id,
+        nav_spec: { id: `nav-${pageId}`, surface: "cp", module_id: "studio", type: "link", label: pageId, path: route_spec.path }
+      })
     });
 
     const previewRes = await fetch(`${api}/changesets/${cs.id}/preview`, { method: "POST", headers: authHeaders });

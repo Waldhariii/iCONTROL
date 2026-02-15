@@ -10,6 +10,21 @@
     "pages": {"type": "array", "items": {"$ref": "page_definition.v1"}},
     "page_versions": {"type": "array", "items": {"$ref": "page_version.v1"}},
     "layouts": {"type": "array", "items": {"type": "object"}},
-    "widgets": {"type": "array", "items": {"type": "object"}}
+    "widgets": {"type": "array", "items": {"type": "object"}},
+    "sections": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["page_id", "section_key", "widget_instance_ids"],
+        "additionalProperties": false,
+        "properties": {
+          "page_id": {"type": "string"},
+          "section_key": {"type": "string"},
+          "title_key": {"type": "string"},
+          "order": {"type": "integer"},
+          "widget_instance_ids": {"type": "array", "items": {"type": "string"}}
+        }
+      }
+    }
   }
 }

@@ -55,6 +55,7 @@
   "mitigation_version.v1": "core/contracts/schemas/mitigation_version.schema.json",
   "module_activation.v1": "core/contracts/schemas/module_activation.schema.json",
   "nav_manifest.v1": "core/contracts/schemas/nav_manifest.schema.json",
+  "nav_spec.v1": "core/contracts/schemas/nav_spec.schema.json",
   "page_definition.v1": "core/contracts/schemas/page_definition.schema.json",
   "page_version.v1": "core/contracts/schemas/page_version.schema.json",
   "plan.v1": "core/contracts/schemas/plan.schema.json",

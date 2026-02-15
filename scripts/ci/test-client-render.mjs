@@ -38,6 +38,7 @@ async function run() {
     };
     const page_version = {
       page_id: pageId,
+      module_id: "client",
       version: "1.0.0",
       status: "draft",
       layout_instance_id: "layout-1",

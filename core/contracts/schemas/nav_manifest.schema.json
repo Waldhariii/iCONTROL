@@ -8,6 +8,22 @@
   "properties": {
     "release_id": {"type": "string"},
     "nav_specs": {"type": "array", "items": {"type": "object"}},
-    "nav_instances": {"type": "array", "items": {"type": "object"}}
+    "nav_instances": {"type": "array", "items": {"type": "object"}},
+    "sections_by_page": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": ["section_key"],
+          "properties": {
+            "section_key": {"type": "string"},
+            "title_key": {"type": "string"},
+            "order": {"type": "integer"}
+          },
+          "additionalProperties": false
+        }
+      }
+    }
   }
 }

@@ -65,9 +65,24 @@ const CORE_ALLOWLIST_PREFIXES = [
   "governance/gates/",
   "scripts/maintenance/",
   "scripts/ci/",
+  "platform/compilers/page-compiler.mjs",
+  "platform/compilers/nav-compiler.mjs",
+  "platform/runtime/changes/patch-engine.mjs",
+  "core/contracts/schemas/nav_spec.schema.json",
+  "core/contracts/schemas/nav_manifest.schema.json",
+  "core/contracts/schemas/render_graph.schema.json",
+  "core/contracts/schemas/page_version.schema.json",
+  "core/contracts/schema/validate-ssot.mjs",
+  "core/contracts/schemas-index.json",
   "platform/ssot/modules/",
+  "platform/ssot/data/",
+  "platform/ssot/studio/pages/page_instances.json",
+  "platform/ssot/studio/widgets/",
+  "platform/ssot/studio/forms/",
+  "platform/ssot/changes/changesets/",
   "apps/backend-api/server.mjs",
   "apps/control-plane/public/app.js",
+  "apps/client-app/public/app.js",
   "platform/ssot/studio/routes/route_specs.json",
   "platform/ssot/studio/nav/nav_specs.json",
   "platform/ssot/studio/pages/page_definitions.json"
@@ -1031,11 +1046,91 @@ export function moduleActivationGate({ ssotDir, manifestsDir, releaseId }) {
   return { ok, gate: "Module Activation Gate", details: details.join(" | ") };
 }
 
+export function modulePageOwnershipGate({ ssotDir }) {
+  const pages = readJson(`${ssotDir}/studio/pages/page_definitions.json`);
+  const pageVersions = readJson(`${ssotDir}/studio/pages/page_instances.json`);
+  const routes = readJson(`${ssotDir}/studio/routes/route_specs.json`);
+  const pagesById = new Map(pages.map((p) => [p.id, p]));
+  const bad = [];
+
+  for (const p of pages) {
+    if (!p.module_id) bad.push(`${p.id}:missing_module_id`);
+  }
+  for (const pv of pageVersions) {
+    if (!pv.module_id) bad.push(`${pv.page_id}:missing_module_id`);
+    const def = pagesById.get(pv.page_id);
+    if (def && pv.module_id && def.module_id !== pv.module_id) {
+      bad.push(`${pv.page_id}:module_mismatch`);
+    }
+  }
+  for (const r of routes) {
+    const def = pagesById.get(r.page_id);
+    if (!def || !def.module_id) bad.push(`${r.route_id}:page_module_missing`);
+  }
+
+  const ok = bad.length === 0;
+  return { ok, gate: "Module Page Ownership Gate", details: ok ? "" : bad.join(", ") };
+}
+
+export function widgetBindingGate({ ssotDir }) {
+  const widgets = readJson(`${ssotDir}/studio/widgets/widget_instances.json`);
+  const catalog = readJson(`${ssotDir}/studio/widgets/widget_catalog.json`);
+  const pageVersions = readJson(`${ssotDir}/studio/pages/page_instances.json`);
+  const catalogById = new Map(catalog.map((w) => [w.id, w]));
+
+  const counts = new Map();
+  for (const pv of pageVersions) {
+    for (const wid of pv.widget_instance_ids || []) {
+      counts.set(wid, (counts.get(wid) || 0) + 1);
+    }
+  }
+
+  const bad = [];
+  for (const w of widgets) {
+    if (!w.page_id) bad.push(`${w.id}:missing_page_id`);
+    if (!w.module_id) bad.push(`${w.id}:missing_module_id`);
+    const usage = counts.get(w.id) || 0;
+    const cat = catalogById.get(w.widget_id) || {};
+    if (cat.reusable) {
+      if (!cat.capability_required) bad.push(`${w.id}:reusable_missing_capability`);
+      if (!w.props_schema_version) bad.push(`${w.id}:reusable_missing_props_schema_version`);
+    } else if (usage !== 1) {
+      bad.push(`${w.id}:usage_count:${usage}`);
+    }
+  }
+  const ok = bad.length === 0;
+  return { ok, gate: "Widget Binding Gate", details: ok ? "" : bad.join(", ") };
+}
+
+export function sectionNoRouteGate({ ssotDir }) {
+  const navSpecs = readJson(`${ssotDir}/studio/nav/nav_specs.json`);
+  const routes = readJson(`${ssotDir}/studio/routes/route_specs.json`);
+  const routesByPage = new Map();
+  for (const r of routes) {
+    const list = routesByPage.get(r.page_id) || [];
+    list.push(r.path);
+    routesByPage.set(r.page_id, list);
+  }
+  const bad = [];
+  for (const n of navSpecs) {
+    if (n.type !== "section") continue;
+    if (n.path) bad.push(`${n.id}:section_has_path`);
+    const paths = routesByPage.get(n.page_id) || [];
+    for (const p of paths) {
+      if (p.endsWith(`/${n.section_key}`)) bad.push(`${n.id}:section_route:${p}`);
+    }
+  }
+  const ok = bad.length === 0;
+  return { ok, gate: "Section No Route Gate", details: ok ? "" : bad.join(", ") };
+}
+
 export function dataGovCoverageGate({ ssotDir }) {
   const modules = readJson(`${ssotDir}/modules/domain_modules.json`);
   const queries = readJson(`${ssotDir}/data/query_catalog.json`);
   const fields = readJson(`${ssotDir}/data/catalog/data_fields.json`);
   const classifications = new Set(readJson(`${ssotDir}/data/catalog/data_classifications.json`).map((c) => c.classification_id));
+  const retention = readJson(`${ssotDir}/data/policies/retention_policies.json`);
+  const retentionByModel = new Set(retention.map((r) => r.target_model_id));
 
   const queriesById = new Map(queries.map((q) => [q.query_id, q]));
   const fieldsByModel = new Map();
@@ -1052,6 +1147,7 @@ export function dataGovCoverageGate({ ssotDir }) {
       if (!q) continue;
       const f = fieldsByModel.get(q.data_model_id) || [];
       if (f.length === 0) bad.push(`${mod.module_id}:${q.data_model_id}:no_fields`);
+      if (!retentionByModel.has(q.data_model_id)) bad.push(`${mod.module_id}:${q.data_model_id}:missing_retention`);
       for (const field of f) {
         if (!field.classification_id || !classifications.has(field.classification_id)) {
           bad.push(`${mod.module_id}:${field.field_id}:missing_classification`);

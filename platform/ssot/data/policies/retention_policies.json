@@ -34,5 +34,23 @@
     "purge_strategy": "archive",
     "legal_hold": false,
     "hold_reason": ""
+  },
+  {
+    "policy_id": "retention:visit",
+    "scope": "platform:*",
+    "target_model_id": "model:visit",
+    "retain_days": 365,
+    "purge_strategy": "archive",
+    "legal_hold": false,
+    "hold_reason": ""
+  },
+  {
+    "policy_id": "retention:ingestion",
+    "scope": "platform:*",
+    "target_model_id": "model:ingestion",
+    "retain_days": 365,
+    "purge_strategy": "archive",
+    "legal_hold": false,
+    "hold_reason": ""
   }
 ]

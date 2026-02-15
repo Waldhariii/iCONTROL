@@ -18,7 +18,7 @@ function expectPass(paths, note) {
 }
 
 try {
-  expectFail(["platform/runtime/changes/patch-engine.mjs"], "restricted core change");
+  expectFail(["platform/runtime/release/orchestrator.mjs"], "restricted core change");
   expectPass(["platform/ssot/modules/domain_modules.json"], "ssot domain modules allowed");
   expectPass(["scripts/maintenance/deep-clean-v5.sh"], "maintenance scripts allowed");
   expectPass(["apps/backend-api/server.mjs"], "studio module authoring allowed");

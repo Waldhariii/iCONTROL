@@ -1,8 +1,86 @@
 [
-  {"query_id": "query:jobs.list", "datasource_id": "ds:jobs", "name": "Jobs List", "module_id": "module:jobs", "data_model_id": "model:job"},
-  {"query_id": "query:jobs.detail", "datasource_id": "ds:jobs", "name": "Job Detail", "module_id": "module:jobs", "data_model_id": "model:job"},
-  {"query_id": "query:docs.list", "datasource_id": "ds:documents", "name": "Documents List", "module_id": "module:documents", "data_model_id": "model:document"},
-  {"query_id": "query:docs.detail", "datasource_id": "ds:documents", "name": "Document Detail", "module_id": "module:documents", "data_model_id": "model:document"},
-  {"query_id": "query:billing.invoices", "datasource_id": "ds:billing", "name": "Invoices List", "module_id": "module:billing", "data_model_id": "model:invoice"},
-  {"query_id": "query:billing.invoice.detail", "datasource_id": "ds:billing", "name": "Invoice Detail", "module_id": "module:billing", "data_model_id": "model:invoice"}
+  {
+    "query_id": "query:jobs.list",
+    "datasource_id": "ds:jobs",
+    "name": "Jobs List",
+    "module_id": "module:jobs",
+    "data_model_id": "model:job"
+  },
+  {
+    "query_id": "query:jobs.detail",
+    "datasource_id": "ds:jobs",
+    "name": "Job Detail",
+    "module_id": "module:jobs",
+    "data_model_id": "model:job"
+  },
+  {
+    "query_id": "query:docs.list",
+    "datasource_id": "ds:documents",
+    "name": "Documents List",
+    "module_id": "module:documents",
+    "data_model_id": "model:document"
+  },
+  {
+    "query_id": "query:docs.detail",
+    "datasource_id": "ds:documents",
+    "name": "Document Detail",
+    "module_id": "module:documents",
+    "data_model_id": "model:document"
+  },
+  {
+    "query_id": "query:billing.invoices",
+    "datasource_id": "ds:billing",
+    "name": "Invoices List",
+    "module_id": "module:billing",
+    "data_model_id": "model:invoice"
+  },
+  {
+    "query_id": "query:billing.invoice.detail",
+    "datasource_id": "ds:billing",
+    "name": "Invoice Detail",
+    "module_id": "module:billing",
+    "data_model_id": "model:invoice"
+  },
+  {
+    "query_id": "query:jobs.dashboard",
+    "datasource_id": "ds:jobs",
+    "name": "Jobs Dashboard",
+    "module_id": "module:jobs",
+    "data_model_id": "model:job"
+  },
+  {
+    "query_id": "query:jobs.activity",
+    "datasource_id": "ds:jobs",
+    "name": "Jobs Activity",
+    "module_id": "module:jobs",
+    "data_model_id": "model:visit"
+  },
+  {
+    "query_id": "query:docs.dashboard",
+    "datasource_id": "ds:documents",
+    "name": "Documents Dashboard",
+    "module_id": "module:documents",
+    "data_model_id": "model:document"
+  },
+  {
+    "query_id": "query:docs.activity",
+    "datasource_id": "ds:documents",
+    "name": "Documents Activity",
+    "module_id": "module:documents",
+    "data_model_id": "model:ingestion"
+  },
+  {
+    "query_id": "query:billing.dashboard",
+    "datasource_id": "ds:billing",
+    "name": "Billing Dashboard",
+    "module_id": "module:billing",
+    "data_model_id": "model:invoice"
+  },
+  {
+    "query_id": "query:billing.activity",
+    "datasource_id": "ds:billing",
+    "name": "Billing Activity",
+    "module_id": "module:billing",
+    "data_model_id": "model:payment"
+  }
 ]

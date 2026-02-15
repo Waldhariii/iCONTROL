@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "nav_spec.v1",
+  "title": "nav_spec",
+  "type": "object",
+  "required": ["id", "surface", "module_id"],
+  "additionalProperties": false,
+  "properties": {
+    "id": {"type": "string"},
+    "surface": {"type": "string", "enum": ["cp", "client"]},
+    "module_id": {"type": "string"},
+    "type": {"type": "string", "enum": ["link", "section"]},
+    "label": {"type": "string"},
+    "label_key": {"type": "string"},
+    "path": {"type": "string"},
+    "page_id": {"type": "string"},
+    "section_key": {"type": "string"},
+    "order": {"type": "integer"},
+    "capability_required": {"type": "string"},
+    "entitlement_required": {"type": "string"}
+  },
+  "anyOf": [
+    {
+      "properties": {
+        "type": {"const": "section"},
+        "page_id": {"type": "string"},
+        "section_key": {"type": "string"}
+      },
+      "required": ["page_id", "section_key"]
+    },
+    {
+      "properties": {
+        "type": {"const": "link"},
+        "path": {"type": "string"}
+      }
+    },
+    {
+      "not": {"required": ["type"]}
+    }
+  ]
+}

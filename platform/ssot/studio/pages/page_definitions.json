@@ -223,5 +223,50 @@
     "owner_team": "studio",
     "tags": [],
     "state": "active"
+  },
+  {
+    "id": "client-jobs-dashboard",
+    "surface": "client",
+    "key": "jobs.dashboard",
+    "slug": "jobs-dashboard",
+    "title_key": "Jobs Dashboard",
+    "module_id": "module:jobs",
+    "default_layout_template_id": "layout-1",
+    "capabilities_required": [
+      "client.access"
+    ],
+    "owner_team": "jobs",
+    "tags": [],
+    "state": "active"
+  },
+  {
+    "id": "client-docs-dashboard",
+    "surface": "client",
+    "key": "documents.dashboard",
+    "slug": "documents-dashboard",
+    "title_key": "Documents Dashboard",
+    "module_id": "module:documents",
+    "default_layout_template_id": "layout-1",
+    "capabilities_required": [
+      "client.access"
+    ],
+    "owner_team": "documents",
+    "tags": [],
+    "state": "active"
+  },
+  {
+    "id": "client-billing-dashboard",
+    "surface": "client",
+    "key": "billing.dashboard",
+    "slug": "billing-dashboard",
+    "title_key": "Billing Dashboard",
+    "module_id": "module:billing",
+    "default_layout_template_id": "layout-1",
+    "capabilities_required": [
+      "client.access"
+    ],
+    "owner_team": "billing",
+    "tags": [],
+    "state": "active"
   }
 ]

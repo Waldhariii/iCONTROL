@@ -1440,6 +1440,42 @@
     "s2s_scopes": []
   },
   {
+    "id": "scripts:ci:test-tabs-as-sections.mjs",
+    "path": "scripts/ci/test-tabs-as-sections.mjs",
+    "purpose": "CI: verify tabs-as-sections compile without extra routes",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:ci:test-widget-binding-gate.mjs",
+    "path": "scripts/ci/test-widget-binding-gate.mjs",
+    "purpose": "CI: widget binding gate pass on baseline SSOT",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:ci:test-module-pages-rendergraph.mjs",
+    "path": "scripts/ci/test-module-pages-rendergraph.mjs",
+    "purpose": "CI: per-page render_graph sections partition widgets",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
     "id": "scripts:ci:test-token-exchange-issue-and-use.mjs",
     "path": "scripts/ci/test-token-exchange-issue-and-use.mjs",
     "purpose": "script",

@@ -4,5 +4,35 @@
     "version": "1.0.0",
     "status": "active",
     "effective_from": "2026-02-14T00:00:00.000Z"
+  },
+  {
+    "policy_id": "retention:job",
+    "version": "1.0.0",
+    "status": "active",
+    "effective_from": "2026-02-14T00:00:00.000Z"
+  },
+  {
+    "policy_id": "retention:invoice",
+    "version": "1.0.0",
+    "status": "active",
+    "effective_from": "2026-02-14T00:00:00.000Z"
+  },
+  {
+    "policy_id": "retention:payment",
+    "version": "1.0.0",
+    "status": "active",
+    "effective_from": "2026-02-14T00:00:00.000Z"
+  },
+  {
+    "policy_id": "retention:visit",
+    "version": "1.0.0",
+    "status": "active",
+    "effective_from": "2026-02-14T00:00:00.000Z"
+  },
+  {
+    "policy_id": "retention:ingestion",
+    "version": "1.0.0",
+    "status": "active",
+    "effective_from": "2026-02-14T00:00:00.000Z"
   }
 ]
