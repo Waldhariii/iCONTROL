@@ -100,6 +100,8 @@ const steps = [
   "node scripts/ci/test-datagov-legal-hold.mjs",
   "node scripts/ci/test-datagov-retention-runner.mjs",
   "node scripts/ci/test-integration-inbound-signature.mjs",
+  "node scripts/ci/test-webhook-replay.mjs",
+  "node scripts/ci/test-webhook-valid-signed.mjs",
   "node scripts/ci/test-integration-outbound-masking.mjs",
   "node scripts/ci/test-integration-retry-dlq.mjs",
   "node scripts/ci/test-integration-secretref-scan.mjs",
@@ -108,6 +110,7 @@ const steps = [
   "node scripts/ci/test-restore-drill-smoke.mjs",
   "node scripts/ci/test-evidence-pack.mjs",
   "node scripts/ci/test-evidence-pack-contains-observability.mjs",
+  "node scripts/ci/test-rotation-runner.mjs",
   "node scripts/ci/test-chaos-smoke.mjs",
   "node scripts/ci/test-compat-diff.mjs",
   "node scripts/ci/test-migration-dryrun.mjs",
@@ -118,7 +121,8 @@ const steps = [
   "node scripts/ci/test-tenant-factory-quorum.mjs",
   "node scripts/ci/test-tenant-factory-audit.mjs",
   "node scripts/ci/test-token-gate.mjs",
-  "node scripts/ci/test-audit.mjs"
+  "node scripts/ci/test-audit.mjs",
+  "node scripts/ci/test-no-secrets-evidence.mjs"
 ];
 
 assertNoRootGeneratedFiles("pre-run");

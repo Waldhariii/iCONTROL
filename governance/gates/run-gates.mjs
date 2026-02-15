@@ -19,7 +19,10 @@ import {
   exportControlGate,
   connectorConfigGate,
   webhookSecurityGate,
+  webhookNoWeakSigGate,
   secretRefGate,
+  rotationIntegrityGate,
+  replayProtectionGate,
   egressGovernanceGate,
   retryDlqGate,
   sloGate,
@@ -57,7 +60,8 @@ import {
   marketplaceCompatGate,
   billingDormantGate,
   ratingIntegrityGate,
-  invoiceNoSecretsGate
+  invoiceNoSecretsGate,
+  noSecretsEvidenceGate
 } from "./gates.mjs";
 
 const releaseId = process.argv[2];
@@ -88,7 +92,10 @@ const gates = [
   () => exportControlGate({ ssotDir }),
   () => connectorConfigGate({ ssotDir }),
   () => webhookSecurityGate({ ssotDir }),
+  () => webhookNoWeakSigGate({ ssotDir }),
   () => secretRefGate({ ssotDir }),
+  () => rotationIntegrityGate({ ssotDir }),
+  () => replayProtectionGate({ ssotDir }),
   () => egressGovernanceGate({ ssotDir }),
   () => retryDlqGate({ ssotDir }),
   () => sloGate({ ssotDir }),
@@ -127,7 +134,8 @@ const gates = [
   () => marketplaceCompatGate({ ssotDir }),
   () => billingDormantGate({ ssotDir }),
   () => ratingIntegrityGate({ ssotDir }),
-  () => invoiceNoSecretsGate()
+  () => invoiceNoSecretsGate(),
+  () => noSecretsEvidenceGate()
 ];
 
 const results = [];

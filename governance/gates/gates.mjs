@@ -24,6 +24,14 @@ const EXT_ALLOWED_CAPS = ["finops.read", "qos.read", "documents.ingest", "jobs.c
 const EXT_ALLOWED_EVENTS = ["on_document_ingested", "on_workflow_completed", "on_budget_threshold", "on_qos_incident"];
 const EXT_ALLOWED_HANDLERS = ["enqueue_workflow", "write_dead_letter", "emit_webhook"];
 const SECRET_KEYS = ["secret", "token", "api_key", "apikey", "password"];
+const SECRET_PATTERNS = [
+  /sk_live_/i,
+  /Bearer\s+[A-Za-z0-9\-_\.=]+/i,
+  /AKIA[0-9A-Z]{16}/,
+  /-----BEGIN [A-Z ]+ PRIVATE KEY-----/,
+  /xoxb-[A-Za-z0-9-]+/i,
+  /[A-Za-z0-9+/]{200,}={0,2}/
+];
 const OPS_ALLOWED_ACTIONS = [
   "qos.throttle",
   "qos.shed",
@@ -439,6 +447,21 @@ export function webhookSecurityGate({ ssotDir }) {
   return { ok, gate: "Webhook Security Gate", details: ok ? "" : `Invalid webhooks: ${bad.join(", ")}` };
 }
 
+export function webhookNoWeakSigGate({ ssotDir }) {
+  const webhooks = readJson(`${ssotDir}/integrations/webhooks.json`);
+  const bad = [];
+  for (const w of webhooks) {
+    if (w.direction === "inbound") {
+      if (!w.signature_required) bad.push(`${w.webhook_id}:signature_required`);
+      const header = w.signature_header || "";
+      if (!header) bad.push(`${w.webhook_id}:signature_header_missing`);
+      if (header && !String(header).toLowerCase().includes("signature")) bad.push(`${w.webhook_id}:signature_header_weak`);
+    }
+  }
+  const ok = bad.length === 0;
+  return { ok, gate: "Webhook No Weak Sig Gate", details: ok ? "" : `Invalid signature headers: ${bad.join(", ")}` };
+}
+
 export function secretRefGate({ ssotDir }) {
   const refs = readJson(`${ssotDir}/integrations/secrets_vault_refs.json`);
   const configs = readJson(`${ssotDir}/integrations/connector_configs.json`);
@@ -468,6 +491,44 @@ export function secretRefGate({ ssotDir }) {
 
   const ok = bad.length === 0;
   return { ok, gate: "Secret Ref Gate", details: ok ? "" : `Secrets violations: ${bad.join(", ")}` };
+}
+
+export function rotationIntegrityGate({ ssotDir }) {
+  const bindings = readJson(`${ssotDir}/security/secret_bindings.json`);
+  const policies = readJson(`${ssotDir}/security/secret_policies.json`);
+  const refs = readJson(`${ssotDir}/security/secrets_vault_refs.json`);
+  const refIds = new Set(refs.map((r) => r.id));
+  const bad = [];
+  const now = Date.now();
+  for (const b of bindings) {
+    const policy = policies.find((p) => p.id === b.policy_id);
+    if (!policy) bad.push(`${b.id}:missing_policy`);
+    if (!refIds.has(b.active_ref)) bad.push(`${b.id}:active_ref_missing`);
+    if (b.expires_at) {
+      const exp = Date.parse(b.expires_at);
+      if (Number.isFinite(exp) && exp < now) bad.push(`${b.id}:active_ref_expired`);
+    }
+    if (b.usage === "webhook_signing" && b.next_ref && policy && policy.allow_dual !== true) {
+      bad.push(`${b.id}:dual_not_allowed_for_webhook_signing`);
+    }
+  }
+  const ok = bad.length === 0;
+  return { ok, gate: "Rotation Integrity Gate", details: ok ? "" : bad.join(", ") };
+}
+
+export function replayProtectionGate({ ssotDir }) {
+  const bindings = readJson(`${ssotDir}/security/secret_bindings.json`);
+  const policies = readJson(`${ssotDir}/security/secret_policies.json`);
+  const bad = [];
+  for (const b of bindings) {
+    if (b.usage !== "webhook_signing") continue;
+    const policy = policies.find((p) => p.id === b.policy_id);
+    if (!policy) bad.push(`${b.id}:missing_policy`);
+    const windowMs = policy?.replay_window_ms || 0;
+    if (windowMs <= 0) bad.push(`${b.id}:missing_replay_window`);
+  }
+  const ok = bad.length === 0;
+  return { ok, gate: "Replay Protection Gate", details: ok ? "" : bad.join(", ") };
 }
 
 export function egressGovernanceGate({ ssotDir }) {
@@ -1050,6 +1111,60 @@ export function invoiceNoSecretsGate() {
   scan(draftsDir);
   const ok = bad.length === 0;
   return { ok, gate: "Invoice No Secrets Gate", details: ok ? "" : `Secrets in drafts: ${bad.join(", ")}` };
+}
+
+function scanFilesForSecrets(paths) {
+  const bad = [];
+  const allow = ["sec:ref:"];
+  const scanFile = (filePath) => {
+    let txt = readFileSync(filePath, "utf-8");
+    if (filePath.endsWith(".json")) {
+      try {
+        const obj = JSON.parse(txt);
+        const scrub = (o) => {
+          if (!o || typeof o !== "object") return;
+          for (const [k, v] of Object.entries(o)) {
+            if (typeof v === "object") scrub(v);
+            const key = String(k).toLowerCase();
+            if (key.includes("signature") || key.includes("checksum") || key.includes("hash")) {
+              o[k] = "__redacted__";
+            }
+          }
+        };
+        scrub(obj);
+        txt = JSON.stringify(obj);
+      } catch {
+        // keep original
+      }
+    }
+    if (allow.some((a) => txt.includes(a))) return;
+    for (const re of SECRET_PATTERNS) {
+      const m = txt.match(re);
+      if (m) {
+        bad.push(`${filePath}:pattern`);
+        break;
+      }
+    }
+  };
+  const scanDir = (p) => {
+    if (!existsSync(p)) return;
+    const entries = readdirSync(p, { withFileTypes: true });
+    for (const e of entries) {
+      const full = `${p}/${e.name}`;
+      if (e.isDirectory()) scanDir(full);
+      else scanFile(full);
+    }
+  };
+  for (const p of paths) scanDir(p);
+  return bad;
+}
+
+export function noSecretsEvidenceGate() {
+  const reportsDir = "./runtime/reports";
+  const manifestsDir = "./runtime/manifests";
+  const bad = scanFilesForSecrets([reportsDir, manifestsDir]);
+  const ok = bad.length === 0;
+  return { ok, gate: "No Secrets Evidence Gate", details: ok ? "" : `Secrets detected: ${bad.join(", ")}` };
 }
 
 export function runbookIntegrityGate({ ssotDir }) {

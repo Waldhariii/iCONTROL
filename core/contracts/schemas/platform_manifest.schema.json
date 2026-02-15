@@ -3,7 +3,7 @@
   "$id": "platform_manifest.v1",
   "title": "platform_manifest",
   "type": "object",
-  "required": ["manifest_id", "manifest_version", "manifest_env", "release_id", "signature", "checksums", "compat_matrix", "routes", "nav", "pages", "widgets", "themes", "permissions", "datasources", "workflows", "capabilities", "modules", "entitlements", "plans", "plan_versions", "tenant_entitlements", "tenant_quotas", "metering_catalog", "budget_policies", "qos_policies", "qos_runtime_config", "extensions_runtime", "data_catalog", "retention_policies", "export_controls", "integrations", "sre", "ops", "compat", "domain_modules", "module_activations", "marketplace", "billing"],
+  "required": ["manifest_id", "manifest_version", "manifest_env", "release_id", "signature", "checksums", "compat_matrix", "routes", "nav", "pages", "widgets", "themes", "permissions", "datasources", "workflows", "capabilities", "modules", "entitlements", "plans", "plan_versions", "tenant_entitlements", "tenant_quotas", "metering_catalog", "budget_policies", "qos_policies", "qos_runtime_config", "extensions_runtime", "data_catalog", "retention_policies", "export_controls", "integrations", "security", "sre", "ops", "compat", "domain_modules", "module_activations", "marketplace", "billing"],
   "additionalProperties": false,
   "properties": {
     "manifest_id": {"type": "string"},
@@ -37,6 +37,16 @@
     "retention_policies": {"type": "array", "items": {"type": "object"}},
     "export_controls": {"type": "array", "items": {"type": "object"}},
     "integrations": {"type": "object"},
+    "security": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["secret_bindings_summary", "policies_summary", "refs_summary"],
+      "properties": {
+        "secret_bindings_summary": { "type": "array", "items": { "type": "object" } },
+        "policies_summary": { "type": "array", "items": { "type": "object" } },
+        "refs_summary": { "type": "array", "items": { "type": "object" } }
+      }
+    },
     "sre": {"type": "object"},
     "ops": {"type": "object"},
     "compat": {"type": "object"},

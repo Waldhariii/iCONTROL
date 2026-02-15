@@ -1,6 +1,6 @@
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from "fs";
 import { join, dirname } from "path";
-import { createHmac } from "crypto";
+import { createHmac, randomUUID } from "crypto";
 import { sha256, stableStringify } from "../../compilers/utils.mjs";
 
 const SSOT_DIR = process.env.SSOT_DIR || "./platform/ssot";
@@ -30,8 +30,8 @@ function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-export function resolveSecret(refId, manifest, tenantId) {
-  const refs = manifest?.integrations?.secrets_vault_refs || [];
+export function resolveSecret(refId, _manifest, tenantId) {
+  const refs = readJson(ssotPath("integrations/secrets_vault_refs.json"));
   const ref = refs.find((r) => r.ref_id === refId && r.tenant_id === tenantId);
   if (!ref) throw new Error("Secret ref not found");
   if (ref.provider === "local_env") {
@@ -91,7 +91,12 @@ export async function sendWebhook({ manifest, tenantId, webhook, event, payload,
   const headers = { "content-type": "application/json" };
   if (webhook.secret_ref_id) {
     const secret = resolveSecret(webhook.secret_ref_id, manifest, tenantId);
-    const sig = createHmac("sha256", secret).update(body).digest("hex");
+    const timestamp = Date.now().toString();
+    const reqId = randomUUID();
+    const canonical = `${timestamp}.${body}`;
+    const sig = createHmac("sha256", secret).update(canonical).digest("base64");
+    headers["x-timestamp"] = timestamp;
+    headers["x-request-id"] = reqId;
     headers[webhook.signature_header || "x-signature"] = sig;
   }
 

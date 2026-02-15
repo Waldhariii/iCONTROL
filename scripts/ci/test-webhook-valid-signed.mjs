@@ -1,6 +1,6 @@
 import { spawn, execSync } from "child_process";
 import { createTempSsot } from "./test-utils.mjs";
-import { readFileSync, writeFileSync, mkdirSync } from "fs";
+import { writeFileSync, mkdirSync } from "fs";
 import { join } from "path";
 import { createHmac, randomUUID } from "crypto";
 
@@ -62,7 +62,7 @@ async function run() {
     }
   ], null, 2) + "\n");
 
-  const releaseId = "int-in-001";
+  const releaseId = "int-valid-001";
   execSync(`node scripts/ci/compile.mjs ${releaseId} dev`, { stdio: "inherit", env: { ...process.env, SSOT_DIR: temp.ssotDir, OUT_DIR: outDir } });
   const activePath = join(temp.ssotDir, "changes", "active_release.json");
   writeFileSync(activePath, JSON.stringify({ active_release_id: releaseId, active_env: "dev", updated_at: new Date().toISOString(), updated_by: "test" }, null, 2) + "\n");
@@ -72,18 +72,10 @@ async function run() {
 
   try {
     const body = JSON.stringify({ hello: "world" });
-    const noSig = await fetch(`${api}/integrations/webhook/in/${encodeURIComponent("connector:slack")}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "x-tenant-id": "tenant:default", "x-user-id": "user:admin", "x-scope": "tenant:default:*" },
-      body
-    });
-    if (noSig.status !== 401) throw new Error("Expected missing signature to be rejected");
-
     const ts = Date.now().toString();
-    const canonical = `${ts}.${body}`;
-    const sig = createHmac("sha256", "supersecret").update(canonical).digest("base64");
+    const sig = createHmac("sha256", "supersecret").update(`${ts}.${body}`).digest("base64");
     const reqId = randomUUID();
-    const ok = await fetch(`${api}/integrations/webhook/in/${encodeURIComponent("connector:slack")}`, {
+    const res = await fetch(`${api}/integrations/webhook/in/${encodeURIComponent("connector:slack")}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -96,9 +88,8 @@ async function run() {
       },
       body
     });
-    if (!ok.ok) throw new Error(`Expected valid signature to pass, got ${ok.status}`);
-
-    console.log("Integration inbound signature PASS");
+    if (!res.ok) throw new Error(`Expected valid signature to pass, got ${res.status}`);
+    console.log("Webhook valid signature PASS");
   } finally {
     server.kill();
     temp.cleanup();

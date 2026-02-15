@@ -1,7 +1,7 @@
 import { mkdirSync, writeFileSync, existsSync, readFileSync, copyFileSync, readdirSync } from "fs";
 import { join } from "path";
 import { execSync } from "child_process";
-import { getReportsDir, assertNoPlatformReportsPath } from "../ci/test-utils.mjs";
+import { getReportsDir, assertNoPlatformReportsPath, scanForSecrets } from "../ci/test-utils.mjs";
 import { computeInvoice, persistDraft } from "../../platform/runtime/billing/invoice-engine.mjs";
 
 const SSOT_DIR = process.env.SSOT_DIR || "./platform/ssot";
@@ -51,6 +51,8 @@ copyIfExists(join(SSOT_DIR, "governance", "break_glass.json"), join(outDir, "bre
 copyIfExists(join(SSOT_DIR, "extensions", "extension_killswitch.json"), join(outDir, "extension_killswitch.json"));
 copyIfExists(join(SSOT_DIR, "extensions", "extension_installations.json"), join(outDir, "extension_installations.json"));
 copyIfExists(join(SSOT_DIR, "extensions", "extension_reviews.json"), join(outDir, "extension_reviews.json"));
+copyIfExists(join(SSOT_DIR, "security", "secret_bindings.json"), join(outDir, "secret_bindings.json"));
+copyIfExists(join(SSOT_DIR, "security", "secret_policies.json"), join(outDir, "secret_policies.json"));
 copyIfExists(join(SSOT_DIR, "billing", "billing_mode.json"), join(outDir, "billing_mode.json"));
 copyIfExists(join(SSOT_DIR, "billing", "rating_rules.json"), join(outDir, "rating_rules.json"));
 copyIfExists(join(SSOT_DIR, "compat", "compatibility_matrix.json"), join(outDir, "compatibility_matrix.json"));
@@ -140,10 +142,12 @@ try {
   const marketplaceEvents = readJsonlTail(join(indexDir, "marketplace_events.jsonl"), 20);
   const billingDrafts = readJsonlTail(join(indexDir, "billing_drafts.jsonl"), 10);
   const opsEvents = readJsonlTail(join(indexDir, "ops_events.jsonl"), 20);
+  const webhookEvents = readJsonlTail(join(indexDir, "webhook_verify.jsonl"), 20);
   const policyDecisions = readJsonlTail(join(policyDir, "decisions.jsonl"), 50);
   writeFileSync(join(outDir, "marketplace_events.json"), JSON.stringify(marketplaceEvents, null, 2) + "\n", "utf-8");
   writeFileSync(join(outDir, "billing_draft_events.json"), JSON.stringify(billingDrafts, null, 2) + "\n", "utf-8");
   writeFileSync(join(outDir, "ops_events.json"), JSON.stringify(opsEvents, null, 2) + "\n", "utf-8");
+  writeFileSync(join(outDir, "webhook_verify_events.json"), JSON.stringify(webhookEvents, null, 2) + "\n", "utf-8");
   writeFileSync(join(outDir, "policy_decisions.json"), JSON.stringify(policyDecisions, null, 2) + "\n", "utf-8");
 } catch {
   // ignore
@@ -164,5 +168,31 @@ const summary = [
   `Tags: ${tags.split("\n").slice(-5).join(", ")}`
 ];
 writeFileSync(join(outDir, "SUMMARY.md"), summary.join("\n") + "\n", "utf-8");
+
+try {
+  const bindings = existsSync(join(SSOT_DIR, "security", "secret_bindings.json"))
+    ? JSON.parse(readFileSync(join(SSOT_DIR, "security", "secret_bindings.json"), "utf-8"))
+    : [];
+  const policies = existsSync(join(SSOT_DIR, "security", "secret_policies.json"))
+    ? JSON.parse(readFileSync(join(SSOT_DIR, "security", "secret_policies.json"), "utf-8"))
+    : [];
+  const webhookEvents = existsSync(join(outDir, "webhook_verify_events.json"))
+    ? JSON.parse(readFileSync(join(outDir, "webhook_verify_events.json"), "utf-8"))
+    : [];
+  const allowCount = webhookEvents.filter((e) => e.outcome === "allow").length;
+  const denyCount = webhookEvents.filter((e) => e.outcome === "deny").length;
+  const scanHits = scanForSecrets({ paths: [reportsDir, join(reportsDir, "evidence"), join(process.cwd(), "runtime", "manifests")] });
+  const posture = [
+    "# Security Posture",
+    `bindings_count: ${bindings.length}`,
+    `policies_count: ${policies.length}`,
+    `webhook_verify_allow: ${allowCount}`,
+    `webhook_verify_deny: ${denyCount}`,
+    `no_secrets_scan: ${scanHits.length === 0 ? "pass" : "fail"}`
+  ];
+  writeFileSync(join(outDir, "security_posture.md"), posture.join("\n") + "\n", "utf-8");
+} catch {
+  // ignore
+}
 
 console.log(`Evidence pack generated: ${outDir}`);

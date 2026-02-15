@@ -40,6 +40,9 @@ export function compilePlatform({ ssotDir, outDir, releaseId, env, privateKeyPat
   const webhooks = readJson(`${ssotDir}/integrations/webhooks.json`);
   const eventSubscriptions = readJson(`${ssotDir}/integrations/event_subscriptions.json`);
   const secretsVaultRefs = readJson(`${ssotDir}/integrations/secrets_vault_refs.json`);
+  const securityRefs = readJson(`${ssotDir}/security/secrets_vault_refs.json`);
+  const securityPolicies = readJson(`${ssotDir}/security/secret_policies.json`);
+  const securityBindings = readJson(`${ssotDir}/security/secret_bindings.json`);
   const sloDefinitions = readJson(`${ssotDir}/sre/slo_definitions.json`);
   const sloVersions = readJson(`${ssotDir}/sre/slo_versions.json`);
   const sliSources = readJson(`${ssotDir}/sre/sli_sources.json`);
@@ -204,7 +207,41 @@ export function compilePlatform({ ssotDir, outDir, releaseId, env, privateKeyPat
       connector_configs: connectorConfigs,
       webhooks,
       event_subscriptions: eventSubscriptions,
-      secrets_vault_refs: secretsVaultRefs
+      secrets_vault_refs: secretsVaultRefs.map((r) => ({
+        ref_id: r.ref_id,
+        tenant_id: r.tenant_id,
+        kind: r.kind,
+        provider: r.provider
+      }))
+    },
+    security: {
+      secret_bindings_summary: securityBindings.map((b) => ({
+        binding_id: b.id,
+        usage: b.usage,
+        scope: b.scope,
+        active_ref_id: b.active_ref,
+        policy_id: b.policy_id,
+        expires_at: b.expires_at || ""
+      })),
+      policies_summary: securityPolicies.map((p) => ({
+        policy_id: p.id,
+        rotation_days: p.rotation_days,
+        grace_days: p.grace_days,
+        allow_dual: p.allow_dual,
+        required_usages: p.required_usages || [],
+        replay_window_ms: p.replay_window_ms || 0
+      })),
+      refs_summary: securityRefs.map((r) => ({
+        ref_id: r.id,
+        kind: r.kind,
+        provider: r.provider,
+        constraints: {
+          no_export: r.constraints?.no_export ?? true,
+          redact: r.constraints?.redact ?? true,
+          max_ttl_days: r.constraints?.max_ttl_days ?? 0,
+          rotation_policy_id: r.constraints?.rotation_policy_id || ""
+        }
+      }))
     },
     sre: {
       slo_definitions: sloDefinitions,

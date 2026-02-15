@@ -25,7 +25,8 @@ const kindToPath = {
   theme: "design/themes.json",
   active_release: "changes/active_release.json",
   break_glass: "governance/break_glass.json",
-  change_freeze: "governance/change_freeze.json"
+  change_freeze: "governance/change_freeze.json",
+  secret_binding: "security/secret_bindings.json"
 };
 
 const kindToSchema = {
@@ -45,7 +46,8 @@ const kindToSchema = {
   theme: "theme.v1",
   active_release: "active_release.v1",
   break_glass: "break_glass.v1",
-  change_freeze: "change_freeze.v1"
+  change_freeze: "change_freeze.v1",
+  secret_binding: "secret_binding.v1"
 };
 
 function itemKey(kind, item) {
@@ -58,6 +60,7 @@ function itemKey(kind, item) {
   if (kind === "tenant_template") return item.template_id;
   if (kind === "tenant_template_version") return `${item.template_id}@${item.version}`;
   if (kind === "extension_installation") return `${item.tenant_id}:${item.extension_id}`;
+  if (kind === "secret_binding") return item.id;
   return item.id;
 }
 

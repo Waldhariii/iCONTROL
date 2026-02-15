@@ -6,7 +6,6 @@ import { AsyncLocalStorage } from "async_hooks";
 import { applyOpsToDir } from "../../platform/runtime/changes/patch-engine.mjs";
 import { loadManifest } from "../../platform/runtime/loader/loader.mjs";
 import { emitEvent } from "../../platform/runtime/events/bus.mjs";
-import { resolveSecret } from "../../platform/runtime/integrations/dispatcher.mjs";
 import { getEffectiveQosOverrides } from "../../platform/runtime/ops/actions.mjs";
 import { createIncident, readIncident, executeRunbook, listTimeline } from "../../platform/runtime/ops/engine.mjs";
 import { planTenantCreate, planTenantClone, dryRunCreate, applyCreate, readFactoryStatus } from "../../platform/runtime/tenancy/factory.mjs";
@@ -174,6 +173,131 @@ function getGovernanceData() {
     breakGlass: readJson(ssotPath("governance/break_glass.json")),
     changeFreeze: readJson(ssotPath("governance/change_freeze.json"))
   };
+}
+
+function getSecurityData() {
+  return {
+    refs: readJson(ssotPath("security/secrets_vault_refs.json")),
+    policies: readJson(ssotPath("security/secret_policies.json")),
+    bindings: readJson(ssotPath("security/secret_bindings.json"))
+  };
+}
+
+function parseSecretRef(ref) {
+  const raw = String(ref || "");
+  if (raw.startsWith("ENV:")) return { provider: "env", handle: raw.slice(4) };
+  if (raw.startsWith("FILE:")) return { provider: "file", handle: raw.slice(5) };
+  if (raw.startsWith("VAULT:")) return { provider: "vault", handle: raw.slice(6) };
+  if (raw.startsWith("KMS:")) return { provider: "kms", handle: raw.slice(4) };
+  return { provider: "unknown", handle: raw };
+}
+
+function findBinding({ bindings, usage, tenantId }) {
+  const tenantScope = tenantId ? `tenant:${tenantId}` : "";
+  const matches = bindings.filter((b) => b.usage === usage);
+  const tenant = matches.find((b) => tenantScope && scopeMatches(b.scope, `${tenantScope}:*`));
+  if (tenant) return tenant;
+  return matches.find((b) => scopeMatches(b.scope, "platform:*")) || null;
+}
+
+function resolveSecretRef(refId, tenantId, usage) {
+  const sec = getSecurityData();
+  const binding = findBinding({ bindings: sec.bindings, usage, tenantId });
+  if (!binding || binding.active_ref !== refId) throw new Error("Secret binding missing");
+  const ref = sec.refs.find((r) => r.id === refId);
+  if (!ref) throw new Error("Secret ref not found");
+  const parsed = parseSecretRef(ref.ref);
+  return { ref_id: ref.id, provider: ref.provider || parsed.provider, handle: parsed.handle };
+}
+
+function readSecretValue(refId) {
+  const sec = getSecurityData();
+  const ref = sec.refs.find((r) => r.id === refId);
+  if (!ref) throw new Error("Secret ref not found");
+  const parsed = parseSecretRef(ref.ref);
+  if (ref.provider === "env" || parsed.provider === "env") {
+    const val = process.env[parsed.handle];
+    if (!val) throw new Error("Secret env missing");
+    return val;
+  }
+  if (ref.provider === "file" || parsed.provider === "file") {
+    if (!existsSync(parsed.handle)) throw new Error("Secret file missing");
+    const val = readFileSync(parsed.handle, "utf-8");
+    if (!val) throw new Error("Secret file empty");
+    return val.trim();
+  }
+  throw new Error("Secret provider not supported");
+}
+
+function getWebhookPolicy(usage, tenantId) {
+  const sec = getSecurityData();
+  const binding = findBinding({ bindings: sec.bindings, usage, tenantId });
+  if (!binding) return null;
+  const policy = sec.policies.find((p) => p.id === binding.policy_id) || null;
+  return { binding, policy };
+}
+
+function appendWebhookVerifyEvent(entry) {
+  const path = join(getReportsDir(), "index", "webhook_verify.jsonl");
+  appendJsonl(path, entry);
+  return path;
+}
+
+function verifyWebhookSignature({ headers, rawBody, tenantId, usage }) {
+  const ctx = getContext();
+  const reqId = headers["x-request-id"];
+  const tsHeader = headers["x-timestamp"];
+  const sigHeader = headers["x-signature"];
+  if (!reqId || !tsHeader || !sigHeader) {
+    appendPolicyDecision({ decision: "deny", action: `${usage}.verify`, scope: tenantId ? `tenant:${tenantId}:*` : "platform:*", reason_codes: ["missing_headers"] });
+    appendAudit({ event: "webhook.verify", tenant_id: tenantId || "", outcome: "deny", reason: "missing_headers", at: new Date().toISOString() });
+    appendWebhookVerifyEvent({ ts: new Date().toISOString(), request_id: ctx.request_id, tenant_id: tenantId || "", outcome: "deny", reason: "missing_headers" });
+    return { ok: false, reason: "missing_headers" };
+  }
+  const ts = Number(tsHeader);
+  if (!Number.isFinite(ts)) {
+    appendPolicyDecision({ decision: "deny", action: `${usage}.verify`, scope: tenantId ? `tenant:${tenantId}:*` : "platform:*", reason_codes: ["invalid_timestamp"] });
+    appendAudit({ event: "webhook.verify", tenant_id: tenantId || "", outcome: "deny", reason: "invalid_timestamp", at: new Date().toISOString() });
+    appendWebhookVerifyEvent({ ts: new Date().toISOString(), request_id: ctx.request_id, tenant_id: tenantId || "", outcome: "deny", reason: "invalid_timestamp" });
+    return { ok: false, reason: "invalid_timestamp" };
+  }
+  const policyInfo = getWebhookPolicy("webhook_signing", tenantId);
+  if (!policyInfo?.binding) {
+    appendPolicyDecision({ decision: "deny", action: `${usage}.verify`, scope: tenantId ? `tenant:${tenantId}:*` : "platform:*", reason_codes: ["binding_missing"] });
+    appendAudit({ event: "webhook.verify", tenant_id: tenantId || "", outcome: "deny", reason: "binding_missing", at: new Date().toISOString() });
+    appendWebhookVerifyEvent({ ts: new Date().toISOString(), request_id: ctx.request_id, tenant_id: tenantId || "", outcome: "deny", reason: "binding_missing" });
+    return { ok: false, reason: "binding_missing" };
+  }
+  const windowMs = policyInfo.policy?.replay_window_ms || 300000;
+  const drift = Math.abs(Date.now() - ts);
+  if (drift > windowMs) {
+    appendPolicyDecision({ decision: "deny", action: `${usage}.verify`, scope: tenantId ? `tenant:${tenantId}:*` : "platform:*", reason_codes: ["replay_window"] });
+    appendAudit({ event: "webhook.verify", tenant_id: tenantId || "", outcome: "deny", reason: "replay_window", at: new Date().toISOString() });
+    appendWebhookVerifyEvent({ ts: new Date().toISOString(), request_id: ctx.request_id, tenant_id: tenantId || "", outcome: "deny", reason: "replay_window" });
+    return { ok: false, reason: "replay_window" };
+  }
+  try {
+    const secret = readSecretValue(policyInfo.binding.active_ref);
+    const canonical = `${ts}.${rawBody}`;
+    const computed = createHmac("sha256", secret).update(canonical).digest("base64");
+    const sigStr = Array.isArray(sigHeader) ? sigHeader[0] : sigHeader;
+    const ok = sigStr.length === computed.length && timingSafeEqual(Buffer.from(sigStr), Buffer.from(computed));
+    if (!ok) {
+      appendPolicyDecision({ decision: "deny", action: `${usage}.verify`, scope: tenantId ? `tenant:${tenantId}:*` : "platform:*", reason_codes: ["invalid_signature"] });
+      appendAudit({ event: "webhook.verify", tenant_id: tenantId || "", outcome: "deny", reason: "invalid_signature", at: new Date().toISOString() });
+      appendWebhookVerifyEvent({ ts: new Date().toISOString(), request_id: ctx.request_id, tenant_id: tenantId || "", outcome: "deny", reason: "invalid_signature" });
+      return { ok: false, reason: "invalid_signature" };
+    }
+    appendPolicyDecision({ decision: "allow", action: `${usage}.verify`, scope: tenantId ? `tenant:${tenantId}:*` : "platform:*", reason_codes: ["signature_ok"] });
+    appendAudit({ event: "webhook.verify", tenant_id: tenantId || "", outcome: "allow", at: new Date().toISOString() });
+    appendWebhookVerifyEvent({ ts: new Date().toISOString(), request_id: ctx.request_id, tenant_id: tenantId || "", outcome: "allow", reason: "signature_ok" });
+    return { ok: true };
+  } catch (err) {
+    appendPolicyDecision({ decision: "deny", action: `${usage}.verify`, scope: tenantId ? `tenant:${tenantId}:*` : "platform:*", reason_codes: ["secret_unavailable"] });
+    appendAudit({ event: "webhook.verify", tenant_id: tenantId || "", outcome: "deny", reason: "secret_unavailable", at: new Date().toISOString() });
+    appendWebhookVerifyEvent({ ts: new Date().toISOString(), request_id: ctx.request_id, tenant_id: tenantId || "", outcome: "deny", reason: "secret_unavailable" });
+    return { ok: false, reason: "secret_unavailable" };
+  }
 }
 
 function readModules() {
@@ -994,6 +1118,46 @@ const server = http.createServer(async (req, res) => {
       return json(res, 200, { decisions: list });
     }
 
+    if (req.method === "GET" && req.url?.startsWith("/api/security/secrets/status")) {
+      requirePermission(req, "observability.read");
+      const url = new URL(req.url, "http://localhost");
+      const tenant = url.searchParams.get("tenant") || "";
+      const sec = getSecurityData();
+      const status = sec.bindings
+        .filter((b) => !tenant || scopeMatches(b.scope, `tenant:${tenant}:*`) || scopeMatches(b.scope, "platform:*"))
+        .map((b) => {
+          const ref = sec.refs.find((r) => r.id === b.active_ref);
+          let health = "ok";
+          if (!ref) health = "missing_ref";
+          else {
+            try {
+              const parsed = parseSecretRef(ref.ref);
+              if (parsed.provider === "env") {
+                if (!process.env[parsed.handle]) health = "missing-env";
+              } else if (parsed.provider === "file") {
+                if (!existsSync(parsed.handle)) health = "missing-file";
+              } else if (parsed.provider === "vault" || parsed.provider === "kms") {
+                health = "ok";
+              } else {
+                health = "invalid-format";
+              }
+            } catch {
+              health = "invalid-format";
+            }
+          }
+          return {
+            binding_id: b.id,
+            usage: b.usage,
+            scope: b.scope,
+            active_ref_id: b.active_ref,
+            policy_id: b.policy_id,
+            expires_at: b.expires_at || "",
+            health
+          };
+        });
+      return json(res, 200, { tenant_id: tenant || null, bindings: status });
+    }
+
     if (req.method === "POST" && req.url?.startsWith("/api/integrations/webhook/in/")) {
       const connectorId = decodeURIComponent(req.url.split("/")[5] || "");
       if (!tenantId) return json(res, 400, { error: "Missing x-tenant-id" });
@@ -1004,22 +1168,8 @@ const server = http.createServer(async (req, res) => {
       );
       if (!webhook) return json(res, 404, { error: "Webhook not registered" });
       const raw = await bodyToText(req);
-      if (webhook.signature_required) {
-        const headerName = (webhook.signature_header || "x-signature").toLowerCase();
-        const sig = req.headers[headerName];
-        if (!sig) {
-          appendAudit({ event: "webhook_in_reject", tenant_id: tenantId, connector_id: connectorId, reason: "missing_signature", at: new Date().toISOString() });
-          return json(res, 401, { error: "Missing signature" });
-        }
-        const secret = resolveSecret(webhook.secret_ref_id, manifest, tenantId);
-        const computed = createHmac("sha256", secret).update(raw).digest("hex");
-        const sigStr = Array.isArray(sig) ? sig[0] : sig;
-        const ok = sigStr.length === computed.length && timingSafeEqual(Buffer.from(sigStr), Buffer.from(computed));
-        if (!ok) {
-          appendAudit({ event: "webhook_in_reject", tenant_id: tenantId, connector_id: connectorId, reason: "invalid_signature", at: new Date().toISOString() });
-          return json(res, 401, { error: "Invalid signature" });
-        }
-      }
+      const verify = verifyWebhookSignature({ headers: req.headers, rawBody: raw, tenantId, usage: "integrations.webhook.in" });
+      if (!verify.ok) return json(res, 401, { error: "Webhook signature invalid" });
       authorizeOrDeny(req, "integrations.webhook.in", { connector_id: connectorId });
       appendAudit({ event: "webhook_in_received", tenant_id: tenantId, connector_id: connectorId, at: new Date().toISOString() });
       let payload = {};
@@ -1794,6 +1944,8 @@ const server = http.createServer(async (req, res) => {
         return json(res, 403, { error: "Billing webhooks disabled" });
       }
       const raw = await bodyToText(req);
+      const verify = verifyWebhookSignature({ headers: req.headers, rawBody: raw, tenantId: tenantId || "", usage: "billing.webhook" });
+      if (!verify.ok) return json(res, 401, { error: "Webhook signature invalid" });
       const result = handleStripeWebhook({ headers: req.headers, body: raw });
       appendAudit({ event: "billing_webhook_received", provider_id: id, at: new Date().toISOString() });
       return json(res, 200, { ok: true, result });

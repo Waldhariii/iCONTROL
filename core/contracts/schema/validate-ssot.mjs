@@ -74,11 +74,16 @@ const specificMap = new Map([
   ["providers.json", "billing_provider.v1"],
   ["provider_versions.json", "billing_provider_version.v1"],
   ["rating_rules.json", "rating_rule.v1"],
-  ["rating_versions.json", "rating_version.v1"]
+  ["rating_versions.json", "rating_version.v1"],
+  ["secret_policies.json", "secret_policy.v1"],
+  ["secret_bindings.json", "secret_binding.v1"]
 ]);
 
 function inferSchemaForFile(path, data) {
   const base = path.split("/").slice(-1)[0];
+  if (base === "secrets_vault_refs.json" && path.includes("/security/")) {
+    return "security_secret_ref.v1";
+  }
   if (specificMap.has(base)) return specificMap.get(base);
   if (Array.isArray(data) && data.every((x) => typeof x === "string")) return "array_of_strings.v1";
   return "array_of_objects.v1";
