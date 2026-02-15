@@ -1,0 +1,8 @@
+[
+  {"query_id": "query:jobs.list", "version": "1.0.0", "status": "active"},
+  {"query_id": "query:jobs.detail", "version": "1.0.0", "status": "active"},
+  {"query_id": "query:docs.list", "version": "1.0.0", "status": "active"},
+  {"query_id": "query:docs.detail", "version": "1.0.0", "status": "active"},
+  {"query_id": "query:billing.invoices", "version": "1.0.0", "status": "active"},
+  {"query_id": "query:billing.invoice.detail", "version": "1.0.0", "status": "active"}
+]

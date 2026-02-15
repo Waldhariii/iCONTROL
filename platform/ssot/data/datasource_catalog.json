@@ -1,1 +1,5 @@
-[]
+[
+  {"datasource_id": "ds:jobs", "name": "Jobs DS", "status": "active", "module_id": "module:jobs"},
+  {"datasource_id": "ds:documents", "name": "Documents DS", "status": "active", "module_id": "module:documents"},
+  {"datasource_id": "ds:billing", "name": "Billing DS", "status": "active", "module_id": "module:billing"}
+]

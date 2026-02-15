@@ -1,1 +1,3 @@
-[]
+[
+  {"cache_policy_id": "cache:default", "ttl_s": 300}
+]

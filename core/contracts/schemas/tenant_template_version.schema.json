@@ -9,6 +9,7 @@
     "template_id": {"type": "string"},
     "version": {"type": "string"},
     "status": {"type": "string", "enum": ["active", "deprecated"]},
-    "effective_from": {"type": "string"}
+    "effective_from": {"type": "string"},
+    "module_activations_default": {"type": "array", "items": {"type": "object"}}
   }
 }

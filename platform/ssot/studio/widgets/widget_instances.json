@@ -1,1 +1,157 @@
-[]
+[
+  {
+    "id": "w-jobs-list",
+    "widget_id": "widget:entity_list",
+    "props": {
+      "title": "Jobs",
+      "datasource_id": "query:jobs.list",
+      "columns": [
+        "title",
+        "status",
+        "customer_name",
+        "total_cost"
+      ]
+    },
+    "props_schema": {
+      "allowed_props": [
+        "title",
+        "datasource_id",
+        "columns"
+      ]
+    }
+  },
+  {
+    "id": "w-jobs-detail",
+    "widget_id": "widget:entity_detail",
+    "props": {
+      "title": "Job Detail",
+      "datasource_id": "query:jobs.detail",
+      "fields": [
+        "title",
+        "status",
+        "customer_name",
+        "total_cost"
+      ]
+    },
+    "props_schema": {
+      "allowed_props": [
+        "title",
+        "datasource_id",
+        "fields"
+      ]
+    }
+  },
+  {
+    "id": "w-jobs-form",
+    "widget_id": "widget:entity_form",
+    "props": {
+      "title": "Update Job",
+      "form_schema_id": "form:job_update",
+      "submit_action": "workflow:job_created_notify"
+    },
+    "props_schema": {
+      "allowed_props": [
+        "title",
+        "form_schema_id",
+        "submit_action",
+        "datasource_id"
+      ]
+    }
+  },
+  {
+    "id": "w-docs-list",
+    "widget_id": "widget:entity_list",
+    "props": {
+      "title": "Documents",
+      "datasource_id": "query:docs.list",
+      "columns": [
+        "title",
+        "owner_email"
+      ]
+    },
+    "props_schema": {
+      "allowed_props": [
+        "title",
+        "datasource_id",
+        "columns"
+      ]
+    }
+  },
+  {
+    "id": "w-docs-detail",
+    "widget_id": "widget:entity_detail",
+    "props": {
+      "title": "Document Detail",
+      "datasource_id": "query:docs.detail",
+      "fields": [
+        "title",
+        "owner_email"
+      ]
+    },
+    "props_schema": {
+      "allowed_props": [
+        "title",
+        "datasource_id",
+        "fields"
+      ]
+    }
+  },
+  {
+    "id": "w-invoices-list",
+    "widget_id": "widget:entity_list",
+    "props": {
+      "title": "Invoices",
+      "datasource_id": "query:billing.invoices",
+      "columns": [
+        "id",
+        "status",
+        "customer_name",
+        "amount"
+      ]
+    },
+    "props_schema": {
+      "allowed_props": [
+        "title",
+        "datasource_id",
+        "columns"
+      ]
+    }
+  },
+  {
+    "id": "w-invoice-detail",
+    "widget_id": "widget:entity_detail",
+    "props": {
+      "title": "Invoice Detail",
+      "datasource_id": "query:billing.invoice.detail",
+      "fields": [
+        "id",
+        "status",
+        "customer_name",
+        "amount"
+      ]
+    },
+    "props_schema": {
+      "allowed_props": [
+        "title",
+        "datasource_id",
+        "fields"
+      ]
+    }
+  },
+  {
+    "id": "w-invoice-form",
+    "widget_id": "widget:entity_form",
+    "props": {
+      "title": "Create Invoice",
+      "form_schema_id": "form:invoice_create"
+    },
+    "props_schema": {
+      "allowed_props": [
+        "title",
+        "form_schema_id",
+        "submit_action",
+        "datasource_id"
+      ]
+    }
+  }
+]

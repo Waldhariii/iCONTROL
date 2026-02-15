@@ -1,1 +1,23 @@
-[]
+[
+  {
+    "id": "nav:jobs",
+    "surface": "client",
+    "label": "Jobs",
+    "path": "/jobs",
+    "module_id": "module:jobs"
+  },
+  {
+    "id": "nav:documents",
+    "surface": "client",
+    "label": "Documents",
+    "path": "/documents",
+    "module_id": "module:documents"
+  },
+  {
+    "id": "nav:billing",
+    "surface": "client",
+    "label": "Billing",
+    "path": "/billing/invoices",
+    "module_id": "module:billing"
+  }
+]

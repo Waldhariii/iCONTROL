@@ -1,0 +1,18 @@
+{
+  "module_id": "module:example",
+  "name": "Example Module",
+  "tier": "free",
+  "surfaces": ["client"],
+  "provides": {
+    "pages": ["client-example-list"],
+    "routes": ["route:example-list"],
+    "nav": ["nav:example"],
+    "widgets": ["widget:entity_list"],
+    "forms": [],
+    "workflows": [],
+    "datasources": ["query:example.list"]
+  },
+  "required_capabilities": ["client.access"],
+  "default_entitlements": ["entitlement:default"],
+  "dependencies": ["platform:datasource"]
+}

@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "domain_module_version.v1",
+  "title": "domain_module_version",
+  "type": "object",
+  "required": ["module_id", "version", "status"],
+  "additionalProperties": false,
+  "properties": {
+    "module_id": {"type": "string"},
+    "version": {"type": "string"},
+    "status": {"type": "string", "enum": ["active", "deprecated"]}
+  }
+}

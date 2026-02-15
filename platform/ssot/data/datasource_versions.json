@@ -1,0 +1,5 @@
+[
+  {"datasource_id": "ds:jobs", "version": "1.0.0", "status": "active"},
+  {"datasource_id": "ds:documents", "version": "1.0.0", "status": "active"},
+  {"datasource_id": "ds:billing", "version": "1.0.0", "status": "active"}
+]

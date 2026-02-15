@@ -1,0 +1,5 @@
+[
+  {"tenant_id": "tenant:default", "module_id": "module:jobs", "state": "active"},
+  {"tenant_id": "tenant:default", "module_id": "module:documents", "state": "active"},
+  {"tenant_id": "tenant:default", "module_id": "module:billing", "state": "active"}
+]

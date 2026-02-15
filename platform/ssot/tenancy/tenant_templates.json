@@ -6,14 +6,36 @@
     "base_plan_id": "plan:free",
     "entitlements_default": [],
     "feature_flags_default": [],
+    "module_activations_default": [
+      {
+        "module_id": "module:jobs",
+        "state": "active"
+      },
+      {
+        "module_id": "module:documents",
+        "state": "active"
+      },
+      {
+        "module_id": "module:billing",
+        "state": "active"
+      }
+    ],
     "surface_bootstrap": {
-      "cp": {"enabled": false},
-      "client": {"enabled": false}
+      "cp": {
+        "enabled": false
+      },
+      "client": {
+        "enabled": false
+      }
     },
     "theme_binding": null,
     "quotas_overrides": null,
     "datagov_profile": null,
-    "integrations_profile": {"connectors_disabled": true},
-    "ops_profile": {"severity_threshold": "sev2"}
+    "integrations_profile": {
+      "connectors_disabled": true
+    },
+    "ops_profile": {
+      "severity_threshold": "sev2"
+    }
   }
 ]

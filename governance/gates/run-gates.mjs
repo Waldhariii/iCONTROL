@@ -42,7 +42,11 @@ import {
   contractTestGate,
   semverGate,
   tenantTemplateGate,
-  tenantFactoryGate
+  tenantFactoryGate,
+  domainIsolationGate,
+  moduleActivationGate,
+  dataGovCoverageGate,
+  budgetCoverageGate
 } from "./gates.mjs";
 
 const releaseId = process.argv[2];
@@ -97,7 +101,11 @@ const gates = [
   () => migrationGate({ ssotDir }),
   () => contractTestGate({ ssotDir }),
   () => tenantTemplateGate({ ssotDir }),
-  () => tenantFactoryGate({ ssotDir })
+  () => tenantFactoryGate({ ssotDir }),
+  () => domainIsolationGate({ ssotDir }),
+  () => dataGovCoverageGate({ ssotDir }),
+  () => budgetCoverageGate({ ssotDir }),
+  () => moduleActivationGate({ ssotDir, manifestsDir, releaseId })
 ];
 
 const results = [];

@@ -7,9 +7,7 @@
     "title_key": "studio.pages",
     "module_id": "studio",
     "default_layout_template_id": "layout-1",
-    "capabilities_required": [
-      "studio.access"
-    ],
+    "capabilities_required": ["studio.access"],
     "owner_team": "studio",
     "tags": [],
     "state": "active"
@@ -22,9 +20,7 @@
     "title_key": "studio.routes",
     "module_id": "studio",
     "default_layout_template_id": "layout-1",
-    "capabilities_required": [
-      "studio.access"
-    ],
+    "capabilities_required": ["studio.access"],
     "owner_team": "studio",
     "tags": [],
     "state": "active"
@@ -37,9 +33,7 @@
     "title_key": "studio.nav",
     "module_id": "studio",
     "default_layout_template_id": "layout-1",
-    "capabilities_required": [
-      "studio.access"
-    ],
+    "capabilities_required": ["studio.access"],
     "owner_team": "studio",
     "tags": [],
     "state": "active"
@@ -52,9 +46,7 @@
     "title_key": "studio.releases",
     "module_id": "studio",
     "default_layout_template_id": "layout-1",
-    "capabilities_required": [
-      "studio.access"
-    ],
+    "capabilities_required": ["studio.access"],
     "owner_team": "studio",
     "tags": [],
     "state": "active"
@@ -67,10 +59,86 @@
     "title_key": "studio.health",
     "module_id": "studio",
     "default_layout_template_id": "layout-1",
-    "capabilities_required": [
-      "studio.access"
-    ],
+    "capabilities_required": ["studio.access"],
     "owner_team": "studio",
+    "tags": [],
+    "state": "active"
+  },
+  {
+    "id": "client-jobs-list",
+    "surface": "client",
+    "key": "jobs.list",
+    "slug": "jobs-list",
+    "title_key": "Jobs",
+    "module_id": "module:jobs",
+    "default_layout_template_id": "layout-1",
+    "capabilities_required": ["client.access"],
+    "owner_team": "jobs",
+    "tags": [],
+    "state": "active"
+  },
+  {
+    "id": "client-jobs-detail",
+    "surface": "client",
+    "key": "jobs.detail",
+    "slug": "jobs-detail",
+    "title_key": "Job Detail",
+    "module_id": "module:jobs",
+    "default_layout_template_id": "layout-1",
+    "capabilities_required": ["client.access"],
+    "owner_team": "jobs",
+    "tags": [],
+    "state": "active"
+  },
+  {
+    "id": "client-docs-list",
+    "surface": "client",
+    "key": "documents.list",
+    "slug": "documents-list",
+    "title_key": "Documents",
+    "module_id": "module:documents",
+    "default_layout_template_id": "layout-1",
+    "capabilities_required": ["client.access"],
+    "owner_team": "documents",
+    "tags": [],
+    "state": "active"
+  },
+  {
+    "id": "client-docs-detail",
+    "surface": "client",
+    "key": "documents.detail",
+    "slug": "documents-detail",
+    "title_key": "Document Detail",
+    "module_id": "module:documents",
+    "default_layout_template_id": "layout-1",
+    "capabilities_required": ["client.access"],
+    "owner_team": "documents",
+    "tags": [],
+    "state": "active"
+  },
+  {
+    "id": "client-billing-invoices",
+    "surface": "client",
+    "key": "billing.invoices",
+    "slug": "billing-invoices",
+    "title_key": "Invoices",
+    "module_id": "module:billing",
+    "default_layout_template_id": "layout-1",
+    "capabilities_required": ["client.access"],
+    "owner_team": "billing",
+    "tags": [],
+    "state": "active"
+  },
+  {
+    "id": "client-billing-invoice-detail",
+    "surface": "client",
+    "key": "billing.invoice.detail",
+    "slug": "billing-invoice-detail",
+    "title_key": "Invoice Detail",
+    "module_id": "module:billing",
+    "default_layout_template_id": "layout-1",
+    "capabilities_required": ["client.access"],
+    "owner_team": "billing",
     "tags": [],
     "state": "active"
   }

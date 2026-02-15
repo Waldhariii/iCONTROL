@@ -4,5 +4,35 @@
     "version": "1.0.0",
     "status": "active",
     "fields": ["field:document.id", "field:document.title", "field:document.owner_email"]
+  },
+  {
+    "data_model_id": "model:job",
+    "version": "1.0.0",
+    "status": "active",
+    "fields": ["field:job.id", "field:job.title", "field:job.customer_name", "field:job.status", "field:job.total_cost"]
+  },
+  {
+    "data_model_id": "model:visit",
+    "version": "1.0.0",
+    "status": "active",
+    "fields": ["field:visit.id", "field:visit.job_id", "field:visit.scheduled_at", "field:visit.technician_name"]
+  },
+  {
+    "data_model_id": "model:ingestion",
+    "version": "1.0.0",
+    "status": "active",
+    "fields": ["field:ingestion.id", "field:ingestion.document_id", "field:ingestion.status"]
+  },
+  {
+    "data_model_id": "model:invoice",
+    "version": "1.0.0",
+    "status": "active",
+    "fields": ["field:invoice.id", "field:invoice.customer_name", "field:invoice.amount", "field:invoice.status"]
+  },
+  {
+    "data_model_id": "model:payment",
+    "version": "1.0.0",
+    "status": "active",
+    "fields": ["field:payment.id", "field:payment.invoice_id", "field:payment.amount", "field:payment.method", "field:payment.payer_email"]
   }
 ]

@@ -1,1 +1,4 @@
-[]
+[
+  {"workflow_id": "workflow:job_created_notify", "name": "Job Created Notify", "module_id": "module:jobs", "status": "active"},
+  {"workflow_id": "workflow:doc_ingest_classify", "name": "Doc Ingest Classify", "module_id": "module:documents", "status": "active"}
+]

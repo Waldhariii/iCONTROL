@@ -147,6 +147,15 @@ function applyTemplateToTenant(ssotDir, tenantId, template) {
     }
     writeJsonAt(ssotDir, "tenancy/tenant_flags.json", flags);
   }
+  if (template.module_activations_default && template.module_activations_default.length) {
+    const activations = readJsonAt(ssotDir, "modules/module_activations.json");
+    for (const m of template.module_activations_default) {
+      if (!activations.some((a) => a.tenant_id === tenantId && a.module_id === m.module_id)) {
+        activations.push({ tenant_id: tenantId, module_id: m.module_id, state: m.state || "active" });
+      }
+    }
+    writeJsonAt(ssotDir, "modules/module_activations.json", activations);
+  }
   if (template.quotas_overrides) {
     const quotas = readJsonAt(ssotDir, "tenancy/tenant_quotas.json");
     quotas.push({ tenant_id: tenantId, quotas: template.quotas_overrides });

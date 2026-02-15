@@ -545,9 +545,9 @@ export function perfBudgetGate({ ssotDir }) {
   const queries = readJson(`${ssotDir}/data/query_catalog.json`);
   const budgets = readJson(`${ssotDir}/data/query_budgets.json`);
   const budgetIds = new Set(budgets.map((b) => b.query_id));
-  const missing = queries.filter((q) => !budgetIds.has(q.id));
+  const missing = queries.filter((q) => !budgetIds.has(q.query_id));
   const ok = missing.length === 0;
-  return { ok, gate: "Perf Budget Gate", details: ok ? "" : `Missing budgets for: ${missing.map((q) => q.id).join(", ")}` };
+  return { ok, gate: "Perf Budget Gate", details: ok ? "" : `Missing budgets for: ${missing.map((q) => q.query_id).join(", ")}` };
 }
 
 export function isolationGate({ ssotDir, manifestsDir, releaseId }) {
@@ -676,6 +676,148 @@ export function opsPolicyGate({ ssotDir }) {
   return { ok, gate: "Ops Policy Gate", details: details.join(" | ") };
 }
 
+export function domainIsolationGate({ ssotDir }) {
+  const modules = readJson(`${ssotDir}/modules/domain_modules.json`);
+  const pages = readJson(`${ssotDir}/studio/pages/page_definitions.json`);
+  const routes = readJson(`${ssotDir}/studio/routes/route_specs.json`);
+  const nav = readJson(`${ssotDir}/studio/nav/nav_specs.json`);
+  const widgets = readJson(`${ssotDir}/studio/widgets/widget_catalog.json`);
+  const forms = readJson(`${ssotDir}/studio/forms/form_schemas.json`);
+  const workflows = readJson(`${ssotDir}/studio/workflows/workflow_definitions.json`);
+  const queries = readJson(`${ssotDir}/data/query_catalog.json`);
+
+  const pagesById = new Map(pages.map((p) => [p.id, p]));
+  const routesById = new Map(routes.map((r) => [r.route_id, r]));
+  const navById = new Map(nav.map((n) => [n.id, n]));
+  const widgetsById = new Map(widgets.map((w) => [w.id, w]));
+  const formsById = new Map(forms.map((f) => [f.form_id, f]));
+  const workflowsById = new Map(workflows.map((w) => [w.workflow_id, w]));
+  const queriesById = new Map(queries.map((q) => [q.query_id, q]));
+
+  const bad = [];
+  for (const mod of modules) {
+    const mid = mod.module_id;
+    for (const pid of mod.provides.pages || []) {
+      const p = pagesById.get(pid);
+      if (!p || p.module_id !== mid) bad.push(`${mid}:page:${pid}`);
+    }
+    for (const rid of mod.provides.routes || []) {
+      const r = routesById.get(rid);
+      const p = r ? pagesById.get(r.page_id) : null;
+      if (!r || !p || p.module_id !== mid) bad.push(`${mid}:route:${rid}`);
+    }
+    for (const nid of mod.provides.nav || []) {
+      const n = navById.get(nid);
+      if (!n || n.module_id !== mid) bad.push(`${mid}:nav:${nid}`);
+    }
+    for (const wid of mod.provides.widgets || []) {
+      if (!widgetsById.has(wid)) bad.push(`${mid}:widget:${wid}`);
+    }
+    for (const fid of mod.provides.forms || []) {
+      const f = formsById.get(fid);
+      if (!f || f.module_id !== mid) bad.push(`${mid}:form:${fid}`);
+    }
+    for (const wid of mod.provides.workflows || []) {
+      const w = workflowsById.get(wid);
+      if (!w || w.module_id !== mid) bad.push(`${mid}:workflow:${wid}`);
+    }
+    for (const qid of mod.provides.datasources || []) {
+      const q = queriesById.get(qid);
+      if (!q || q.module_id !== mid) bad.push(`${mid}:datasource:${qid}`);
+    }
+  }
+  const ok = bad.length === 0;
+  return { ok, gate: "Domain Isolation Gate", details: ok ? "" : `Invalid refs: ${bad.join(", ")}` };
+}
+
+export function moduleActivationGate({ ssotDir, manifestsDir, releaseId }) {
+  const modules = readJson(`${ssotDir}/modules/domain_modules.json`);
+  const moduleIds = new Set(modules.map((m) => m.module_id));
+  const moduleActivations = readJson(`${ssotDir}/modules/module_activations.json`);
+  const activeModuleIds = new Set(moduleActivations.filter((m) => m.state === "active").map((m) => m.module_id));
+  const pages = readJson(`${ssotDir}/studio/pages/page_definitions.json`);
+  const pagesById = new Map(pages.map((p) => [p.id, p]));
+  const manifest = readJson(`${manifestsDir || "./runtime/manifests"}/platform_manifest.${releaseId}.json`);
+  const routeCatalog = manifest.routes || { routes: [] };
+  const navManifest = manifest.nav || { nav_specs: [] };
+
+  const badRoutes = routeCatalog.routes.filter((r) => {
+    const p = pagesById.get(r.page_id);
+    return p?.module_id && moduleIds.has(p.module_id) && !activeModuleIds.has(p.module_id);
+  });
+  const badNav = (navManifest.nav_specs || []).filter((n) => n.module_id && moduleIds.has(n.module_id) && !activeModuleIds.has(n.module_id));
+  const ok = badRoutes.length === 0 && badNav.length === 0;
+  const details = [];
+  if (badRoutes.length) details.push(`Inactive module routes present: ${badRoutes.map((r) => r.route_id).join(", ")}`);
+  if (badNav.length) details.push(`Inactive module nav present: ${badNav.map((n) => n.id).join(", ")}`);
+  return { ok, gate: "Module Activation Gate", details: details.join(" | ") };
+}
+
+export function dataGovCoverageGate({ ssotDir }) {
+  const modules = readJson(`${ssotDir}/modules/domain_modules.json`);
+  const queries = readJson(`${ssotDir}/data/query_catalog.json`);
+  const fields = readJson(`${ssotDir}/data/catalog/data_fields.json`);
+  const classifications = new Set(readJson(`${ssotDir}/data/catalog/data_classifications.json`).map((c) => c.classification_id));
+
+  const queriesById = new Map(queries.map((q) => [q.query_id, q]));
+  const fieldsByModel = new Map();
+  for (const f of fields) {
+    const list = fieldsByModel.get(f.data_model_id) || [];
+    list.push(f);
+    fieldsByModel.set(f.data_model_id, list);
+  }
+
+  const bad = [];
+  for (const mod of modules) {
+    for (const qid of mod.provides.datasources || []) {
+      const q = queriesById.get(qid);
+      if (!q) continue;
+      const f = fieldsByModel.get(q.data_model_id) || [];
+      if (f.length === 0) bad.push(`${mod.module_id}:${q.data_model_id}:no_fields`);
+      for (const field of f) {
+        if (!field.classification_id || !classifications.has(field.classification_id)) {
+          bad.push(`${mod.module_id}:${field.field_id}:missing_classification`);
+        }
+      }
+    }
+  }
+  const ok = bad.length === 0;
+  return { ok, gate: "DataGov Coverage Gate", details: ok ? "" : bad.join(", ") };
+}
+
+export function budgetCoverageGate({ ssotDir }) {
+  const modules = readJson(`${ssotDir}/modules/domain_modules.json`);
+  const queries = readJson(`${ssotDir}/data/query_catalog.json`);
+  const budgets = readJson(`${ssotDir}/data/query_budgets.json`);
+  const planVersions = readJson(`${ssotDir}/tenancy/plan_versions.json`);
+  const tiers = new Set(planVersions.map((p) => p.perf_tier));
+
+  const budgetsByQuery = new Map();
+  for (const b of budgets) {
+    const list = budgetsByQuery.get(b.query_id) || [];
+    list.push(b);
+    budgetsByQuery.set(b.query_id, list);
+  }
+  const queryIds = new Set(queries.map((q) => q.query_id));
+
+  const bad = [];
+  for (const mod of modules) {
+    for (const qid of mod.provides.datasources || []) {
+      if (!queryIds.has(qid)) {
+        bad.push(`${mod.module_id}:${qid}:missing_query`);
+        continue;
+      }
+      const b = budgetsByQuery.get(qid) || [];
+      const tierSet = new Set(b.map((x) => x.tier));
+      for (const t of tiers) {
+        if (!tierSet.has(t)) bad.push(`${mod.module_id}:${qid}:missing_budget:${t}`);
+      }
+    }
+  }
+  const ok = bad.length === 0;
+  return { ok, gate: "Budget Coverage Gate", details: ok ? "" : bad.join(", ") };
+}
+
 export function runbookIntegrityGate({ ssotDir }) {
   const runbooks = readJson(`${ssotDir}/ops/runbooks.json`);
   const versions = readJson(`${ssotDir}/ops/runbook_versions.json`);
@@ -787,10 +929,12 @@ export function tenantTemplateGate({ ssotDir }) {
   const entitlements = readJson(`${ssotDir}/tenancy/entitlements.json`);
   const flags = readJson(`${ssotDir}/tenancy/feature_flags.json`);
   const themes = readJson(`${ssotDir}/design/themes.json`);
+  const modules = readJson(`${ssotDir}/modules/domain_modules.json`);
   const planIds = new Set(plans.map((p) => p.plan_id));
   const entIds = new Set(entitlements.map((e) => e.entitlement_id || e.id));
   const flagIds = new Set(flags.map((f) => f.flag_id || f.id));
   const themeIds = new Set(themes.map((t) => t.theme_id || t.id));
+  const moduleIds = new Set(modules.map((m) => m.module_id));
   const bad = [];
   for (const t of templates) {
     if (!planIds.has(t.base_plan_id)) bad.push(`${t.template_id}:plan`);
@@ -798,6 +942,9 @@ export function tenantTemplateGate({ ssotDir }) {
     for (const f of t.feature_flags_default || []) if (!flagIds.has(f)) bad.push(`${t.template_id}:flag:${f}`);
     const themeId = t.theme_binding?.theme_id;
     if (themeId && !themeIds.has(themeId)) bad.push(`${t.template_id}:theme:${themeId}`);
+    for (const m of t.module_activations_default || []) {
+      if (!moduleIds.has(m.module_id)) bad.push(`${t.template_id}:module:${m.module_id}`);
+    }
   }
   const ok = bad.length === 0;
   return { ok, gate: "Tenant Template Gate", details: ok ? "" : bad.join(", ") };

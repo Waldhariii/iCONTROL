@@ -46,6 +46,32 @@ export function compilePlatform({ ssotDir, outDir, releaseId, env, privateKeyPat
   const compatVersions = readJson(`${ssotDir}/compat/compatibility_versions.json`);
   const deprecations = readJson(`${ssotDir}/compat/deprecations.json`);
   const migrationRegistry = readJson(`${ssotDir}/compat/migrations.json`);
+  const domainModules = readJson(`${ssotDir}/modules/domain_modules.json`);
+  const moduleActivations = readJson(`${ssotDir}/modules/module_activations.json`);
+
+  const domainModuleIds = new Set(domainModules.map((m) => m.module_id));
+  const activeModuleIds = new Set(moduleActivations.filter((m) => m.state === "active").map((m) => m.module_id));
+  const pageById = new Map(renderGraph.pages.map((p) => [p.id, p]));
+  const allowedPageIds = new Set(
+    renderGraph.pages
+      .filter((p) => !p.module_id || !domainModuleIds.has(p.module_id) || activeModuleIds.has(p.module_id))
+      .map((p) => p.id)
+  );
+  const filteredPages = renderGraph.pages.filter((p) => allowedPageIds.has(p.id));
+  const filteredPageVersions = renderGraph.page_versions.filter((pv) => allowedPageIds.has(pv.page_id));
+  const allowedWidgetIds = new Set();
+  for (const pv of filteredPageVersions) {
+    for (const wid of pv.widget_instance_ids || []) allowedWidgetIds.add(wid);
+  }
+  const filteredWidgets = renderGraph.widgets.filter((w) => allowedWidgetIds.has(w.id));
+
+  const filteredRoutes = routeCatalog.routes.filter((r) => {
+    const page = pageById.get(r.page_id);
+    return !page?.module_id || !domainModuleIds.has(page.module_id) || activeModuleIds.has(page.module_id);
+  });
+  const filteredNavSpecs = (navManifest.nav_specs || []).filter(
+    (n) => !n.module_id || !domainModuleIds.has(n.module_id) || activeModuleIds.has(n.module_id)
+  );
   const runbooks = readJson(`${ssotDir}/ops/runbooks.json`);
   const runbookVersions = readJson(`${ssotDir}/ops/runbook_versions.json`);
   const mitigationPolicies = readJson(`${ssotDir}/ops/mitigation_policies.json`);
@@ -101,10 +127,10 @@ export function compilePlatform({ ssotDir, outDir, releaseId, env, privateKeyPat
     signature: "",
     checksums: {},
     compat_matrix: { runtime: ">=1.0.0" },
-    routes: routeCatalog,
-    nav: navManifest,
-    pages: renderGraph,
-    widgets: renderGraph.widgets || [],
+    routes: { ...routeCatalog, routes: filteredRoutes },
+    nav: { ...navManifest, nav_specs: filteredNavSpecs },
+    pages: { ...renderGraph, pages: filteredPages, page_versions: filteredPageVersions, widgets: filteredWidgets },
+    widgets: filteredWidgets || [],
     themes: themeManifest,
     permissions: guards,
     datasources: datasourceContracts,
@@ -151,7 +177,9 @@ export function compilePlatform({ ssotDir, outDir, releaseId, env, privateKeyPat
       compatibility_versions: compatVersions,
       deprecations,
       migrations: migrationRegistry
-    }
+    },
+    domain_modules: domainModules,
+    module_activations: moduleActivations
   };
 
   const checksums = {

@@ -7,5 +7,32 @@
     "purge_strategy": "archive",
     "legal_hold": false,
     "hold_reason": ""
+  },
+  {
+    "policy_id": "retention:job",
+    "scope": "platform:*",
+    "target_model_id": "model:job",
+    "retain_days": 365,
+    "purge_strategy": "archive",
+    "legal_hold": false,
+    "hold_reason": ""
+  },
+  {
+    "policy_id": "retention:invoice",
+    "scope": "platform:*",
+    "target_model_id": "model:invoice",
+    "retain_days": 1825,
+    "purge_strategy": "archive",
+    "legal_hold": false,
+    "hold_reason": ""
+  },
+  {
+    "policy_id": "retention:payment",
+    "scope": "platform:*",
+    "target_model_id": "model:payment",
+    "retain_days": 1825,
+    "purge_strategy": "archive",
+    "legal_hold": false,
+    "hold_reason": ""
   }
 ]

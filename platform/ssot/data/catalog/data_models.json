@@ -1,7 +1,8 @@
 [
-  {
-    "data_model_id": "model:document",
-    "name": "Document",
-    "status": "active"
-  }
+  {"data_model_id": "model:document", "name": "Document", "status": "active"},
+  {"data_model_id": "model:job", "name": "Job", "status": "active"},
+  {"data_model_id": "model:visit", "name": "Visit", "status": "active"},
+  {"data_model_id": "model:ingestion", "name": "Ingestion", "status": "active"},
+  {"data_model_id": "model:invoice", "name": "Invoice", "status": "active"},
+  {"data_model_id": "model:payment", "name": "Payment", "status": "active"}
 ]

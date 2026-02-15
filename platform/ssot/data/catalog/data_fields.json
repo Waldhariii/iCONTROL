@@ -1,23 +1,31 @@
 [
-  {
-    "field_id": "field:document.id",
-    "data_model_id": "model:document",
-    "path": "id",
-    "type": "string",
-    "classification_id": "public"
-  },
-  {
-    "field_id": "field:document.title",
-    "data_model_id": "model:document",
-    "path": "title",
-    "type": "string",
-    "classification_id": "internal"
-  },
-  {
-    "field_id": "field:document.owner_email",
-    "data_model_id": "model:document",
-    "path": "owner_email",
-    "type": "string",
-    "classification_id": "pii.low"
-  }
+  {"field_id": "field:document.id", "data_model_id": "model:document", "path": "id", "type": "string", "classification_id": "public"},
+  {"field_id": "field:document.title", "data_model_id": "model:document", "path": "title", "type": "string", "classification_id": "internal"},
+  {"field_id": "field:document.owner_email", "data_model_id": "model:document", "path": "owner_email", "type": "string", "classification_id": "pii.low"},
+
+  {"field_id": "field:job.id", "data_model_id": "model:job", "path": "id", "type": "string", "classification_id": "public"},
+  {"field_id": "field:job.title", "data_model_id": "model:job", "path": "title", "type": "string", "classification_id": "internal"},
+  {"field_id": "field:job.customer_name", "data_model_id": "model:job", "path": "customer_name", "type": "string", "classification_id": "pii.low"},
+  {"field_id": "field:job.status", "data_model_id": "model:job", "path": "status", "type": "string", "classification_id": "internal"},
+  {"field_id": "field:job.total_cost", "data_model_id": "model:job", "path": "total_cost", "type": "number", "classification_id": "financial"},
+
+  {"field_id": "field:visit.id", "data_model_id": "model:visit", "path": "id", "type": "string", "classification_id": "public"},
+  {"field_id": "field:visit.job_id", "data_model_id": "model:visit", "path": "job_id", "type": "string", "classification_id": "internal"},
+  {"field_id": "field:visit.scheduled_at", "data_model_id": "model:visit", "path": "scheduled_at", "type": "string", "classification_id": "internal"},
+  {"field_id": "field:visit.technician_name", "data_model_id": "model:visit", "path": "technician_name", "type": "string", "classification_id": "pii.low"},
+
+  {"field_id": "field:ingestion.id", "data_model_id": "model:ingestion", "path": "id", "type": "string", "classification_id": "public"},
+  {"field_id": "field:ingestion.document_id", "data_model_id": "model:ingestion", "path": "document_id", "type": "string", "classification_id": "internal"},
+  {"field_id": "field:ingestion.status", "data_model_id": "model:ingestion", "path": "status", "type": "string", "classification_id": "internal"},
+
+  {"field_id": "field:invoice.id", "data_model_id": "model:invoice", "path": "id", "type": "string", "classification_id": "public"},
+  {"field_id": "field:invoice.customer_name", "data_model_id": "model:invoice", "path": "customer_name", "type": "string", "classification_id": "pii.low"},
+  {"field_id": "field:invoice.amount", "data_model_id": "model:invoice", "path": "amount", "type": "number", "classification_id": "financial"},
+  {"field_id": "field:invoice.status", "data_model_id": "model:invoice", "path": "status", "type": "string", "classification_id": "internal"},
+
+  {"field_id": "field:payment.id", "data_model_id": "model:payment", "path": "id", "type": "string", "classification_id": "public"},
+  {"field_id": "field:payment.invoice_id", "data_model_id": "model:payment", "path": "invoice_id", "type": "string", "classification_id": "internal"},
+  {"field_id": "field:payment.amount", "data_model_id": "model:payment", "path": "amount", "type": "number", "classification_id": "financial"},
+  {"field_id": "field:payment.method", "data_model_id": "model:payment", "path": "method", "type": "string", "classification_id": "internal"},
+  {"field_id": "field:payment.payer_email", "data_model_id": "model:payment", "path": "payer_email", "type": "string", "classification_id": "pii.low"}
 ]

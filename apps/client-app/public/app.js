@@ -1,5 +1,6 @@
 const apiBase = "http://localhost:7070/api";
 const headers = { "Content-Type": "application/json", "x-role": "cp.admin" };
+const tenantId = "tenant:default";
 
 let manifest = null;
 let currentRelease = "dev-001";
@@ -24,6 +25,7 @@ function renderNav() {
   nav.innerHTML = "";
   const routes = (manifest?.routes?.routes || []).filter((r) => r.surface === "client");
   for (const r of routes) {
+    if (!moduleActiveForRoute(r)) continue;
     const a = document.createElement("a");
     a.href = `#${r.path}`;
     a.textContent = r.path;
@@ -32,8 +34,8 @@ function renderNav() {
 }
 
 function isEntitled(route, page) {
-  const entitlements = new Set((manifest?.entitlements || []).map((e) => e.id));
-  if (route?.entitlement_gate_id && !entitlements.has(route.entitlement_gate_id)) return false;
+  const tenantEnt = new Set((manifest?.tenant_entitlements || []).filter((e) => e.tenant_id === tenantId && e.enabled !== false).map((e) => e.entitlement_id));
+  if (route?.entitlement_gate_id && !tenantEnt.has(route.entitlement_gate_id)) return false;
   const requiredCaps = page?.capabilities_required || [];
   const caps = new Set(manifest?.capabilities || []);
   for (const cap of requiredCaps) {
@@ -54,6 +56,10 @@ function renderRoute() {
   const routes = (manifest?.routes?.routes || []).filter((r) => r.surface === "client");
   const route = routes.find((r) => r.path === path);
   if (!route) {
+    view.innerHTML = `<section><h2>Not Found</h2></section>`;
+    return;
+  }
+  if (!moduleActiveForRoute(route)) {
     view.innerHTML = `<section><h2>Not Found</h2></section>`;
     return;
   }
@@ -88,6 +94,15 @@ function safeRender(widget) {
     }
   }
   return { widget_id: widget.id, props, rendered: true };
+}
+
+function moduleActiveForRoute(route) {
+  const pages = manifest.pages?.pages || [];
+  const page = pages.find((p) => p.id === route.page_id);
+  const moduleId = page?.module_id;
+  if (!moduleId) return true;
+  const activations = (manifest?.module_activations || []).filter((m) => m.tenant_id === tenantId && m.state === "active");
+  return activations.some((a) => a.module_id === moduleId);
 }
 
 window.onhashchange = () => {

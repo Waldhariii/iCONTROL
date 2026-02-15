@@ -1,1 +1,5 @@
-[]
+[
+  {"form_id": "form:job_create", "name": "Job Create", "module_id": "module:jobs", "fields": ["title", "customer_name", "status", "total_cost"]},
+  {"form_id": "form:job_update", "name": "Job Update", "module_id": "module:jobs", "fields": ["title", "status"]},
+  {"form_id": "form:invoice_create", "name": "Invoice Create", "module_id": "module:billing", "fields": ["customer_name", "amount", "status"]}
+]

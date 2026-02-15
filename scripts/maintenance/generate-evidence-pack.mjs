@@ -34,6 +34,10 @@ copyIfExists(join(SSOT_DIR, "governance", "break_glass.json"), join(outDir, "bre
 copyIfExists(join(SSOT_DIR, "extensions", "extension_killswitch.json"), join(outDir, "extension_killswitch.json"));
 copyIfExists(join(SSOT_DIR, "compat", "compatibility_matrix.json"), join(outDir, "compatibility_matrix.json"));
 copyIfExists(join(SSOT_DIR, "compat", "deprecations.json"), join(outDir, "deprecations.json"));
+copyIfExists(join(SSOT_DIR, "modules", "domain_modules.json"), join(outDir, "domain_modules.json"));
+copyIfExists(join(SSOT_DIR, "modules", "module_activations.json"), join(outDir, "module_activations.json"));
+copyIfExists(join(SSOT_DIR, "tenancy", "tenant_templates.json"), join(outDir, "tenant_templates.json"));
+copyIfExists(join(SSOT_DIR, "tenancy", "tenant_template_versions.json"), join(outDir, "tenant_template_versions.json"));
 
 if (existsSync(opsDir)) {
   try {
@@ -72,6 +76,16 @@ if (existsSync(activePath)) {
   if (releaseId) {
     const checksums = join(RUNTIME_DIR, "manifests", `checksums.${releaseId}.json`);
     copyIfExists(checksums, join(outDir, `checksums.${releaseId}.json`));
+    const manifestPath = join(RUNTIME_DIR, "manifests", `platform_manifest.${releaseId}.json`);
+    if (existsSync(manifestPath)) {
+      try {
+        const manifest = JSON.parse(readFileSync(manifestPath, "utf-8"));
+        writeFileSync(join(outDir, "domain_modules.snapshot.json"), JSON.stringify(manifest.domain_modules || [], null, 2) + "\n", "utf-8");
+        writeFileSync(join(outDir, "module_activations.snapshot.json"), JSON.stringify(manifest.module_activations || [], null, 2) + "\n", "utf-8");
+      } catch {
+        // ignore manifest parse errors
+      }
+    }
   }
 }
 

@@ -1,0 +1,5 @@
+[
+  {"module_id": "module:jobs", "version": "1.0.0", "status": "active"},
+  {"module_id": "module:documents", "version": "1.0.0", "status": "active"},
+  {"module_id": "module:billing", "version": "1.0.0", "status": "active"}
+]

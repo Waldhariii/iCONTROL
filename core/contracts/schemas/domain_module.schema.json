@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "domain_module.v1",
+  "title": "domain_module",
+  "type": "object",
+  "required": ["module_id", "name", "tier", "surfaces", "provides", "required_capabilities", "default_entitlements", "dependencies"],
+  "additionalProperties": false,
+  "properties": {
+    "module_id": {"type": "string"},
+    "name": {"type": "string"},
+    "tier": {"type": "string", "enum": ["free", "pro", "ent"]},
+    "surfaces": {"type": "array", "items": {"type": "string"}},
+    "provides": {
+      "type": "object",
+      "required": ["pages", "routes", "nav", "widgets", "forms", "workflows", "datasources"],
+      "additionalProperties": false,
+      "properties": {
+        "pages": {"type": "array", "items": {"type": "string"}},
+        "routes": {"type": "array", "items": {"type": "string"}},
+        "nav": {"type": "array", "items": {"type": "string"}},
+        "widgets": {"type": "array", "items": {"type": "string"}},
+        "forms": {"type": "array", "items": {"type": "string"}},
+        "workflows": {"type": "array", "items": {"type": "string"}},
+        "datasources": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "required_capabilities": {"type": "array", "items": {"type": "string"}},
+    "default_entitlements": {"type": "array", "items": {"type": "string"}},
+    "dependencies": {"type": "array", "items": {"type": "string"}}
+  }
+}

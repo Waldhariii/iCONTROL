@@ -12,6 +12,7 @@
     "base_plan_id": {"type": "string"},
     "entitlements_default": {"type": "array", "items": {"type": "string"}},
     "feature_flags_default": {"type": "array", "items": {"type": "string"}},
+    "module_activations_default": {"type": "array", "items": {"type": "object"}},
     "surface_bootstrap": {"type": "object"},
     "theme_binding": {"type": ["object", "null"]},
     "quotas_overrides": {"type": ["object", "null"]},

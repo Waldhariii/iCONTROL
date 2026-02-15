@@ -1,1 +1,23 @@
-[]
+[
+  {
+    "id": "widget:entity_list",
+    "name": "Entity List",
+    "props_schema": {
+      "allowed_props": ["title", "datasource_id", "columns"]
+    }
+  },
+  {
+    "id": "widget:entity_detail",
+    "name": "Entity Detail",
+    "props_schema": {
+      "allowed_props": ["title", "datasource_id", "fields"]
+    }
+  },
+  {
+    "id": "widget:entity_form",
+    "name": "Entity Form",
+    "props_schema": {
+      "allowed_props": ["title", "form_schema_id", "submit_action", "datasource_id"]
+    }
+  }
+]

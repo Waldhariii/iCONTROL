@@ -1,0 +1,56 @@
+[
+  {
+    "module_id": "module:jobs",
+    "name": "Jobs",
+    "tier": "free",
+    "surfaces": ["client"],
+    "provides": {
+      "pages": ["client-jobs-list", "client-jobs-detail"],
+      "routes": ["route:jobs-list", "route:jobs-detail"],
+      "nav": ["nav:jobs"],
+      "widgets": ["widget:entity_list", "widget:entity_detail", "widget:entity_form"],
+      "forms": ["form:job_create", "form:job_update"],
+      "workflows": ["workflow:job_created_notify"],
+      "datasources": ["query:jobs.list", "query:jobs.detail"]
+    },
+    "required_capabilities": ["client.access"],
+    "default_entitlements": ["entitlement:default"],
+    "dependencies": ["platform:datasource", "platform:workflows"]
+  },
+  {
+    "module_id": "module:documents",
+    "name": "Documents",
+    "tier": "free",
+    "surfaces": ["client"],
+    "provides": {
+      "pages": ["client-docs-list", "client-docs-detail"],
+      "routes": ["route:docs-list", "route:docs-detail"],
+      "nav": ["nav:documents"],
+      "widgets": ["widget:entity_list", "widget:entity_detail"],
+      "forms": [],
+      "workflows": ["workflow:doc_ingest_classify"],
+      "datasources": ["query:docs.list", "query:docs.detail"]
+    },
+    "required_capabilities": ["client.access"],
+    "default_entitlements": ["entitlement:default"],
+    "dependencies": ["platform:datasource", "platform:workflows"]
+  },
+  {
+    "module_id": "module:billing",
+    "name": "Billing",
+    "tier": "pro",
+    "surfaces": ["client"],
+    "provides": {
+      "pages": ["client-billing-invoices", "client-billing-invoice-detail"],
+      "routes": ["route:billing-invoices", "route:billing-invoice-detail"],
+      "nav": ["nav:billing"],
+      "widgets": ["widget:entity_list", "widget:entity_detail", "widget:entity_form"],
+      "forms": ["form:invoice_create"],
+      "workflows": [],
+      "datasources": ["query:billing.invoices", "query:billing.invoice.detail"]
+    },
+    "required_capabilities": ["client.access"],
+    "default_entitlements": ["entitlement:default"],
+    "dependencies": ["platform:datasource"]
+  }
+]
