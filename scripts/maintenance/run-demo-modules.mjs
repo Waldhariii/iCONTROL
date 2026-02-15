@@ -23,18 +23,19 @@ function ensureTemplates(ssotDir) {
   const base = templates.find((t) => t.template_id === "tmpl:default") || templates[0];
   if (!base) throw new Error("No base tenant template found");
 
-  const mk = (id, modules) => ({
+  const mk = (id, modules, basePlanId = base.base_plan_id) => ({
     ...base,
     template_id: id,
     name: id.replace("tmpl:", ""),
+    base_plan_id: basePlanId,
     module_activations_default: modules.map((m) => ({ module_id: m, state: "active" }))
   });
 
   const desired = [
-    mk("tmpl:jobs_only", ["module:jobs"]),
-    mk("tmpl:docs_only", ["module:documents"]),
-    mk("tmpl:billing_only", ["module:billing"]),
-    mk("tmpl:all_three", ["module:jobs", "module:documents", "module:billing"])
+    mk("tmpl:jobs_only", ["module:jobs"], "plan:free"),
+    mk("tmpl:docs_only", ["module:documents"], "plan:free"),
+    mk("tmpl:billing_only", ["module:billing"], "plan:pro"),
+    mk("tmpl:all_three", ["module:jobs", "module:documents", "module:billing"], "plan:pro")
   ];
 
   const byId = new Map(templates.map((t) => [t.template_id, t]));

@@ -12,10 +12,6 @@
       {
         "module_id": "module:documents",
         "state": "active"
-      },
-      {
-        "module_id": "module:billing",
-        "state": "active"
       }
     ]
   },

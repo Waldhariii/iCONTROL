@@ -1184,6 +1184,38 @@ export function tenantTemplateGate({ ssotDir }) {
   return { ok, gate: "Tenant Template Gate", details: ok ? "" : bad.join(", ") };
 }
 
+export function templateIntegrityGate({ ssotDir }) {
+  const templates = readJson(`${ssotDir}/tenancy/tenant_templates.json`);
+  const templateVersions = readJson(`${ssotDir}/tenancy/tenant_template_versions.json`);
+  const modules = readJson(`${ssotDir}/modules/domain_modules.json`);
+  const moduleById = new Map(modules.map((m) => [m.module_id, m]));
+  const versionByTemplate = new Map();
+  for (const v of templateVersions || []) {
+    if (v.status !== "active") continue;
+    versionByTemplate.set(v.template_id, v);
+  }
+  const bad = [];
+  for (const t of templates) {
+    if (t.base_plan_id !== "plan:free") continue;
+    const v = versionByTemplate.get(t.template_id);
+    const activations = (v && v.module_activations_default) || t.module_activations_default || [];
+    const offenders = [];
+    for (const a of activations) {
+      if (a.state && a.state !== "active") continue;
+      const mod = moduleById.get(a.module_id);
+      if (mod && tierRank(mod.tier) > tierRank("free")) {
+        offenders.push({ module_id: a.module_id, min_tier: mod.tier || "pro" });
+      }
+    }
+    if (offenders.length) {
+      const list = offenders.map((o) => `${o.module_id}(${o.min_tier})`).join(", ");
+      bad.push(`template_id=${t.template_id} base_plan_id=${t.base_plan_id} offenders=${list} action=use tmpl:marketplace-free OR set base_plan_id plan:pro OR disable module`);
+    }
+  }
+  const ok = bad.length === 0;
+  return { ok, gate: "Template Integrity Gate", details: ok ? "" : bad.join(" | ") };
+}
+
 export function tenantFactoryGate({ ssotDir }) {
   const tenants = readJson(`${ssotDir}/tenancy/tenants.json`);
   const ids = tenants.map((t) => t.tenant_id);

@@ -22,6 +22,15 @@ set -euo pipefail
 # ============================================================
 
 API_BASE="${API_BASE:-http://localhost:7070}"
+ALLOW_REMOTE="${ALLOW_REMOTE:-0}"
+ALLOW_TEMPLATE_MISMATCH="${ALLOW_TEMPLATE_MISMATCH:-0}"
+
+if [[ ! "$API_BASE" =~ ^http://(localhost|127\.0\.0\.1)(:|/|$) ]]; then
+  if [[ "$ALLOW_REMOTE" != "1" ]]; then
+    echo "ERR: API_BASE must be localhost unless ALLOW_REMOTE=1"
+    exit 2
+  fi
+fi
 
 # Pick or create a tenant for the smoke run
 TENANT_KEY="${TENANT_KEY:-smoke-tenant-$(date +%s)}"
@@ -141,6 +150,19 @@ echo "== 3.1) Break-glass disable =="
 req POST "$API_BASE/api/governance/break-glass/disable" | json
 
 SCOPE_HDR=(-H "x-scope: platform:*")
+
+echo
+echo "== 3.2) Marketplace preflight =="
+PREFLIGHT_JSON="$(req GET "$API_BASE/api/marketplace/tenants/$TENANT_ID/preflight" "${SCOPE_HDR[@]}")"
+echo "$PREFLIGHT_JSON" | json
+PLAN_TIER="$(echo "$PREFLIGHT_JSON" | python3 -c 'import json,sys; o=json.load(sys.stdin); print((o.get("plan_effective") or {}).get("tier",""))')"
+RECOMMENDED_TMPL="$(echo "$PREFLIGHT_JSON" | python3 -c 'import json,sys; o=json.load(sys.stdin); print((o.get("recommendations") or {}).get("template_recommended",""))')"
+if [[ "$PLAN_TIER" == "free" && -n "$RECOMMENDED_TMPL" && "$TEMPLATE_ID" != "$RECOMMENDED_TMPL" ]]; then
+  echo "ERR: template mismatch for free plan. Recommended: $RECOMMENDED_TMPL, got: $TEMPLATE_ID"
+  if [[ "$ALLOW_TEMPLATE_MISMATCH" != "1" ]]; then
+    exit 2
+  fi
+fi
 
 echo
 echo "== 4) List tenant installed items (baseline) =="
@@ -307,6 +329,10 @@ echo "Examples:"
 echo "  runtime/reports/MARKETPLACE_IMPACT_*.md"
 echo "  runtime/reports/CI_REPORT.md"
 echo "  runtime/reports/DEMO_REPORT_*.md"
+if [[ -f "./CI_REPORT.md" ]]; then
+  echo "ERR: CI_REPORT.md must not exist at repo root"
+  exit 2
+fi
 
 echo
 echo "DONE."

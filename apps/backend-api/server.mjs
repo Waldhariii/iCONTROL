@@ -13,6 +13,7 @@ import { analyzeInstall } from "../../platform/runtime/marketplace/impact.mjs";
 import { computeInvoice, persistDraft, publishInvoice, billingMode } from "../../platform/runtime/billing/invoice-engine.mjs";
 import { handleStripeWebhook } from "../../platform/runtime/billing/providers/stripe_webhook.mjs";
 import { sha256, stableStringify } from "../../platform/compilers/utils.mjs";
+import { compareSemver } from "../../platform/runtime/compat/semver.mjs";
 import { createHmac, timingSafeEqual } from "crypto";
 
 const PORT = process.env.PORT || 7070;
@@ -698,6 +699,21 @@ function getTenantPlan(tenantId) {
   return { plan_id: planId, tier: normalizeTier(version?.perf_tier || plan?.tier || "free") };
 }
 
+function getApprovedExtensionVersions(extensionId) {
+  const reviews = readJson(ssotPath("extensions/extension_reviews.json"));
+  const approved = reviews
+    .filter((r) => r.extension_id === extensionId && r.status === "approved" && r.version)
+    .map((r) => r.version);
+  const uniq = Array.from(new Set(approved));
+  return uniq.sort((a, b) => compareSemver(b, a));
+}
+
+function resolveLatestApprovedExtensionVersion(extensionId) {
+  const versions = getApprovedExtensionVersions(extensionId);
+  if (!versions.length) return null;
+  return versions[0];
+}
+
 function buildPreviewFromOps(changesetId, ops) {
   const previewDir = `./platform/runtime/preview/${changesetId}`;
   const previewSsot = join(previewDir, "ssot");
@@ -1103,11 +1119,48 @@ const server = http.createServer(async (req, res) => {
       return json(res, 200, { tenant_id: tenantId, modules, extensions });
     }
 
+    if (req.method === "GET" && req.url?.startsWith("/api/marketplace/tenants/") && req.url?.endsWith("/preflight")) {
+      requirePermission(req, "marketplace.view");
+      const tenantId = decodeURIComponent(req.url.split("/")[4]);
+      const details = getTenantPlanDetails(tenantId);
+      const planTier = normalizeTier(details?.plan_version?.perf_tier || details?.plan?.tier || "free");
+      const modules = readJson(ssotPath("modules/module_activations.json")).filter((m) => m.tenant_id === tenantId);
+      const extensions = readJson(ssotPath("extensions/extension_installations.json")).filter((e) => e.tenant_id === tenantId);
+      const approvedMap = {};
+      const extIds = new Set(readJson(ssotPath("extensions/extensions.json")).map((e) => e.id));
+      for (const extId of extIds) {
+        approvedMap[extId] = getApprovedExtensionVersions(extId);
+      }
+      const templateRecommended = planTier === "free" ? "tmpl:marketplace-free" : "tmpl:marketplace-pro";
+      const notes = planTier === "free"
+        ? ["Free plan detected; avoid PRO modules in default activations."]
+        : ["Plan supports paid tiers where applicable."];
+      return json(res, 200, {
+        tenant_id: tenantId,
+        plan_effective: {
+          plan_id: details?.plan?.plan_id || details?.plan_id || "plan:free",
+          plan_version: details?.plan_version?.version || "",
+          tier: planTier
+        },
+        template_id: null,
+        current_activations: {
+          modules: modules.map((m) => ({ id: m.module_id, enabled: m.state === "active" })),
+          extensions: extensions.map((e) => ({ id: e.extension_id, enabled: e.state !== "disabled", version: e.version }))
+        },
+        approved_extension_versions: approvedMap,
+        recommendations: {
+          template_recommended: templateRecommended,
+          notes
+        }
+      });
+    }
+
     if (req.method === "POST" && req.url?.startsWith("/api/marketplace/tenants/") && req.url?.endsWith("/impact")) {
       requirePermission(req, "marketplace.view");
       const tenantId = decodeURIComponent(req.url.split("/")[4]);
       const payload = await bodyToJson(req);
-      const { type, id, version } = payload;
+      const { type, id } = payload;
+      let { version } = payload;
       const changesetId = payload.changeset_id || `cs-marketplace-impact-${Date.now()}`;
       const csPath = ssotPath(`changes/changesets/${changesetId}.json`);
       if (!existsSync(csPath)) {
@@ -1125,6 +1178,12 @@ const server = http.createServer(async (req, res) => {
           preconditions: { expected_exists: !exists ? false : true }
         });
       } else if (type === "extension") {
+        if (!version || version === "latest") {
+          const resolved = resolveLatestApprovedExtensionVersion(id);
+          if (!resolved) return json(res, 400, { error: "No approved versions; submit review/approve first" });
+          version = resolved;
+          appendAudit({ event: "marketplace.resolve_latest", extension_id: id, resolved_version: resolved, at: new Date().toISOString() });
+        }
         const installs = readJson(ssotPath("extensions/extension_installations.json"));
         const exists = installs.some((i) => i.tenant_id === tenantId && i.extension_id === id);
         ops.push({
@@ -1189,7 +1248,13 @@ const server = http.createServer(async (req, res) => {
         const ext = extensions.find((e) => e.id === id);
         if (!ext) return json(res, 404, { error: "Extension not found" });
         const existingInstall = installs.find((i) => i.tenant_id === tenantId && i.extension_id === id);
-        const effectiveVersion = version || existingInstall?.version;
+        let effectiveVersion = version || existingInstall?.version;
+        if (!effectiveVersion || effectiveVersion === "latest") {
+          const resolved = resolveLatestApprovedExtensionVersion(id);
+          if (!resolved) return json(res, 400, { error: "No approved versions; submit review/approve first" });
+          effectiveVersion = resolved;
+          appendAudit({ event: "marketplace.resolve_latest", extension_id: id, resolved_version: resolved, at: new Date().toISOString() });
+        }
         const reviewOk = reviews.some((r) => r.extension_id === id && r.version === effectiveVersion && r.status === "approved");
         if ((action === "install" || action === "enable") && !reviewOk) return json(res, 400, { error: "Extension review not approved" });
         const desiredState = action === "disable" || action === "uninstall" ? "disabled" : "installed";
