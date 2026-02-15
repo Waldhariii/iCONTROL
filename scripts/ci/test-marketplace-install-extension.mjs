@@ -1,7 +1,7 @@
 import { spawn, execSync } from "child_process";
 import { mkdirSync, writeFileSync } from "fs";
 import { join, dirname } from "path";
-import { createTempSsot } from "./test-utils.mjs";
+import { createTempSsot, getS2SToken } from "./test-utils.mjs";
 
 function writeReview(ssotDir, action, targetId) {
   const safe = action.replace(/[^a-z0-9-]/gi, "_");
@@ -29,18 +29,23 @@ writeFileSync(
   JSON.stringify({ active_release_id: releaseId, active_env: "dev", updated_at: new Date().toISOString(), updated_by: "test" }, null, 2) + "\n"
 );
 
-const server = spawn("node", ["apps/backend-api/server.mjs"], { stdio: "inherit", env: { ...process.env, SSOT_DIR: ssotDir, MANIFESTS_DIR: outDir } });
+const server = spawn("node", ["apps/backend-api/server.mjs"], {
+  stdio: "inherit",
+  env: { ...process.env, SSOT_DIR: ssotDir, MANIFESTS_DIR: outDir, S2S_CP_HMAC: "dummy", S2S_TOKEN_SIGN: "dummy" }
+});
 
 async function run() {
   await sleep(500);
+  const token = await getS2SToken({ baseUrl: "http://localhost:7070", principalId: "svc:cp", secret: "dummy", scopes: ["marketplace.*", "runtime.read"] });
+  const authHeaders = { authorization: `Bearer ${token}` };
   writeReview(ssotDir, "extension_install", "cs-ext-install");
   const res = await fetch("http://localhost:7070/api/marketplace/tenants/tenant:default/install", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", ...authHeaders },
     body: JSON.stringify({ type: "extension", id: "ext:sample", version: "1.0.0", changeset_id: "cs-ext-install" })
   }).then((r) => r.json());
   if (!res.ok) throw new Error("Marketplace extension install failed");
-  const manifest = await fetch("http://localhost:7070/api/runtime/manifest").then((r) => r.json());
+  const manifest = await fetch("http://localhost:7070/api/runtime/manifest", { headers: authHeaders }).then((r) => r.json());
   const exts = manifest.extensions_runtime || [];
   const ok = exts.some((e) => e.extension_id === "ext:sample");
   if (!ok) throw new Error("Extension not present after install");

@@ -43,6 +43,9 @@ export function compilePlatform({ ssotDir, outDir, releaseId, env, privateKeyPat
   const securityRefs = readJson(`${ssotDir}/security/secrets_vault_refs.json`);
   const securityPolicies = readJson(`${ssotDir}/security/secret_policies.json`);
   const securityBindings = readJson(`${ssotDir}/security/secret_bindings.json`);
+  const servicePrincipals = readJson(`${ssotDir}/security/service_principals.json`);
+  const serviceCredentials = readJson(`${ssotDir}/security/service_credentials.json`);
+  const tokenExchangePolicies = readJson(`${ssotDir}/security/token_exchange_policies.json`);
   const sloDefinitions = readJson(`${ssotDir}/sre/slo_definitions.json`);
   const sloVersions = readJson(`${ssotDir}/sre/slo_versions.json`);
   const sliSources = readJson(`${ssotDir}/sre/sli_sources.json`);
@@ -241,7 +244,25 @@ export function compilePlatform({ ssotDir, outDir, releaseId, env, privateKeyPat
           max_ttl_days: r.constraints?.max_ttl_days ?? 0,
           rotation_policy_id: r.constraints?.rotation_policy_id || ""
         }
-      }))
+      })),
+      s2s_summary: {
+        principals: servicePrincipals.map((p) => ({
+          id: p.id,
+          status: p.status,
+          tenant_scope: p.tenant_scope
+        })),
+        credentials: serviceCredentials.map((c) => ({
+          id: c.id,
+          principal_id: c.principal_id,
+          kind: c.kind,
+          expires_at: c.expires_at,
+          status: c.status
+        })),
+        token_policies: tokenExchangePolicies.map((p) => ({
+          id: p.id,
+          max_ttl_seconds: p.max_ttl_seconds
+        }))
+      }
     },
     sre: {
       slo_definitions: sloDefinitions,

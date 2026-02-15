@@ -1,7 +1,7 @@
 import { spawn } from "child_process";
 import { writeFileSync, mkdirSync } from "fs";
 import { join } from "path";
-import { createTempSsot } from "./test-utils.mjs";
+import { createTempSsot, getS2SToken } from "./test-utils.mjs";
 
 const api = "http://localhost:7070/api";
 
@@ -22,11 +22,16 @@ function reviewFilename(action, targetId) {
 
 async function run() {
   const temp = createTempSsot();
-  const server = spawn("node", ["apps/backend-api/server.mjs"], { stdio: "inherit", env: { ...process.env, SSOT_DIR: temp.ssotDir } });
+  const server = spawn("node", ["apps/backend-api/server.mjs"], {
+    stdio: "inherit",
+    env: { ...process.env, SSOT_DIR: temp.ssotDir, S2S_CP_HMAC: "dummy", S2S_TOKEN_SIGN: "dummy" }
+  });
   await sleep(500);
 
   try {
-    const cs = await fetch(`${api}/changesets`, { method: "POST", headers: { "x-role": "cp.admin" } }).then((r) => r.json());
+    const token = await getS2SToken({ baseUrl: "http://localhost:7070", principalId: "svc:cp", secret: "dummy", scopes: ["studio.*", "runtime.read", "release.*"] });
+    const authHeaders = { authorization: `Bearer ${token}` };
+    const cs = await fetch(`${api}/changesets`, { method: "POST", headers: authHeaders }).then((r) => r.json());
 
     const pageId = `client-demo-${Date.now()}`;
     const page_definition = {
@@ -60,7 +65,7 @@ async function run() {
 
     await fetch(`${api}/studio/pages`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", "x-role": "cp.admin" },
+      headers: { "Content-Type": "application/json", ...authHeaders },
       body: JSON.stringify({ changeset_id: cs.id, page_definition, page_version })
     });
 
@@ -80,13 +85,13 @@ async function run() {
     };
     await fetch(`${api}/studio/routes`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", "x-role": "cp.admin" },
+      headers: { "Content-Type": "application/json", ...authHeaders },
       body: JSON.stringify({ changeset_id: cs.id, route_spec })
     });
 
     await fetch(`${api}/studio/nav`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", "x-role": "cp.admin" },
+      headers: { "Content-Type": "application/json", ...authHeaders },
       body: JSON.stringify({ changeset_id: cs.id, nav_spec: { id: `nav-${pageId}`, surface: "client", label: "Demo", path: route_spec.path, module_id: "module:demo" } })
     });
 
@@ -103,20 +108,20 @@ async function run() {
 
     await fetch(`${api}/studio/modules`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", "x-role": "cp.admin" },
+      headers: { "Content-Type": "application/json", ...authHeaders },
       body: JSON.stringify({ changeset_id: cs.id, module })
     });
 
-    const previewRes = await fetch(`${api}/changesets/${cs.id}/preview`, { method: "POST", headers: { "x-role": "cp.admin" } });
+    const previewRes = await fetch(`${api}/changesets/${cs.id}/preview`, { method: "POST", headers: authHeaders });
     if (!previewRes.ok) throw new Error("Preview failed");
-    const validateRes = await fetch(`${api}/changesets/${cs.id}/validate`, { method: "POST", headers: { "x-role": "cp.admin" } });
+    const validateRes = await fetch(`${api}/changesets/${cs.id}/validate`, { method: "POST", headers: authHeaders });
     if (!validateRes.ok) throw new Error("Validate failed");
 
     writeReview(temp.ssotDir, reviewFilename("publish", cs.id), "publish", cs.id);
 
     const publishRes = await fetch(`${api}/studio/modules/${module.module_id}/publish`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", "x-role": "cp.admin" },
+      headers: { "Content-Type": "application/json", ...authHeaders },
       body: JSON.stringify({ changeset_id: cs.id })
     });
     if (!publishRes.ok) throw new Error("Publish failed");
@@ -126,7 +131,7 @@ async function run() {
 
     const activateRes = await fetch(`${api}/studio/modules/${module.module_id}/activate`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", "x-role": "cp.admin" },
+      headers: { "Content-Type": "application/json", ...authHeaders },
       body: JSON.stringify({ tenant_id: "tenant:default", changeset_id: activateCs })
     });
     if (!activateRes.ok) {
@@ -139,7 +144,7 @@ async function run() {
 
     const deactivateRes = await fetch(`${api}/studio/modules/${module.module_id}/deactivate`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", "x-role": "cp.admin" },
+      headers: { "Content-Type": "application/json", ...authHeaders },
       body: JSON.stringify({ tenant_id: "tenant:default", changeset_id: deactivateCs })
     });
     if (!deactivateRes.ok) {
@@ -147,7 +152,7 @@ async function run() {
       throw new Error(`Deactivate failed: ${txt}`);
     }
 
-    const manifest = await fetch(`${api}/runtime/manifest`, { headers: { "x-role": "cp.admin" } }).then((r) => r.json());
+    const manifest = await fetch(`${api}/runtime/manifest`, { headers: authHeaders }).then((r) => r.json());
     const routes = (manifest.routes?.routes || []).map((r) => r.path);
     if (routes.includes(route_spec.path)) throw new Error("Module route still present after deactivate");
 

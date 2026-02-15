@@ -1,7 +1,7 @@
 import { spawn } from "child_process";
 import { readFileSync } from "fs";
 import { join } from "path";
-import { createTempSsot } from "./test-utils.mjs";
+import { createTempSsot, getS2SToken } from "./test-utils.mjs";
 
 const api = "http://localhost:7070/api";
 
@@ -11,14 +11,19 @@ function sleep(ms) {
 
 async function run() {
   const temp = createTempSsot();
-  const server = spawn("node", ["apps/backend-api/server.mjs"], { stdio: "inherit", env: { ...process.env, SSOT_DIR: temp.ssotDir } });
+  const server = spawn("node", ["apps/backend-api/server.mjs"], {
+    stdio: "inherit",
+    env: { ...process.env, SSOT_DIR: temp.ssotDir, S2S_CP_HMAC: "dummy", S2S_TOKEN_SIGN: "dummy" }
+  });
   await sleep(500);
 
   try {
     const activePath = join(temp.ssotDir, "changes", "active_release.json");
     const before = JSON.parse(readFileSync(activePath, "utf-8"));
 
-    const cs = await fetch(`${api}/changesets`, { method: "POST", headers: { "x-role": "cp.admin" } }).then((r) => r.json());
+    const token = await getS2SToken({ baseUrl: "http://localhost:7070", principalId: "svc:cp", secret: "dummy", scopes: ["studio.*"] });
+    const authHeaders = { authorization: `Bearer ${token}` };
+    const cs = await fetch(`${api}/changesets`, { method: "POST", headers: authHeaders }).then((r) => r.json());
 
     const module = {
       module_id: `module:preview-${Date.now()}`,
@@ -33,11 +38,11 @@ async function run() {
 
     await fetch(`${api}/studio/modules`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", "x-role": "cp.admin" },
+      headers: { "Content-Type": "application/json", ...authHeaders },
       body: JSON.stringify({ changeset_id: cs.id, module })
     });
 
-    const previewRes = await fetch(`${api}/changesets/${cs.id}/preview`, { method: "POST", headers: { "x-role": "cp.admin" } });
+    const previewRes = await fetch(`${api}/changesets/${cs.id}/preview`, { method: "POST", headers: authHeaders });
     if (!previewRes.ok) throw new Error("Preview failed");
 
     const after = JSON.parse(readFileSync(activePath, "utf-8"));

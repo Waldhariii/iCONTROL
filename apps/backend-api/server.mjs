@@ -85,24 +85,28 @@ function json(res, code, payload) {
 }
 
 function bodyToJson(req) {
-  return new Promise((resolve, reject) => {
-    let body = "";
-    req.on("data", (chunk) => (body += chunk));
-    req.on("end", () => {
-      try {
-        resolve(body ? JSON.parse(body) : {});
-      } catch (err) {
-        reject(err);
-      }
-    });
+  return getRawBody(req).then((body) => {
+    try {
+      return body ? JSON.parse(body) : {};
+    } catch (err) {
+      throw err;
+    }
   });
 }
 
 function bodyToText(req) {
+  return getRawBody(req);
+}
+
+function getRawBody(req) {
+  if (req._rawBody !== undefined) return Promise.resolve(req._rawBody);
   return new Promise((resolve) => {
     let body = "";
     req.on("data", (chunk) => (body += chunk));
-    req.on("end", () => resolve(body));
+    req.on("end", () => {
+      req._rawBody = body;
+      resolve(body);
+    });
   });
 }
 
@@ -183,6 +187,14 @@ function getSecurityData() {
   };
 }
 
+function getS2SData() {
+  return {
+    principals: readJson(ssotPath("security/service_principals.json")),
+    credentials: readJson(ssotPath("security/service_credentials.json")),
+    tokenPolicies: readJson(ssotPath("security/token_exchange_policies.json"))
+  };
+}
+
 function parseSecretRef(ref) {
   const raw = String(ref || "");
   if (raw.startsWith("ENV:")) return { provider: "env", handle: raw.slice(4) };
@@ -190,6 +202,83 @@ function parseSecretRef(ref) {
   if (raw.startsWith("VAULT:")) return { provider: "vault", handle: raw.slice(6) };
   if (raw.startsWith("KMS:")) return { provider: "kms", handle: raw.slice(4) };
   return { provider: "unknown", handle: raw };
+}
+
+function scopePatternMatch(pattern, value) {
+  if (pattern === value) return true;
+  if (pattern.endsWith(".*")) return value.startsWith(pattern.slice(0, -2));
+  return false;
+}
+
+function actionAllowedByScopes(action, scopes) {
+  return (scopes || []).some((s) => scopePatternMatch(s, action));
+}
+
+function resolveS2SPrincipal(principalId) {
+  const s2s = getS2SData();
+  return s2s.principals.find((p) => p.id === principalId) || null;
+}
+
+function resolveS2SCredential(principalId) {
+  const s2s = getS2SData();
+  const now = Date.now();
+  const creds = s2s.credentials
+    .filter((c) => c.principal_id === principalId && c.status === "active")
+    .filter((c) => {
+      const nb = Date.parse(c.not_before || "");
+      const exp = Date.parse(c.expires_at || "");
+      if (Number.isFinite(nb) && now < nb) return false;
+      if (Number.isFinite(exp) && now > exp) return false;
+      return true;
+    });
+  return creds[0] || null;
+}
+
+function resolveTokenPolicy(principalId) {
+  const s2s = getS2SData();
+  const policy = s2s.tokenPolicies.find((p) => (p.allowed_grants || []).some((g) => g.principal_id === principalId));
+  if (!policy) return null;
+  const grant = (policy.allowed_grants || []).find((g) => g.principal_id === principalId) || null;
+  return { policy, grant };
+}
+
+function getS2STokenSigningRef() {
+  const sec = getSecurityData();
+  const binding = findBinding({ bindings: sec.bindings, usage: "s2s_token_signing", tenantId: null });
+  if (!binding) throw new Error("S2S token signing binding missing");
+  return binding.active_ref;
+}
+
+function base64url(input) {
+  return Buffer.from(input).toString("base64").replace(/=/g, "").replace(/\+/g, "-").replace(/\//g, "_");
+}
+
+function base64urlJson(obj) {
+  return base64url(JSON.stringify(obj));
+}
+
+function signS2SToken(payload, secret) {
+  const header = { alg: "HS256", typ: "JWT" };
+  const encHeader = base64urlJson(header);
+  const encPayload = base64urlJson(payload);
+  const sig = createHmac("sha256", secret).update(`${encHeader}.${encPayload}`).digest("base64url");
+  return `${encHeader}.${encPayload}.${sig}`;
+}
+
+function verifyS2SToken(token, secret) {
+  const parts = String(token || "").split(".");
+  if (parts.length !== 3) return { ok: false, reason: "invalid_token" };
+  const [h, p, sig] = parts;
+  const expected = createHmac("sha256", secret).update(`${h}.${p}`).digest("base64url");
+  if (sig.length !== expected.length || !timingSafeEqual(Buffer.from(sig), Buffer.from(expected))) return { ok: false, reason: "invalid_signature" };
+  const payload = JSON.parse(Buffer.from(p, "base64").toString("utf-8"));
+  return { ok: true, payload };
+}
+
+function requireMtlsIfEnabled(req) {
+  if (process.env.S2S_REQUIRE_MTLS !== "1") return;
+  const verified = req.headers["x-mtls-verified"];
+  if (verified !== "1") throw new Error("mTLS required");
 }
 
 function findBinding({ bindings, usage, tenantId }) {
@@ -298,6 +387,98 @@ function verifyWebhookSignature({ headers, rawBody, tenantId, usage }) {
     appendWebhookVerifyEvent({ ts: new Date().toISOString(), request_id: ctx.request_id, tenant_id: tenantId || "", outcome: "deny", reason: "secret_unavailable" });
     return { ok: false, reason: "secret_unavailable" };
   }
+}
+
+function requiredScopeForPath(method, path) {
+  const p = path.split("?")[0];
+  const rules = [
+    { prefix: "/api/marketplace", scope: "marketplace.*" },
+    { prefix: "/api/billing", scope: "billing.*" },
+    { prefix: "/api/ops", scope: "ops.*" },
+    { prefix: "/api/security", scope: "security.read" },
+    { prefix: "/api/runtime", scope: "runtime.read" },
+    { prefix: "/api/changesets", scope: "studio.*" },
+    { prefix: "/api/studio", scope: "studio.*" },
+    { prefix: "/api/releases", scope: "release.*" },
+    { prefix: "/api/tenancy/factory", scope: "tenancy.factory.*" },
+    { prefix: "/api/integrations", scope: "integrations.*" },
+    { prefix: "/api/auth/token", scope: null }
+  ];
+  for (const r of rules) {
+    if (p.startsWith(r.prefix)) return r.scope;
+  }
+  if (p.startsWith("/api/")) return method === "GET" ? "runtime.read" : "runtime.write";
+  return null;
+}
+
+function s2sAllowlistMatch(requiredScope, scopes) {
+  if (!requiredScope) return true;
+  return (scopes || []).some((s) => scopePatternMatch(s, requiredScope));
+}
+
+function verifyS2SHmac({ req, rawBody }) {
+  const principalId = req.headers["x-s2s-principal"];
+  const tsHeader = req.headers["x-s2s-timestamp"];
+  const sigHeader = req.headers["x-s2s-signature"];
+  if (!principalId || !tsHeader || !sigHeader) return { ok: false, reason: "missing_headers" };
+  try {
+    requireMtlsIfEnabled(req);
+  } catch {
+    return { ok: false, reason: "mtls_required" };
+  }
+  const principal = resolveS2SPrincipal(principalId);
+  if (!principal || principal.status !== "active") return { ok: false, reason: "principal_disabled" };
+  const cred = resolveS2SCredential(principalId);
+  if (!cred) return { ok: false, reason: "credential_missing" };
+  const ts = Number(tsHeader);
+  if (!Number.isFinite(ts)) return { ok: false, reason: "invalid_timestamp" };
+  const drift = Math.abs(Date.now() - ts);
+  if (drift > 300000) return { ok: false, reason: "replay_window" };
+  let secret;
+  try {
+    secret = readSecretValue(cred.secret_ref_id);
+  } catch {
+    return { ok: false, reason: "secret_unavailable" };
+  }
+  const bodySha = sha256(rawBody || "");
+  const canonical = `${ts}.${req.method}.${req.url?.split("?")[0] || ""}.${bodySha}`;
+  const computed = createHmac("sha256", secret).update(canonical).digest("base64");
+  const sigStr = Array.isArray(sigHeader) ? sigHeader[0] : sigHeader;
+  if (sigStr.length !== computed.length || !timingSafeEqual(Buffer.from(sigStr), Buffer.from(computed))) {
+    return { ok: false, reason: "invalid_signature" };
+  }
+  return { ok: true, principal_id: principalId, scopes: principal.allowed_scopes || [], tenant_scope: principal.tenant_scope || "platform:*" };
+}
+
+function verifyS2SBearer(token) {
+  let secret;
+  try {
+    secret = readSecretValue(getS2STokenSigningRef());
+  } catch {
+    return { ok: false, reason: "secret_unavailable" };
+  }
+  const res = verifyS2SToken(token, secret);
+  if (!res.ok) return res;
+  const payload = res.payload || {};
+  const now = Math.floor(Date.now() / 1000);
+  if (!payload.exp || now > payload.exp) return { ok: false, reason: "token_expired" };
+  if (!payload.iat || payload.exp <= payload.iat) return { ok: false, reason: "token_invalid" };
+  const policyInfo = resolveTokenPolicy(payload.sub);
+  if (!policyInfo?.policy) return { ok: false, reason: "policy_missing" };
+  const maxTtl = policyInfo.policy.max_ttl_seconds || 300;
+  if (payload.exp - payload.iat > maxTtl) return { ok: false, reason: "ttl_exceeded" };
+  if (payload.aud && !policyInfo.policy.audience.includes(payload.aud)) return { ok: false, reason: "audience_not_allowed" };
+  const principal = resolveS2SPrincipal(payload.sub);
+  if (!principal || principal.status !== "active") return { ok: false, reason: "principal_disabled" };
+  const scopes = payload.scopes || [];
+  const allowedScopes = principal.allowed_scopes || [];
+  const grantScopes = policyInfo.grant?.scopes_allowlist || [];
+  for (const s of scopes) {
+    if (!allowedScopes.some((a) => scopePatternMatch(a, s)) || !grantScopes.some((g) => scopePatternMatch(g, s))) {
+      return { ok: false, reason: "scope_not_allowed" };
+    }
+  }
+  return { ok: true, payload };
 }
 
 function readModules() {
@@ -841,6 +1022,22 @@ function authorizeOrDeny(req, action, resource = {}) {
     appendAudit({ event: "freeze_denied", action, scope, user_id: userId, at: new Date().toISOString() });
     throw new Error("Forbidden");
   }
+  if (req.s2s) {
+    const allowed = actionAllowedByScopes(action, req.s2s.scopes || []) || s2sAllowlistMatch(req.s2s.required_scope, req.s2s.scopes || []);
+    const reasonCodes = allowed ? ["s2s_scope_allow"] : ["s2s_scope_denied"];
+    appendPolicyDecision({ decision: allowed ? "allow" : "deny", action, scope: req.s2s.scope || scope, reason_codes: reasonCodes });
+    appendAudit({
+      event: "s2s_authz_decision",
+      action,
+      scope: req.s2s.scope || scope,
+      user_id: req.s2s.principal_id,
+      decision: allowed ? "allow" : "deny",
+      reason_codes: reasonCodes,
+      at: new Date().toISOString()
+    });
+    if (!allowed) throw new Error("Forbidden");
+    return;
+  }
   expireBreakGlassIfNeeded(gov.breakGlass);
   const roles = getUserRoles(userId, gov.memberships);
   const breakGlassOk = breakGlassAllows({ breakGlass: gov.breakGlass, action, scope });
@@ -997,6 +1194,65 @@ const server = http.createServer(async (req, res) => {
         const tenantId = typeof tenantHeader === "string" && tenantHeader ? tenantHeader : null;
         const scope = req.headers["x-scope"] || (tenantId ? `tenant:${tenantId}:*` : "platform:*");
         setContext({ tenant_id: tenantId, scope });
+        const requiredScope = req.url ? requiredScopeForPath(req.method, req.url) : null;
+        const authHeader = req.headers["authorization"];
+        const hasUserAuth = Boolean(req.headers["x-user-id"]);
+        let s2s = null;
+        if (typeof authHeader === "string" && authHeader.startsWith("Bearer ")) {
+          try {
+            requireMtlsIfEnabled(req);
+          } catch {
+            appendPolicyDecision({ decision: "deny", action: "s2s.token.use", scope: scope || "platform:*", reason_codes: ["mtls_required"] });
+            return json(res, 401, { error: "mTLS required" });
+          }
+          const token = authHeader.slice("Bearer ".length).trim();
+          const verified = verifyS2SBearer(token);
+          if (!verified.ok) {
+            appendPolicyDecision({ decision: "deny", action: "s2s.token.use", scope: scope || "platform:*", reason_codes: [verified.reason] });
+            appendAudit({ event: "s2s.token.use", outcome: "deny", reason: verified.reason, at: new Date().toISOString() });
+            if (requiredScope) return json(res, 401, { error: "Unauthorized" });
+          } else {
+            const payload = verified.payload;
+            s2s = {
+              principal_id: payload.sub,
+              scopes: payload.scopes || [],
+              scope: payload.scope || scope,
+              auth_type: "token"
+            };
+            appendPolicyDecision({ decision: "allow", action: "s2s.token.use", scope: s2s.scope, reason_codes: ["token_ok"] });
+            appendAudit({ event: "s2s.token.use", outcome: "allow", principal_id: payload.sub, at: new Date().toISOString() });
+          }
+        } else if (req.headers["x-s2s-principal"]) {
+          const raw = await getRawBody(req);
+          const verified = verifyS2SHmac({ req, rawBody: raw });
+          if (!verified.ok) {
+            appendPolicyDecision({ decision: "deny", action: "s2s.hmac.verify", scope: scope || "platform:*", reason_codes: [verified.reason] });
+            appendAudit({ event: "s2s.hmac.verify", outcome: "deny", reason: verified.reason, at: new Date().toISOString() });
+            if (requiredScope) return json(res, 401, { error: "Unauthorized" });
+          } else {
+            s2s = {
+              principal_id: verified.principal_id,
+              scopes: verified.scopes || [],
+              scope: scope || "platform:*",
+              auth_type: "hmac"
+            };
+            appendPolicyDecision({ decision: "allow", action: "s2s.hmac.verify", scope: s2s.scope, reason_codes: ["signature_ok"] });
+            appendAudit({ event: "s2s.hmac.verify", outcome: "allow", principal_id: verified.principal_id, at: new Date().toISOString() });
+          }
+        }
+        if (s2s) {
+          if (requiredScope && !s2sAllowlistMatch(requiredScope, s2s.scopes)) {
+            appendPolicyDecision({ decision: "deny", action: "s2s.scope", scope: s2s.scope, reason_codes: ["scope_denied"] });
+            appendAudit({ event: "s2s.scope", outcome: "deny", principal_id: s2s.principal_id, at: new Date().toISOString() });
+            return json(res, 403, { error: "Forbidden" });
+          }
+          s2s.required_scope = requiredScope;
+          req.s2s = s2s;
+          setContext({ actor_id: s2s.principal_id, scope: s2s.scope });
+        } else if (requiredScope && !hasUserAuth) {
+          appendPolicyDecision({ decision: "deny", action: "s2s.required", scope: scope || "platform:*", reason_codes: ["missing_auth"] });
+          return json(res, 401, { error: "Unauthorized" });
+        }
         const actionOverride = req.headers["x-action-type"];
         const inferredAction = req.url?.includes("/api/integrations/webhook/in") ? "integration.webhook.in" : (req.method === "GET" ? "api.read" : "api.write");
         const actionType = typeof actionOverride === "string" && actionOverride ? actionOverride : inferredAction;
@@ -1013,6 +1269,52 @@ const server = http.createServer(async (req, res) => {
     const sleepMs = Number(req.headers["x-qos-sleep-ms"] || 0);
     if (Number.isFinite(sleepMs) && sleepMs > 0) {
       await new Promise((r) => setTimeout(r, sleepMs));
+    }
+
+    if (req.method === "POST" && req.url === "/api/auth/token") {
+      if (!req.s2s || req.s2s.auth_type !== "hmac") return json(res, 401, { error: "Unauthorized" });
+      const payload = await bodyToJson(req);
+      const principalId = payload.principal_id || req.s2s.principal_id;
+      if (principalId !== req.s2s.principal_id) return json(res, 403, { error: "Forbidden" });
+      const policyInfo = resolveTokenPolicy(principalId);
+      if (!policyInfo?.policy || !policyInfo.grant) return json(res, 403, { error: "Policy missing" });
+      const policy = policyInfo.policy;
+      if (policy.require_request_id && !getContext().request_id) return json(res, 400, { error: "request_id required" });
+      const requested = payload.requested_scopes || [];
+      const allowedPrincipal = resolveS2SPrincipal(principalId)?.allowed_scopes || [];
+      const allowedGrant = policyInfo.grant.scopes_allowlist || [];
+      const scopesOk = requested.every((s) => allowedPrincipal.some((a) => scopePatternMatch(a, s)) && allowedGrant.some((g) => scopePatternMatch(g, s)));
+      if (!scopesOk) {
+        appendPolicyDecision({ decision: "deny", action: "s2s.token.issue", scope: req.s2s.scope, reason_codes: ["scope_not_allowed"] });
+        appendAudit({ event: "s2s.token.issue", outcome: "deny", principal_id: principalId, at: new Date().toISOString() });
+        return json(res, 403, { error: "Forbidden" });
+      }
+      if (payload.audience && !policy.audience.includes(payload.audience)) {
+        appendPolicyDecision({ decision: "deny", action: "s2s.token.issue", scope: req.s2s.scope, reason_codes: ["audience_not_allowed"] });
+        appendAudit({ event: "s2s.token.issue", outcome: "deny", principal_id: principalId, at: new Date().toISOString() });
+        return json(res, 403, { error: "Forbidden" });
+      }
+      const now = Math.floor(Date.now() / 1000);
+      const exp = now + Math.min(policy.max_ttl_seconds || 300, 300);
+      let secret;
+      try {
+        secret = readSecretValue(getS2STokenSigningRef());
+      } catch {
+        return json(res, 500, { error: "Token signing unavailable" });
+      }
+      const token = signS2SToken(
+        {
+          sub: principalId,
+          scopes: requested,
+          aud: payload.audience || "backend-api",
+          iat: now,
+          exp
+        },
+        secret
+      );
+      appendPolicyDecision({ decision: "allow", action: "s2s.token.issue", scope: req.s2s.scope, reason_codes: ["token_issued"] });
+      appendAudit({ event: "s2s.token.issue", outcome: "allow", principal_id: principalId, at: new Date().toISOString() });
+      return json(res, 200, { access_token: token, token_type: "Bearer", expires_at: exp, scopes: requested });
     }
 
     if (req.method === "POST" && req.url === "/api/changesets") {

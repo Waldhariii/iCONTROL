@@ -27,6 +27,8 @@ const SECRET_KEYS = ["secret", "token", "api_key", "apikey", "password"];
 const SECRET_PATTERNS = [
   /sk_live_/i,
   /Bearer\s+[A-Za-z0-9\-_\.=]+/i,
+  /Authorization:\s*Bearer\s+[A-Za-z0-9\-_\.=]+/i,
+  /eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+/,
   /AKIA[0-9A-Z]{16}/,
   /-----BEGIN [A-Z ]+ PRIVATE KEY-----/,
   /xoxb-[A-Za-z0-9-]+/i,
@@ -514,6 +516,19 @@ export function rotationIntegrityGate({ ssotDir }) {
   }
   const ok = bad.length === 0;
   return { ok, gate: "Rotation Integrity Gate", details: ok ? "" : bad.join(", ") };
+}
+
+export function s2sTransportGate({ ssotDir }) {
+  if (process.env.S2S_REQUIRE_MTLS !== "1") {
+    return { ok: true, gate: "S2S Transport Gate", details: "" };
+  }
+  const policies = readJson(`${ssotDir}/security/token_exchange_policies.json`);
+  const ok = policies.some((p) => p.require_mtls === true);
+  return {
+    ok,
+    gate: "S2S Transport Gate",
+    details: ok ? "" : "S2S_REQUIRE_MTLS enabled but no policy require_mtls=true"
+  };
 }
 
 export function replayProtectionGate({ ssotDir }) {

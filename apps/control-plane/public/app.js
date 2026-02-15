@@ -1,5 +1,5 @@
-const apiBase = "http://localhost:7070/api";
-const headers = { "Content-Type": "application/json", "x-role": "cp.admin" };
+const apiBase = "/api";
+const headers = { "Content-Type": "application/json" };
 
 let manifest = null;
 let currentRelease = "dev-001";

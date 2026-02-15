@@ -1,0 +1,71 @@
+[
+  {
+    "id": "svc:cp",
+    "display_name": "Control Plane",
+    "allowed_scopes": [
+      "studio.*",
+      "marketplace.*",
+      "release.*",
+      "runtime.read",
+      "security.read",
+      "tenancy.factory.*"
+    ],
+    "tenant_scope": "platform:*",
+    "status": "active",
+    "created_at": "2026-02-15T00:00:00Z",
+    "created_by": "system"
+  },
+  {
+    "id": "svc:rotation",
+    "display_name": "Rotation Runner",
+    "allowed_scopes": [
+      "security.rotate",
+      "runtime.read"
+    ],
+    "tenant_scope": "platform:*",
+    "status": "active",
+    "created_at": "2026-02-15T00:00:00Z",
+    "created_by": "system"
+  },
+  {
+    "id": "svc:integrations",
+    "display_name": "Integrations Dispatcher",
+    "allowed_scopes": [
+      "integrations.*",
+      "runtime.read",
+      "security.read"
+    ],
+    "tenant_scope": "tenant:*",
+    "status": "active",
+    "created_at": "2026-02-15T00:00:00Z",
+    "created_by": "system"
+  },
+  {
+    "id": "svc:ops",
+    "display_name": "Ops Runner",
+    "allowed_scopes": [
+      "ops.*",
+      "release.*",
+      "runtime.read"
+    ],
+    "tenant_scope": "platform:*",
+    "status": "active",
+    "created_at": "2026-02-15T00:00:00Z",
+    "created_by": "system"
+  },
+  {
+    "id": "svc:ci",
+    "display_name": "CI Runner",
+    "allowed_scopes": [
+      "runtime.read",
+      "marketplace.*",
+      "billing.*",
+      "security.read",
+      "observability.read"
+    ],
+    "tenant_scope": "platform:*",
+    "status": "active",
+    "created_at": "2026-02-15T00:00:00Z",
+    "created_by": "system"
+  }
+]

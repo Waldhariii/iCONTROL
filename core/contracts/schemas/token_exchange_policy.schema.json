@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "token_exchange_policy.v1",
+  "title": "token_exchange_policy",
+  "type": "object",
+  "required": [
+    "id",
+    "max_ttl_seconds",
+    "audience",
+    "allow_delegation",
+    "require_request_id",
+    "require_replay_protection",
+    "allowed_grants"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "id": { "type": "string" },
+    "max_ttl_seconds": { "type": "integer", "minimum": 60 },
+    "audience": { "type": "array", "items": { "type": "string" } },
+    "allow_delegation": { "type": "boolean" },
+    "require_request_id": { "type": "boolean" },
+    "require_replay_protection": { "type": "boolean" },
+    "require_mtls": { "type": "boolean" },
+    "allowed_grants": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["principal_id", "scopes_allowlist"],
+        "additionalProperties": false,
+        "properties": {
+          "principal_id": { "type": "string" },
+          "scopes_allowlist": { "type": "array", "items": { "type": "string" } },
+          "actions_allowlist": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    }
+  }
+}

@@ -1,1 +1,40 @@
-[]
+[
+  {
+    "event": "changeset_applied",
+    "changeset_id": "cs-s2s-observability-001",
+    "at": "2026-02-15T06:52:20.715Z",
+    "prev_hash": "GENESIS",
+    "hash": "9e7a55768fbdb88b16a8262bfe7df644344fc6bb2ed173bfa386cfb31714e48d"
+  },
+  {
+    "event": "changeset_applied",
+    "changeset_id": "cs-s2s-billing-scope-001",
+    "at": "2026-02-15T07:00:21.307Z",
+    "prev_hash": "9e7a55768fbdb88b16a8262bfe7df644344fc6bb2ed173bfa386cfb31714e48d",
+    "hash": "adc7aff0320ad426f46ea1b3a8045761661b7af11f22d6ac28399d5e0e7ba89f"
+  },
+  {
+    "event": "upgrade_planned",
+    "from_version": "1.0.0",
+    "to_version": "1.1.0",
+    "at": "2026-02-15T07:04:38.300Z",
+    "prev_hash": "adc7aff0320ad426f46ea1b3a8045761661b7af11f22d6ac28399d5e0e7ba89f",
+    "hash": "b7373b610dc762b2c6bc9be6de078df40f5200b79da7b2eec70279e6f36ba385"
+  },
+  {
+    "event": "upgrade_dry_run",
+    "from_version": "1.0.0",
+    "to_version": "1.1.0",
+    "at": "2026-02-15T07:04:38.302Z",
+    "prev_hash": "b7373b610dc762b2c6bc9be6de078df40f5200b79da7b2eec70279e6f36ba385",
+    "hash": "e16e05afdbd5d06f8e35c4bbf239b8be2380b5c8eb1d41009a873d59e53d1e8c"
+  },
+  {
+    "event": "upgrade_planned",
+    "from_version": "1.0.0",
+    "to_version": "1.1.0",
+    "at": "2026-02-15T07:04:38.702Z",
+    "prev_hash": "e16e05afdbd5d06f8e35c4bbf239b8be2380b5c8eb1d41009a873d59e53d1e8c",
+    "hash": "79325b7105f147d73d6685ee42b2d772a3b2dc97546f4dd832e9e7390ac8bed6"
+  }
+]

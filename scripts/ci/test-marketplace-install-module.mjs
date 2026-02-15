@@ -1,7 +1,7 @@
 import { spawn, execSync } from "child_process";
 import { mkdirSync, writeFileSync, readFileSync } from "fs";
 import { join, dirname } from "path";
-import { createTempSsot } from "./test-utils.mjs";
+import { createTempSsot, getS2SToken } from "./test-utils.mjs";
 
 function writeReview(ssotDir, action, targetId) {
   const safe = action.replace(/[^a-z0-9-]/gi, "_");
@@ -49,21 +49,31 @@ writeFileSync(
   JSON.stringify({ active_release_id: releaseId, active_env: "dev", updated_at: new Date().toISOString(), updated_by: "test" }, null, 2) + "\n"
 );
 
-const server = spawn("node", ["apps/backend-api/server.mjs"], { stdio: "inherit", env: { ...process.env, SSOT_DIR: ssotDir, MANIFESTS_DIR: outDir } });
+const server = spawn("node", ["apps/backend-api/server.mjs"], {
+  stdio: "inherit",
+  env: { ...process.env, SSOT_DIR: ssotDir, MANIFESTS_DIR: outDir, S2S_CP_HMAC: "dummy", S2S_TOKEN_SIGN: "dummy" }
+});
 
 async function run() {
   await sleep(500);
+  const token = await getS2SToken({
+    baseUrl: "http://localhost:7070",
+    principalId: "svc:cp",
+    secret: "dummy",
+    scopes: ["tenancy.factory.*", "marketplace.*", "runtime.read"]
+  });
+  const authHeaders = { authorization: `Bearer ${token}` };
   writeReview(ssotDir, "tenant_create", "tenant:mp1");
   const apply = await fetch("http://localhost:7070/api/tenancy/factory/apply", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", ...authHeaders },
     body: JSON.stringify({ template_id: "tmpl:marketplace-empty", tenant_key: "mp1", display_name: "MP1" })
   }).then((r) => r.json());
   if (!apply.ok) throw new Error("Tenant apply failed");
 
   const installRes = await fetch("http://localhost:7070/api/marketplace/tenants/tenant:mp1/install", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", ...authHeaders },
     body: JSON.stringify({ type: "module", id: "module:jobs", version: "1.0.0" })
   });
   const installText = await installRes.text();
@@ -71,7 +81,7 @@ async function run() {
   try { install = JSON.parse(installText); } catch {}
   if (!installRes.ok || !install.ok) throw new Error(`Marketplace module install failed: ${installText}`);
 
-  const manifest = await fetch("http://localhost:7070/api/runtime/manifest").then((r) => r.json());
+  const manifest = await fetch("http://localhost:7070/api/runtime/manifest", { headers: authHeaders }).then((r) => r.json());
   const routes = (manifest.routes?.routes || []).map((r) => r.path);
   if (!routes.includes("/jobs")) throw new Error("Jobs route missing after install");
   console.log("Marketplace install module PASS");

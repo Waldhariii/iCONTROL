@@ -1,0 +1,59 @@
+[
+  {
+    "id": "s2s:pol:default",
+    "max_ttl_seconds": 300,
+    "audience": [
+      "backend-api"
+    ],
+    "allow_delegation": false,
+    "require_request_id": true,
+    "require_replay_protection": true,
+    "require_mtls": false,
+    "allowed_grants": [
+      {
+        "principal_id": "svc:cp",
+        "scopes_allowlist": [
+          "studio.*",
+          "marketplace.*",
+          "release.*",
+          "runtime.read",
+          "security.read",
+          "tenancy.factory.*"
+        ]
+      },
+      {
+        "principal_id": "svc:ci",
+        "scopes_allowlist": [
+          "runtime.read",
+          "marketplace.*",
+          "billing.*",
+          "security.read",
+          "observability.read"
+        ]
+      },
+      {
+        "principal_id": "svc:ops",
+        "scopes_allowlist": [
+          "ops.*",
+          "release.*",
+          "runtime.read"
+        ]
+      },
+      {
+        "principal_id": "svc:integrations",
+        "scopes_allowlist": [
+          "integrations.*",
+          "runtime.read",
+          "security.read"
+        ]
+      },
+      {
+        "principal_id": "svc:rotation",
+        "scopes_allowlist": [
+          "security.rotate",
+          "runtime.read"
+        ]
+      }
+    ]
+  }
+]

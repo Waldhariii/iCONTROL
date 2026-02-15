@@ -40,11 +40,21 @@
     "security": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["secret_bindings_summary", "policies_summary", "refs_summary"],
+      "required": ["secret_bindings_summary", "policies_summary", "refs_summary", "s2s_summary"],
       "properties": {
         "secret_bindings_summary": { "type": "array", "items": { "type": "object" } },
         "policies_summary": { "type": "array", "items": { "type": "object" } },
-        "refs_summary": { "type": "array", "items": { "type": "object" } }
+        "refs_summary": { "type": "array", "items": { "type": "object" } },
+        "s2s_summary": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["principals", "credentials", "token_policies"],
+          "properties": {
+            "principals": { "type": "array", "items": { "type": "object" } },
+            "credentials": { "type": "array", "items": { "type": "object" } },
+            "token_policies": { "type": "array", "items": { "type": "object" } }
+          }
+        }
       }
     },
     "sre": {"type": "object"},

@@ -1,6 +1,7 @@
 import { mkdtempSync, readdirSync, statSync, readFileSync, writeFileSync, mkdirSync, rmSync, existsSync } from "fs";
 import { tmpdir } from "os";
 import { join } from "path";
+import { createHmac, createHash, randomUUID } from "crypto";
 
 function copyDir(src, dest) {
   mkdirSync(dest, { recursive: true });
@@ -89,6 +90,8 @@ export function scanForSecrets({ paths, patterns, allowlist } = {}) {
   const pats = patterns || [
     /sk_live_/i,
     /Bearer\s+[A-Za-z0-9\-_\.=]+/i,
+    /Authorization:\s*Bearer\s+[A-Za-z0-9\-_\.=]+/i,
+    /eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+/,
     /AKIA[0-9A-Z]{16}/,
     /-----BEGIN [A-Z ]+ PRIVATE KEY-----/,
     /xoxb-[A-Za-z0-9-]+/i,
@@ -135,4 +138,30 @@ export function scanForSecrets({ paths, patterns, allowlist } = {}) {
   };
   for (const p of paths || []) scanDir(p);
   return hits;
+}
+
+export function buildS2SHmacHeaders({ principalId, secret, method, path, body }) {
+  const ts = Date.now().toString();
+  const bodySha = createHash("sha256").update(body || "").digest("hex");
+  const canonical = `${ts}.${method}.${path}.${bodySha}`;
+  const sig = createHmac("sha256", secret).update(canonical).digest("base64");
+  return {
+    "x-s2s-principal": principalId,
+    "x-s2s-timestamp": ts,
+    "x-s2s-signature": sig,
+    "x-request-id": randomUUID()
+  };
+}
+
+export async function getS2SToken({ baseUrl, principalId, secret, scopes }) {
+  const body = JSON.stringify({ principal_id: principalId, requested_scopes: scopes, audience: "backend-api" });
+  const headers = buildS2SHmacHeaders({ principalId, secret, method: "POST", path: "/api/auth/token", body });
+  const res = await fetch(`${baseUrl}/api/auth/token`, {
+    method: "POST",
+    headers: { "content-type": "application/json", ...headers },
+    body
+  });
+  if (!res.ok) throw new Error(`Token exchange failed: ${res.status}`);
+  const data = await res.json();
+  return data.access_token;
 }

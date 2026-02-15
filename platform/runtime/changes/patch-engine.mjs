@@ -26,7 +26,10 @@ const kindToPath = {
   active_release: "changes/active_release.json",
   break_glass: "governance/break_glass.json",
   change_freeze: "governance/change_freeze.json",
-  secret_binding: "security/secret_bindings.json"
+  secret_binding: "security/secret_bindings.json",
+  service_principal: "security/service_principals.json",
+  service_credential: "security/service_credentials.json",
+  token_exchange_policy: "security/token_exchange_policies.json"
 };
 
 const kindToSchema = {
@@ -47,7 +50,10 @@ const kindToSchema = {
   active_release: "active_release.v1",
   break_glass: "break_glass.v1",
   change_freeze: "change_freeze.v1",
-  secret_binding: "secret_binding.v1"
+  secret_binding: "secret_binding.v1",
+  service_principal: "service_principal.v1",
+  service_credential: "service_credential.v1",
+  token_exchange_policy: "token_exchange_policy.v1"
 };
 
 function itemKey(kind, item) {

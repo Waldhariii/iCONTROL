@@ -1,5 +1,5 @@
 import { spawn } from "child_process";
-import { createTempSsot } from "./test-utils.mjs";
+import { createTempSsot, getS2SToken } from "./test-utils.mjs";
 
 const api = "http://localhost:7070/api";
 
@@ -9,7 +9,10 @@ function sleep(ms) {
 
 async function run() {
   const temp = createTempSsot();
-  const server = spawn("node", ["apps/backend-api/server.mjs"], { stdio: "inherit", env: { ...process.env, SSOT_DIR: temp.ssotDir } });
+  const server = spawn("node", ["apps/backend-api/server.mjs"], {
+    stdio: "inherit",
+    env: { ...process.env, SSOT_DIR: temp.ssotDir, S2S_CP_HMAC: "dummy", S2S_TOKEN_SIGN: "dummy" }
+  });
   await sleep(500);
 
   try {
@@ -18,9 +21,12 @@ async function run() {
     if (forbidden.status === 200) throw new Error("Expected forbidden");
 
     // create changeset
+    const token = await getS2SToken({ baseUrl: "http://localhost:7070", principalId: "svc:cp", secret: "dummy", scopes: ["studio.*"] });
+    const authHeaders = { authorization: `Bearer ${token}` };
+
     const cs = await fetch(`${api}/changesets`, {
       method: "POST",
-      headers: { "x-role": "cp.admin" }
+      headers: authHeaders
     }).then((r) => r.json());
 
     const op = {
@@ -44,11 +50,11 @@ async function run() {
 
     await fetch(`${api}/changesets/${cs.id}/ops`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", "x-role": "cp.admin" },
+      headers: { "Content-Type": "application/json", ...authHeaders },
       body: JSON.stringify(op)
     });
 
-    const fetched = await fetch(`${api}/changesets/${cs.id}`, { headers: { "x-role": "cp.admin" } }).then((r) => r.json());
+    const fetched = await fetch(`${api}/changesets/${cs.id}`, { headers: authHeaders }).then((r) => r.json());
     if (!fetched.id) throw new Error("Changeset fetch failed");
 
     console.log("API tests PASS");

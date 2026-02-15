@@ -2,7 +2,7 @@ import { spawn } from "child_process";
 import { writeFileSync, mkdirSync } from "fs";
 import { join } from "path";
 import { renderFromManifest } from "../../apps/client-app/renderer.mjs";
-import { createTempSsot } from "./test-utils.mjs";
+import { createTempSsot, getS2SToken } from "./test-utils.mjs";
 
 const api = "http://localhost:7070/api";
 
@@ -12,11 +12,16 @@ function sleep(ms) {
 
 async function run() {
   const temp = createTempSsot();
-  const server = spawn("node", ["apps/backend-api/server.mjs"], { stdio: "inherit", env: { ...process.env, SSOT_DIR: temp.ssotDir } });
+  const server = spawn("node", ["apps/backend-api/server.mjs"], {
+    stdio: "inherit",
+    env: { ...process.env, SSOT_DIR: temp.ssotDir, S2S_CP_HMAC: "dummy", S2S_TOKEN_SIGN: "dummy" }
+  });
   await sleep(500);
 
   try {
-    const cs = await fetch(`${api}/changesets`, { method: "POST", headers: { "x-role": "cp.admin" } }).then((r) => r.json());
+    const token = await getS2SToken({ baseUrl: "http://localhost:7070", principalId: "svc:cp", secret: "dummy", scopes: ["studio.*", "runtime.read", "release.*"] });
+    const authHeaders = { authorization: `Bearer ${token}` };
+    const cs = await fetch(`${api}/changesets`, { method: "POST", headers: authHeaders }).then((r) => r.json());
     const pageId = `client-test-${Date.now()}`;
     const page_definition = {
       id: pageId,
@@ -47,7 +52,7 @@ async function run() {
     };
     await fetch(`${api}/studio/pages`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", "x-role": "cp.admin" },
+      headers: { "Content-Type": "application/json", ...authHeaders },
       body: JSON.stringify({ changeset_id: cs.id, page_definition, page_version })
     });
 
@@ -67,16 +72,16 @@ async function run() {
     };
     await fetch(`${api}/studio/routes`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", "x-role": "cp.admin" },
+      headers: { "Content-Type": "application/json", ...authHeaders },
       body: JSON.stringify({ changeset_id: cs.id, route_spec })
     });
 
     const reviewsDir = join(temp.ssotDir, "changes/reviews");
     mkdirSync(reviewsDir, { recursive: true });
     writeFileSync(join(reviewsDir, `publish-${cs.id}.json`), JSON.stringify({ id: `publish-${cs.id}`, action: "publish", target_id: cs.id, required_approvals: 2, approvals: ["user:admin", "user:admin2"], status: "approved" }, null, 2));
-    const published = await fetch(`${api}/changesets/${cs.id}/publish`, { method: "POST", headers: { "x-role": "cp.admin" } }).then((r) => r.json());
+    const published = await fetch(`${api}/changesets/${cs.id}/publish`, { method: "POST", headers: authHeaders }).then((r) => r.json());
     const releaseId = published.release_id;
-    const manifest = await fetch(`${api}/runtime/manifest?release=${releaseId}`, { headers: { "x-role": "cp.admin" } }).then((r) => r.json());
+    const manifest = await fetch(`${api}/runtime/manifest?release=${releaseId}`, { headers: authHeaders }).then((r) => r.json());
     const path = `/${pageId}`;
     renderFromManifest(manifest, path);
     console.log("Client render PASS");

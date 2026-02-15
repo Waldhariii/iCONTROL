@@ -1,7 +1,7 @@
 import { spawn } from "child_process";
 import { writeFileSync, mkdirSync } from "fs";
 import { join } from "path";
-import { createTempSsot } from "./test-utils.mjs";
+import { createTempSsot, getS2SToken } from "./test-utils.mjs";
 
 const api = "http://localhost:7070/api";
 
@@ -11,11 +11,16 @@ function sleep(ms) {
 
 async function run() {
   const temp = createTempSsot();
-  const server = spawn("node", ["apps/backend-api/server.mjs"], { stdio: "inherit", env: { ...process.env, SSOT_DIR: temp.ssotDir } });
+  const server = spawn("node", ["apps/backend-api/server.mjs"], {
+    stdio: "inherit",
+    env: { ...process.env, SSOT_DIR: temp.ssotDir, S2S_CP_HMAC: "dummy", S2S_TOKEN_SIGN: "dummy" }
+  });
   await sleep(500);
 
   try {
-    const cs = await fetch(`${api}/changesets`, { method: "POST", headers: { "x-role": "cp.admin" } }).then((r) => r.json());
+    const token = await getS2SToken({ baseUrl: "http://localhost:7070", principalId: "svc:cp", secret: "dummy", scopes: ["studio.*"] });
+    const authHeaders = { authorization: `Bearer ${token}` };
+    const cs = await fetch(`${api}/changesets`, { method: "POST", headers: authHeaders }).then((r) => r.json());
 
     const pageId = `studio-test-${Date.now()}`;
     const page_definition = {
@@ -49,7 +54,7 @@ async function run() {
 
     await fetch(`${api}/studio/pages`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", "x-role": "cp.admin" },
+      headers: { "Content-Type": "application/json", ...authHeaders },
       body: JSON.stringify({ changeset_id: cs.id, page_definition, page_version })
     });
 
@@ -69,22 +74,22 @@ async function run() {
     };
     await fetch(`${api}/studio/routes`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", "x-role": "cp.admin" },
+      headers: { "Content-Type": "application/json", ...authHeaders },
       body: JSON.stringify({ changeset_id: cs.id, route_spec })
     });
 
     await fetch(`${api}/studio/nav`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", "x-role": "cp.admin" },
+      headers: { "Content-Type": "application/json", ...authHeaders },
       body: JSON.stringify({ changeset_id: cs.id, nav_spec: { id: `nav-${pageId}`, route_id: route_spec.route_id } })
     });
 
-    const previewRes = await fetch(`${api}/changesets/${cs.id}/preview`, { method: "POST", headers: { "x-role": "cp.admin" } });
+    const previewRes = await fetch(`${api}/changesets/${cs.id}/preview`, { method: "POST", headers: authHeaders });
     if (!previewRes.ok) {
       const txt = await previewRes.text();
       throw new Error(`Preview failed: ${txt}`);
     }
-    const validateRes = await fetch(`${api}/changesets/${cs.id}/validate`, { method: "POST", headers: { "x-role": "cp.admin" } });
+    const validateRes = await fetch(`${api}/changesets/${cs.id}/validate`, { method: "POST", headers: authHeaders });
     if (!validateRes.ok) throw new Error("Validate failed");
 
     const reviewsDir = join(temp.ssotDir, "changes/reviews");
@@ -94,7 +99,7 @@ async function run() {
 
     const published = await fetch(`${api}/changesets/${cs.id}/publish`, {
       method: "POST",
-      headers: { "x-role": "cp.admin" }
+      headers: authHeaders
     }).then((r) => r.json());
 
     if (!published.release_id) throw new Error("Missing release_id");

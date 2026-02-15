@@ -1,7 +1,7 @@
 import { spawn, execSync } from "child_process";
 import { mkdirSync, writeFileSync, existsSync } from "fs";
 import { join, dirname } from "path";
-import { createTempSsot, getReportsDir, waitForServer } from "./test-utils.mjs";
+import { createTempSsot, getReportsDir, waitForServer, getS2SToken } from "./test-utils.mjs";
 
 const temp = createTempSsot();
 const ssotDir = temp.ssotDir;
@@ -20,14 +20,16 @@ writeFileSync(
 
 const server = spawn("node", ["apps/backend-api/server.mjs"], {
   stdio: "inherit",
-  env: { ...process.env, SSOT_DIR: ssotDir, MANIFESTS_DIR: outDir }
+  env: { ...process.env, SSOT_DIR: ssotDir, MANIFESTS_DIR: outDir, S2S_CP_HMAC: "dummy", S2S_CI_HMAC: "dummy", S2S_TOKEN_SIGN: "dummy" }
 });
 
 async function run() {
   await waitForServer("http://localhost:7070/api/runtime/active-release", 5000);
+  const token = await getS2SToken({ baseUrl: "http://localhost:7070", principalId: "svc:ci", secret: "dummy", scopes: ["marketplace.*", "billing.compute"] });
+  const authHeaders = { authorization: `Bearer ${token}` };
   const impactRes = await fetch("http://localhost:7070/api/marketplace/tenants/tenant:default/impact", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", ...authHeaders },
     body: JSON.stringify({ type: "module", id: "module:jobs", version: "1.0.0" })
   });
   if (!impactRes.headers.get("x-request-id")) throw new Error("Missing x-request-id header");
@@ -35,7 +37,7 @@ async function run() {
 
   const billRes = await fetch("http://localhost:7070/api/billing/invoices/compute?tenant=tenant:default&period=20260101", {
     method: "POST",
-    headers: { "Content-Type": "application/json" }
+    headers: { "Content-Type": "application/json", ...authHeaders }
   });
   if (!billRes.headers.get("x-request-id")) throw new Error("Missing x-request-id header on billing");
   await billRes.json();

@@ -76,6 +76,8 @@
   "secret_policy.v1": "core/contracts/schemas/secret_policy.schema.json",
   "secret_vault_ref.v1": "core/contracts/schemas/secret_vault_ref.schema.json",
   "security_secret_ref.v1": "core/contracts/schemas/security_secret_ref.schema.json",
+  "service_credential.v1": "core/contracts/schemas/service_credential.schema.json",
+  "service_principal.v1": "core/contracts/schemas/service_principal.schema.json",
   "sli_source.v1": "core/contracts/schemas/sli_source.schema.json",
   "slo_definition.v1": "core/contracts/schemas/slo_definition.schema.json",
   "slo_version.v1": "core/contracts/schemas/slo_version.schema.json",
@@ -85,6 +87,7 @@
   "tenant_template_version.v1": "core/contracts/schemas/tenant_template_version.schema.json",
   "theme_manifest.v1": "core/contracts/schemas/theme_manifest.schema.json",
   "theme.v1": "core/contracts/schemas/themes.schema.json",
+  "token_exchange_policy.v1": "core/contracts/schemas/token_exchange_policy.schema.json",
   "webhook.v1": "core/contracts/schemas/webhook.schema.json",
   "workflow_dags.v1": "core/contracts/schemas/workflow_dags.schema.json"
 }

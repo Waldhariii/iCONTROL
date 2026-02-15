@@ -76,7 +76,10 @@ const specificMap = new Map([
   ["rating_rules.json", "rating_rule.v1"],
   ["rating_versions.json", "rating_version.v1"],
   ["secret_policies.json", "secret_policy.v1"],
-  ["secret_bindings.json", "secret_binding.v1"]
+  ["secret_bindings.json", "secret_binding.v1"],
+  ["service_principals.json", "service_principal.v1"],
+  ["service_credentials.json", "service_credential.v1"],
+  ["token_exchange_policies.json", "token_exchange_policy.v1"]
 ]);
 
 function inferSchemaForFile(path, data) {

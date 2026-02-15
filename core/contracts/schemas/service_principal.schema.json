@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "service_principal.v1",
+  "title": "service_principal",
+  "type": "object",
+  "required": ["id", "display_name", "allowed_scopes", "tenant_scope", "status", "created_at", "created_by"],
+  "additionalProperties": false,
+  "properties": {
+    "id": { "type": "string" },
+    "display_name": { "type": "string" },
+    "allowed_scopes": { "type": "array", "items": { "type": "string" } },
+    "tenant_scope": { "type": "string" },
+    "status": { "type": "string", "enum": ["active", "disabled"] },
+    "created_at": { "type": "string", "format": "date-time" },
+    "created_by": { "type": "string" }
+  }
+}
