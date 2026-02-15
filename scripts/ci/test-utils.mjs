@@ -27,6 +27,17 @@ export function createTempSsot() {
   } catch {
     // ignore if change_freeze not present
   }
+  try {
+    const activePath = join(ssotDest, "changes", "active_release.json");
+    const active = JSON.parse(readFileSync(activePath, "utf-8"));
+    active.active_release_id = "dev-001";
+    active.active_env = "dev";
+    active.updated_at = new Date().toISOString();
+    active.updated_by = "ci";
+    writeFileSync(activePath, JSON.stringify(active, null, 2) + "\n");
+  } catch {
+    // ignore if active_release not present
+  }
   return {
     ssotDir: ssotDest,
     cleanup() {

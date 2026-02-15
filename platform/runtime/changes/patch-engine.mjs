@@ -17,6 +17,8 @@ const kindToPath = {
   domain_module: "modules/domain_modules.json",
   domain_module_version: "modules/domain_module_versions.json",
   module_activation: "modules/module_activations.json",
+  tenant_template: "tenancy/tenant_templates.json",
+  tenant_template_version: "tenancy/tenant_template_versions.json",
   extension_installation: "extensions/extension_installations.json",
   extension_review: "extensions/extension_reviews.json",
   design_token: "design/design_tokens.json",
@@ -35,6 +37,8 @@ const kindToSchema = {
   domain_module: "domain_module.v1",
   domain_module_version: "domain_module_version.v1",
   module_activation: "module_activation.v1",
+  tenant_template: "tenant_template.v1",
+  tenant_template_version: "tenant_template_version.v1",
   extension_installation: "extension_installation.v1",
   extension_review: "extension_review.v1",
   design_token: "design_token.v1",
@@ -51,6 +55,8 @@ function itemKey(kind, item) {
   if (kind === "domain_module") return item.module_id;
   if (kind === "domain_module_version") return `${item.module_id}@${item.version}`;
   if (kind === "module_activation") return `${item.tenant_id}:${item.module_id}`;
+  if (kind === "tenant_template") return item.template_id;
+  if (kind === "tenant_template_version") return `${item.template_id}@${item.version}`;
   if (kind === "extension_installation") return `${item.tenant_id}:${item.extension_id}`;
   return item.id;
 }

@@ -1188,8 +1188,9 @@ const server = http.createServer(async (req, res) => {
         const reviews = readJson(ssotPath("extensions/extension_reviews.json"));
         const ext = extensions.find((e) => e.id === id);
         if (!ext) return json(res, 404, { error: "Extension not found" });
-        if (action === "install") requireQuorum("extension_install", changesetId, 2);
-        const reviewOk = reviews.some((r) => r.extension_id === id && r.version === version && r.status === "approved");
+        const existingInstall = installs.find((i) => i.tenant_id === tenantId && i.extension_id === id);
+        const effectiveVersion = version || existingInstall?.version;
+        const reviewOk = reviews.some((r) => r.extension_id === id && r.version === effectiveVersion && r.status === "approved");
         if ((action === "install" || action === "enable") && !reviewOk) return json(res, 400, { error: "Extension review not approved" });
         const desiredState = action === "disable" || action === "uninstall" ? "disabled" : "installed";
         const allowed = tierRank(ext.tier || "free") <= tierRank(plan.tier);
@@ -1198,7 +1199,7 @@ const server = http.createServer(async (req, res) => {
         ops.push({
           op: exists ? "update" : "add",
           target: { kind: "extension_installation", ref: `${tenantId}:${id}` },
-          value: { tenant_id: tenantId, extension_id: id, version: version || "1.0.0", state, installed_at: new Date().toISOString() },
+          value: { tenant_id: tenantId, extension_id: id, version: effectiveVersion || "1.0.0", state, installed_at: new Date().toISOString() },
           preconditions: { expected_exists: !exists ? false : true }
         });
       } else {

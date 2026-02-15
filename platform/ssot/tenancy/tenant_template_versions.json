@@ -18,5 +18,21 @@
         "state": "active"
       }
     ]
+  },
+  {
+    "template_id": "tmpl:marketplace-free",
+    "version": "1.0.0",
+    "status": "active",
+    "effective_from": "2026-02-15T00:00:00.000Z",
+    "module_activations_default": [
+      {
+        "module_id": "module:jobs",
+        "state": "active"
+      },
+      {
+        "module_id": "module:documents",
+        "state": "active"
+      }
+    ]
   }
 ]
