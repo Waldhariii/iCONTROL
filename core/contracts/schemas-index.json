@@ -67,6 +67,8 @@
   "slo_version.v1": "core/contracts/schemas/slo_version.schema.json",
   "tenant_override.v1": "core/contracts/schemas/tenant_override.schema.json",
   "tenant_quota.v1": "core/contracts/schemas/tenant_quota.schema.json",
+  "tenant_template.v1": "core/contracts/schemas/tenant_template.schema.json",
+  "tenant_template_version.v1": "core/contracts/schemas/tenant_template_version.schema.json",
   "theme_manifest.v1": "core/contracts/schemas/theme_manifest.schema.json",
   "theme.v1": "core/contracts/schemas/themes.schema.json",
   "webhook.v1": "core/contracts/schemas/webhook.schema.json",

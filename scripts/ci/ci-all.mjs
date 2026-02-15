@@ -89,6 +89,10 @@ const steps = [
   "node scripts/ci/test-migration-dryrun.mjs",
   "node scripts/ci/test-deprecation-policy.mjs",
   "node scripts/ci/test-contract-backcompat-smoke.mjs",
+  "node scripts/ci/test-tenant-factory-dryrun.mjs",
+  "node scripts/ci/test-tenant-factory-apply.mjs",
+  "node scripts/ci/test-tenant-factory-quorum.mjs",
+  "node scripts/ci/test-tenant-factory-audit.mjs",
   "node scripts/ci/test-token-gate.mjs",
   "node scripts/ci/test-audit.mjs"
 ];

@@ -79,14 +79,24 @@
       "ops.runbook.execute",
       "ops.runbook.apply",
       "ops.timeline.read",
+      "ops.tenancy.plan",
+      "ops.tenancy.apply",
+      "ops.tenancy.clone.plan",
+      "ops.tenancy.clone.apply",
       "ops.action.qos.throttle",
       "ops.action.qos.shed",
       "ops.action.release.rollback",
+      "ops.action.release.compile",
+      "ops.action.release.activate",
       "ops.action.extension.killswitch",
       "ops.action.change.freeze",
       "ops.action.integration.disable",
       "ops.action.open.break_glass",
-      "ops.action.close.break_glass"
+      "ops.action.close.break_glass",
+      "ops.action.tenancy.factory.plan",
+      "ops.action.tenancy.factory.apply",
+      "ops.action.tenancy.factory.clone.plan",
+      "ops.action.tenancy.factory.clone.apply"
     ],
     "scopes": [
       "platform:*"

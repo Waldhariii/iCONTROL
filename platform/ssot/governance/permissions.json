@@ -100,6 +100,22 @@
     "scope": "platform:*"
   },
   {
+    "id": "ops.tenancy.plan",
+    "scope": "platform:*"
+  },
+  {
+    "id": "ops.tenancy.apply",
+    "scope": "platform:*"
+  },
+  {
+    "id": "ops.tenancy.clone.plan",
+    "scope": "platform:*"
+  },
+  {
+    "id": "ops.tenancy.clone.apply",
+    "scope": "platform:*"
+  },
+  {
     "id": "ops.action.qos.throttle",
     "scope": "platform:*"
   },
@@ -109,6 +125,14 @@
   },
   {
     "id": "ops.action.release.rollback",
+    "scope": "platform:*"
+  },
+  {
+    "id": "ops.action.release.compile",
+    "scope": "platform:*"
+  },
+  {
+    "id": "ops.action.release.activate",
     "scope": "platform:*"
   },
   {
@@ -129,6 +153,22 @@
   },
   {
     "id": "ops.action.close.break_glass",
+    "scope": "platform:*"
+  },
+  {
+    "id": "ops.action.tenancy.factory.plan",
+    "scope": "platform:*"
+  },
+  {
+    "id": "ops.action.tenancy.factory.apply",
+    "scope": "platform:*"
+  },
+  {
+    "id": "ops.action.tenancy.factory.clone.plan",
+    "scope": "platform:*"
+  },
+  {
+    "id": "ops.action.tenancy.factory.clone.apply",
     "scope": "platform:*"
   }
 ]

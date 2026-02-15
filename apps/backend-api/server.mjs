@@ -8,6 +8,7 @@ import { emitEvent } from "../../platform/runtime/events/bus.mjs";
 import { resolveSecret } from "../../platform/runtime/integrations/dispatcher.mjs";
 import { getEffectiveQosOverrides } from "../../platform/runtime/ops/actions.mjs";
 import { createIncident, readIncident, executeRunbook, listTimeline } from "../../platform/runtime/ops/engine.mjs";
+import { planTenantCreate, planTenantClone, dryRunCreate, applyCreate, readFactoryStatus } from "../../platform/runtime/tenancy/factory.mjs";
 import { sha256, stableStringify } from "../../platform/compilers/utils.mjs";
 import { createHmac, timingSafeEqual } from "crypto";
 
@@ -1199,6 +1200,75 @@ const server = http.createServer(async (req, res) => {
       const url = new URL(req.url, "http://localhost");
       const day = url.searchParams.get("day") || undefined;
       return json(res, 200, { events: listTimeline(day) });
+    }
+
+    if (req.method === "POST" && req.url === "/api/tenancy/factory/plan") {
+      requirePermission(req, "ops.tenancy.plan");
+      const payload = await bodyToJson(req);
+      const plan = planTenantCreate({
+        templateId: payload.template_id || "tmpl:default",
+        tenantKey: payload.tenant_key,
+        displayName: payload.display_name,
+        ownerUserId: payload.owner_user_id
+      });
+      const report = dryRunCreate(plan);
+      return json(res, 200, { ok: true, plan, report });
+    }
+
+    if (req.method === "POST" && req.url === "/api/tenancy/factory/apply") {
+      requirePermission(req, "ops.tenancy.apply");
+      const payload = await bodyToJson(req);
+      const plan = planTenantCreate({
+        templateId: payload.template_id || "tmpl:default",
+        tenantKey: payload.tenant_key,
+        displayName: payload.display_name,
+        ownerUserId: payload.owner_user_id
+      });
+      const gov = getGovernanceData();
+      if (!breakGlassAllows({ breakGlass: gov.breakGlass, action: "ops.tenancy.apply", scope: "platform:*" })) {
+        requireQuorum("tenant_create", plan.tenant_id, 2);
+      }
+      const changesetId = applyCreate(plan);
+      return json(res, 200, { ok: true, changeset_id: changesetId, tenant_id: plan.tenant_id });
+    }
+
+    if (req.method === "POST" && req.url === "/api/tenancy/factory/clone/plan") {
+      requirePermission(req, "ops.tenancy.clone.plan");
+      const payload = await bodyToJson(req);
+      const plan = planTenantClone({
+        sourceTenantId: payload.source_tenant_id,
+        targetKey: payload.tenant_key,
+        displayName: payload.display_name,
+        ownerUserId: payload.owner_user_id
+      });
+      const report = dryRunCreate(plan);
+      return json(res, 200, { ok: true, plan, report });
+    }
+
+    if (req.method === "POST" && req.url === "/api/tenancy/factory/clone/apply") {
+      requirePermission(req, "ops.tenancy.clone.apply");
+      const payload = await bodyToJson(req);
+      const plan = planTenantClone({
+        sourceTenantId: payload.source_tenant_id,
+        targetKey: payload.tenant_key,
+        displayName: payload.display_name,
+        ownerUserId: payload.owner_user_id
+      });
+      const gov = getGovernanceData();
+      if (!breakGlassAllows({ breakGlass: gov.breakGlass, action: "ops.tenancy.clone.apply", scope: "platform:*" })) {
+        requireQuorum("tenant_clone", plan.tenant_id, 2);
+      }
+      const changesetId = applyCreate(plan);
+      return json(res, 200, { ok: true, changeset_id: changesetId, tenant_id: plan.tenant_id });
+    }
+
+    if (req.method === "GET" && req.url?.startsWith("/api/tenancy/factory/status")) {
+      requirePermission(req, "ops.tenancy.plan");
+      const url = new URL(req.url, "http://localhost");
+      const id = url.searchParams.get("id") || "";
+      const status = id ? readFactoryStatus(id) : null;
+      if (!status) return json(res, 404, { error: "Not found" });
+      return json(res, 200, status);
     }
 
     if (req.method === "GET" && req.url?.startsWith("/api/gates/") && req.url?.endsWith("/report")) {

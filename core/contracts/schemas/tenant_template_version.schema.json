@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "tenant_template_version.v1",
+  "title": "tenant_template_version",
+  "type": "object",
+  "required": ["template_id", "version", "status", "effective_from"],
+  "additionalProperties": false,
+  "properties": {
+    "template_id": {"type": "string"},
+    "version": {"type": "string"},
+    "status": {"type": "string", "enum": ["active", "deprecated"]},
+    "effective_from": {"type": "string"}
+  }
+}

@@ -14,5 +14,21 @@
     "scope": "platform:*",
     "latest_version": "1.0.0",
     "status": "active"
+  },
+  {
+    "runbook_id": "rb-tenant-create",
+    "name": "Tenant Create",
+    "severity_id": "sev2",
+    "scope": "platform:*",
+    "latest_version": "1.0.0",
+    "status": "active"
+  },
+  {
+    "runbook_id": "rb-tenant-clone",
+    "name": "Tenant Clone",
+    "severity_id": "sev2",
+    "scope": "platform:*",
+    "latest_version": "1.0.0",
+    "status": "active"
   }
 ]

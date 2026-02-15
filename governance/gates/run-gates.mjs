@@ -40,7 +40,9 @@ import {
   deprecationGate,
   migrationGate,
   contractTestGate,
-  semverGate
+  semverGate,
+  tenantTemplateGate,
+  tenantFactoryGate
 } from "./gates.mjs";
 
 const releaseId = process.argv[2];
@@ -93,7 +95,9 @@ const gates = [
   () => compatibilityGate({ ssotDir }),
   () => deprecationGate({ ssotDir }),
   () => migrationGate({ ssotDir }),
-  () => contractTestGate({ ssotDir })
+  () => contractTestGate({ ssotDir }),
+  () => tenantTemplateGate({ ssotDir }),
+  () => tenantFactoryGate({ ssotDir })
 ];
 
 const results = [];

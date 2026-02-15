@@ -1,0 +1,19 @@
+[
+  {
+    "template_id": "tmpl:default",
+    "name": "Default Tenant",
+    "version": "1.0.0",
+    "base_plan_id": "plan:free",
+    "entitlements_default": [],
+    "feature_flags_default": [],
+    "surface_bootstrap": {
+      "cp": {"enabled": false},
+      "client": {"enabled": false}
+    },
+    "theme_binding": null,
+    "quotas_overrides": null,
+    "datagov_profile": null,
+    "integrations_profile": {"connectors_disabled": true},
+    "ops_profile": {"severity_threshold": "sev2"}
+  }
+]

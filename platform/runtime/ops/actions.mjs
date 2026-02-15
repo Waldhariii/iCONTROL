@@ -1,8 +1,9 @@
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from "fs";
 import { join, dirname } from "path";
-import { rollback } from "../release/orchestrator.mjs";
+import { rollback, compileSignedManifest, activate } from "../release/orchestrator.mjs";
 import { applyChangeset } from "../changes/patch-engine.mjs";
 import { sha256, stableStringify } from "../../compilers/utils.mjs";
+import { planTenantCreate, planTenantClone, dryRunCreate, applyCreate, verifyCreate } from "../tenancy/factory.mjs";
 
 const SSOT_DIR = process.env.SSOT_DIR || "./platform/ssot";
 const RUNTIME_OPS_DIR = join(process.cwd(), "runtime", "ops");
@@ -129,11 +130,17 @@ export const BUILTIN_ACTIONS = [
   "qos.throttle",
   "qos.shed",
   "release.rollback",
+  "release.compile",
+  "release.activate",
   "extension.killswitch",
   "change.freeze",
   "integration.disable",
   "open.break_glass",
-  "close.break_glass"
+  "close.break_glass",
+  "tenancy.factory.plan",
+  "tenancy.factory.apply",
+  "tenancy.factory.clone.plan",
+  "tenancy.factory.clone.apply"
 ];
 
 export function applyAction({ action, params, context }) {
@@ -185,6 +192,22 @@ export function applyAction({ action, params, context }) {
     return { ok: true };
   }
 
+  if (action === "release.compile") {
+    const releaseId = params?.release_id || `rel-${Date.now()}`;
+    const env = params?.env || "dev";
+    compileSignedManifest(releaseId, env);
+    appendAudit({ event: "ops_action", action, params: { release_id: releaseId }, at: new Date().toISOString(), incident_id: context?.incident_id });
+    return { ok: true, release_id: releaseId };
+  }
+
+  if (action === "release.activate") {
+    const releaseId = params?.release_id || "active";
+    const scope = params?.scope || "platform:*";
+    activate(releaseId, scope);
+    appendAudit({ event: "ops_action", action, params: { release_id: releaseId, scope }, at: new Date().toISOString(), incident_id: context?.incident_id });
+    return { ok: true };
+  }
+
   if (action === "extension.killswitch") {
     if (!params?.extension_id) throw new Error("extension_id required");
     upsertKillswitch({
@@ -228,6 +251,36 @@ export function applyAction({ action, params, context }) {
     updateBreakGlass({ enabled: false, reason: params?.reason || "ops close break glass", ttlSeconds: 1, scope: "platform:*", allowedActions: [] });
     appendAudit({ event: "ops_action", action, params, at: new Date().toISOString(), incident_id: context?.incident_id });
     return { ok: true };
+  }
+
+  if (action === "tenancy.factory.plan") {
+    const plan = planTenantCreate({ templateId: params?.template_id, tenantKey: params?.tenant_key, displayName: params?.display_name, ownerUserId: params?.owner_user_id });
+    const report = dryRunCreate(plan);
+    appendAudit({ event: "ops_action", action, params, at: new Date().toISOString(), incident_id: context?.incident_id });
+    return { ok: true, plan_id: plan.plan_id, report };
+  }
+
+  if (action === "tenancy.factory.apply") {
+    const plan = planTenantCreate({ templateId: params?.template_id, tenantKey: params?.tenant_key, displayName: params?.display_name, ownerUserId: params?.owner_user_id });
+    const changesetId = applyCreate(plan);
+    verifyCreate(plan);
+    appendAudit({ event: "ops_action", action, params, at: new Date().toISOString(), incident_id: context?.incident_id });
+    return { ok: true, changeset_id: changesetId, tenant_id: plan.tenant_id };
+  }
+
+  if (action === "tenancy.factory.clone.plan") {
+    const plan = planTenantClone({ sourceTenantId: params?.source_tenant_id, targetKey: params?.tenant_key, displayName: params?.display_name, ownerUserId: params?.owner_user_id });
+    const report = dryRunCreate(plan);
+    appendAudit({ event: "ops_action", action, params, at: new Date().toISOString(), incident_id: context?.incident_id });
+    return { ok: true, plan_id: plan.plan_id, report };
+  }
+
+  if (action === "tenancy.factory.clone.apply") {
+    const plan = planTenantClone({ sourceTenantId: params?.source_tenant_id, targetKey: params?.tenant_key, displayName: params?.display_name, ownerUserId: params?.owner_user_id });
+    const changesetId = applyCreate(plan);
+    verifyCreate(plan);
+    appendAudit({ event: "ops_action", action, params, at: new Date().toISOString(), incident_id: context?.incident_id });
+    return { ok: true, changeset_id: changesetId, tenant_id: plan.tenant_id };
   }
 
   return { ok: false };

@@ -30,5 +30,87 @@
         }
       }
     ]
+  },
+  {
+    "runbook_id": "rb-tenant-create",
+    "version": "1.0.0",
+    "status": "released",
+    "steps": [
+      {
+        "action": "tenancy.factory.plan",
+        "critical": false,
+        "params": {
+          "template_id": "tmpl:default",
+          "tenant_key": "new-tenant",
+          "display_name": "New Tenant"
+        }
+      },
+      {
+        "action": "tenancy.factory.apply",
+        "critical": true,
+        "params": {
+          "template_id": "tmpl:default",
+          "tenant_key": "new-tenant",
+          "display_name": "New Tenant"
+        }
+      },
+      {
+        "action": "release.compile",
+        "critical": false,
+        "params": {
+          "release_id": "tenant-bootstrap",
+          "env": "dev"
+        }
+      },
+      {
+        "action": "release.activate",
+        "critical": false,
+        "params": {
+          "release_id": "tenant-bootstrap",
+          "scope": "platform:*"
+        }
+      }
+    ]
+  },
+  {
+    "runbook_id": "rb-tenant-clone",
+    "version": "1.0.0",
+    "status": "released",
+    "steps": [
+      {
+        "action": "tenancy.factory.clone.plan",
+        "critical": false,
+        "params": {
+          "source_tenant_id": "tenant:default",
+          "tenant_key": "clone-tenant",
+          "display_name": "Clone Tenant"
+        }
+      },
+      {
+        "action": "tenancy.factory.clone.apply",
+        "critical": true,
+        "params": {
+          "source_tenant_id": "tenant:default",
+          "tenant_key": "clone-tenant",
+          "display_name": "Clone Tenant"
+        }
+      },
+      {
+        "action": "release.compile",
+        "critical": false,
+        "params": {
+          "release_id": "tenant-bootstrap",
+          "env": "dev"
+        }
+      },
+      {
+        "action": "release.activate",
+        "critical": false,
+        "params": {
+          "release_id": "tenant-bootstrap",
+          "scope": "platform:*"
+        }
+      }
+    ]
   }
 ]

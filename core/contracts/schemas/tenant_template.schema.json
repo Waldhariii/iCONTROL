@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "tenant_template.v1",
+  "title": "tenant_template",
+  "type": "object",
+  "required": ["template_id", "name", "version", "base_plan_id"],
+  "additionalProperties": false,
+  "properties": {
+    "template_id": {"type": "string"},
+    "name": {"type": "string"},
+    "version": {"type": "string"},
+    "base_plan_id": {"type": "string"},
+    "entitlements_default": {"type": "array", "items": {"type": "string"}},
+    "feature_flags_default": {"type": "array", "items": {"type": "string"}},
+    "surface_bootstrap": {"type": "object"},
+    "theme_binding": {"type": ["object", "null"]},
+    "quotas_overrides": {"type": ["object", "null"]},
+    "datagov_profile": {"type": ["object", "null"]},
+    "integrations_profile": {"type": ["object", "null"]},
+    "ops_profile": {"type": ["object", "null"]}
+  }
+}

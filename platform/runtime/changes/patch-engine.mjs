@@ -114,6 +114,117 @@ function applyOp(dataArray, op) {
   }
 }
 
+function readJsonAt(ssotDir, relPath) {
+  return readJson(join(ssotDir, relPath));
+}
+
+function writeJsonAt(ssotDir, relPath, data) {
+  writeJson(join(ssotDir, relPath), data);
+}
+
+function findTemplate(ssotDir, templateId) {
+  const templates = readJsonAt(ssotDir, "tenancy/tenant_templates.json");
+  return templates.find((t) => t.template_id === templateId) || templates[0];
+}
+
+function applyTemplateToTenant(ssotDir, tenantId, template) {
+  if (!template) return;
+  if (template.entitlements_default && template.entitlements_default.length) {
+    const entitlements = readJsonAt(ssotDir, "tenancy/tenant_entitlements.json");
+    for (const ent of template.entitlements_default) {
+      if (!entitlements.some((e) => e.tenant_id === tenantId && e.entitlement_id === ent)) {
+        entitlements.push({ tenant_id: tenantId, entitlement_id: ent, enabled: true });
+      }
+    }
+    writeJsonAt(ssotDir, "tenancy/tenant_entitlements.json", entitlements);
+  }
+  if (template.feature_flags_default && template.feature_flags_default.length) {
+    const flags = readJsonAt(ssotDir, "tenancy/tenant_flags.json");
+    for (const f of template.feature_flags_default) {
+      if (!flags.some((x) => x.tenant_id === tenantId && x.flag_id === f)) {
+        flags.push({ tenant_id: tenantId, flag_id: f, enabled: true });
+      }
+    }
+    writeJsonAt(ssotDir, "tenancy/tenant_flags.json", flags);
+  }
+  if (template.quotas_overrides) {
+    const quotas = readJsonAt(ssotDir, "tenancy/tenant_quotas.json");
+    quotas.push({ tenant_id: tenantId, quotas: template.quotas_overrides });
+    writeJsonAt(ssotDir, "tenancy/tenant_quotas.json", quotas);
+  }
+  if (template.integrations_profile?.connectors_disabled) {
+    const connectors = readJsonAt(ssotDir, "integrations/connectors.json");
+    const connectorVersions = readJsonAt(ssotDir, "integrations/connector_versions.json");
+    const configs = readJsonAt(ssotDir, "integrations/connector_configs.json");
+    for (const c of connectors) {
+      const v = connectorVersions.find((cv) => cv.connector_id === c.connector_id) || connectorVersions[0];
+      const exists = configs.some((cc) => cc.tenant_id === tenantId && cc.connector_id === c.connector_id);
+      if (!exists && v) {
+        configs.push({ config_id: `cfg:${tenantId}:${c.connector_id}`, tenant_id: tenantId, connector_id: c.connector_id, version: v.version, state: "disabled" });
+      }
+    }
+    writeJsonAt(ssotDir, "integrations/connector_configs.json", configs);
+  }
+}
+
+function applyTenantCreate(ssotDir, op) {
+  const plan = op.value || {};
+  const tenantId = plan.tenant_id;
+  const template = findTemplate(ssotDir, plan.template_id);
+  const tenants = readJsonAt(ssotDir, "tenancy/tenants.json");
+  if (tenants.some((t) => t.tenant_id === tenantId)) throw new Error(`Tenant exists: ${tenantId}`);
+  tenants.push({ tenant_id: tenantId, name: plan.display_name || plan.tenant_key, status: "active", plan_id: plan.base_plan_id || template?.base_plan_id || "plan:free" });
+  writeJsonAt(ssotDir, "tenancy/tenants.json", tenants);
+  if (plan.base_plan_id || template?.base_plan_id) {
+    const overrides = readJsonAt(ssotDir, "tenancy/tenant_overrides.json");
+    overrides.push({ tenant_id: tenantId, plan_id: plan.base_plan_id || template?.base_plan_id || "plan:free", effective_from: new Date().toISOString() });
+    writeJsonAt(ssotDir, "tenancy/tenant_overrides.json", overrides);
+  }
+  applyTemplateToTenant(ssotDir, tenantId, template);
+}
+
+function applyTenantClone(ssotDir, op) {
+  const plan = op.value || {};
+  const srcId = plan.source_tenant_id;
+  const tenantId = plan.tenant_id;
+  const tenants = readJsonAt(ssotDir, "tenancy/tenants.json");
+  const source = tenants.find((t) => t.tenant_id === srcId);
+  if (!source) throw new Error(`Source tenant missing: ${srcId}`);
+  if (tenants.some((t) => t.tenant_id === tenantId)) throw new Error(`Tenant exists: ${tenantId}`);
+  tenants.push({ tenant_id: tenantId, name: plan.display_name || plan.tenant_key, status: "active", plan_id: source.plan_id });
+  writeJsonAt(ssotDir, "tenancy/tenants.json", tenants);
+
+  const overrides = readJsonAt(ssotDir, "tenancy/tenant_overrides.json");
+  for (const o of overrides.filter((x) => x.tenant_id === srcId)) {
+    overrides.push({ ...o, tenant_id: tenantId });
+  }
+  writeJsonAt(ssotDir, "tenancy/tenant_overrides.json", overrides);
+
+  const entitlements = readJsonAt(ssotDir, "tenancy/tenant_entitlements.json");
+  for (const e of entitlements.filter((x) => x.tenant_id === srcId)) entitlements.push({ ...e, tenant_id: tenantId });
+  writeJsonAt(ssotDir, "tenancy/tenant_entitlements.json", entitlements);
+
+  const flags = readJsonAt(ssotDir, "tenancy/tenant_flags.json");
+  for (const f of flags.filter((x) => x.tenant_id === srcId)) flags.push({ ...f, tenant_id: tenantId });
+  writeJsonAt(ssotDir, "tenancy/tenant_flags.json", flags);
+
+  const quotas = readJsonAt(ssotDir, "tenancy/tenant_quotas.json");
+  for (const q of quotas.filter((x) => x.tenant_id === srcId)) quotas.push({ ...q, tenant_id: tenantId });
+  writeJsonAt(ssotDir, "tenancy/tenant_quotas.json", quotas);
+
+  const configs = readJsonAt(ssotDir, "integrations/connector_configs.json");
+  for (const c of configs.filter((x) => x.tenant_id === srcId)) {
+    configs.push({ ...c, tenant_id: tenantId, config_id: `cfg:${tenantId}:${c.connector_id}` });
+  }
+  writeJsonAt(ssotDir, "integrations/connector_configs.json", configs);
+}
+
+function applyTenantBootstrap(ssotDir, op) {
+  const tenantId = op.target?.ref;
+  const template = findTemplate(ssotDir, op.value?.template_id);
+  applyTemplateToTenant(ssotDir, tenantId, template);
+}
+
 function readChangeset(changesetId) {
   const direct = join(SSOT_DIR, `changes/changesets/${changesetId}.json`);
   const legacy = join(SSOT_DIR, `changes/changesets/${changesetId}/changeset.json`);
@@ -132,6 +243,18 @@ function appendAudit(entry) {
 
 export function applyOpsToDir(ssotDir, ops) {
   for (const op of ops || []) {
+    if (op.op === "tenant.create") {
+      applyTenantCreate(ssotDir, op);
+      continue;
+    }
+    if (op.op === "tenant.clone") {
+      applyTenantClone(ssotDir, op);
+      continue;
+    }
+    if (op.op === "tenant.bootstrap.apply-template") {
+      applyTenantBootstrap(ssotDir, op);
+      continue;
+    }
     const relPath = kindToPath[op.target.kind];
     if (!relPath) throw new Error(`Unsupported kind: ${op.target.kind}`);
     const absPath = join(ssotDir, relPath);
@@ -169,6 +292,18 @@ export function applyChangeset(changesetId) {
   try {
     snapshotPath = snapshot(`preapply-${changesetId}`);
     for (const op of cs.ops || []) {
+      if (op.op === "tenant.create") {
+        applyTenantCreate(SSOT_DIR, op);
+        continue;
+      }
+      if (op.op === "tenant.clone") {
+        applyTenantClone(SSOT_DIR, op);
+        continue;
+      }
+      if (op.op === "tenant.bootstrap.apply-template") {
+        applyTenantBootstrap(SSOT_DIR, op);
+        continue;
+      }
       const relPath = kindToPath[op.target.kind];
       if (!relPath) throw new Error(`Unsupported kind: ${op.target.kind}`);
       const absPath = join(SSOT_DIR, relPath);

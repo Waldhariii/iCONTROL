@@ -28,11 +28,17 @@ const OPS_ALLOWED_ACTIONS = [
   "qos.throttle",
   "qos.shed",
   "release.rollback",
+  "release.compile",
+  "release.activate",
   "extension.killswitch",
   "change.freeze",
   "integration.disable",
   "open.break_glass",
-  "close.break_glass"
+  "close.break_glass",
+  "tenancy.factory.plan",
+  "tenancy.factory.apply",
+  "tenancy.factory.clone.plan",
+  "tenancy.factory.clone.apply"
 ];
 
 function parseSemver(v) {
@@ -773,6 +779,55 @@ export function contractTestGate({ ssotDir }) {
   const compat = readJson(`${ssotDir}/compat/compatibility_matrix.json`);
   const ok = compat.length > 0;
   return { ok, gate: "Contract Test Gate", details: ok ? "" : "Missing compatibility matrix" };
+}
+
+export function tenantTemplateGate({ ssotDir }) {
+  const templates = readJson(`${ssotDir}/tenancy/tenant_templates.json`);
+  const plans = readJson(`${ssotDir}/tenancy/plans.json`);
+  const entitlements = readJson(`${ssotDir}/tenancy/entitlements.json`);
+  const flags = readJson(`${ssotDir}/tenancy/feature_flags.json`);
+  const themes = readJson(`${ssotDir}/design/themes.json`);
+  const planIds = new Set(plans.map((p) => p.plan_id));
+  const entIds = new Set(entitlements.map((e) => e.entitlement_id || e.id));
+  const flagIds = new Set(flags.map((f) => f.flag_id || f.id));
+  const themeIds = new Set(themes.map((t) => t.theme_id || t.id));
+  const bad = [];
+  for (const t of templates) {
+    if (!planIds.has(t.base_plan_id)) bad.push(`${t.template_id}:plan`);
+    for (const e of t.entitlements_default || []) if (!entIds.has(e)) bad.push(`${t.template_id}:entitlement:${e}`);
+    for (const f of t.feature_flags_default || []) if (!flagIds.has(f)) bad.push(`${t.template_id}:flag:${f}`);
+    const themeId = t.theme_binding?.theme_id;
+    if (themeId && !themeIds.has(themeId)) bad.push(`${t.template_id}:theme:${themeId}`);
+  }
+  const ok = bad.length === 0;
+  return { ok, gate: "Tenant Template Gate", details: ok ? "" : bad.join(", ") };
+}
+
+export function tenantFactoryGate({ ssotDir }) {
+  const tenants = readJson(`${ssotDir}/tenancy/tenants.json`);
+  const ids = tenants.map((t) => t.tenant_id);
+  const uniqueOk = new Set(ids).size === ids.length;
+  const bad = [];
+  const re = /^tenant:[a-z0-9-]+$/;
+  for (const id of ids) if (!re.test(id)) bad.push(`invalid:${id}`);
+
+  const scans = [
+    readJson(`${ssotDir}/tenancy/tenant_overrides.json`),
+    readJson(`${ssotDir}/tenancy/tenant_quotas.json`),
+    readJson(`${ssotDir}/tenancy/tenant_entitlements.json`),
+    readJson(`${ssotDir}/tenancy/tenant_flags.json`)
+  ];
+  for (const list of scans) {
+    for (const item of list || []) {
+      const keys = Object.keys(item || {});
+      if (keys.some((k) => SECRET_KEYS.some((s) => k.toLowerCase().includes(s)))) bad.push("secret_key_detected");
+    }
+  }
+  const ok = uniqueOk && bad.length === 0;
+  const details = [];
+  if (!uniqueOk) details.push("duplicate_tenant_id");
+  if (bad.length) details.push(bad.join(", "));
+  return { ok, gate: "Tenant Factory Gate", details: details.join(" | ") };
 }
 
 export function designFreezeGate({ ssotDir }) {

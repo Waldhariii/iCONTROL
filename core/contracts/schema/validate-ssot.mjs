@@ -62,7 +62,9 @@ const specificMap = new Map([
   ["deprecations.json", "deprecation.v1"],
   ["deprecation_versions.json", "deprecation_version.v1"],
   ["migrations.json", "migration.v1"],
-  ["migration_versions.json", "migration_version.v1"]
+  ["migration_versions.json", "migration_version.v1"],
+  ["tenant_templates.json", "tenant_template.v1"],
+  ["tenant_template_versions.json", "tenant_template_version.v1"]
 ]);
 
 function inferSchemaForFile(path, data) {

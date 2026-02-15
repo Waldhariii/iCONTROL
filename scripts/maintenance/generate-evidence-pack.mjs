@@ -91,6 +91,8 @@ try {
   if (compat[0]) copyIfExists(join(reportsDir, compat[0]), join(outDir, compat[0]));
   const upgrades = reports.filter((f) => f.startsWith("UPGRADE_PLAN_") && f.endsWith(".md")).slice(-1);
   if (upgrades[0]) copyIfExists(join(reportsDir, upgrades[0]), join(outDir, upgrades[0]));
+  const tenantPlans = reports.filter((f) => f.startsWith("TENANT_FACTORY_PLAN_") && f.endsWith(".md")).slice(-1);
+  if (tenantPlans[0]) copyIfExists(join(reportsDir, tenantPlans[0]), join(outDir, tenantPlans[0]));
 } catch {
   // ignore
 }
