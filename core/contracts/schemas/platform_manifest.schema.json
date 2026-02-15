@@ -3,7 +3,7 @@
   "$id": "platform_manifest.v1",
   "title": "platform_manifest",
   "type": "object",
-  "required": ["manifest_id", "manifest_version", "manifest_env", "release_id", "signature", "checksums", "compat_matrix", "routes", "nav", "pages", "widgets", "themes", "permissions", "datasources", "workflows", "capabilities", "modules", "entitlements", "plans", "plan_versions", "tenant_entitlements", "tenant_quotas", "metering_catalog", "budget_policies", "qos_policies", "qos_runtime_config", "extensions_runtime", "data_catalog", "retention_policies", "export_controls", "integrations", "sre", "ops", "compat", "domain_modules", "module_activations", "marketplace"],
+  "required": ["manifest_id", "manifest_version", "manifest_env", "release_id", "signature", "checksums", "compat_matrix", "routes", "nav", "pages", "widgets", "themes", "permissions", "datasources", "workflows", "capabilities", "modules", "entitlements", "plans", "plan_versions", "tenant_entitlements", "tenant_quotas", "metering_catalog", "budget_policies", "qos_policies", "qos_runtime_config", "extensions_runtime", "data_catalog", "retention_policies", "export_controls", "integrations", "sre", "ops", "compat", "domain_modules", "module_activations", "marketplace", "billing"],
   "additionalProperties": false,
   "properties": {
     "manifest_id": {"type": "string"},
@@ -50,6 +50,18 @@
         "catalog": {"type": "array", "items": { "$ref": "marketplace_catalog_item.v1" } },
         "sources": {"type": "array", "items": { "$ref": "marketplace_catalog_source.v1" } },
         "versions": {"type": "array", "items": { "$ref": "marketplace_catalog_version.v1" } }
+      }
+    },
+    "billing": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["billing_mode", "providers", "provider_versions", "rating_rules", "rating_versions"],
+      "properties": {
+        "billing_mode": { "$ref": "billing_mode.v1" },
+        "providers": { "type": "array", "items": { "$ref": "billing_provider.v1" } },
+        "provider_versions": { "type": "array", "items": { "$ref": "billing_provider_version.v1" } },
+        "rating_rules": { "type": "array", "items": { "$ref": "rating_rule.v1" } },
+        "rating_versions": { "type": "array", "items": { "$ref": "rating_version.v1" } }
       }
     }
   }

@@ -1,0 +1,13 @@
+{
+  "$id": "billing_provider.v1",
+  "title": "billing_provider",
+  "type": "object",
+  "required": ["provider_id", "name", "status"],
+  "properties": {
+    "provider_id": { "type": "string" },
+    "name": { "type": "string" },
+    "status": { "type": "string", "enum": ["active", "inactive", "revoked"] },
+    "created_at": { "type": "string" }
+  },
+  "additionalProperties": false
+}

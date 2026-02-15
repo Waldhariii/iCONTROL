@@ -53,7 +53,10 @@ import {
   marketplacePermissionGate,
   marketplacePlanGate,
   marketplaceImpactGate,
-  marketplaceCompatGate
+  marketplaceCompatGate,
+  billingDormantGate,
+  ratingIntegrityGate,
+  invoiceNoSecretsGate
 } from "./gates.mjs";
 
 const releaseId = process.argv[2];
@@ -119,7 +122,10 @@ const gates = [
   () => marketplacePermissionGate({ ssotDir }),
   () => marketplacePlanGate({ ssotDir }),
   () => marketplaceImpactGate({ ssotDir }),
-  () => marketplaceCompatGate({ ssotDir })
+  () => marketplaceCompatGate({ ssotDir }),
+  () => billingDormantGate({ ssotDir }),
+  () => ratingIntegrityGate({ ssotDir }),
+  () => invoiceNoSecretsGate()
 ];
 
 const results = [];

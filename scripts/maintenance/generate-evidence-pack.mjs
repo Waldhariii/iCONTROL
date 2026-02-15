@@ -2,6 +2,7 @@ import { mkdirSync, writeFileSync, existsSync, readFileSync, copyFileSync, readd
 import { join } from "path";
 import { execSync } from "child_process";
 import { getReportsDir, assertNoPlatformReportsPath } from "../ci/test-utils.mjs";
+import { computeInvoice, persistDraft } from "../../platform/runtime/billing/invoice-engine.mjs";
 
 const SSOT_DIR = process.env.SSOT_DIR || "./platform/ssot";
 const RUNTIME_DIR = process.env.RUNTIME_DIR || join(SSOT_DIR, "..", "runtime");
@@ -34,6 +35,8 @@ copyIfExists(join(SSOT_DIR, "governance", "break_glass.json"), join(outDir, "bre
 copyIfExists(join(SSOT_DIR, "extensions", "extension_killswitch.json"), join(outDir, "extension_killswitch.json"));
 copyIfExists(join(SSOT_DIR, "extensions", "extension_installations.json"), join(outDir, "extension_installations.json"));
 copyIfExists(join(SSOT_DIR, "extensions", "extension_reviews.json"), join(outDir, "extension_reviews.json"));
+copyIfExists(join(SSOT_DIR, "billing", "billing_mode.json"), join(outDir, "billing_mode.json"));
+copyIfExists(join(SSOT_DIR, "billing", "rating_rules.json"), join(outDir, "rating_rules.json"));
 copyIfExists(join(SSOT_DIR, "compat", "compatibility_matrix.json"), join(outDir, "compatibility_matrix.json"));
 copyIfExists(join(SSOT_DIR, "compat", "deprecations.json"), join(outDir, "deprecations.json"));
 copyIfExists(join(SSOT_DIR, "modules", "domain_modules.json"), join(outDir, "domain_modules.json"));
@@ -111,6 +114,15 @@ try {
   if (tenantPlans[0]) copyIfExists(join(reportsDir, tenantPlans[0]), join(outDir, tenantPlans[0]));
   const impacts = reports.filter((f) => f.startsWith("MARKETPLACE_IMPACT_") && f.endsWith(".md")).slice(-1);
   if (impacts[0]) copyIfExists(join(reportsDir, impacts[0]), join(outDir, impacts[0]));
+} catch {
+  // ignore
+}
+
+try {
+  const today = new Date().toISOString().slice(0, 10).replace(/-/g, "");
+  const invoice = computeInvoice({ tenantId: "tenant:default", period: today });
+  const draftPath = persistDraft(invoice);
+  copyIfExists(draftPath, join(outDir, "billing_invoice_sample.json"));
 } catch {
   // ignore
 }

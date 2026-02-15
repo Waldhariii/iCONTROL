@@ -69,7 +69,12 @@ const specificMap = new Map([
   ["domain_module_versions.json", "domain_module_version.v1"],
   ["module_activations.json", "module_activation.v1"],
   ["catalog_sources.json", "marketplace_catalog_source.v1"],
-  ["catalog_versions.json", "marketplace_catalog_version.v1"]
+  ["catalog_versions.json", "marketplace_catalog_version.v1"],
+  ["billing_mode.json", "billing_mode.v1"],
+  ["providers.json", "billing_provider.v1"],
+  ["provider_versions.json", "billing_provider_version.v1"],
+  ["rating_rules.json", "rating_rule.v1"],
+  ["rating_versions.json", "rating_version.v1"]
 ]);
 
 function inferSchemaForFile(path, data) {

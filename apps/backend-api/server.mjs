@@ -10,6 +10,8 @@ import { getEffectiveQosOverrides } from "../../platform/runtime/ops/actions.mjs
 import { createIncident, readIncident, executeRunbook, listTimeline } from "../../platform/runtime/ops/engine.mjs";
 import { planTenantCreate, planTenantClone, dryRunCreate, applyCreate, readFactoryStatus } from "../../platform/runtime/tenancy/factory.mjs";
 import { analyzeInstall } from "../../platform/runtime/marketplace/impact.mjs";
+import { computeInvoice, persistDraft, publishInvoice, billingMode } from "../../platform/runtime/billing/invoice-engine.mjs";
+import { handleStripeWebhook } from "../../platform/runtime/billing/providers/stripe_webhook.mjs";
 import { sha256, stableStringify } from "../../platform/compilers/utils.mjs";
 import { createHmac, timingSafeEqual } from "crypto";
 
@@ -135,6 +137,17 @@ function getFinopsData() {
   };
 }
 
+function getBillingData() {
+  return {
+    billingMode: readJson(ssotPath("billing/billing_mode.json")),
+    providers: readJson(ssotPath("billing/providers.json")),
+    providerVersions: readJson(ssotPath("billing/provider_versions.json")),
+    ratingRules: readJson(ssotPath("billing/rating_rules.json")),
+    ratingVersions: readJson(ssotPath("billing/rating_versions.json")),
+    rateCards: readJson(ssotPath("finops/rate_cards.json"))
+  };
+}
+
 function parseSemver(v) {
   const [maj, min, pat] = String(v || "0.0.0").split(".").map((n) => Number(n));
   return { maj: maj || 0, min: min || 0, pat: pat || 0 };
@@ -238,6 +251,23 @@ function writeUsage(tenantId, dateKey, usage) {
   const path = usagePath(tenantId, dateKey);
   mkdirSync(dirname(path), { recursive: true });
   writeJson(path, usage);
+}
+
+function billingDraftDir(tenantId) {
+  const safe = tenantId.replace(/[^a-z0-9-_]/gi, "_");
+  return join(RUNTIME_DIR, "billing", "drafts", safe);
+}
+
+function listBillingDrafts(tenantId) {
+  const dir = billingDraftDir(tenantId);
+  if (!existsSync(dir)) return [];
+  const periods = readdirSync(dir);
+  const drafts = [];
+  for (const p of periods) {
+    const path = join(dir, p, "invoice.json");
+    if (existsSync(path)) drafts.push(readJson(path));
+  }
+  return drafts;
 }
 
 function dataIndexPath(tenantId, modelId) {
@@ -1389,6 +1419,72 @@ const server = http.createServer(async (req, res) => {
       const scope = `tenant:${tenant}`;
       const budgets = (finops.budgets || []).filter((b) => scopeMatches(b.scope, scope));
       return json(res, 200, { tenant_id: tenant, budgets });
+    }
+
+    if (req.method === "GET" && req.url === "/api/billing/mode") {
+      requirePermission(req, "billing.read");
+      const data = getBillingData();
+      return json(res, 200, data.billingMode);
+    }
+
+    if (req.method === "GET" && req.url?.startsWith("/api/billing/rate-cards")) {
+      requirePermission(req, "billing.read");
+      const data = getBillingData();
+      return json(res, 200, data.rateCards || []);
+    }
+
+    if (req.method === "GET" && req.url?.startsWith("/api/billing/rating-rules")) {
+      requirePermission(req, "billing.read");
+      const data = getBillingData();
+      return json(res, 200, data.ratingRules || []);
+    }
+
+    if (req.method === "POST" && req.url?.startsWith("/api/billing/invoices/compute")) {
+      requirePermission(req, "billing.compute");
+      const url = new URL(req.url, "http://localhost");
+      const tenantId = url.searchParams.get("tenant") || "tenant:default";
+      const period = url.searchParams.get("period") || "";
+      const mode = billingMode();
+      if (!mode.scopes?.invoicing_compute) return json(res, 403, { error: "Billing compute disabled" });
+      const invoice = computeInvoice({ tenantId, period });
+      const path = persistDraft(invoice);
+      appendAudit({ event: "invoice_computed", tenant_id: tenantId, period, at: new Date().toISOString() });
+      return json(res, 200, { ok: true, invoice, path });
+    }
+
+    if (req.method === "GET" && req.url?.startsWith("/api/billing/invoices/drafts")) {
+      requirePermission(req, "billing.read");
+      const url = new URL(req.url, "http://localhost");
+      const tenantId = url.searchParams.get("tenant") || "tenant:default";
+      return json(res, 200, { tenant_id: tenantId, drafts: listBillingDrafts(tenantId) });
+    }
+
+    if (req.method === "POST" && req.url?.startsWith("/api/billing/invoices/publish")) {
+      requirePermission(req, "billing.publish");
+      const payload = await bodyToJson(req);
+      const invoice = payload.invoice;
+      try {
+        const published = publishInvoice(invoice);
+        appendAudit({ event: "invoice_published", tenant_id: invoice?.tenant_id, at: new Date().toISOString() });
+        return json(res, 200, { ok: true, invoice: published });
+      } catch (err) {
+        appendAudit({ event: "invoice_publish_blocked", tenant_id: invoice?.tenant_id, reason: String(err.message || err), at: new Date().toISOString() });
+        return json(res, 403, { error: String(err.message || err) });
+      }
+    }
+
+    if (req.method === "POST" && req.url?.startsWith("/api/billing/providers/") && req.url?.endsWith("/webhook")) {
+      requirePermission(req, "billing.webhook");
+      const id = req.url.split("/")[4];
+      const mode = billingMode();
+      if (!mode.enabled || !mode.scopes?.provider_webhooks) {
+        appendAudit({ event: "billing_webhook_blocked", provider_id: id, at: new Date().toISOString() });
+        return json(res, 403, { error: "Billing webhooks disabled" });
+      }
+      const raw = await bodyToText(req);
+      const result = handleStripeWebhook({ headers: req.headers, body: raw });
+      appendAudit({ event: "billing_webhook_received", provider_id: id, at: new Date().toISOString() });
+      return json(res, 200, { ok: true, result });
     }
 
     if (req.method === "GET" && req.url?.startsWith("/api/tenants/") && req.url?.endsWith("/quotas")) {

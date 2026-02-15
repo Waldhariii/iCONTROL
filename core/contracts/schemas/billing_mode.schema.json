@@ -1,0 +1,24 @@
+{
+  "$id": "billing_mode.v1",
+  "title": "billing_mode",
+  "type": "object",
+  "required": ["enabled", "allow_external_charges", "scopes"],
+  "properties": {
+    "enabled": { "type": "boolean" },
+    "allow_external_charges": { "type": "boolean" },
+    "activated_at": { "type": "string" },
+    "activated_by": { "type": "string" },
+    "reason": { "type": "string" },
+    "scopes": {
+      "type": "object",
+      "required": ["invoicing_compute", "invoice_publish", "provider_webhooks"],
+      "properties": {
+        "invoicing_compute": { "type": "boolean" },
+        "invoice_publish": { "type": "boolean" },
+        "provider_webhooks": { "type": "boolean" }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

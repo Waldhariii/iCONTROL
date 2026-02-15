@@ -1,0 +1,12 @@
+{
+  "enabled": false,
+  "allow_external_charges": false,
+  "activated_at": "",
+  "activated_by": "",
+  "reason": "",
+  "scopes": {
+    "invoicing_compute": true,
+    "invoice_publish": false,
+    "provider_webhooks": false
+  }
+}

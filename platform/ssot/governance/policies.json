@@ -26,6 +26,10 @@
       "marketplace.disable",
       "marketplace.uninstall",
       "marketplace.review",
+      "billing.read",
+      "billing.compute",
+      "billing.publish",
+      "billing.webhook",
       "observability.read",
       "data.export"
     ],
@@ -44,6 +48,9 @@
       "studio.releases.publish",
       "studio.releases.activate",
       "studio.releases.rollback",
+      "billing.read",
+      "billing.compute",
+      "billing.publish",
       "observability.read",
       "data.export"
     ],

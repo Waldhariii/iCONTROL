@@ -993,6 +993,65 @@ export function marketplaceCompatGate({ ssotDir }) {
   return { ok, gate: "Marketplace Compat Gate", details: ok ? "" : bad.join(", ") };
 }
 
+export function billingDormantGate({ ssotDir }) {
+  const mode = readJson(`${ssotDir}/billing/billing_mode.json`);
+  const reviewsDir = `${ssotDir}/changes/reviews`;
+  const needsQuorum = mode.enabled || mode.allow_external_charges;
+  const approvals = [];
+  if (existsSync(reviewsDir)) {
+    for (const f of readdirSync(reviewsDir).filter((x) => x.endsWith(".json"))) {
+      approvals.push(readJson(`${reviewsDir}/${f}`));
+    }
+  }
+  const approved = approvals.find((r) => r.action === "billing.activate" && r.target_id === "billing_mode" && r.status === "approved");
+  const bad = [];
+  if (!mode.enabled) {
+    if (mode.allow_external_charges) bad.push("allow_external_charges_true");
+    if (mode.scopes?.invoice_publish) bad.push("invoice_publish_enabled");
+    if (mode.scopes?.provider_webhooks) bad.push("provider_webhooks_enabled");
+  }
+  if (needsQuorum && !approved) bad.push("missing_quorum");
+  const ok = bad.length === 0;
+  return { ok, gate: "Billing Dormant Gate", details: ok ? "" : bad.join(", ") };
+}
+
+export function ratingIntegrityGate({ ssotDir }) {
+  const meters = readJson(`${ssotDir}/finops/metering_catalog.json`).map((m) => m.meter_id);
+  const rules = readJson(`${ssotDir}/billing/rating_rules.json`);
+  const ruleMeters = new Set(rules.map((r) => r.meter_id));
+  const bad = [];
+  for (const m of meters) {
+    if (!ruleMeters.has(m)) bad.push(`missing_rule:${m}`);
+  }
+  for (const r of rules) {
+    if (r.unit_price < 0) bad.push(`negative_price:${r.rule_id}`);
+    if (r.cap < 0) bad.push(`negative_cap:${r.rule_id}`);
+  }
+  const ok = bad.length === 0;
+  return { ok, gate: "Rating Integrity Gate", details: ok ? "" : bad.join(", ") };
+}
+
+export function invoiceNoSecretsGate() {
+  const runtimeDir = process.env.RUNTIME_DIR || "./platform/runtime";
+  const draftsDir = `${runtimeDir}/billing/drafts`;
+  if (!existsSync(draftsDir)) return { ok: true, gate: "Invoice No Secrets Gate", details: "" };
+  const bad = [];
+  const scan = (p) => {
+    const entries = readdirSync(p, { withFileTypes: true });
+    for (const e of entries) {
+      const full = `${p}/${e.name}`;
+      if (e.isDirectory()) scan(full);
+      else if (e.name.endsWith(".json")) {
+        const txt = readFileSync(full, "utf-8");
+        if (/(secret|api_key|token|password)/i.test(txt)) bad.push(full);
+      }
+    }
+  };
+  scan(draftsDir);
+  const ok = bad.length === 0;
+  return { ok, gate: "Invoice No Secrets Gate", details: ok ? "" : `Secrets in drafts: ${bad.join(", ")}` };
+}
+
 export function runbookIntegrityGate({ ssotDir }) {
   const runbooks = readJson(`${ssotDir}/ops/runbooks.json`);
   const versions = readJson(`${ssotDir}/ops/runbook_versions.json`);

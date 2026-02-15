@@ -21,6 +21,7 @@ platform/runtime/release/*.json
 platform/runtime/deletion/*.json
 platform/runtime/finops/usage/
 platform/runtime/qos/counters/
+platform/runtime/billing/
 runtime/extensions/
 platform/ssot/changes/snapshots/
 platform/ssot/changes/releases/

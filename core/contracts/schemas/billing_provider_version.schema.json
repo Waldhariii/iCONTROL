@@ -1,0 +1,15 @@
+{
+  "$id": "billing_provider_version.v1",
+  "title": "billing_provider_version",
+  "type": "object",
+  "required": ["provider_id", "version", "status"],
+  "properties": {
+    "provider_id": { "type": "string" },
+    "version": { "type": "string" },
+    "status": { "type": "string", "enum": ["draft", "released", "deprecated"] },
+    "checksum": { "type": "string" },
+    "signature": { "type": "string" },
+    "signed_at": { "type": "string" }
+  },
+  "additionalProperties": false
+}

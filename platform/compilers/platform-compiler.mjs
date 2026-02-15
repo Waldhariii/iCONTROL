@@ -54,6 +54,11 @@ export function compilePlatform({ ssotDir, outDir, releaseId, env, privateKeyPat
   const moduleActivations = readJson(`${ssotDir}/modules/module_activations.json`);
   const marketplaceSources = readJson(`${ssotDir}/marketplace/catalog_sources.json`);
   const marketplaceVersions = readJson(`${ssotDir}/marketplace/catalog_versions.json`);
+  const billingMode = readJson(`${ssotDir}/billing/billing_mode.json`);
+  const billingProviders = readJson(`${ssotDir}/billing/providers.json`);
+  const billingProviderVersions = readJson(`${ssotDir}/billing/provider_versions.json`);
+  const ratingRules = readJson(`${ssotDir}/billing/rating_rules.json`);
+  const ratingVersions = readJson(`${ssotDir}/billing/rating_versions.json`);
 
   const domainModuleIds = new Set(domainModules.map((m) => m.module_id));
   const activeModuleIds = new Set(moduleActivations.filter((m) => m.state === "active").map((m) => m.module_id));
@@ -227,6 +232,13 @@ export function compilePlatform({ ssotDir, outDir, releaseId, env, privateKeyPat
       catalog: marketplaceCatalog,
       sources: marketplaceSources,
       versions: marketplaceVersions
+    },
+    billing: {
+      billing_mode: billingMode,
+      providers: billingProviders,
+      provider_versions: billingProviderVersions,
+      rating_rules: ratingRules,
+      rating_versions: ratingVersions
     }
   };
 

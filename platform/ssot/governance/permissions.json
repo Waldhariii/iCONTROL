@@ -80,6 +80,22 @@
     "scope": "platform:*"
   },
   {
+    "id": "billing.read",
+    "scope": "platform:*"
+  },
+  {
+    "id": "billing.compute",
+    "scope": "platform:*"
+  },
+  {
+    "id": "billing.publish",
+    "scope": "platform:*"
+  },
+  {
+    "id": "billing.webhook",
+    "scope": "platform:*"
+  },
+  {
     "id": "marketplace.view",
     "scope": "platform:*"
   },

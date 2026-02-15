@@ -1,0 +1,34 @@
+[
+  {
+    "rule_id": "rate:requests",
+    "meter_id": "meter:requests",
+    "unit_price": 0.0001,
+    "currency": "USD",
+    "cap": 0,
+    "tier_pricing": []
+  },
+  {
+    "rule_id": "rate:cpu_ms",
+    "meter_id": "meter:cpu_ms",
+    "unit_price": 0.000001,
+    "currency": "USD",
+    "cap": 0,
+    "tier_pricing": []
+  },
+  {
+    "rule_id": "rate:storage_mb",
+    "meter_id": "meter:storage_mb",
+    "unit_price": 0.0005,
+    "currency": "USD",
+    "cap": 0,
+    "tier_pricing": []
+  },
+  {
+    "rule_id": "rate:ocr_pages",
+    "meter_id": "meter:ocr_pages",
+    "unit_price": 0.01,
+    "currency": "USD",
+    "cap": 0,
+    "tier_pricing": []
+  }
+]

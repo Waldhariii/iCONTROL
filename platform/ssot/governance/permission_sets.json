@@ -22,6 +22,10 @@
       "studio.modules.publish",
       "studio.modules.activate",
       "studio.modules.deactivate",
+      "billing.read",
+      "billing.compute",
+      "billing.publish",
+      "billing.webhook",
       "marketplace.view",
       "marketplace.install",
       "marketplace.enable",
@@ -97,6 +101,9 @@
       "studio.releases.activate",
       "studio.releases.rollback",
       "studio.releases.view",
+      "billing.read",
+      "billing.compute",
+      "billing.publish",
       "observability.read",
       "data.export"
     ]

@@ -1,20 +1,14 @@
 # Billing Dormant Playbook
 
 ## Purpose
-Keep metering and budgets active while **disabling payment flows**.
+Keep billing compute available while blocking all external charges and provider webhooks.
 
-## Current State
-- Metering is compiled into the platform manifest.
-- Usage is recorded locally in runtime output.
-- Budget thresholds create audit events only.
-- No invoices or payment collection exist.
+## Checks
+1. `billing_mode.enabled` is `false`.
+2. `billing_mode.allow_external_charges` is `false`.
+3. `billing_mode.scopes.invoice_publish` is `false`.
+4. `billing_mode.scopes.provider_webhooks` is `false`.
 
-## How to Activate Billing Later (No Refactor)
-1. Introduce a billing service that **reads** usage and rate cards.
-2. Keep Write Gateway enforcement unchanged.
-3. Add an invoicing pipeline as a separate, audited extension.
-4. Gate activation by policy and quorum.
-
-## Guardrails
-- Never bypass manifest signatures.
-- Keep rate cards versioned and approved in SSOT.
+## Validation
+- `node scripts/ci/test-billing-dormant-blocks-publish.mjs`
+- `node scripts/ci/test-billing-webhook-disabled.mjs`

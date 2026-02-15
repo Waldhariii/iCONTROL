@@ -15,7 +15,8 @@
     "integrations.*",
     "ops.*",
     "studio.modules.*",
-    "marketplace.*"
+    "marketplace.*",
+    "billing.*"
   ],
   "scopes": {
     "content_mutations": true,

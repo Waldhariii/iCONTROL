@@ -1,0 +1,13 @@
+{
+  "$id": "rating_version.v1",
+  "title": "rating_version",
+  "type": "object",
+  "required": ["rating_id", "version", "status", "effective_from"],
+  "properties": {
+    "rating_id": { "type": "string" },
+    "version": { "type": "string" },
+    "status": { "type": "string", "enum": ["active", "deprecated"] },
+    "effective_from": { "type": "string" }
+  },
+  "additionalProperties": false
+}

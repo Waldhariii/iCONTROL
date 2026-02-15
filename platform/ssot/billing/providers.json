@@ -1,0 +1,8 @@
+[
+  {
+    "provider_id": "provider:stripe",
+    "name": "Stripe",
+    "status": "inactive",
+    "created_at": "2026-02-15T00:00:00Z"
+  }
+]
