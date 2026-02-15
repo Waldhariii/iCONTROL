@@ -1,0 +1,6 @@
+[
+  {
+    "extension_id": "ext:sample",
+    "requested_capabilities": ["finops.read", "qos.read"]
+  }
+]

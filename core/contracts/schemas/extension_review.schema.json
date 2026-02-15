@@ -1,0 +1,15 @@
+{
+  "$id": "extension_review.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "target", "extension_id", "required_approvals", "approvals", "status"],
+  "properties": {
+    "id": { "type": "string", "minLength": 1 },
+    "target": { "type": "string", "enum": ["version", "install"] },
+    "extension_id": { "type": "string", "minLength": 1 },
+    "version": { "type": "string" },
+    "required_approvals": { "type": "number", "minimum": 1 },
+    "approvals": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+    "status": { "type": "string", "enum": ["pending", "approved", "rejected"] }
+  }
+}

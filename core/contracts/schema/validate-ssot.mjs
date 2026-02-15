@@ -20,7 +20,14 @@ const specificMap = new Map([
   ["rate_cards.json", "rate_card.v1"],
   ["budgets.json", "budget.v1"],
   ["qos_policies.json", "qos_policy.v1"],
-  ["qos_versions.json", "qos_version.v1"]
+  ["qos_versions.json", "qos_version.v1"],
+  ["extensions.json", "extension.v1"],
+  ["extension_versions.json", "extension_version.v1"],
+  ["publishers.json", "extension_publisher.v1"],
+  ["extension_permissions.json", "extension_permissions.v1"],
+  ["extension_installations.json", "extension_installation.v1"],
+  ["extension_reviews.json", "extension_review.v1"],
+  ["extension_killswitch.json", "extension_killswitch.v1"]
 ]);
 
 function inferSchemaForFile(path, data) {

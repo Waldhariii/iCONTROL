@@ -1,0 +1,9 @@
+[
+  {
+    "scope": "platform",
+    "extension_id": "ext:sample",
+    "enabled": false,
+    "reason": "",
+    "enabled_at": ""
+  }
+]

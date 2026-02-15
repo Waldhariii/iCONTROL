@@ -1,5 +1,5 @@
 import { readFileSync, existsSync, readdirSync } from "fs";
-import { stableStringify, sha256 } from "../../platform/compilers/utils.mjs";
+import { stableStringify, sha256, verifyPayload } from "../../platform/compilers/utils.mjs";
 import { validateOrThrow } from "../../core/contracts/schema/validate.mjs";
 import { validateSsotDir } from "../../core/contracts/schema/validate-ssot.mjs";
 
@@ -18,6 +18,10 @@ function readJsonIfExists(path) {
 function unique(values) {
   return new Set(values).size === values.length;
 }
+
+const EXT_ALLOWED_CAPS = ["finops.read", "qos.read", "documents.ingest", "jobs.create"];
+const EXT_ALLOWED_EVENTS = ["on_document_ingested", "on_workflow_completed", "on_budget_threshold", "on_qos_incident"];
+const EXT_ALLOWED_HANDLERS = ["enqueue_workflow", "write_dead_letter", "emit_webhook"];
 
 function parseSemver(v) {
   const [maj, min, pat] = String(v || "0.0.0").split(".").map((n) => Number(n));
@@ -254,6 +258,90 @@ export function noisyNeighborGate({ ssotDir }) {
   }
   const ok = bad.length === 0;
   return { ok, gate: "Noisy Neighbor Gate", details: ok ? "" : `Limits not tiered: ${bad.join(", ")}` };
+}
+
+export function extensionPermissionGate({ ssotDir }) {
+  const perms = readJson(`${ssotDir}/extensions/extension_permissions.json`);
+  const bad = [];
+  for (const p of perms) {
+    const req = p.requested_capabilities || [];
+    if (req.some((c) => !EXT_ALLOWED_CAPS.includes(c))) bad.push(p.extension_id);
+  }
+  const ok = bad.length === 0;
+  return { ok, gate: "Extension Permission Gate", details: ok ? "" : `Forbidden capabilities: ${bad.join(", ")}` };
+}
+
+export function extensionIsolationGate({ ssotDir }) {
+  const versions = readJson(`${ssotDir}/extensions/extension_versions.json`);
+  const bad = [];
+  for (const v of versions) {
+    for (const h of v.hooks || []) {
+      if (!EXT_ALLOWED_EVENTS.includes(h.event) || !EXT_ALLOWED_HANDLERS.includes(h.handler)) {
+        bad.push(`${v.extension_id}@${v.version}`);
+      }
+    }
+  }
+  const ok = bad.length === 0;
+  return { ok, gate: "Extension Isolation Gate", details: ok ? "" : `Invalid hooks: ${bad.join(", ")}` };
+}
+
+export function extensionReviewGate({ ssotDir }) {
+  const versions = readJson(`${ssotDir}/extensions/extension_versions.json`);
+  const installs = readJson(`${ssotDir}/extensions/extension_installations.json`);
+  const reviews = readJson(`${ssotDir}/extensions/extension_reviews.json`);
+  const bad = [];
+  for (const v of versions.filter((x) => x.status === "released")) {
+    const r = reviews.find((rv) => rv.target === "version" && rv.extension_id === v.extension_id && rv.version === v.version && rv.status === "approved");
+    if (!r || (r.approvals || []).length < (r.required_approvals || 1)) bad.push(`${v.extension_id}@${v.version}:version`);
+  }
+  for (const i of installs) {
+    const r = reviews.find((rv) => rv.target === "install" && rv.extension_id === i.extension_id && rv.version === i.version && rv.status === "approved");
+    if (!r || (r.approvals || []).length < (r.required_approvals || 1)) bad.push(`${i.extension_id}@${i.version}:install`);
+  }
+  const ok = bad.length === 0;
+  return { ok, gate: "Extension Review Gate", details: ok ? "" : `Missing reviews: ${bad.join(", ")}` };
+}
+
+export function extensionSignatureGate({ ssotDir, manifestsDir }) {
+  const extensions = readJson(`${ssotDir}/extensions/extensions.json`);
+  const versions = readJson(`${ssotDir}/extensions/extension_versions.json`).filter((v) => v.status === "released");
+  const publishers = readJson(`${ssotDir}/extensions/publishers.json`);
+  const base = manifestsDir || "./runtime/manifests";
+  const extDir = base.includes("/runtime/manifests") ? base.replace(/\/runtime\/manifests$/, "/runtime/extensions") : `${base}/extensions`;
+  const bad = [];
+  for (const v of versions) {
+    const artifactPath = `${extDir}/${v.extension_id.replace(/[:/]/g, "_")}@${v.version}.signed.json`;
+    if (!existsSync(artifactPath)) {
+      bad.push(`${v.extension_id}@${v.version}:missing`);
+      continue;
+    }
+    const artifact = readJson(artifactPath);
+    const payload = stableStringify({
+      extension_id: artifact.extension_id,
+      version: artifact.version,
+      manifest_fragment_ref: artifact.manifest_fragment_ref,
+      hooks: artifact.hooks || [],
+      requested_capabilities: artifact.requested_capabilities || []
+    });
+    const checksum = `sha256:${sha256(payload)}`;
+    if (artifact.checksum !== checksum) {
+      bad.push(`${v.extension_id}@${v.version}:checksum`);
+      continue;
+    }
+    if (!artifact.signature) {
+      bad.push(`${v.extension_id}@${v.version}:signature_missing`);
+      continue;
+    }
+    const publisherId = extensions.find((e) => e.id === v.extension_id)?.publisher;
+    const pub = publishers.find((p) => p.publisher_id === publisherId);
+    const pubKey = pub?.public_key || "";
+    if (pubKey) {
+      const ok = verifyPayload(payload, artifact.signature, pubKey);
+      if (!ok) bad.push(`${v.extension_id}@${v.version}:signature`);
+    }
+  }
+  const ok = bad.length === 0;
+  return { ok, gate: "Extension Signature Gate", details: ok ? "" : `Invalid artifacts: ${bad.join(", ")}` };
 }
 
 export function perfBudgetGate({ ssotDir }) {

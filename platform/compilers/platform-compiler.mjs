@@ -20,6 +20,10 @@ export function compilePlatform({ ssotDir, outDir, releaseId, env, privateKeyPat
   const meteringCatalog = readJson(`${ssotDir}/finops/metering_catalog.json`);
   const budgetPolicies = readJson(`${ssotDir}/finops/budgets.json`);
   const qosPolicies = readJson(`${ssotDir}/qos/qos_policies.json`);
+  const extensionInstalls = readJson(`${ssotDir}/extensions/extension_installations.json`);
+  const extensionPermissions = readJson(`${ssotDir}/extensions/extension_permissions.json`);
+  const extensionVersions = readJson(`${ssotDir}/extensions/extension_versions.json`);
+  const extensionKillswitch = readJson(`${ssotDir}/extensions/extension_killswitch.json`);
 
   const qosRuntimeConfig = planVersions.map((pv) => {
     const policy = qosPolicies.find((p) => p.tier === pv.perf_tier) || null;
@@ -38,6 +42,21 @@ export function compilePlatform({ ssotDir, outDir, releaseId, env, privateKeyPat
       qos_policy: policy
     };
   });
+
+  const extensionsRuntime = extensionInstalls
+    .filter((i) => i.state === "installed")
+    .filter((i) => !extensionKillswitch.some((k) => k.extension_id === i.extension_id && k.enabled))
+    .map((i) => {
+      const perms = extensionPermissions.find((p) => p.extension_id === i.extension_id);
+      const ver = extensionVersions.find((v) => v.extension_id === i.extension_id && v.version === i.version);
+      return {
+        tenant_id: i.tenant_id,
+        extension_id: i.extension_id,
+        version: i.version,
+        requested_capabilities: perms?.requested_capabilities || [],
+        hooks: ver?.hooks || []
+      };
+    });
 
   const manifest = {
     manifest_id: `manifest:${releaseId}`,
@@ -65,7 +84,8 @@ export function compilePlatform({ ssotDir, outDir, releaseId, env, privateKeyPat
     metering_catalog: meteringCatalog,
     budget_policies: budgetPolicies,
     qos_policies: qosPolicies,
-    qos_runtime_config: qosRuntimeConfig
+    qos_runtime_config: qosRuntimeConfig,
+    extensions_runtime: extensionsRuntime
   };
 
   const checksums = {

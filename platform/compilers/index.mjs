@@ -6,3 +6,4 @@ export { compilePages } from "./page-compiler.mjs";
 export { compileDatasources } from "./datasource-compiler.mjs";
 export { compileWorkflows } from "./workflow-compiler.mjs";
 export { compilePlatform } from "./platform-compiler.mjs";
+export { compileExtensions } from "./extension-compiler.mjs";

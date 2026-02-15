@@ -3,7 +3,7 @@
   "$id": "platform_manifest.v1",
   "title": "platform_manifest",
   "type": "object",
-  "required": ["manifest_id", "manifest_version", "manifest_env", "release_id", "signature", "checksums", "compat_matrix", "routes", "nav", "pages", "widgets", "themes", "permissions", "datasources", "workflows", "capabilities", "modules", "entitlements", "plans", "plan_versions", "tenant_entitlements", "tenant_quotas", "metering_catalog", "budget_policies", "qos_policies", "qos_runtime_config"],
+  "required": ["manifest_id", "manifest_version", "manifest_env", "release_id", "signature", "checksums", "compat_matrix", "routes", "nav", "pages", "widgets", "themes", "permissions", "datasources", "workflows", "capabilities", "modules", "entitlements", "plans", "plan_versions", "tenant_entitlements", "tenant_quotas", "metering_catalog", "budget_policies", "qos_policies", "qos_runtime_config", "extensions_runtime"],
   "additionalProperties": false,
   "properties": {
     "manifest_id": {"type": "string"},
@@ -31,6 +31,7 @@
     "metering_catalog": {"type": "array", "items": {"type": "object"}},
     "budget_policies": {"type": "array", "items": {"type": "object"}},
     "qos_policies": {"type": "array", "items": {"type": "object"}},
-    "qos_runtime_config": {"type": "array", "items": {"type": "object"}}
+    "qos_runtime_config": {"type": "array", "items": {"type": "object"}},
+    "extensions_runtime": {"type": "array", "items": {"type": "object"}}
   }
 }

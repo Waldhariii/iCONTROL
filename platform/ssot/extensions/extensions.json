@@ -1,0 +1,9 @@
+[
+  {
+    "id": "ext:sample",
+    "name": "Sample Extension",
+    "publisher": "publisher:core",
+    "status": "active",
+    "tags": ["sample", "core"]
+  }
+]

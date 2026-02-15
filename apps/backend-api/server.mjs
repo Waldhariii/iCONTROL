@@ -4,6 +4,7 @@ import { join, normalize, dirname } from "path";
 import { execSync } from "child_process";
 import { applyOpsToDir } from "../../platform/runtime/changes/patch-engine.mjs";
 import { loadManifest } from "../../platform/runtime/loader/loader.mjs";
+import { emitEvent } from "../../platform/runtime/extensions/hooks.mjs";
 import { sha256, stableStringify } from "../../platform/compilers/utils.mjs";
 
 const PORT = process.env.PORT || 7070;
@@ -206,6 +207,10 @@ function checkBudgets({ tenantId, usage, finops }) {
     const threshold = limit * (b.alert_percent || 0);
     if (limit > 0 && current >= threshold) {
       appendAudit({ event: "budget_alert", tenant_id: tenantId, metric, current, limit, at: new Date().toISOString() });
+      const manifest = loadActiveManifest();
+      if (manifest) {
+        emitEvent({ manifest, tenantId, event: "on_budget_threshold", payload: { metric, current, limit } });
+      }
     }
   }
 }
@@ -475,7 +480,21 @@ function latestReleaseId() {
 function readActiveRelease() {
   const path = ssotPath("changes/active_release.json");
   if (!existsSync(path)) return { active_release_id: "", active_env: "dev" };
-  return readJson(path);
+  const data = readJson(path);
+  return {
+    active_release_id: data.active_release_id || "",
+    active_env: data.active_env || "dev"
+  };
+}
+
+function loadActiveManifest() {
+  const active = readActiveRelease();
+  if (!active.active_release_id) return null;
+  try {
+    return loadManifest(active.active_release_id);
+  } catch {
+    return null;
+  }
 }
 
 const server = http.createServer(async (req, res) => {
@@ -505,6 +524,10 @@ const server = http.createServer(async (req, res) => {
         if (wl.total >= 20 && errRate >= threshold) {
           const cooldown = qosCtx.policy?.grace_windows?.breaker_cooldown_s ?? 60;
           wl.breaker_open_until = Date.now() + cooldown * 1000;
+          const manifest = loadActiveManifest();
+          if (manifest) {
+            emitEvent({ manifest, tenantId: qosCtx.tenantId, event: "on_qos_incident", payload: { workload: qosCtx.workload, errRate } });
+          }
         }
         counters.workloads[qosCtx.workload] = wl;
         writeQosCounters(qosCtx.tenantId, qosCtx.dateKey, counters);

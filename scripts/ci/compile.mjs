@@ -1,4 +1,4 @@
-import { compileTokens, compilePermissions, compileRoutes, compileNav, compilePages, compileDatasources, compileWorkflows, compilePlatform } from "../../platform/compilers/index.mjs";
+import { compileTokens, compilePermissions, compileRoutes, compileNav, compilePages, compileDatasources, compileWorkflows, compilePlatform, compileExtensions } from "../../platform/compilers/index.mjs";
 import { validateSsotDir } from "../../core/contracts/schema/validate-ssot.mjs";
 import { ensureDir } from "../../platform/compilers/utils.mjs";
 
@@ -21,6 +21,7 @@ compileNav({ ssotDir, outDir, releaseId });
 compilePages({ ssotDir, outDir, releaseId });
 compileDatasources({ ssotDir, outDir, releaseId });
 compileWorkflows({ ssotDir, outDir, releaseId });
+compileExtensions({ ssotDir, outDir, releaseId, privateKeyPath });
 compilePlatform({ ssotDir, outDir, releaseId, env, privateKeyPath });
 
 console.log(`Compiled release ${releaseId} (${env})`);

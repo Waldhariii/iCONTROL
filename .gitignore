@@ -18,6 +18,7 @@ platform/runtime/release/*.json
 platform/runtime/deletion/*.json
 platform/runtime/finops/usage/
 platform/runtime/qos/counters/
+runtime/extensions/
 platform/ssot/changes/snapshots/
 platform/ssot/changes/releases/
 platform/ssot/changes/changesets/*.json

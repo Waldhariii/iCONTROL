@@ -1,0 +1,10 @@
+{
+  "$id": "extension_permissions.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["extension_id", "requested_capabilities"],
+  "properties": {
+    "extension_id": { "type": "string", "minLength": 1 },
+    "requested_capabilities": { "type": "array", "items": { "type": "string", "minLength": 1 } }
+  }
+}

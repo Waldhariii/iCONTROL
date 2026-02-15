@@ -1,0 +1,20 @@
+[
+  {
+    "id": "review:ext-sample-1.0.0",
+    "target": "version",
+    "extension_id": "ext:sample",
+    "version": "1.0.0",
+    "required_approvals": 2,
+    "approvals": ["user:admin", "user:admin2"],
+    "status": "approved"
+  },
+  {
+    "id": "review:ext-sample-install",
+    "target": "install",
+    "extension_id": "ext:sample",
+    "version": "1.0.0",
+    "required_approvals": 2,
+    "approvals": ["user:admin", "user:admin2"],
+    "status": "approved"
+  }
+]

@@ -1,0 +1,11 @@
+{
+  "$id": "extension_publisher.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["publisher_id", "name", "public_key"],
+  "properties": {
+    "publisher_id": { "type": "string", "minLength": 1 },
+    "name": { "type": "string", "minLength": 1 },
+    "public_key": { "type": "string" }
+  }
+}

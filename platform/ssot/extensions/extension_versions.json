@@ -1,0 +1,17 @@
+[
+  {
+    "extension_id": "ext:sample",
+    "version": "1.0.0",
+    "checksum": "",
+    "signature": "",
+    "manifest_fragment_ref": "ext:sample@1.0.0",
+    "status": "released",
+    "hooks": [
+      {
+        "event": "on_budget_threshold",
+        "handler": "emit_webhook",
+        "params": { "target": "extension://sample/webhook" }
+      }
+    ]
+  }
+]

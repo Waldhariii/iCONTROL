@@ -1,0 +1,13 @@
+{
+  "$id": "extension_installation.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["tenant_id", "extension_id", "version", "state", "installed_at"],
+  "properties": {
+    "tenant_id": { "type": "string", "minLength": 1 },
+    "extension_id": { "type": "string", "minLength": 1 },
+    "version": { "type": "string", "minLength": 1 },
+    "state": { "type": "string", "enum": ["installed", "disabled"] },
+    "installed_at": { "type": "string", "format": "date-time" }
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "$id": "extension.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "name", "publisher", "status", "tags"],
+  "properties": {
+    "id": { "type": "string", "minLength": 1 },
+    "name": { "type": "string", "minLength": 1 },
+    "publisher": { "type": "string", "minLength": 1 },
+    "status": { "type": "string", "enum": ["active", "deprecated"] },
+    "tags": { "type": "array", "items": { "type": "string" } }
+  }
+}

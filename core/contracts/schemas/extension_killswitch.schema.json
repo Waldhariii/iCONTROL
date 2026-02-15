@@ -1,0 +1,13 @@
+{
+  "$id": "extension_killswitch.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["scope", "extension_id", "enabled", "reason", "enabled_at"],
+  "properties": {
+    "scope": { "type": "string", "enum": ["platform", "tenant"] },
+    "extension_id": { "type": "string", "minLength": 1 },
+    "enabled": { "type": "boolean" },
+    "reason": { "type": "string" },
+    "enabled_at": { "type": "string" }
+  }
+}

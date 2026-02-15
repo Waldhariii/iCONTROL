@@ -63,6 +63,10 @@ const steps = [
   "node scripts/ci/test-qos-priority.mjs",
   "node scripts/ci/test-qos-circuit-breaker.mjs",
   "node scripts/ci/test-qos-budgets.mjs",
+  "node scripts/ci/test-extensions-signature.mjs",
+  "node scripts/ci/test-extensions-installation.mjs",
+  "node scripts/ci/test-extensions-permissions.mjs",
+  "node scripts/ci/test-extensions-killswitch.mjs",
   "node scripts/ci/test-token-gate.mjs",
   "node scripts/ci/test-audit.mjs"
 ];
