@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "widget_node_v2.v1",
+  "title": "widget_node_v2",
+  "type": "object",
+  "required": ["id", "widget_type"],
+  "additionalProperties": false,
+  "properties": {
+    "id": { "type": "string" },
+    "widget_type": { "type": "string" },
+    "props_ref": { "type": "string" },
+    "props": { "type": "object" },
+    "data_bindings": { "type": "array", "items": { "$ref": "data_binding.v1" }, "default": [] },
+    "actions": { "type": "array", "items": { "$ref": "action_spec.v1" }, "default": [] }
+  }
+}

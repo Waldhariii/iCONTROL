@@ -1,4 +1,5 @@
 {
+  "action_spec.v1": "core/contracts/schemas/action_spec.schema.json",
   "active_release.v1": "core/contracts/schemas/active_release.schema.json",
   "array_of_objects.v1": "core/contracts/schemas/array_of_objects.schema.json",
   "array_of_strings.v1": "core/contracts/schemas/array_of_strings.schema.json",
@@ -16,6 +17,7 @@
   "connector.v1": "core/contracts/schemas/connector.schema.json",
   "connector_config.v1": "core/contracts/schemas/connector_config.schema.json",
   "connector_version.v1": "core/contracts/schemas/connector_version.schema.json",
+  "data_binding.v1": "core/contracts/schemas/data_binding.schema.json",
   "data_classification.v1": "core/contracts/schemas/data_classification.schema.json",
   "data_field.v1": "core/contracts/schemas/data_field.schema.json",
   "data_model.v1": "core/contracts/schemas/data_model.schema.json",
@@ -79,6 +81,7 @@
   "secret_binding.v1": "core/contracts/schemas/secret_binding.schema.json",
   "secret_policy.v1": "core/contracts/schemas/secret_policy.schema.json",
   "secret_vault_ref.v1": "core/contracts/schemas/secret_vault_ref.schema.json",
+  "section_spec_v2.v1": "core/contracts/schemas/section_spec_v2.schema.json",
   "security_secret_ref.v1": "core/contracts/schemas/security_secret_ref.schema.json",
   "service_credential.v1": "core/contracts/schemas/service_credential.schema.json",
   "service_principal.v1": "core/contracts/schemas/service_principal.schema.json",
@@ -95,5 +98,6 @@
   "token_set.v1": "core/contracts/schemas/token_set.schema.json",
   "typography_set.v1": "core/contracts/schemas/typography_set.schema.json",
   "webhook.v1": "core/contracts/schemas/webhook.schema.json",
+  "widget_node_v2.v1": "core/contracts/schemas/widget_node_v2.schema.json",
   "workflow_dags.v1": "core/contracts/schemas/workflow_dags.schema.json"
 }

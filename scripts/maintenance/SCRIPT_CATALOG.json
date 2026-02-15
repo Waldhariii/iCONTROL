@@ -612,6 +612,42 @@
     "s2s_scopes": []
   },
   {
+    "id": "scripts:ci:test-render-graph-v2-smoke.mjs",
+    "path": "scripts/ci/test-render-graph-v2-smoke.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:ci:test-studio-designer-flow-min.mjs",
+    "path": "scripts/ci/test-studio-designer-flow-min.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:ci:test-no-tabs-routes.mjs",
+    "path": "scripts/ci/test-no-tabs-routes.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
     "id": "scripts:ci:test-demo-modules-smoke.mjs",
     "path": "scripts/ci/test-demo-modules-smoke.mjs",
     "purpose": "script",

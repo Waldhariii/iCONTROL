@@ -69,13 +69,67 @@ export function compilePages({ ssotDir, outDir, releaseId }) {
     }
   }
 
+  const sectionKeysAsTab = new Set();
+  for (const n of navSpecs) {
+    if (n.type === "section" && n.page_id && n.section_key) sectionKeysAsTab.add(`${n.page_id}:${n.section_key}`);
+  }
+
+  const sectionAccum = new Map();
+  for (const s of sections) {
+    const { page_id, section_key, title_key, order, widget_instance_ids } = s;
+    const key = `${page_id}:${section_key}`;
+    const existing = sectionAccum.get(key);
+    const wids = [...(existing?.widget_instance_ids || []), ...(widget_instance_ids || [])];
+    const uniq = [...new Set(wids)];
+    sectionAccum.set(key, {
+      page_id,
+      section_key,
+      title_key: existing?.title_key || title_key,
+      order: existing != null ? existing.order : order,
+      widget_instance_ids: uniq
+    });
+  }
+  const sectionsByPageV2 = new Map();
+  for (const [, acc] of sectionAccum) {
+    const { page_id, section_key, title_key, order, widget_instance_ids } = acc;
+    const key = `${page_id}:${section_key}`;
+    if (!sectionsByPageV2.has(page_id)) sectionsByPageV2.set(page_id, []);
+    const kind = sectionKeysAsTab.has(key) ? "tab" : "section";
+    const sectionWidgets = (widget_instance_ids || []).map((wid) => {
+      const w = widgetsById.get(wid) || {};
+      return {
+        id: w.id || wid,
+        widget_type: w.widget_id || "widget:placeholder",
+        props: w.props || {},
+        data_bindings: w.data_bindings || [],
+        actions: w.actions || []
+      };
+    });
+    sectionsByPageV2.get(page_id).push({
+      id: `${page_id}-${section_key}`,
+      key: section_key,
+      label: title_key || section_key,
+      kind,
+      order: Number.isInteger(order) ? order : 999,
+      layout: {},
+      widgets: sectionWidgets
+    });
+  }
+
+  const sections_v2 = [];
+  for (const [page_id, secs] of sectionsByPageV2) {
+    secs.sort((a, b) => a.order - b.order);
+    sections_v2.push({ page_id, sections: secs });
+  }
+
   const renderGraph = {
     release_id: releaseId,
     pages: pageDefs,
     page_versions: pageVersions,
     layouts,
     widgets,
-    sections
+    sections,
+    sections_v2
   };
 
   writeJson(`${outDir}/render_graph.${releaseId}.json`, renderGraph);

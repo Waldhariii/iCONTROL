@@ -81,6 +81,7 @@ export function compilePlatform({ ssotDir, outDir, releaseId, env, privateKeyPat
     for (const wid of pv.widget_instance_ids || []) allowedWidgetIds.add(wid);
   }
   const filteredWidgets = renderGraph.widgets.filter((w) => allowedWidgetIds.has(w.id));
+  const filteredSectionsV2 = (renderGraph.sections_v2 || []).filter((ps) => allowedPageIds.has(ps.page_id));
 
   const filteredRoutes = routeCatalog.routes.filter((r) => {
     const page = pageById.get(r.page_id);
@@ -183,7 +184,7 @@ export function compilePlatform({ ssotDir, outDir, releaseId, env, privateKeyPat
     compat_matrix: { runtime: ">=1.0.0" },
     routes: { ...routeCatalog, routes: filteredRoutes },
     nav: { ...navManifest, nav_specs: filteredNavSpecs },
-    pages: { ...renderGraph, pages: filteredPages, page_versions: filteredPageVersions, widgets: filteredWidgets },
+    pages: { ...renderGraph, pages: filteredPages, page_versions: filteredPageVersions, widgets: filteredWidgets, sections_v2: filteredSectionsV2 },
     widgets: filteredWidgets || [],
     themes: themeManifest,
     permissions: guards,

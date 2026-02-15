@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "data_binding.v1",
+  "title": "data_binding",
+  "type": "object",
+  "required": ["binding_id", "datasource_id", "query_id"],
+  "additionalProperties": false,
+  "properties": {
+    "binding_id": { "type": "string" },
+    "datasource_id": { "type": "string" },
+    "query_id": { "type": "string" },
+    "budget_id": { "type": "string" },
+    "shape": { "type": "string" }
+  }
+}

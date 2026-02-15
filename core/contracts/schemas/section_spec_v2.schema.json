@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "section_spec_v2.v1",
+  "title": "section_spec_v2",
+  "type": "object",
+  "required": ["id", "key", "label", "kind", "order", "widgets"],
+  "additionalProperties": false,
+  "properties": {
+    "id": { "type": "string" },
+    "key": { "type": "string" },
+    "label": { "type": "string" },
+    "kind": { "type": "string", "enum": ["tab", "section"] },
+    "order": { "type": "integer" },
+    "layout": { "type": "object", "properties": { "grid": { "type": "string" } } },
+    "widgets": { "type": "array", "items": { "$ref": "widget_node_v2.v1" } }
+  }
+}

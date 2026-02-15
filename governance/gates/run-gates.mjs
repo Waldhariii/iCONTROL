@@ -1,4 +1,6 @@
-import { writeFileSync } from "fs";
+import { writeFileSync, mkdirSync, appendFileSync } from "fs";
+import { join } from "path";
+import { randomUUID } from "crypto";
 import {
   schemaGate,
   collisionGate,
@@ -72,7 +74,11 @@ import {
   scriptCatalogGate,
   artifactBudgetGate,
   widgetBindingGate,
-  sectionNoRouteGate
+  sectionNoRouteGate,
+  pageGraphGate,
+  widgetIsolationGate,
+  bindingGate,
+  actionPolicyGate
 } from "./gates.mjs";
 
 const releaseId = process.argv[2];
@@ -157,8 +163,86 @@ const gates = [
   () => scriptCatalogGate(),
   () => widgetBindingGate({ ssotDir }),
   () => sectionNoRouteGate({ ssotDir }),
+  () => pageGraphGate({ manifestsDir, releaseId }),
+  () => widgetIsolationGate({ ssotDir }),
+  () => bindingGate({ ssotDir }),
+  () => actionPolicyGate({ ssotDir }),
   () => artifactBudgetGate()
 ];
+
+function slugifyGate(name) {
+  return String(name || "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "_")
+    .replace(/^_+|_+$/g, "");
+}
+
+function parseObjects(gateName, details) {
+  const out = [];
+  const text = String(details || "");
+  if (!text) return out;
+  if (gateName === "Orphan Gate") {
+    const routes = text.match(/Orphan routes:\s*([^|]+)/i);
+    if (routes && routes[1]) {
+      for (const id of routes[1].split(",").map((s) => s.trim()).filter(Boolean)) {
+        out.push({ kind: "route_spec", id, path: `studio/routes/${id}` });
+      }
+    }
+    const widgets = text.match(/Orphan widgets:\s*([^|]+)/i);
+    if (widgets && widgets[1]) {
+      for (const id of widgets[1].split(",").map((s) => s.trim()).filter(Boolean)) {
+        out.push({ kind: "widget_instance", id, path: `studio/widgets/${id}` });
+      }
+    }
+  }
+  if (gateName === "Policy Gate") {
+    const routes = text.match(/Routes without guard:\s*([^|]+)/i);
+    if (routes && routes[1]) {
+      for (const id of routes[1].split(",").map((s) => s.trim()).filter(Boolean)) {
+        out.push({ kind: "route_spec", id, path: `studio/routes/${id}`, field: "guard_pack_id" });
+      }
+    }
+  }
+  if (gateName === "Template Integrity Gate") {
+    const m = text.match(/template_id=([^ ]+)\s+base_plan_id=([^ ]+)\s+offenders=([^|]+)/i);
+    if (m) {
+      out.push({ kind: "tenant_template", id: m[1], field: "module_activations_default" });
+      const offenders = m[3].split(",").map((s) => s.trim()).filter(Boolean);
+      for (const off of offenders) {
+        const id = off.split("(")[0];
+        out.push({ kind: "domain_module", id, field: "tier" });
+      }
+    }
+  }
+  return out;
+}
+
+function normalizeGateResult(r, ctx) {
+  const gateId = slugifyGate(r.gate);
+  const severity = r.ok ? "info" : "error";
+  const message = r.details || (r.ok ? "ok" : "failed");
+  const objects = parseObjects(r.gate, r.details);
+  const remediation = { steps: [], links: [] };
+  if (!r.ok && r.gate === "Policy Gate") remediation.steps.push("Assign guard_pack_id for all routes.");
+  if (!r.ok && r.gate === "Orphan Gate") remediation.steps.push("Remove or fix orphan routes/widgets.");
+  if (!r.ok && r.gate === "Template Integrity Gate") remediation.steps.push("Disable pro modules on free templates or upgrade plan.");
+  return {
+    gate_id: gateId,
+    gate_name: r.gate,
+    severity,
+    message,
+    objects,
+    remediation,
+    correlation_id: ctx.correlation_id
+  };
+}
+
+function writeGateIndex(entry) {
+  const reportsDir = join(process.cwd(), "runtime", "reports");
+  const idxDir = join(reportsDir, "index");
+  mkdirSync(idxDir, { recursive: true });
+  appendFileSync(join(idxDir, "gates_latest.jsonl"), JSON.stringify(entry) + "\n", "utf-8");
+}
 
 const results = [];
 for (const gate of gates) {
@@ -169,10 +253,33 @@ for (const gate of gates) {
 
 const ok = results.every((r) => r.ok);
 const reportMd = results.map((r) => `${r.ok ? "PASS" : "FAIL"} - ${r.gate}${r.details ? ": " + r.details : ""}`).join("\n");
-const reportJson = { release_id: releaseId, ok, results };
+const scope = process.env.GATE_SCOPE || "active";
+const correlationId = process.env.CORRELATION_ID || randomUUID();
+const normalized = results.map((r) => normalizeGateResult(r, { correlation_id: correlationId }));
+const reportJson = {
+  release_id: releaseId,
+  scope,
+  correlation_id: correlationId,
+  ok,
+  generated_at: new Date().toISOString(),
+  results: normalized
+};
 
 writeFileSync("./governance/gates/gates-report.md", reportMd + "\n", "utf-8");
 writeFileSync("./governance/gates/gates-report.json", JSON.stringify(reportJson, null, 2) + "\n", "utf-8");
+const reportsDir = join(process.cwd(), "runtime", "reports");
+const gatesDir = join(reportsDir, "gates");
+mkdirSync(gatesDir, { recursive: true });
+const gatePath = join(gatesDir, `gates_${scope}_${releaseId}.json`);
+writeFileSync(gatePath, JSON.stringify(reportJson, null, 2) + "\n", "utf-8");
+writeGateIndex({
+  ts: new Date().toISOString(),
+  release_id: releaseId,
+  scope,
+  correlation_id: correlationId,
+  ok,
+  path: gatePath
+});
 
 console.log(reportMd);
 if (!ok) process.exit(2);

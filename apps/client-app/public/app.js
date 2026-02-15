@@ -106,19 +106,29 @@ function renderRoute() {
   const widgets = manifest.pages?.widgets || [];
   const widgetIds = version.widget_instance_ids || [];
   const widgetsForPage = widgets.filter((w) => widgetIds.includes(w.id));
+  const sectionsV2Entry = (manifest.pages?.sections_v2 || []).find((ps) => ps.page_id === route.page_id);
   const sections = (manifest.pages?.sections || []).filter((s) => s.page_id === route.page_id);
   const ordered = sections.slice().sort((a, b) => (a.order || 0) - (b.order || 0));
-  const activeKey = section || (ordered[0] && ordered[0].section_key) || "__default";
-  const active = ordered.find((s) => s.section_key === activeKey) || ordered[0];
-  const activeWidgetIds = new Set(active?.widget_instance_ids || widgetIds);
-  const widgetsForSection = widgetsForPage.filter((w) => activeWidgetIds.has(w.id));
+  const orderedV2 = sectionsV2Entry ? (sectionsV2Entry.sections || []).slice().sort((a, b) => (a.order || 0) - (b.order || 0)) : [];
+  const useV2 = orderedV2.length > 0;
+  const activeKey = section || (useV2 ? orderedV2[0]?.key : ordered[0]?.section_key) || "__default";
+  const activeV2 = useV2 ? orderedV2.find((s) => s.key === activeKey) || orderedV2[0] : null;
+  const active = !useV2 ? (ordered.find((s) => s.section_key === activeKey) || ordered[0]) : null;
+  const activeWidgetIds = useV2 && activeV2 ? new Set((activeV2.widgets || []).map((n) => n.id)) : new Set(active?.widget_instance_ids || widgetIds);
+  const widgetsForSection = useV2 && activeV2
+    ? (activeV2.widgets || []).map((n) => {
+        const fromCatalog = widgets.find((w) => w.id === n.id);
+        return { id: n.id, widget_id: n.widget_type || fromCatalog?.widget_id, props: n.props || fromCatalog?.props || {}, props_schema: fromCatalog?.props_schema || { allowed_props: Object.keys(n.props || {}).concat("datasource_id", "title", "columns", "fields") } };
+      })
+    : widgetsForPage.filter((w) => activeWidgetIds.has(w.id));
   const rendered = widgetsForSection.map((w) => safeRender(w));
 
-  const tabs = ordered
+  const tabList = useV2 ? orderedV2 : ordered.map((s) => ({ key: s.section_key, label: s.title_key || s.section_key }));
+  const tabs = tabList
     .map((s) => {
-      const key = s.section_key;
-      const label = s.title_key || key;
-      const isActive = key === (active?.section_key || "__default");
+      const key = s.key || s.section_key;
+      const label = s.label || s.title_key || key;
+      const isActive = key === activeKey;
       return `<button data-section="${key}" ${isActive ? "data-active=\"1\"" : ""}>${label}</button>`;
     })
     .join("");

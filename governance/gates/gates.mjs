@@ -68,12 +68,17 @@ const CORE_ALLOWLIST_PREFIXES = [
   "platform/compilers/page-compiler.mjs",
   "platform/compilers/nav-compiler.mjs",
   "platform/compilers/token-compiler.mjs",
+  "platform/compilers/platform-compiler.mjs",
   "platform/runtime/changes/patch-engine.mjs",
   "platform/runtime/studio/",
   "core/contracts/schemas/nav_spec.schema.json",
   "core/contracts/schemas/nav_manifest.schema.json",
   "core/contracts/schemas/render_graph.schema.json",
   "core/contracts/schemas/page_version.schema.json",
+  "core/contracts/schemas/data_binding.schema.json",
+  "core/contracts/schemas/action_spec.schema.json",
+  "core/contracts/schemas/widget_node_v2.schema.json",
+  "core/contracts/schemas/section_spec_v2.schema.json",
   "core/contracts/schemas/theme_manifest.schema.json",
   "core/contracts/schemas/token_set.schema.json",
   "core/contracts/schemas/typography_set.schema.json",
@@ -1693,4 +1698,78 @@ export function tokenNoHardcodeGate() {
   }
   const ok = offenders.length === 0;
   return { ok, gate: "Token No Hardcode Gate", details: ok ? "" : `Hardcoded hex/px in: ${offenders.join(", ")}` };
+}
+
+const SAFE_ACTION_KINDS = ["navigate", "open_modal", "submit_form", "call_workflow", "export_pdf"];
+
+export function pageGraphGate({ manifestsDir, releaseId }) {
+  const manifestRoot = manifestsDir || "./runtime/manifests";
+  const path = `${manifestRoot}/render_graph.${releaseId}.json`;
+  if (!existsSync(path)) return { ok: true, gate: "Page Graph Gate", details: "" };
+  const rg = readJson(path);
+  const sectionsV2 = rg.sections_v2 || [];
+  const widgetIds = new Set((rg.widgets || []).map((w) => w.id));
+  const bad = [];
+  for (const ps of sectionsV2) {
+    const ids = new Set();
+    for (const sec of ps.sections || []) {
+      if (ids.has(sec.id)) bad.push(`Duplicate section id: ${sec.id} on page ${ps.page_id}`);
+      ids.add(sec.id);
+      for (const n of sec.widgets || []) {
+        if (!widgetIds.has(n.id)) bad.push(`Orphan widget node: ${n.id} in section ${sec.key}`);
+      }
+    }
+  }
+  const ok = bad.length === 0;
+  return { ok, gate: "Page Graph Gate", details: ok ? "" : bad.join("; ") };
+}
+
+export function widgetIsolationGate({ ssotDir }) {
+  const widgets = readJsonIfExists(`${ssotDir}/studio/widgets/widget_instances.json`);
+  if (!Array.isArray(widgets)) return { ok: true, gate: "Widget Isolation Gate", details: "" };
+  const bad = [];
+  for (const w of widgets) {
+    for (const b of w.data_bindings || []) {
+      if (!b.datasource_id || !b.query_id) bad.push(`${w.id}:binding missing datasource_id or query_id`);
+    }
+    for (const a of w.actions || []) {
+      if (!a.policy_id) bad.push(`${w.id}:action missing policy_id`);
+    }
+  }
+  const ok = bad.length === 0;
+  return { ok, gate: "Widget Isolation Gate", details: ok ? "" : bad.join("; ") };
+}
+
+export function bindingGate({ ssotDir }) {
+  const widgets = readJsonIfExists(`${ssotDir}/studio/widgets/widget_instances.json`);
+  if (!Array.isArray(widgets)) return { ok: true, gate: "Binding Gate", details: "" };
+  const dataSources = readJsonIfExists(`${ssotDir}/data/catalog/data_sources.json`);
+  const dsList = Array.isArray(dataSources) ? dataSources : (dataSources?.data_sources || []);
+  const dsIds = new Set(dsList.map((d) => d.data_source_id || d.datasource_id || d.id));
+  const queries = readJsonIfExists(`${ssotDir}/data/query_catalog.json`);
+  const queryList = Array.isArray(queries) ? queries : (queries?.queries || []);
+  const queryIds = new Set(queryList.map((q) => q.query_id || q.id));
+  const bad = [];
+  for (const w of widgets) {
+    for (const b of w.data_bindings || []) {
+      if (b.datasource_id && !dsIds.has(b.datasource_id)) bad.push(`${w.id}:datasource_id not found: ${b.datasource_id}`);
+      if (b.query_id && !queryIds.has(b.query_id)) bad.push(`${w.id}:query_id not found: ${b.query_id}`);
+    }
+  }
+  const ok = bad.length === 0;
+  return { ok, gate: "Binding Gate", details: ok ? "" : bad.join("; ") };
+}
+
+export function actionPolicyGate({ ssotDir }) {
+  const widgets = readJsonIfExists(`${ssotDir}/studio/widgets/widget_instances.json`);
+  if (!Array.isArray(widgets)) return { ok: true, gate: "Action Policy Gate", details: "" };
+  const bad = [];
+  for (const w of widgets) {
+    for (const a of w.actions || []) {
+      if (!a.policy_id) bad.push(`${w.id}:action missing policy_id`);
+      if (a.kind && !SAFE_ACTION_KINDS.includes(a.kind)) bad.push(`${w.id}:action unknown kind: ${a.kind}`);
+    }
+  }
+  const ok = bad.length === 0;
+  return { ok, gate: "Action Policy Gate", details: ok ? "" : bad.join("; ") };
 }

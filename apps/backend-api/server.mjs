@@ -11,6 +11,7 @@ import { createIncident, readIncident, executeRunbook, listTimeline } from "../.
 import { planTenantCreate, planTenantClone, dryRunCreate, applyCreate, readFactoryStatus } from "../../platform/runtime/tenancy/factory.mjs";
 import { analyzeInstall } from "../../platform/runtime/marketplace/impact.mjs";
 import { diffManifests, diffSsotFiles } from "../../platform/runtime/studio/diff-engine.mjs";
+import { dispatchAction } from "../../platform/runtime/studio/action-bus.mjs";
 import { computeInvoice, persistDraft, publishInvoice, billingMode } from "../../platform/runtime/billing/invoice-engine.mjs";
 import { handleStripeWebhook } from "../../platform/runtime/billing/providers/stripe_webhook.mjs";
 import { sha256, stableStringify } from "../../platform/compilers/utils.mjs";
@@ -2189,6 +2190,28 @@ const server = http.createServer(async (req, res) => {
     if (req.method === "GET" && req.url === "/api/studio/nav") {
       requirePermission(req, "studio.nav.view");
       return json(res, 200, readJson(ssotPath("studio/nav/nav_specs.json")));
+    }
+
+    if (req.method === "POST" && req.url === "/api/studio/action") {
+      requirePermission(req, "studio.pages.view");
+      const ctx = getContext();
+      const correlationId = ctx.request_id || randomUUID();
+      const payload = await bodyToJson(req).catch(() => ({}));
+      const result = dispatchAction(
+        { action_id: payload.action_id, kind: payload.kind, policy_id: payload.policy_id, input_schema_ref: payload.input_schema_ref, handler_ref: payload.handler_ref },
+        { correlation_id: correlationId, tenant_id: payload.tenant_id }
+      );
+      appendAudit({
+        event: "studio_action_dispatch",
+        action_id: payload.action_id,
+        kind: payload.kind,
+        policy_id: payload.policy_id,
+        correlation_id: correlationId,
+        refused: result.refused || false,
+        at: new Date().toISOString()
+      });
+      if (result.refused) return json(res, 400, { ok: false, refused: true, reason: result.reason });
+      return json(res, 200, { ok: true, correlation_id: correlationId });
     }
 
     if (req.method === "GET" && req.url?.startsWith("/api/studio/diff/manifest")) {

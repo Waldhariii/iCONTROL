@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "action_spec.v1",
+  "title": "action_spec",
+  "type": "object",
+  "required": ["action_id", "kind", "policy_id"],
+  "additionalProperties": false,
+  "properties": {
+    "action_id": { "type": "string" },
+    "kind": { "type": "string", "enum": ["navigate", "open_modal", "submit_form", "call_workflow", "export_pdf"] },
+    "policy_id": { "type": "string" },
+    "input_schema_ref": { "type": "string" },
+    "handler_ref": { "type": "string" }
+  }
+}
