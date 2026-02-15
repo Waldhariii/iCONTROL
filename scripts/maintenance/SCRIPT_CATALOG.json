@@ -1,0 +1,1514 @@
+[
+  {
+    "id": "scripts:maintenance:SCRIPT_CATALOG.json",
+    "path": "scripts/maintenance/SCRIPT_CATALOG.json",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:maintenance:bootstrap.mjs",
+    "path": "scripts/maintenance/bootstrap.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:maintenance:dr-drill-from-pack.mjs",
+    "path": "scripts/maintenance/dr-drill-from-pack.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:maintenance:generate-evidence-pack.mjs",
+    "path": "scripts/maintenance/generate-evidence-pack.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:maintenance:generate-keys.mjs",
+    "path": "scripts/maintenance/generate-keys.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:maintenance:generate-release-pack.mjs",
+    "path": "scripts/maintenance/generate-release-pack.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:maintenance:generate-schemas-index.mjs",
+    "path": "scripts/maintenance/generate-schemas-index.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:maintenance:import-release-pack.mjs",
+    "path": "scripts/maintenance/import-release-pack.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:maintenance:marketplace-smoke.sh",
+    "path": "scripts/maintenance/marketplace-smoke.sh",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:maintenance:release-pack-utils.mjs",
+    "path": "scripts/maintenance/release-pack-utils.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:maintenance:report-utils.mjs",
+    "path": "scripts/maintenance/report-utils.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:maintenance:restore-drill.mjs",
+    "path": "scripts/maintenance/restore-drill.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:maintenance:run-demo-modules.mjs",
+    "path": "scripts/maintenance/run-demo-modules.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:maintenance:run-retention.mjs",
+    "path": "scripts/maintenance/run-retention.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:maintenance:run-rotation.mjs",
+    "path": "scripts/maintenance/run-rotation.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:maintenance:run-runbook.mjs",
+    "path": "scripts/maintenance/run-runbook.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:maintenance:s2s-smoke-utils.mjs",
+    "path": "scripts/maintenance/s2s-smoke-utils.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:maintenance:smoke-marketplace-api.mjs",
+    "path": "scripts/maintenance/smoke-marketplace-api.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:maintenance:smoke-pack-api.mjs",
+    "path": "scripts/maintenance/smoke-pack-api.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:maintenance:verify-pack-offline.mjs",
+    "path": "scripts/maintenance/verify-pack-offline.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:ci:apply-changeset.mjs",
+    "path": "scripts/ci/apply-changeset.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:ci:ci-all.mjs",
+    "path": "scripts/ci/ci-all.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:ci:compile.mjs",
+    "path": "scripts/ci/compile.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:ci:release.mjs",
+    "path": "scripts/ci/release.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:ci:request-delete.mjs",
+    "path": "scripts/ci/request-delete.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:ci:rollback.mjs",
+    "path": "scripts/ci/rollback.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:ci:run-gates.mjs",
+    "path": "scripts/ci/run-gates.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:ci:test-active-release-ssot.mjs",
+    "path": "scripts/ci/test-active-release-ssot.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:ci:test-active-release-stability.mjs",
+    "path": "scripts/ci/test-active-release-stability.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:ci:test-airgap-verify.mjs",
+    "path": "scripts/ci/test-airgap-verify.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:ci:test-api.mjs",
+    "path": "scripts/ci/test-api.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:ci:test-audit.mjs",
+    "path": "scripts/ci/test-audit.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:ci:test-billing-compute-invoice.mjs",
+    "path": "scripts/ci/test-billing-compute-invoice.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:ci:test-billing-dormant-blocks-publish.mjs",
+    "path": "scripts/ci/test-billing-dormant-blocks-publish.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:ci:test-billing-webhook-disabled.mjs",
+    "path": "scripts/ci/test-billing-webhook-disabled.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:ci:test-break-glass.mjs",
+    "path": "scripts/ci/test-break-glass.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:ci:test-canary-analyzer.mjs",
+    "path": "scripts/ci/test-canary-analyzer.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:ci:test-chaos-smoke.mjs",
+    "path": "scripts/ci/test-chaos-smoke.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:ci:test-client-loader.mjs",
+    "path": "scripts/ci/test-client-loader.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:ci:test-client-render.mjs",
+    "path": "scripts/ci/test-client-render.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:ci:test-client-surface-filter.mjs",
+    "path": "scripts/ci/test-client-surface-filter.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:ci:test-compat-diff.mjs",
+    "path": "scripts/ci/test-compat-diff.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:ci:test-contract-backcompat-smoke.mjs",
+    "path": "scripts/ci/test-contract-backcompat-smoke.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:ci:test-cp-down-client-works.mjs",
+    "path": "scripts/ci/test-cp-down-client-works.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:ci:test-cp-strict.mjs",
+    "path": "scripts/ci/test-cp-strict.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:ci:test-datagov-classification.mjs",
+    "path": "scripts/ci/test-datagov-classification.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:ci:test-datagov-export-masking.mjs",
+    "path": "scripts/ci/test-datagov-export-masking.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:ci:test-datagov-legal-hold.mjs",
+    "path": "scripts/ci/test-datagov-legal-hold.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:ci:test-datagov-retention-runner.mjs",
+    "path": "scripts/ci/test-datagov-retention-runner.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:ci:test-delete-flow.mjs",
+    "path": "scripts/ci/test-delete-flow.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:ci:test-demo-modules-smoke.mjs",
+    "path": "scripts/ci/test-demo-modules-smoke.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:ci:test-deprecation-policy.mjs",
+    "path": "scripts/ci/test-deprecation-policy.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:ci:test-domain-widgets-safe.mjs",
+    "path": "scripts/ci/test-domain-widgets-safe.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:ci:test-dr-drill-from-pack-smoke.mjs",
+    "path": "scripts/ci/test-dr-drill-from-pack-smoke.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:ci:test-entitlement-block.mjs",
+    "path": "scripts/ci/test-entitlement-block.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:ci:test-evidence-pack-contains-observability.mjs",
+    "path": "scripts/ci/test-evidence-pack-contains-observability.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:ci:test-evidence-pack.mjs",
+    "path": "scripts/ci/test-evidence-pack.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:ci:test-extensions-installation.mjs",
+    "path": "scripts/ci/test-extensions-installation.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:ci:test-extensions-killswitch.mjs",
+    "path": "scripts/ci/test-extensions-killswitch.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:ci:test-extensions-permissions.mjs",
+    "path": "scripts/ci/test-extensions-permissions.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:ci:test-extensions-signature.mjs",
+    "path": "scripts/ci/test-extensions-signature.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:ci:test-finops-gates.mjs",
+    "path": "scripts/ci/test-finops-gates.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:ci:test-freeze-mode.mjs",
+    "path": "scripts/ci/test-freeze-mode.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:ci:test-gates.mjs",
+    "path": "scripts/ci/test-gates.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:ci:test-governance-authz.mjs",
+    "path": "scripts/ci/test-governance-authz.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:ci:test-integration-inbound-signature.mjs",
+    "path": "scripts/ci/test-integration-inbound-signature.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:ci:test-integration-outbound-masking.mjs",
+    "path": "scripts/ci/test-integration-outbound-masking.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:ci:test-integration-retry-dlq.mjs",
+    "path": "scripts/ci/test-integration-retry-dlq.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:ci:test-integration-secretref-scan.mjs",
+    "path": "scripts/ci/test-integration-secretref-scan.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:ci:test-marketplace-catalog.mjs",
+    "path": "scripts/ci/test-marketplace-catalog.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:ci:test-marketplace-impact-report.mjs",
+    "path": "scripts/ci/test-marketplace-impact-report.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:ci:test-marketplace-install-extension.mjs",
+    "path": "scripts/ci/test-marketplace-install-extension.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:ci:test-marketplace-install-module.mjs",
+    "path": "scripts/ci/test-marketplace-install-module.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:ci:test-marketplace-latest-approved.mjs",
+    "path": "scripts/ci/test-marketplace-latest-approved.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:ci:test-marketplace-plan-block.mjs",
+    "path": "scripts/ci/test-marketplace-plan-block.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:ci:test-marketplace-preflight.mjs",
+    "path": "scripts/ci/test-marketplace-preflight.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:ci:test-migration-dryrun.mjs",
+    "path": "scripts/ci/test-migration-dryrun.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:ci:test-module-activation-billing.mjs",
+    "path": "scripts/ci/test-module-activation-billing.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:ci:test-module-activation-documents.mjs",
+    "path": "scripts/ci/test-module-activation-documents.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:ci:test-module-activation-jobs.mjs",
+    "path": "scripts/ci/test-module-activation-jobs.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:ci:test-module-datagov-coverage.mjs",
+    "path": "scripts/ci/test-module-datagov-coverage.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:ci:test-module-isolation.mjs",
+    "path": "scripts/ci/test-module-isolation.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:ci:test-no-secrets-evidence.mjs",
+    "path": "scripts/ci/test-no-secrets-evidence.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:ci:test-observability-correlation.mjs",
+    "path": "scripts/ci/test-observability-correlation.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:ci:test-ops-breakglass-override.mjs",
+    "path": "scripts/ci/test-ops-breakglass-override.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:ci:test-ops-evidence-pack.mjs",
+    "path": "scripts/ci/test-ops-evidence-pack.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:ci:test-ops-runbook-dryrun.mjs",
+    "path": "scripts/ci/test-ops-runbook-dryrun.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:ci:test-ops-runbook-quorum-required.mjs",
+    "path": "scripts/ci/test-ops-runbook-quorum-required.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:ci:test-preview-isolation.mjs",
+    "path": "scripts/ci/test-preview-isolation.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:ci:test-qos-budgets.mjs",
+    "path": "scripts/ci/test-qos-budgets.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:ci:test-qos-circuit-breaker.mjs",
+    "path": "scripts/ci/test-qos-circuit-breaker.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:ci:test-qos-concurrency.mjs",
+    "path": "scripts/ci/test-qos-concurrency.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:ci:test-qos-priority.mjs",
+    "path": "scripts/ci/test-qos-priority.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:ci:test-qos-rate-limit.mjs",
+    "path": "scripts/ci/test-qos-rate-limit.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:ci:test-quorum.mjs",
+    "path": "scripts/ci/test-quorum.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:ci:test-rating-integrity.mjs",
+    "path": "scripts/ci/test-rating-integrity.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:ci:test-release-pack-activate-temp.mjs",
+    "path": "scripts/ci/test-release-pack-activate-temp.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:ci:test-release-pack-export.mjs",
+    "path": "scripts/ci/test-release-pack-export.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:ci:test-release-pack-import-staging.mjs",
+    "path": "scripts/ci/test-release-pack-import-staging.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:ci:test-report-path-guard.mjs",
+    "path": "scripts/ci/test-report-path-guard.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:ci:test-restore-drill-smoke.mjs",
+    "path": "scripts/ci/test-restore-drill-smoke.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:ci:test-rotation-runner.mjs",
+    "path": "scripts/ci/test-rotation-runner.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:ci:test-runbook-freeze-respected.mjs",
+    "path": "scripts/ci/test-runbook-freeze-respected.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:ci:test-runbook-promote-pack-temp.mjs",
+    "path": "scripts/ci/test-runbook-promote-pack-temp.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:ci:test-runbook-rollback-temp.mjs",
+    "path": "scripts/ci/test-runbook-rollback-temp.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:ci:test-s2s-deny-without-auth.mjs",
+    "path": "scripts/ci/test-s2s-deny-without-auth.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:ci:test-s2s-hmac-allow.mjs",
+    "path": "scripts/ci/test-s2s-hmac-allow.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:ci:test-s2s-mtls-stub.mjs",
+    "path": "scripts/ci/test-s2s-mtls-stub.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:ci:test-s2s-scope-enforcement.mjs",
+    "path": "scripts/ci/test-s2s-scope-enforcement.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:ci:test-script-catalog-gate.mjs",
+    "path": "scripts/ci/test-script-catalog-gate.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:ci:test-slo-config.mjs",
+    "path": "scripts/ci/test-slo-config.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:ci:test-studio-flow.mjs",
+    "path": "scripts/ci/test-studio-flow.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:ci:test-studio-modules-deactivate.mjs",
+    "path": "scripts/ci/test-studio-modules-deactivate.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:ci:test-studio-modules-flow.mjs",
+    "path": "scripts/ci/test-studio-modules-flow.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:ci:test-studio-modules-preview-isolation.mjs",
+    "path": "scripts/ci/test-studio-modules-preview-isolation.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:ci:test-template-integrity-gate.mjs",
+    "path": "scripts/ci/test-template-integrity-gate.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:ci:test-tenant-factory-apply.mjs",
+    "path": "scripts/ci/test-tenant-factory-apply.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:ci:test-tenant-factory-audit.mjs",
+    "path": "scripts/ci/test-tenant-factory-audit.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:ci:test-tenant-factory-dryrun.mjs",
+    "path": "scripts/ci/test-tenant-factory-dryrun.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:ci:test-tenant-factory-quorum.mjs",
+    "path": "scripts/ci/test-tenant-factory-quorum.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:ci:test-token-exchange-issue-and-use.mjs",
+    "path": "scripts/ci/test-token-exchange-issue-and-use.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:ci:test-token-gate.mjs",
+    "path": "scripts/ci/test-token-gate.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:ci:test-utils.mjs",
+    "path": "scripts/ci/test-utils.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:ci:test-webhook-replay.mjs",
+    "path": "scripts/ci/test-webhook-replay.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:ci:test-webhook-valid-signed.mjs",
+    "path": "scripts/ci/test-webhook-valid-signed.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "scripts:ci:validate-ssot.mjs",
+    "path": "scripts/ci/validate-ssot.mjs",
+    "purpose": "script",
+    "outputs": [],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
+    "requires_api": false,
+    "s2s_scopes": []
+  }
+]

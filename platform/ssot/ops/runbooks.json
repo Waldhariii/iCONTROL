@@ -30,5 +30,29 @@
     "scope": "platform:*",
     "latest_version": "1.0.0",
     "status": "active"
+  },
+  {
+    "runbook_id": "rb-bootstrap-proof",
+    "name": "Bootstrap Proof",
+    "severity_id": "sev1",
+    "scope": "platform:*",
+    "latest_version": "1.0.0",
+    "status": "active"
+  },
+  {
+    "runbook_id": "rb-promote-pack",
+    "name": "Promote Latest Pack",
+    "severity_id": "sev1",
+    "scope": "platform:*",
+    "latest_version": "1.0.0",
+    "status": "active"
+  },
+  {
+    "runbook_id": "rb-rollback-last",
+    "name": "Rollback Last",
+    "severity_id": "sev1",
+    "scope": "platform:*",
+    "latest_version": "1.0.0",
+    "status": "active"
   }
 ]

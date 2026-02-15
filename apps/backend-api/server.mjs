@@ -970,7 +970,6 @@ function actionMatches(pattern, action) {
 function freezeAllows({ changeFreeze, action }) {
   if (!changeFreeze?.enabled) return true;
   const allow = changeFreeze.allow_actions || [];
-  if (allow.some((p) => actionMatches(p, action))) return true;
   const scopes = changeFreeze.scopes || {};
   const isStudioUi = action.startsWith("studio.modules");
   const isContent =
@@ -982,7 +981,13 @@ function freezeAllows({ changeFreeze, action }) {
     action.startsWith("studio.workflows") ||
     action.startsWith("design.tokens") ||
     action.startsWith("design.themes");
+  const isOpsApply =
+    action.startsWith("ops.runbook.apply") ||
+    action.startsWith("ops.tenancy.apply") ||
+    action.startsWith("ops.tenancy.clone.apply");
 
+  if (scopes.content_mutations === true && isOpsApply) return false;
+  if (allow.some((p) => actionMatches(p, action))) return true;
   if (scopes.studio_ui_mutations === true && isStudioUi) return false;
   if (scopes.content_mutations === true && isContent) return false;
   return true;

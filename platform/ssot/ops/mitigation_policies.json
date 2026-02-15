@@ -11,13 +11,19 @@
       "integration.disable",
       "change.freeze",
       "open.break_glass",
-      "close.break_glass"
+      "close.break_glass",
+      "packs.import",
+      "packs.activate",
+      "dr_drill.from_pack",
+      "rotation.dry_run",
+      "bootstrap.proof"
     ],
     "require_quorum_actions": [
       "release.rollback",
       "extension.killswitch",
       "change.freeze",
-      "open.break_glass"
+      "open.break_glass",
+      "packs.activate"
     ]
   },
   {

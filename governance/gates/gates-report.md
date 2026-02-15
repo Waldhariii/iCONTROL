@@ -41,4 +41,25 @@ PASS - Runbook Integrity Gate
 PASS - BreakGlass Gate
 PASS - SemVer Gate
 PASS - Compatibility Gate
-FAIL - Deprecation Gate: schema:x:removal_not_major
+PASS - Deprecation Gate
+PASS - Migration Gate
+PASS - Contract Test Gate
+PASS - Tenant Template Gate
+PASS - Template Integrity Gate
+PASS - Tenant Factory Gate
+PASS - Domain Isolation Gate
+PASS - DataGov Coverage Gate
+PASS - Budget Coverage Gate
+PASS - Module Activation Gate
+PASS - Module Authoring Gate
+PASS - Activation Safety Gate
+PASS - Marketplace Permission Gate
+PASS - Marketplace Plan Gate
+PASS - Marketplace Impact Gate
+PASS - Marketplace Compat Gate
+PASS - Billing Dormant Gate
+PASS - Rating Integrity Gate
+PASS - Invoice No Secrets Gate
+PASS - No Secrets Evidence Gate
+PASS - Report Path Gate
+PASS - Script Catalog Gate

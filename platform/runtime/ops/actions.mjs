@@ -4,6 +4,7 @@ import { rollback, compileSignedManifest, activate } from "../release/orchestrat
 import { applyChangeset } from "../changes/patch-engine.mjs";
 import { sha256, stableStringify } from "../../compilers/utils.mjs";
 import { planTenantCreate, planTenantClone, dryRunCreate, applyCreate, verifyCreate } from "../tenancy/factory.mjs";
+import { execSync } from "child_process";
 
 const SSOT_DIR = process.env.SSOT_DIR || "./platform/ssot";
 const RUNTIME_OPS_DIR = join(process.cwd(), "runtime", "ops");
@@ -172,6 +173,11 @@ export const BUILTIN_ACTIONS = [
   "release.rollback",
   "release.compile",
   "release.activate",
+  "packs.import",
+  "packs.activate",
+  "dr_drill.from_pack",
+  "rotation.dry_run",
+  "bootstrap.proof",
   "extension.killswitch",
   "change.freeze",
   "integration.disable",
@@ -204,6 +210,48 @@ export function applyAction({ action, params, context }) {
     appendOpsReport({ action, params, context, outcome: "ok" });
     appendAudit({ event: "ops_action", action, params, at: new Date().toISOString(), incident_id: context?.incident_id, request_id: context?.request_id });
     return { ok: true, entry };
+  }
+
+  if (action === "packs.import") {
+    const pack = params?.pack_path || "";
+    const cmd = pack
+      ? `node scripts/maintenance/import-release-pack.mjs --pack ${pack} --mode staging`
+      : "node scripts/maintenance/import-release-pack.mjs --mode staging";
+    const out = execSync(cmd, { encoding: "utf-8", stdio: "pipe" });
+    appendOpsReport({ action, params, context, outcome: "ok" });
+    return { output: out.trim() };
+  }
+
+  if (action === "packs.activate") {
+    const pack = params?.pack_path || "";
+    const cmd = pack
+      ? `node scripts/maintenance/import-release-pack.mjs --pack ${pack} --mode activate`
+      : "node scripts/maintenance/import-release-pack.mjs --mode activate";
+    const out = execSync(cmd, { encoding: "utf-8", stdio: "pipe" });
+    appendOpsReport({ action, params, context, outcome: "ok" });
+    return { output: out.trim() };
+  }
+
+  if (action === "dr_drill.from_pack") {
+    const pack = params?.pack_path || "";
+    const cmd = pack
+      ? `node scripts/maintenance/dr-drill-from-pack.mjs --pack ${pack}`
+      : "node scripts/maintenance/dr-drill-from-pack.mjs";
+    const out = execSync(cmd, { encoding: "utf-8", stdio: "pipe" });
+    appendOpsReport({ action, params, context, outcome: "ok" });
+    return { output: out.trim() };
+  }
+
+  if (action === "rotation.dry_run") {
+    const out = execSync("node scripts/maintenance/run-rotation.mjs --dry-run", { encoding: "utf-8", stdio: "pipe" });
+    appendOpsReport({ action, params, context, outcome: "ok" });
+    return { output: out.trim() };
+  }
+
+  if (action === "bootstrap.proof") {
+    const out = execSync("node scripts/maintenance/bootstrap.mjs --ci-safe", { encoding: "utf-8", stdio: "pipe" });
+    appendOpsReport({ action, params, context, outcome: "ok" });
+    return { output: out.trim() };
   }
 
   if (action === "qos.shed") {

@@ -57,6 +57,14 @@ echo "MODULE_ID=$MODULE_ID (ver=$MODULE_VERSION)"
 echo "EXT_ID=$EXT_ID (ver=$EXT_VERSION)"
 echo "============================================================"
 
+# Prefer Node smoke (single source of truth)
+if [[ -f "./scripts/maintenance/smoke-marketplace-api.mjs" ]]; then
+  TEMPLATE_ID="$TEMPLATE_ID" MODULE_ID="$MODULE_ID" MODULE_VERSION="$MODULE_VERSION" \
+  EXT_ID="$EXT_ID" EXT_VERSION="$EXT_VERSION" API_BASE="$API_BASE" \
+    node ./scripts/maintenance/smoke-marketplace-api.mjs
+  exit 0
+fi
+
 need() { command -v "$1" >/dev/null 2>&1 || { echo "ERR: missing '$1'"; exit 1; }; }
 need curl
 need python3

@@ -1,4 +1,5 @@
 import { readFileSync, existsSync, readdirSync } from "fs";
+import { join } from "path";
 import { stableStringify, sha256, verifyPayload } from "../../platform/compilers/utils.mjs";
 import { validateOrThrow } from "../../core/contracts/schema/validate.mjs";
 import { validateSsotDir } from "../../core/contracts/schema/validate-ssot.mjs";
@@ -40,6 +41,11 @@ const OPS_ALLOWED_ACTIONS = [
   "release.rollback",
   "release.compile",
   "release.activate",
+  "packs.import",
+  "packs.activate",
+  "dr_drill.from_pack",
+  "rotation.dry_run",
+  "bootstrap.proof",
   "extension.killswitch",
   "change.freeze",
   "integration.disable",
@@ -163,6 +169,59 @@ export function tokenGate({ ssotDir, releaseId, manifestsDir }) {
   if (offenders.length) details.push(`Hardcoded styles in widgets: ${offenders.map((w) => w.id).join(", ")}`);
   if (!cssOk) details.push("Theme CSS vars artifact mismatch or missing");
   return { ok, gate: "Token Gate", details: details.join(" | ") };
+}
+
+export function reportPathGate() {
+  const root = process.cwd();
+  const entries = existsSync(root) ? readdirSync(root) : [];
+  const forbidden = entries.filter((e) => e === "CI_REPORT.md" || e.endsWith(".log") || e.endsWith(".tmp"));
+  const platformReports = join(root, "platform", "runtime", "reports");
+  const platformHas = existsSync(platformReports) ? readdirSync(platformReports) : [];
+  const ok = forbidden.length === 0 && platformHas.length === 0;
+  const details = [];
+  if (forbidden.length) details.push(`Forbidden root artifacts: ${forbidden.join(", ")}`);
+  if (platformHas.length) details.push("Forbidden reports path: platform/runtime/reports");
+  return { ok, gate: "Report Path Gate", details: details.join(" | ") };
+}
+
+export function scriptCatalogGate() {
+  const catalogPath = "./scripts/maintenance/SCRIPT_CATALOG.json";
+  if (!existsSync(catalogPath)) return { ok: false, gate: "Script Catalog Gate", details: "Missing SCRIPT_CATALOG.json" };
+  const catalog = readJson(catalogPath);
+  const ids = new Set();
+  const paths = new Set();
+  const norm = (p) => String(p).replace(/^\.\/?/, "");
+  const duplicates = [];
+  const badOutputs = [];
+  const missingPaths = [];
+  for (const entry of catalog) {
+    if (ids.has(entry.id)) duplicates.push(`id:${entry.id}`);
+    const entryPath = norm(entry.path);
+    if (paths.has(entryPath)) duplicates.push(`path:${entry.path}`);
+    ids.add(entry.id);
+    paths.add(entryPath);
+    if (entry.outputs) {
+      for (const out of entry.outputs) {
+        if (!String(out).includes("runtime/reports")) badOutputs.push(`${entry.id}:${out}`);
+      }
+    }
+    if (entry.path && !existsSync(entry.path)) missingPaths.push(entry.path);
+  }
+  const scripts = [];
+  for (const dir of ["./scripts/maintenance", "./scripts/ci"]) {
+    for (const f of readdirSync(dir)) {
+      if (f.startsWith(".") || f.endsWith(".md")) continue;
+      scripts.push(norm(`${dir}/${f}`));
+    }
+  }
+  const missing = scripts.filter((p) => !paths.has(p));
+  const ok = duplicates.length === 0 && badOutputs.length === 0 && missing.length === 0 && missingPaths.length === 0;
+  const details = [];
+  if (duplicates.length) details.push(`Duplicates: ${duplicates.join(", ")}`);
+  if (badOutputs.length) details.push(`Bad outputs: ${badOutputs.join(", ")}`);
+  if (missingPaths.length) details.push(`Missing files: ${missingPaths.join(", ")}`);
+  if (missing.length) details.push(`Unlisted scripts: ${missing.join(", ")}`);
+  return { ok, gate: "Script Catalog Gate", details: details.join(" | ") };
 }
 
 export function accessGate({ ssotDir }) {

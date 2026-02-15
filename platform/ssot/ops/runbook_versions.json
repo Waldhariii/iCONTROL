@@ -112,5 +112,53 @@
         }
       }
     ]
+  },
+  {
+    "runbook_id": "rb-bootstrap-proof",
+    "version": "1.0.0",
+    "status": "released",
+    "steps": [
+      {
+        "action": "bootstrap.proof",
+        "critical": true,
+        "params": {}
+      }
+    ]
+  },
+  {
+    "runbook_id": "rb-promote-pack",
+    "version": "1.0.0",
+    "status": "released",
+    "steps": [
+      {
+        "action": "packs.import",
+        "critical": true,
+        "params": {
+          "pack_path": "latest"
+        }
+      },
+      {
+        "action": "packs.activate",
+        "critical": true,
+        "params": {
+          "pack_path": "latest"
+        }
+      }
+    ]
+  },
+  {
+    "runbook_id": "rb-rollback-last",
+    "version": "1.0.0",
+    "status": "released",
+    "steps": [
+      {
+        "action": "release.rollback",
+        "critical": true,
+        "params": {
+          "release_id": "active",
+          "reason": "runbook rollback last"
+        }
+      }
+    ]
   }
 ]

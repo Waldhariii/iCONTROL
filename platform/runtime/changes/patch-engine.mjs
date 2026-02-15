@@ -26,6 +26,9 @@ const kindToPath = {
   active_release: "changes/active_release.json",
   break_glass: "governance/break_glass.json",
   change_freeze: "governance/change_freeze.json",
+  runbook: "ops/runbooks.json",
+  runbook_version: "ops/runbook_versions.json",
+  mitigation_policy: "ops/mitigation_policies.json",
   secret_binding: "security/secret_bindings.json",
   service_principal: "security/service_principals.json",
   service_credential: "security/service_credentials.json",
@@ -50,6 +53,9 @@ const kindToSchema = {
   active_release: "active_release.v1",
   break_glass: "break_glass.v1",
   change_freeze: "change_freeze.v1",
+  runbook: "runbook.v1",
+  runbook_version: "runbook_version.v1",
+  mitigation_policy: "mitigation_policy.v1",
   secret_binding: "secret_binding.v1",
   service_principal: "service_principal.v1",
   service_credential: "service_credential.v1",
@@ -65,6 +71,9 @@ function itemKey(kind, item) {
   if (kind === "module_activation") return `${item.tenant_id}:${item.module_id}`;
   if (kind === "tenant_template") return item.template_id;
   if (kind === "tenant_template_version") return `${item.template_id}@${item.version}`;
+  if (kind === "runbook") return item.runbook_id;
+  if (kind === "runbook_version") return `${item.runbook_id}@${item.version}`;
+  if (kind === "mitigation_policy") return item.policy_id;
   if (kind === "extension_installation") return `${item.tenant_id}:${item.extension_id}`;
   if (kind === "secret_binding") return item.id;
   return item.id;

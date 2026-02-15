@@ -62,7 +62,9 @@ import {
   billingDormantGate,
   ratingIntegrityGate,
   invoiceNoSecretsGate,
-  noSecretsEvidenceGate
+  noSecretsEvidenceGate,
+  reportPathGate,
+  scriptCatalogGate
 } from "./gates.mjs";
 
 const releaseId = process.argv[2];
@@ -137,7 +139,9 @@ const gates = [
   () => billingDormantGate({ ssotDir }),
   () => ratingIntegrityGate({ ssotDir }),
   () => invoiceNoSecretsGate(),
-  () => noSecretsEvidenceGate()
+  () => noSecretsEvidenceGate(),
+  () => reportPathGate(),
+  () => scriptCatalogGate()
 ];
 
 const results = [];
