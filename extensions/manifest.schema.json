@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "extensions/manifest.schema.json",
+  "title": "Extension manifest",
+  "description": "Level 11: Marketplace readiness — semver, compat matrix, scopes, datagov and isolation declarations.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "version", "scopes", "compat_matrix", "datagov_declaration", "isolation_declaration"],
+  "properties": {
+    "id": { "type": "string", "minLength": 1 },
+    "name": { "type": "string" },
+    "version": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$", "description": "semver" },
+    "scopes": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Required scopes (e.g. studio.*, runtime.read)"
+    },
+    "compat_matrix": {
+      "type": "object",
+      "description": "Platform version compatibility",
+      "additionalProperties": { "type": "string" }
+    },
+    "datagov_declaration": {
+      "type": "object",
+      "description": "Data governance declaration",
+      "properties": {
+        "classification": { "type": "string" },
+        "retention": { "type": "string" },
+        "export_control": { "type": "boolean" }
+      }
+    },
+    "isolation_declaration": {
+      "type": "object",
+      "description": "Isolation and tenant boundaries",
+      "properties": {
+        "tenant_scoped": { "type": "boolean" },
+        "no_cross_tenant_data": { "type": "boolean" }
+      }
+    }
+  }
+}

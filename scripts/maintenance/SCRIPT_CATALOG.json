@@ -93,6 +93,26 @@
     "s2s_scopes": []
   },
   {
+    "id": "scripts:maintenance:generate-level11-snapshot.mjs",
+    "path": "scripts/maintenance/generate-level11-snapshot.mjs",
+    "purpose": "Level 11 forensic baseline: LEVEL11_ARCH_SNAPSHOT.json + level11_latest.jsonl",
+    "outputs": ["runtime/reports/LEVEL11_ARCH_SNAPSHOT.json", "runtime/reports/index/level11_latest.jsonl"],
+    "forbidden_outputs": ["CI_REPORT.md", "platform/runtime/reports"],
+    "requires_api": false,
+    "s2s_scopes": [],
+    "category": "maintenance"
+  },
+  {
+    "id": "scripts:maintenance:certify-level11.sh",
+    "path": "scripts/maintenance/certify-level11.sh",
+    "purpose": "Level 11 platform certification: verify fileset, snapshot, commit ADR-APPROVED, run gates, tag phaseLEVEL11_PLATFORM_CERTIFIED",
+    "outputs": [],
+    "forbidden_outputs": ["CI_REPORT.md", "platform/runtime/reports"],
+    "requires_api": false,
+    "s2s_scopes": [],
+    "category": "maintenance"
+  },
+  {
     "id": "scripts:maintenance:import-release-pack.mjs",
     "path": "scripts/maintenance/import-release-pack.mjs",
     "purpose": "script",
@@ -1097,6 +1117,17 @@
     "requires_api": true,
     "s2s_scopes": ["observability.read", "studio.*"],
     "safety": "api-local",
+    "category": "ci"
+  },
+  {
+    "id": "scripts:ci:test-ga-readiness-pack.mjs",
+    "path": "scripts/ci/test-ga-readiness-pack.mjs",
+    "purpose": "CI: Phase AU GA Readiness — run gates with RUNTIME_HERMETIC_STRICT_PORT=1, verify GA report and index",
+    "outputs": [],
+    "forbidden_outputs": ["CI_REPORT.md", "platform/runtime/reports"],
+    "requires_api": false,
+    "s2s_scopes": [],
+    "safety": "local",
     "category": "ci"
   },
   {

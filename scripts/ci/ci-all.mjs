@@ -67,6 +67,7 @@ const steps = [
   "node scripts/ci/test-ocr-contract.mjs",
   "node scripts/ci/test-scheduler.mjs",
   "node scripts/ci/test-cockpit-panels.mjs",
+  "node scripts/ci/test-ga-readiness-pack.mjs",
   "node scripts/ci/test-pdf-export-action-policy.mjs",
   "node scripts/ci/test-manifest-determinism.mjs",
   "node scripts/ci/test-diff-noise-gate.mjs",

@@ -1484,7 +1484,9 @@ const server = http.createServer(async (req, res) => {
       releases: "releases_latest.jsonl",
       scheduler: "scheduler_latest.jsonl",
       breakglass: "breakglass_latest.jsonl",
-      quorum: "quorum_latest.jsonl"
+      quorum: "quorum_latest.jsonl",
+      ga: "ga_latest.jsonl",
+      level11: "level11_latest.jsonl"
     };
     const REPORTS_INDEX_SUBDIR = { breakglass: "governance", quorum: "governance" };
     if (req.method === "GET" && req.url?.startsWith("/api/reports/latest")) {
@@ -1492,7 +1494,7 @@ const server = http.createServer(async (req, res) => {
       const url = new URL(req.url, "http://localhost");
       const kind = url.searchParams.get("kind") || "";
       const filename = REPORTS_INDEX_WHITELIST[kind];
-      if (!filename || filename.includes("/")) return json(res, 400, { error: "kind required; one of: gates, workflows, marketplace, billing, webhook, ops, releases, scheduler, breakglass, quorum" });
+      if (!filename || filename.includes("/")) return json(res, 400, { error: "kind required; one of: gates, workflows, marketplace, billing, webhook, ops, releases, scheduler, breakglass, quorum, ga, level11" });
       const limit = Math.min(100, Math.max(1, Number(url.searchParams.get("limit")) || 50));
       const subdir = REPORTS_INDEX_SUBDIR[kind] || "index";
       const indexPath = join(getReportsDir(), subdir, filename);

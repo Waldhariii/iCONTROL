@@ -1,5 +1,5 @@
 import { writeFileSync, mkdirSync, appendFileSync } from "fs";
-import { join } from "path";
+import { join, dirname } from "path";
 import { randomUUID } from "crypto";
 import {
   schemaGate,
@@ -76,6 +76,12 @@ import {
   releaseOpsGate,
   tenantProvisionGate,
   autoFreezeEvidenceGate,
+  gaReadinessGate,
+  platformVersionGate,
+  platformResilienceGate,
+  extensionSafetyGate,
+  businessLogicInCoreGate,
+  level11CertificationGate,
   scriptCatalogGate,
   artifactBudgetGate,
   widgetBindingGate,
@@ -171,6 +177,12 @@ const gates = [
   () => releaseOpsGate(),
   () => tenantProvisionGate(),
   () => autoFreezeEvidenceGate(),
+  () => gaReadinessGate({ ssotDir, manifestsDir, releaseId }),
+  () => platformVersionGate(),
+  () => platformResilienceGate(),
+  () => extensionSafetyGate(),
+  () => businessLogicInCoreGate(),
+  () => level11CertificationGate({ ssotDir, manifestsDir, releaseId }),
   () => scriptCatalogGate(),
   () => widgetBindingGate({ ssotDir }),
   () => sectionNoRouteGate({ ssotDir }),
@@ -292,6 +304,19 @@ writeGateIndex({
   ok,
   path: gatePath
 });
+
+const gaReportPath = join(reportsDir, "GA_READINESS_REPORT.md");
+writeFileSync(gaReportPath, `# GA Readiness Report\n\n${reportMd}\n\nGenerated: ${new Date().toISOString()}\n`, "utf-8");
+const gaIndexPath = join(reportsDir, "index", "ga_latest.jsonl");
+mkdirSync(dirname(gaIndexPath), { recursive: true });
+appendFileSync(gaIndexPath, JSON.stringify({ ts: new Date().toISOString(), release_id: releaseId, ok, correlation_id: correlationId }) + "\n", "utf-8");
+
+const certResult = results.find((r) => r.gate === "Level 11 Certification Gate");
+const certOk = certResult ? certResult.ok : false;
+const certMd = certResult
+  ? `# Level 11 Certification\n\n**Status:** ${certOk ? "PASS" : "FAIL"}\n\n${certResult.details || ""}\n\nGenerated: ${new Date().toISOString()}\n`
+  : `# Level 11 Certification\n\n**Status:** NOT RUN\n\nGenerated: ${new Date().toISOString()}\n`;
+writeFileSync(join(reportsDir, "LEVEL11_CERTIFICATION.md"), certMd, "utf-8");
 
 console.log(reportMd);
 if (!ok) process.exit(2);

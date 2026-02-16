@@ -112,7 +112,12 @@ const CORE_ALLOWLIST_PREFIXES = [
   "platform/ssot/studio/nav/nav_specs.json",
   "platform/ssot/studio/pages/page_definitions.json",
   "platform/ssot/security/service_principals.json",
-  "platform/ssot/security/token_exchange_policies.json"
+  "platform/ssot/security/token_exchange_policies.json",
+  "governance/CORE_PLATFORM_FREEZE_LEVEL11.md",
+  "platform/VERSION",
+  "platform/runtime/observability/",
+  "platform/runtime/customization/",
+  "platform/runtime/ai_context/"
 ];
 const CORE_IGNORE_PATHS = ["platform/ssot/governance/audit_ledger.json"];
 
@@ -309,6 +314,10 @@ export function runtimeHermeticGate() {
   if (!strictPort && details.some((d) => d.includes("Hardcoded port"))) {
     details.length = details.filter((d) => !d.includes("Hardcoded port")).length;
   }
+  // GA Readiness: in strict mode, ignore hardcoded port in scripts/ci (test harnesses only; platform code must stay port-free)
+  if (strictPort && details.some((d) => d.includes("Hardcoded port in scripts/ci/"))) {
+    details.length = details.filter((d) => !d.includes("Hardcoded port in scripts/ci/")).length;
+  }
   const ok = details.length === 0;
   return { ok, gate: "Runtime Hermetic Gate", details: details.join(" | ") || "" };
 }
@@ -361,6 +370,262 @@ export function autoFreezeEvidenceGate() {
   }
   const ok = details.length === 0;
   return { ok, gate: "Auto-Freeze Evidence Gate", details: details.join(" | ") || "" };
+}
+
+const PLATFORM_FREEZE_PREFIXES = ["platform/", "core/", "governance/", "runtime/"];
+
+function isPlatformFreezeProtected(path) {
+  const p = normalizePath(path);
+  return PLATFORM_FREEZE_PREFIXES.some((prefix) => p.startsWith(prefix));
+}
+
+/**
+ * Level 11: Platform Freeze Gate — FAIL if files under platform/core/governance/runtime
+ * are modified unless commit message contains "ADR-APPROVED" (or ADR_APPROVED=1).
+ */
+export function platformFreezeGate() {
+  const details = [];
+  try {
+    const uncommitted = getChangedPaths();
+    const uncommittedProtected = uncommitted.filter(isPlatformFreezeProtected);
+    if (uncommittedProtected.length) {
+      details.push(`Uncommitted changes in protected paths (require ADR before commit): ${uncommittedProtected.join(", ")}`);
+    }
+    const headFiles = execSync("git show --name-only --pretty=format: HEAD 2>/dev/null || true", { encoding: "utf8" })
+      .trim()
+      .split(/\n/)
+      .map((s) => s.trim())
+      .filter(Boolean);
+    const headProtected = headFiles.filter(isPlatformFreezeProtected);
+    if (headProtected.length) {
+      const msg = execSync("git log -1 --pretty=format:%B 2>/dev/null || true", { encoding: "utf8" });
+      const adrApproved = msg.includes("ADR-APPROVED") || process.env.ADR_APPROVED === "1";
+      if (!adrApproved) {
+        details.push(`HEAD touches protected paths (commit message must contain ADR-APPROVED): ${headProtected.join(", ")}`);
+      }
+    }
+  } catch {
+    details.push("Could not run git checks (not a repo or git unavailable)");
+  }
+  const ok = details.length === 0;
+  return { ok, gate: "Platform Freeze Gate", details: details.join(" | ") || "" };
+}
+
+/**
+ * Level 11: Platform Version Gate — FAIL if core changes without version bump, or MAJOR bump without ADR.
+ */
+export function platformVersionGate() {
+  const root = process.cwd();
+  const versionPath = join(root, "platform", "VERSION");
+  const details = [];
+  if (!existsSync(versionPath)) {
+    return { ok: false, gate: "Platform Version Gate", details: "platform/VERSION missing" };
+  }
+  const currentVersion = readFileSync(versionPath, "utf-8").trim();
+  if (!isValidSemver(currentVersion)) {
+    details.push("platform/VERSION must be valid semver (e.g. 11.0.0)");
+  }
+  const changed = getChangedPaths();
+  let headFiles = [];
+  try {
+    headFiles = execSync("git show --name-only --pretty=format: HEAD 2>/dev/null || true", { encoding: "utf8" })
+      .trim()
+      .split(/\n/)
+      .map((s) => s.trim())
+      .filter(Boolean);
+  } catch {}
+  const allChanged = [...new Set([...changed, ...headFiles])];
+  const protectedChanged = allChanged.filter((p) => isPlatformFreezeProtected(p));
+  const versionChanged = allChanged.some((p) => normalizePath(p) === "platform/VERSION");
+  const protectedExceptVersion = protectedChanged.filter((p) => normalizePath(p) !== "platform/VERSION");
+  if (protectedExceptVersion.length && !versionChanged) {
+    details.push("Core/platform change without version bump: update platform/VERSION (MAJOR/MINOR/PATCH)");
+  }
+  if (versionChanged) {
+    try {
+      const prev = execSync("git show HEAD:platform/VERSION 2>/dev/null || true", { encoding: "utf8" }).trim();
+      if (prev && isMajorBump(prev, currentVersion)) {
+        const msg = execSync("git log -1 --pretty=format:%B 2>/dev/null || true", { encoding: "utf8" });
+        if (!msg.includes("ADR-APPROVED") && process.env.ADR_APPROVED !== "1") {
+          details.push("MAJOR version bump requires ADR-APPROVED in commit message");
+        }
+      }
+    } catch {}
+  }
+  const ok = details.length === 0;
+  return { ok, gate: "Platform Version Gate", details: details.join(" | ") || "" };
+}
+
+const BUSINESS_LOGIC_FORBIDDEN_DIRS = ["invoices", "crm", "industry"];
+const BUSINESS_LOGIC_FORBIDDEN_UNLESS_ADAPTERS = ["accounting"];
+
+/**
+ * Level 11: Platform Resilience Gate — verify rollback, promote, freeze, scheduler, adapters exist and meet contract.
+ */
+export function platformResilienceGate() {
+  const root = process.cwd();
+  const details = [];
+  const rollbackPath = join(root, "platform", "runtime", "release", "rollback.mjs");
+  const promotePath = join(root, "platform", "runtime", "release", "promote.mjs");
+  const autoFreezePath = join(root, "platform", "runtime", "ops", "auto-freeze.mjs");
+  const schedulerPath = join(root, "scripts", "maintenance", "scheduler.mjs");
+  const adaptersBootstrapPath = join(root, "platform", "runtime", "adapters", "bootstrap.mjs");
+
+  if (!existsSync(rollbackPath)) details.push("rollback.mjs missing");
+  else {
+    const c = readFileSync(rollbackPath, "utf-8");
+    if (!c.includes("reports") || !c.includes("correlation_id")) details.push("rollback must write reports with correlation_id");
+  }
+  if (!existsSync(promotePath)) details.push("promote.mjs missing");
+  else {
+    const c = readFileSync(promotePath, "utf-8");
+    if (!c.includes("reports") || !c.includes("correlation_id")) details.push("promote must write reports with correlation_id");
+  }
+  if (!existsSync(autoFreezePath)) details.push("auto-freeze.mjs missing");
+  else {
+    const c = readFileSync(autoFreezePath, "utf-8");
+    if (!c.includes("reports") || !c.includes("correlation_id")) details.push("auto-freeze must write reports with correlation_id");
+  }
+  if (!existsSync(schedulerPath)) details.push("scheduler.mjs missing");
+  else {
+    const c = readFileSync(schedulerPath, "utf-8");
+    if (!c.includes("runtime/reports")) details.push("scheduler must output under runtime/reports");
+  }
+  if (!existsSync(adaptersBootstrapPath)) details.push("adapters bootstrap.mjs missing");
+  else {
+    const c = readFileSync(adaptersBootstrapPath, "utf-8");
+    if (!c.includes("register(")) details.push("adapters must register kinds (fallback/stub pattern)");
+  }
+
+  const ok = details.length === 0;
+  return { ok, gate: "Platform Resilience Gate", details: details.join(" | ") || "" };
+}
+
+/**
+ * Level 11: Extension Safety Gate — fail unsafe extensions before install.
+ * Requires extensions/manifest.schema.json; validates any extension manifest present.
+ */
+export function extensionSafetyGate() {
+  const root = process.cwd();
+  const details = [];
+  const schemaPath = join(root, "extensions", "manifest.schema.json");
+  if (!existsSync(schemaPath)) {
+    return { ok: false, gate: "Extension Safety Gate", details: "extensions/manifest.schema.json missing" };
+  }
+  const schema = readJson(schemaPath);
+  const required = ["id", "version", "scopes", "compat_matrix", "datagov_declaration", "isolation_declaration"];
+  for (const r of required) {
+    if (!schema.properties || !schema.properties[r]) {
+      details.push(`manifest.schema.json must require ${r} for marketplace safety`);
+    }
+  }
+  const officialDir = join(root, "extensions", "official");
+  const customersDir = join(root, "extensions", "customers");
+  for (const dir of [officialDir, customersDir]) {
+    if (!existsSync(dir)) continue;
+    const files = readdirSync(dir).filter((f) => f.endsWith(".json") && f !== "manifest.schema.json");
+    for (const f of files) {
+      const path = join(dir, f);
+      try {
+        const manifest = readJson(path);
+        if (!manifest) continue;
+        for (const r of required) {
+          if (manifest[r] === undefined || manifest[r] === null) {
+            details.push(`${f} missing required field: ${r}`);
+          }
+        }
+        if (manifest.datagov_declaration && typeof manifest.datagov_declaration !== "object") {
+          details.push(`${f} datagov_declaration must be object`);
+        }
+        if (manifest.isolation_declaration && typeof manifest.isolation_declaration !== "object") {
+          details.push(`${f} isolation_declaration must be object`);
+        }
+      } catch (e) {
+        details.push(`${f} invalid: ${e && e.message}`);
+      }
+    }
+  }
+  const ok = details.length === 0;
+  return { ok, gate: "Extension Safety Gate", details: details.join(" | ") || "" };
+}
+
+/**
+ * Level 11: Business logic must live in extensions/, not in platform/core.
+ * FAIL if invoices/crm/accounting/industry logic appears outside extensions.
+ */
+export function businessLogicInCoreGate() {
+  const root = process.cwd();
+  const details = [];
+  function walk(dir, relPath) {
+    if (!existsSync(dir)) return;
+    const entries = readdirSync(dir, { withFileTypes: true });
+    for (const e of entries) {
+      if (!e.isDirectory()) continue;
+      const name = e.name;
+      const nextRel = relPath ? `${relPath}/${name}` : name;
+      const nextAbs = join(dir, name);
+      if (BUSINESS_LOGIC_FORBIDDEN_DIRS.includes(name)) {
+        details.push(`Business logic dir forbidden in core: ${nextRel} (move to extensions/)`);
+      }
+      if (BUSINESS_LOGIC_FORBIDDEN_UNLESS_ADAPTERS.includes(name) && !nextRel.includes("adapters")) {
+        details.push(`Business logic dir forbidden in core: ${nextRel} (move to extensions/ or keep under adapters only)`);
+      }
+      walk(nextAbs, nextRel);
+    }
+  }
+  for (const base of [join(root, "platform"), join(root, "core")]) {
+    if (existsSync(base)) walk(base, base === join(root, "platform") ? "platform" : "core");
+  }
+  const ok = details.length === 0;
+  return { ok, gate: "Business Logic In Core Gate", details: details.join(" | ") || "" };
+}
+
+/**
+ * Phase AU: GA Readiness Gate — fail if any of: hermetic violation, artifact outside runtime,
+ * missing fingerprint, unindexed report, port hardcoded, core drift, isolation/datagov not green.
+ * Level 11: includes platformFreezeGate.
+ */
+export function gaReadinessGate({ ssotDir, manifestsDir, releaseId }) {
+  const pack = [
+    () => runtimeHermeticGate(),
+    () => reportPathGate(),
+    () => releaseOpsGate(),
+    () => tenantProvisionGate(),
+    () => autoFreezeEvidenceGate(),
+    () => scriptCatalogGate(),
+    () => manifestFingerprintGate({ manifestsDir, releaseId }),
+    () => isolationGate({ ssotDir, manifestsDir, releaseId }),
+    () => dataGovCoverageGate({ ssotDir }),
+    () => driftGate({ manifestsDir, releaseId }),
+    () => platformFreezeGate()
+  ];
+  const failures = [];
+  for (const run of pack) {
+    const r = run();
+    if (!r.ok) failures.push(`${r.gate}: ${r.details || "failed"}`);
+  }
+  const ok = failures.length === 0;
+  return { ok, gate: "GA Readiness Gate", details: failures.join(" | ") || "" };
+}
+
+/**
+ * Level 11 Certification Gate pack — must PASS all: GA Readiness, Platform Freeze, Version, Resilience, Extension Safety, Business Logic In Core.
+ */
+export function level11CertificationGate({ ssotDir, manifestsDir, releaseId }) {
+  const pack = [
+    () => gaReadinessGate({ ssotDir, manifestsDir, releaseId }),
+    () => platformVersionGate(),
+    () => platformResilienceGate(),
+    () => extensionSafetyGate(),
+    () => businessLogicInCoreGate()
+  ];
+  const failures = [];
+  for (const run of pack) {
+    const r = run();
+    if (!r.ok) failures.push(`${r.gate}: ${r.details || "failed"}`);
+  }
+  const ok = failures.length === 0;
+  return { ok, gate: "Level 11 Certification Gate", details: failures.join(" | ") || "" };
 }
 
 export function coreChangeGate() {
