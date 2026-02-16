@@ -1,22 +1,11 @@
 /**
- * Phase AF: Workflow execute mode via POST /api/studio/workflows/run (mode=execute).
- * CI-safe: dynamic port via __IC_BOUND__. Verifies 200, artifacts under runtime/artifacts/<corr>/,
- * runtime/reports/workflows/<corr>/RUN_REPORT.json, and index workflows_latest.jsonl.
+ * Phase AF/AK: Workflow execute mode via POST /api/studio/workflows/run (mode=execute).
+ * Hermetic: PORT=0 + spawn-server helper. Verifies artifacts under runtime/artifacts/<release_id>/<corr>/.
  */
-import { spawn } from "child_process";
 import { readFileSync, existsSync, readdirSync } from "fs";
 import { join } from "path";
 import { createTempSsot, getS2SToken } from "./test-utils.mjs";
-
-function __icParseBoundLine(line) {
-  const m = String(line || "").match(/__IC_BOUND__=(\{.*\})/);
-  if (!m) return null;
-  try {
-    return JSON.parse(m[1]);
-  } catch {
-    return null;
-  }
-}
+import { spawnServer, waitForBound, getBaseUrl, killServer } from "../../platform/runtime/testing/spawn-server.mjs";
 
 function sleep(ms) {
   return new Promise((r) => setTimeout(r, ms));
@@ -24,36 +13,17 @@ function sleep(ms) {
 
 async function run() {
   const temp = createTempSsot();
-  const server = spawn("node", ["apps/backend-api/server.mjs"], {
-    stdio: ["ignore", "pipe", "inherit"],
+  const { process: server, stdoutChunks } = spawnServer({
     cwd: process.cwd(),
     env: {
       ...process.env,
       SSOT_DIR: temp.ssotDir,
       S2S_CP_HMAC: "dummy",
-      S2S_TOKEN_SIGN: "dummy",
-      CI: "true",
-      HOST: "127.0.0.1",
-      PORT: "0"
+      S2S_TOKEN_SIGN: "dummy"
     }
   });
-
-  let baseUrl = "";
-  const chunks = [];
-  server.stdout.on("data", (chunk) => chunks.push(chunk));
-  const deadline = Date.now() + 10000;
-  while (!baseUrl && Date.now() < deadline) {
-    await sleep(50);
-    const out = Buffer.concat(chunks).toString("utf-8");
-    for (const line of out.split(/\r?\n/)) {
-      const bound = __icParseBoundLine(line);
-      if (bound) {
-        baseUrl = `http://${bound.host || "127.0.0.1"}:${bound.port || 7070}`;
-        break;
-      }
-    }
-  }
-  if (!baseUrl) baseUrl = "http://127.0.0.1:7070";
+  const bound = await waitForBound({ stdoutChunks, timeoutMs: 15000 });
+  const baseUrl = getBaseUrl(bound);
   const api = `${baseUrl}/api`;
   await sleep(200);
 
@@ -85,6 +55,7 @@ async function run() {
   if (!Array.isArray(payload.artifacts)) throw new Error("workflows/run execute missing artifacts");
 
   const corr = payload.correlation_id;
+  const releaseId = "dev-001";
   const workflowReportDir = join(reportsDir, "workflows", corr);
   if (!existsSync(workflowReportDir)) throw new Error(`missing runtime/reports/workflows/${corr}`);
   const runReportPath = join(workflowReportDir, "RUN_REPORT.json");
@@ -93,12 +64,12 @@ async function run() {
   if (runReport.workflow_id !== "workflow:pdf_export_invoice") throw new Error("RUN_REPORT workflow_id mismatch");
   if (!runReport.ok) throw new Error("RUN_REPORT ok false");
 
-  const artifactsDir = join(artifactsBase, corr);
-  if (!existsSync(artifactsDir)) throw new Error(`missing runtime/artifacts/${corr}`);
+  const artifactsDir = join(artifactsBase, releaseId, corr);
+  if (!existsSync(artifactsDir)) throw new Error(`missing runtime/artifacts/${releaseId}/${corr}`);
   const artifactFiles = readdirSync(artifactsDir);
-  if (artifactFiles.length === 0) throw new Error(`no artifact files in runtime/artifacts/${corr}`);
+  if (artifactFiles.length === 0) throw new Error(`no artifact files in runtime/artifacts/${releaseId}/${corr}`);
   const hasPdf = artifactFiles.some((f) => f.endsWith(".pdf"));
-  if (!hasPdf) throw new Error(`expected at least one .pdf artifact in runtime/artifacts/${corr}, got: ${artifactFiles.join(", ")}`);
+  if (!hasPdf) throw new Error(`expected at least one .pdf artifact in runtime/artifacts/${releaseId}/${corr}, got: ${artifactFiles.join(", ")}`);
 
   const afterLines = existsSync(indexPath) ? readFileSync(indexPath, "utf-8").trim().split("\n").filter(Boolean) : [];
   const added = afterLines.length - beforeLines;
@@ -108,7 +79,7 @@ async function run() {
   if (indexEntry.correlation_id !== corr) throw new Error("index entry correlation_id mismatch");
   if (indexEntry.mode !== "execute") throw new Error("index entry mode !== execute");
 
-  server.kill("SIGTERM");
+  killServer(server);
   temp.cleanup();
   console.log("Workflow execute localfs PASS");
 }

@@ -1,21 +1,10 @@
 /**
- * Phase AI: Action export_pdf end-to-end — POST /api/studio/action with kind export_pdf
- * triggers workflow execute; verifies artifact pdf + workflows_latest.jsonl + 200.
+ * Phase AI/AK: Action export_pdf end-to-end — hermetic PORT=0 + spawn-server helper.
  */
-import { spawn } from "child_process";
 import { readFileSync, existsSync, readdirSync } from "fs";
 import { join } from "path";
 import { createTempSsot, getS2SToken } from "./test-utils.mjs";
-
-function __icParseBoundLine(line) {
-  const m = String(line || "").match(/__IC_BOUND__=(\{.*\})/);
-  if (!m) return null;
-  try {
-    return JSON.parse(m[1]);
-  } catch {
-    return null;
-  }
-}
+import { spawnServer, waitForBound, getBaseUrl, killServer } from "../../platform/runtime/testing/spawn-server.mjs";
 
 function sleep(ms) {
   return new Promise((r) => setTimeout(r, ms));
@@ -23,36 +12,12 @@ function sleep(ms) {
 
 async function run() {
   const temp = createTempSsot();
-  const server = spawn("node", ["apps/backend-api/server.mjs"], {
-    stdio: ["ignore", "pipe", "inherit"],
+  const { process: server, stdoutChunks } = spawnServer({
     cwd: process.cwd(),
-    env: {
-      ...process.env,
-      SSOT_DIR: temp.ssotDir,
-      S2S_CP_HMAC: "dummy",
-      S2S_TOKEN_SIGN: "dummy",
-      CI: "true",
-      HOST: "127.0.0.1",
-      PORT: "0"
-    }
+    env: { ...process.env, SSOT_DIR: temp.ssotDir, S2S_CP_HMAC: "dummy", S2S_TOKEN_SIGN: "dummy" }
   });
-
-  let baseUrl = "";
-  const chunks = [];
-  server.stdout.on("data", (chunk) => chunks.push(chunk));
-  const deadline = Date.now() + 10000;
-  while (!baseUrl && Date.now() < deadline) {
-    await sleep(50);
-    const out = Buffer.concat(chunks).toString("utf-8");
-    for (const line of out.split(/\r?\n/)) {
-      const bound = __icParseBoundLine(line);
-      if (bound) {
-        baseUrl = `http://${bound.host || "127.0.0.1"}:${bound.port || 7070}`;
-        break;
-      }
-    }
-  }
-  if (!baseUrl) baseUrl = "http://127.0.0.1:7070";
+  const bound = await waitForBound({ stdoutChunks, timeoutMs: 15000 });
+  const baseUrl = getBaseUrl(bound);
   const api = `${baseUrl}/api`;
   await sleep(200);
 
@@ -82,11 +47,12 @@ async function run() {
   if (!payload.correlation_id) throw new Error("studio/action missing correlation_id");
 
   const corr = payload.correlation_id;
-  const artifactsDir = join(artifactsBase, corr);
-  if (!existsSync(artifactsDir)) throw new Error(`missing runtime/artifacts/${corr}`);
+  const releaseId = "dev-001";
+  const artifactsDir = join(artifactsBase, releaseId, corr);
+  if (!existsSync(artifactsDir)) throw new Error(`missing runtime/artifacts/${releaseId}/${corr}`);
   const artifactFiles = readdirSync(artifactsDir);
   const hasPdf = artifactFiles.some((f) => f.endsWith(".pdf"));
-  if (!hasPdf) throw new Error(`expected .pdf artifact in runtime/artifacts/${corr}, got: ${artifactFiles.join(", ")}`);
+  if (!hasPdf) throw new Error(`expected .pdf artifact in runtime/artifacts/${releaseId}/${corr}, got: ${artifactFiles.join(", ")}`);
 
   const afterLines = existsSync(indexPath) ? readFileSync(indexPath, "utf-8").trim().split("\n").filter(Boolean) : [];
   const added = afterLines.length - beforeLines;
@@ -100,7 +66,7 @@ async function run() {
   const runReportPath = join(workflowReportDir, "RUN_REPORT.json");
   if (!existsSync(runReportPath)) throw new Error(`missing RUN_REPORT.json in workflows/${corr}`);
 
-  server.kill("SIGTERM");
+  killServer(server);
   temp.cleanup();
   console.log("Action export_pdf end2end PASS");
 }

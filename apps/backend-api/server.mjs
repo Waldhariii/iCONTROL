@@ -2298,8 +2298,9 @@ const server = http.createServer(async (req, res) => {
       const correlationId = ctx.request_id || randomUUID();
       const payload = await bodyToJson(req).catch(() => ({}));
       const reportsDir = getReportsDir();
-      const artifactsBaseDir = join(ROOT, "runtime", "artifacts");
       const active = readActiveRelease();
+      const releaseId = active?.active_release_id || "default";
+      const artifactsBaseDir = join(ROOT, "runtime", "artifacts", releaseId);
       const result = await dispatchAction(
         { action_id: payload.action_id, kind: payload.kind, policy_id: payload.policy_id, input_schema_ref: payload.input_schema_ref, handler_ref: payload.handler_ref },
         {
@@ -2360,8 +2361,9 @@ const server = http.createServer(async (req, res) => {
         }
       }
       const reportsDir = getReportsDir();
-      const artifactsBaseDir = join(ROOT, "runtime", "artifacts");
       const active = readActiveRelease();
+      const releaseId = active?.active_release_id || "default";
+      const artifactsBaseDir = join(ROOT, "runtime", "artifacts", releaseId);
       const result = await runWorkflow({
         workflow_id,
         inputs: payload.inputs || {},
