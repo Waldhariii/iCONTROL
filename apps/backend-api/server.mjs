@@ -411,6 +411,8 @@ function verifyWebhookSignature({ headers, rawBody, tenantId, usage }) {
 function requiredScopeForPath(method, path) {
   const p = path.split("?")[0];
   const rules = [
+    { prefix: "/api/health", scope: null },
+    { prefix: "/api/runtime/active-release", scope: null },
     { prefix: "/api/marketplace", scope: "marketplace.*" },
     { prefix: "/api/billing", scope: "billing.*" },
     { prefix: "/api/ops", scope: "ops.*" },
@@ -422,7 +424,8 @@ function requiredScopeForPath(method, path) {
     { prefix: "/api/tenancy/factory", scope: "tenancy.factory.*" },
     { prefix: "/api/integrations", scope: "integrations.*" },
     { prefix: "/api/packs", scope: "ops.packs.*" },
-    { prefix: "/api/auth/token", scope: null }
+    { prefix: "/api/auth/token", scope: null },
+    { prefix: "/api/reports/latest", scope: "observability.read" }
   ];
   for (const r of rules) {
     if (p.startsWith(r.prefix)) return r.scope;
@@ -1455,8 +1458,33 @@ const server = http.createServer(async (req, res) => {
       return res.end(readFileSync(cssPath, "utf-8"));
     }
 
+    if (req.method === "GET" && (req.url === "/api/health" || req.url === "/api/health/")) {
+      return json(res, 200, { ok: true, at: new Date().toISOString() });
+    }
+
     if (req.method === "GET" && req.url?.startsWith("/api/runtime/active-release")) {
       return json(res, 200, readActiveRelease());
+    }
+
+    const REPORTS_INDEX_WHITELIST = {
+      gates: "gates_latest.jsonl",
+      workflows: "workflows_latest.jsonl",
+      marketplace: "marketplace_events.jsonl",
+      billing: "billing_drafts.jsonl",
+      webhook: "webhook_verify.jsonl",
+      ops: "ops_events.jsonl"
+    };
+    if (req.method === "GET" && req.url?.startsWith("/api/reports/latest")) {
+      requirePermission(req, "observability.read");
+      const url = new URL(req.url, "http://localhost");
+      const kind = url.searchParams.get("kind") || "";
+      const filename = REPORTS_INDEX_WHITELIST[kind];
+      if (!filename) return json(res, 400, { error: "kind required; one of: gates, workflows, marketplace, billing, webhook, ops" });
+      const limit = Math.min(100, Math.max(1, Number(url.searchParams.get("limit")) || 50));
+      const indexPath = join(getReportsDir(), "index", filename);
+      if (normalize(indexPath) !== normalize(join(getReportsDir(), "index", filename))) return json(res, 400, { error: "invalid path" });
+      const lines = readJsonl(indexPath, { limit });
+      return json(res, 200, { kind, lines });
     }
 
     if (req.method === "GET" && req.url?.startsWith("/api/observability/policy-decisions")) {

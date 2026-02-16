@@ -14,7 +14,9 @@
     "studio:dev": "node apps/control-plane/server.mjs",
     "api:dev": "node apps/backend-api/server.mjs",
     "client:dev": "node apps/client-app/server.mjs",
-    "ci:all": "node scripts/ci/ci-all.mjs"
+    "ci:all": "node scripts/ci/ci-all.mjs",
+    "cp:dev": "pnpm --filter @icontrol/control-plane dev",
+    "dev": "pnpm -r --parallel dev"
   },
   "workspaces": [
     "apps/*",
