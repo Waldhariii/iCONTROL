@@ -2297,15 +2297,19 @@ const server = http.createServer(async (req, res) => {
       const list = Array.isArray(definitions) ? definitions : (definitions?.workflows || []);
       const allowed = new Set(list.map((w) => w.workflow_id || w.id).filter(Boolean));
       if (!allowed.has(workflow_id)) return json(res, 400, { ok: false, error: "workflow_id not found in definitions" });
-      const mode = payload.mode === "live" ? "live" : "dry_run";
-      const result = runWorkflow({
+      const mode = (payload.mode === "execute" || payload.mode === "live") ? "execute" : "dry_run";
+      const reportsDir = getReportsDir();
+      const artifactsBaseDir = join(ROOT, "runtime", "artifacts");
+      const result = await runWorkflow({
         workflow_id,
         inputs: payload.inputs || {},
         mode,
         correlation_id: payload.correlation_id || correlationId,
-        actor: ctx.actor_id || payload.actor || "system"
+        actor: ctx.actor_id || payload.actor || "system",
+        reports_dir: reportsDir,
+        artifacts_base_dir: artifactsBaseDir
       });
-      const indexPath = join(getReportsDir(), "index", "workflows_latest.jsonl");
+      const indexPath = join(reportsDir, "index", "workflows_latest.jsonl");
       appendJsonl(indexPath, {
         ts: new Date().toISOString(),
         correlation_id: correlationId,

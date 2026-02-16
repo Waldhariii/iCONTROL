@@ -30,6 +30,7 @@ platform/ssot/changes/reviews/*.json
 governance/gates/gates-report.json
 runtime/reports/
 runtime/reports/RETENTION_REPORT_*
+runtime/artifacts/
 platform/runtime/datagov/records_index/
 platform/runtime/datagov/exports/
 platform/runtime/integrations/dlq/
