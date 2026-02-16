@@ -214,5 +214,41 @@
     "tier": "enterprise",
     "max_ms": 250,
     "cache_policy_id": "cache:default"
+  },
+  {
+    "query_id": "query:ocr.queue_list",
+    "tier": "free",
+    "max_ms": 1000,
+    "cache_policy_id": "cache:default"
+  },
+  {
+    "query_id": "query:ocr.queue_list",
+    "tier": "pro",
+    "max_ms": 500,
+    "cache_policy_id": "cache:default"
+  },
+  {
+    "query_id": "query:ocr.queue_list",
+    "tier": "enterprise",
+    "max_ms": 200,
+    "cache_policy_id": "cache:default"
+  },
+  {
+    "query_id": "query:accounting_sync.status",
+    "tier": "free",
+    "max_ms": 1000,
+    "cache_policy_id": "cache:default"
+  },
+  {
+    "query_id": "query:accounting_sync.status",
+    "tier": "pro",
+    "max_ms": 500,
+    "cache_policy_id": "cache:default"
+  },
+  {
+    "query_id": "query:accounting_sync.status",
+    "tier": "enterprise",
+    "max_ms": 200,
+    "cache_policy_id": "cache:default"
   }
 ]

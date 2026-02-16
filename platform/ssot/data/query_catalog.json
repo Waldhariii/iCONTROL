@@ -82,5 +82,19 @@
     "name": "Billing Activity",
     "module_id": "module:billing",
     "data_model_id": "model:payment"
+  },
+  {
+    "query_id": "query:ocr.queue_list",
+    "datasource_id": "ds:documents",
+    "name": "OCR Queue List",
+    "module_id": "module:ocr_pipeline",
+    "data_model_id": "model:document"
+  },
+  {
+    "query_id": "query:accounting_sync.status",
+    "datasource_id": "ds:documents",
+    "name": "Accounting Sync Status",
+    "module_id": "module:accounting_sync",
+    "data_model_id": "model:document"
   }
 ]

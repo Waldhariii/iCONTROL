@@ -264,5 +264,61 @@
     "aliases": [],
     "deprecation_date": "",
     "redirect_to": ""
+  },
+  {
+    "route_id": "route:bizdocs-documents",
+    "surface": "client",
+    "path": "/app/documents",
+    "page_id": "page:documents",
+    "guard_pack_id": "guard:default",
+    "flag_gate_id": "flag:default",
+    "entitlement_gate_id": "entitlement:default",
+    "priority": 10,
+    "canonical": true,
+    "aliases": [],
+    "deprecation_date": "",
+    "redirect_to": ""
+  },
+  {
+    "route_id": "route:bizdocs-pdf-exports",
+    "surface": "client",
+    "path": "/app/pdf-exports",
+    "page_id": "page:pdf_exports",
+    "guard_pack_id": "guard:default",
+    "flag_gate_id": "flag:default",
+    "entitlement_gate_id": "entitlement:default",
+    "priority": 10,
+    "canonical": true,
+    "aliases": [],
+    "deprecation_date": "",
+    "redirect_to": ""
+  },
+  {
+    "route_id": "route:bizdocs-ocr-inbox",
+    "surface": "client",
+    "path": "/app/ocr-inbox",
+    "page_id": "page:ocr_inbox",
+    "guard_pack_id": "guard:default",
+    "flag_gate_id": "flag:default",
+    "entitlement_gate_id": "entitlement:default",
+    "priority": 10,
+    "canonical": true,
+    "aliases": [],
+    "deprecation_date": "",
+    "redirect_to": ""
+  },
+  {
+    "route_id": "route:bizdocs-accounting-sync",
+    "surface": "client",
+    "path": "/app/accounting-sync",
+    "page_id": "page:accounting_sync",
+    "guard_pack_id": "guard:default",
+    "flag_gate_id": "flag:default",
+    "entitlement_gate_id": "entitlement:default",
+    "priority": 10,
+    "canonical": true,
+    "aliases": [],
+    "deprecation_date": "",
+    "redirect_to": ""
   }
 ]

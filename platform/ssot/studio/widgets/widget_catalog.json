@@ -104,5 +104,33 @@
         "label_field"
       ]
     }
+  },
+  {
+    "id": "widget:doc_list",
+    "name": "Doc List",
+    "props_schema": {
+      "allowed_props": ["title", "datasource_id", "columns"]
+    }
+  },
+  {
+    "id": "widget:pdf_export_button",
+    "name": "PDF Export Button",
+    "props_schema": {
+      "allowed_props": ["title", "action"]
+    }
+  },
+  {
+    "id": "widget:ocr_queue",
+    "name": "OCR Queue",
+    "props_schema": {
+      "allowed_props": ["title", "datasource_id", "columns"]
+    }
+  },
+  {
+    "id": "widget:accounting_sync_status",
+    "name": "Accounting Sync Status",
+    "props_schema": {
+      "allowed_props": ["title", "datasource_id"]
+    }
   }
 ]

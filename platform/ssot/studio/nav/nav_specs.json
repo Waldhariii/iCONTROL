@@ -262,5 +262,117 @@
     "label": "Design",
     "path": "/cp/studio/design",
     "module_id": "studio"
+  },
+  {
+    "id": "nav:bizdocs.documents",
+    "surface": "client",
+    "label": "Documents",
+    "path": "/app/documents",
+    "module_id": "module:documents",
+    "order": 100
+  },
+  {
+    "id": "nav:bizdocs.pdf_exports",
+    "surface": "client",
+    "label": "PDF Exports",
+    "path": "/app/pdf-exports",
+    "module_id": "module:pdf_exports",
+    "order": 110
+  },
+  {
+    "id": "nav:bizdocs.ocr_inbox",
+    "surface": "client",
+    "label": "OCR Inbox",
+    "path": "/app/ocr-inbox",
+    "module_id": "module:ocr_pipeline",
+    "order": 120
+  },
+  {
+    "id": "nav:bizdocs.accounting_sync",
+    "surface": "client",
+    "label": "Accounting Sync",
+    "path": "/app/accounting-sync",
+    "module_id": "module:accounting_sync",
+    "order": 130
+  },
+  {
+    "id": "nav:bizdocs.documents:main",
+    "surface": "client",
+    "module_id": "module:documents",
+    "type": "section",
+    "page_id": "page:documents",
+    "section_key": "main",
+    "label_key": "bizdocs.documents.main",
+    "order": 10
+  },
+  {
+    "id": "nav:bizdocs.documents:activity",
+    "surface": "client",
+    "module_id": "module:documents",
+    "type": "section",
+    "page_id": "page:documents",
+    "section_key": "tab:activity",
+    "label_key": "bizdocs.documents.activity",
+    "order": 20
+  },
+  {
+    "id": "nav:bizdocs.pdf_exports:main",
+    "surface": "client",
+    "module_id": "module:pdf_exports",
+    "type": "section",
+    "page_id": "page:pdf_exports",
+    "section_key": "main",
+    "label_key": "bizdocs.pdf_exports.main",
+    "order": 10
+  },
+  {
+    "id": "nav:bizdocs.pdf_exports:activity",
+    "surface": "client",
+    "module_id": "module:pdf_exports",
+    "type": "section",
+    "page_id": "page:pdf_exports",
+    "section_key": "tab:activity",
+    "label_key": "bizdocs.pdf_exports.activity",
+    "order": 20
+  },
+  {
+    "id": "nav:bizdocs.ocr_inbox:main",
+    "surface": "client",
+    "module_id": "module:ocr_pipeline",
+    "type": "section",
+    "page_id": "page:ocr_inbox",
+    "section_key": "main",
+    "label_key": "bizdocs.ocr_inbox.main",
+    "order": 10
+  },
+  {
+    "id": "nav:bizdocs.ocr_inbox:activity",
+    "surface": "client",
+    "module_id": "module:ocr_pipeline",
+    "type": "section",
+    "page_id": "page:ocr_inbox",
+    "section_key": "tab:activity",
+    "label_key": "bizdocs.ocr_inbox.activity",
+    "order": 20
+  },
+  {
+    "id": "nav:bizdocs.accounting_sync:main",
+    "surface": "client",
+    "module_id": "module:accounting_sync",
+    "type": "section",
+    "page_id": "page:accounting_sync",
+    "section_key": "main",
+    "label_key": "bizdocs.accounting_sync.main",
+    "order": 10
+  },
+  {
+    "id": "nav:bizdocs.accounting_sync:activity",
+    "surface": "client",
+    "module_id": "module:accounting_sync",
+    "type": "section",
+    "page_id": "page:accounting_sync",
+    "section_key": "tab:activity",
+    "label_key": "bizdocs.accounting_sync.activity",
+    "order": 20
   }
 ]

@@ -578,5 +578,80 @@
     },
     "page_id": "client-billing-dashboard",
     "module_id": "module:billing"
+  },
+  {
+    "id": "wi-doc-list-001",
+    "widget_id": "widget:doc_list",
+    "props": {
+      "title": "Documents",
+      "datasource_id": "ds:documents",
+      "columns": ["title", "status", "updated_at"]
+    },
+    "data_bindings": [
+      { "binding_id": "b1", "datasource_id": "ds:documents", "query_id": "query:docs.list" }
+    ],
+    "props_schema": {
+      "allowed_props": ["title", "datasource_id", "columns"]
+    },
+    "page_id": "page:documents",
+    "module_id": "module:documents",
+    "section_key": "main"
+  },
+  {
+    "id": "wi-pdf-export-001",
+    "widget_id": "widget:pdf_export_button",
+    "props": {
+      "title": "Export PDF"
+    },
+    "actions": [
+      { "action_id": "a1", "kind": "export_pdf", "policy_id": "policy:default" }
+    ],
+    "props_schema": {
+      "allowed_props": ["title", "action"]
+    },
+    "page_id": "page:pdf_exports",
+    "module_id": "module:pdf_exports",
+    "section_key": "main"
+  },
+  {
+    "id": "wi-ocr-queue-001",
+    "widget_id": "widget:ocr_queue",
+    "props": {
+      "title": "OCR Queue",
+      "datasource_id": "ds:documents",
+      "columns": ["filename", "status", "created_at"]
+    },
+    "data_bindings": [
+      { "binding_id": "b1", "datasource_id": "ds:documents", "query_id": "query:ocr.queue_list" }
+    ],
+    "actions": [
+      { "action_id": "a1", "kind": "call_workflow", "policy_id": "policy:default" }
+    ],
+    "props_schema": {
+      "allowed_props": ["title", "datasource_id", "columns"]
+    },
+    "page_id": "page:ocr_inbox",
+    "module_id": "module:ocr_pipeline",
+    "section_key": "main"
+  },
+  {
+    "id": "wi-acct-sync-001",
+    "widget_id": "widget:accounting_sync_status",
+    "props": {
+      "title": "Accounting Sync Status",
+      "datasource_id": "ds:documents"
+    },
+    "data_bindings": [
+      { "binding_id": "b1", "datasource_id": "ds:documents", "query_id": "query:accounting_sync.status" }
+    ],
+    "actions": [
+      { "action_id": "a1", "kind": "call_workflow", "policy_id": "policy:default" }
+    ],
+    "props_schema": {
+      "allowed_props": ["title", "datasource_id"]
+    },
+    "page_id": "page:accounting_sync",
+    "module_id": "module:accounting_sync",
+    "section_key": "main"
   }
 ]

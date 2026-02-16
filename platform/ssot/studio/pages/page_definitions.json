@@ -283,5 +283,57 @@
     "owner_team": "studio",
     "tags": [],
     "state": "active"
+  },
+  {
+    "id": "page:documents",
+    "surface": "client",
+    "key": "bizdocs.documents",
+    "slug": "documents",
+    "title_key": "Documents",
+    "module_id": "module:documents",
+    "default_layout_template_id": "layout-1",
+    "capabilities_required": ["client.access"],
+    "owner_team": "documents",
+    "tags": [],
+    "state": "active"
+  },
+  {
+    "id": "page:pdf_exports",
+    "surface": "client",
+    "key": "bizdocs.pdf_exports",
+    "slug": "pdf-exports",
+    "title_key": "PDF Exports",
+    "module_id": "module:pdf_exports",
+    "default_layout_template_id": "layout-1",
+    "capabilities_required": ["client.access"],
+    "owner_team": "documents",
+    "tags": [],
+    "state": "active"
+  },
+  {
+    "id": "page:ocr_inbox",
+    "surface": "client",
+    "key": "bizdocs.ocr_inbox",
+    "slug": "ocr-inbox",
+    "title_key": "OCR Inbox",
+    "module_id": "module:ocr_pipeline",
+    "default_layout_template_id": "layout-1",
+    "capabilities_required": ["client.access"],
+    "owner_team": "documents",
+    "tags": [],
+    "state": "active"
+  },
+  {
+    "id": "page:accounting_sync",
+    "surface": "client",
+    "key": "bizdocs.accounting_sync",
+    "slug": "accounting-sync",
+    "title_key": "Accounting Sync",
+    "module_id": "module:accounting_sync",
+    "default_layout_template_id": "layout-1",
+    "capabilities_required": ["client.access"],
+    "owner_team": "documents",
+    "tags": [],
+    "state": "active"
   }
 ]

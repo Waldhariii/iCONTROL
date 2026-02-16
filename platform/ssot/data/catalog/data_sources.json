@@ -1,8 +1,6 @@
 [
-  {
-    "data_source_id": "ds:primary",
-    "type": "internal",
-    "name": "Primary",
-    "status": "active"
-  }
+  {"data_source_id": "ds:primary", "type": "internal", "name": "Primary", "status": "active"},
+  {"data_source_id": "ds:jobs", "type": "internal", "name": "Jobs", "status": "active"},
+  {"data_source_id": "ds:documents", "type": "internal", "name": "Documents", "status": "active"},
+  {"data_source_id": "ds:billing", "type": "internal", "name": "Billing", "status": "active"}
 ]
