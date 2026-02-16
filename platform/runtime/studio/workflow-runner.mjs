@@ -30,6 +30,9 @@ const WORKFLOW_PLANS = {
  * }} opts
  * @returns {{ ok: boolean, workflow_id: string, mode: string, steps: Array<{ step_id: string, status: string, kind?: string }>, artifacts: Array<{ artifact_id: string, kind: string }>, correlation_id?: string }}
  */
+/** Kinds allowed when safe_mode is true (execute only). */
+const SAFE_MODE_ALLOWED_KINDS = new Set(["pdf.generate", "storage.write", "storage.read", "ocr.ingest", "notify.send"]);
+
 export async function runWorkflow(opts = {}) {
   const workflow_id = opts.workflow_id || "";
   const mode = opts.mode === "execute" ? "execute" : opts.mode === "live" ? "execute" : "dry_run";
@@ -37,6 +40,7 @@ export async function runWorkflow(opts = {}) {
   const actor = opts.actor || "system";
   const reports_dir = opts.reports_dir || "";
   const artifacts_base_dir = opts.artifacts_base_dir || "";
+  const safe_mode = !!opts.safe_mode;
 
   if (!workflow_id) {
     return Promise.resolve({
@@ -67,6 +71,18 @@ export async function runWorkflow(opts = {}) {
     });
   }
 
+  const baseContext = {
+    correlation_id,
+    actor,
+    inputs: opts.inputs || {},
+    workflow_id,
+    tenant_id: opts.tenant_id || undefined,
+    release_id: opts.release_id || undefined,
+    request_id: opts.request_id || undefined,
+    reports_dir: opts.reports_dir || "",
+    safe_mode
+  };
+
   // dry_run with plan: run adapters in dry_run
   if (dry_run && plan) {
     bootstrapAdapters();
@@ -76,12 +92,9 @@ export async function runWorkflow(opts = {}) {
       try {
         const adapter = get(kind);
         const result = await adapter.run({
-          correlation_id,
-          actor,
-          inputs: opts.inputs || {},
+          ...baseContext,
           dry_run: true,
           artifacts_dir: "",
-          workflow_id,
           step_id: stepId
         });
         steps.push({ step_id: stepId, status: result.ok ? "ok" : "failed", kind });
@@ -110,15 +123,16 @@ export async function runWorkflow(opts = {}) {
   for (let i = 0; i < (plan || []).length; i++) {
     const kind = plan[i];
     const stepId = `${kind}_${i}`;
+    if (safe_mode && !SAFE_MODE_ALLOWED_KINDS.has(kind)) {
+      steps.push({ step_id: stepId, status: "failed", kind, error: "SAFE_MODE: kind not allowed" });
+      continue;
+    }
     try {
       const adapter = get(kind);
       const result = await adapter.run({
-        correlation_id,
-        actor,
-        inputs: opts.inputs || {},
+        ...baseContext,
         dry_run: false,
         artifacts_dir,
-        workflow_id,
         step_id: stepId
       });
       steps.push({ step_id: stepId, status: result.ok ? "ok" : "failed", kind });

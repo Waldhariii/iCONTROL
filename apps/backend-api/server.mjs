@@ -2326,8 +2326,16 @@ const server = http.createServer(async (req, res) => {
       const allowed = new Set(list.map((w) => w.workflow_id || w.id).filter(Boolean));
       if (!allowed.has(workflow_id)) return json(res, 400, { ok: false, error: "workflow_id not found in definitions" });
       const mode = (payload.mode === "execute" || payload.mode === "live") ? "execute" : "dry_run";
+      if (mode === "execute") {
+        const gov = getGovernanceData();
+        if (!freezeAllows({ changeFreeze: gov.changeFreeze, action: "studio.workflows.run" })) {
+          appendAudit({ event: "freeze_denied", action: "studio.workflows.run", at: new Date().toISOString() });
+          return json(res, 423, { ok: false, error: "Change Freeze active", code: "freeze" });
+        }
+      }
       const reportsDir = getReportsDir();
       const artifactsBaseDir = join(ROOT, "runtime", "artifacts");
+      const active = readActiveRelease();
       const result = await runWorkflow({
         workflow_id,
         inputs: payload.inputs || {},
@@ -2335,7 +2343,11 @@ const server = http.createServer(async (req, res) => {
         correlation_id: payload.correlation_id || correlationId,
         actor: ctx.actor_id || payload.actor || "system",
         reports_dir: reportsDir,
-        artifacts_base_dir: artifactsBaseDir
+        artifacts_base_dir: artifactsBaseDir,
+        tenant_id: payload.tenant_id || ctx.tenant_id || null,
+        release_id: active?.active_release_id || null,
+        request_id: ctx.request_id || null,
+        safe_mode: process.env.SAFE_MODE === "1"
       });
       const indexPath = join(reportsDir, "index", "workflows_latest.jsonl");
       appendJsonl(indexPath, {

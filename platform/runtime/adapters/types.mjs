@@ -9,8 +9,13 @@
  *   inputs: Record<string, unknown>,
  *   dry_run: boolean,
  *   artifacts_dir: string,
+ *   reports_dir?: string,
  *   workflow_id?: string,
- *   step_id?: string
+ *   step_id?: string,
+ *   tenant_id?: string,
+ *   release_id?: string,
+ *   request_id?: string,
+ *   safe_mode?: boolean
  * }} AdapterContext
  */
 

@@ -1,7 +1,7 @@
 /**
- * Phase AF: Accounting adapter stub. No external I/O; writes stub artifact when execute.
+ * Phase AF/AH: Accounting adapter stub. No external I/O; journal sync draft to billing_drafts.jsonl when execute.
  */
-import { writeFileSync, mkdirSync } from "fs";
+import { writeFileSync, mkdirSync, appendFileSync } from "fs";
 import { join } from "path";
 
 const KIND = "accounting.sync";
@@ -15,21 +15,39 @@ export async function run(ctx) {
     return { ok: true, step_id: stepId, kind: KIND, artifact_ids: [`stub:${ctx.correlation_id}:accounting`] };
   }
   const artifactsDir = ctx.artifacts_dir;
-  if (!artifactsDir) return { ok: true, step_id: stepId, kind: KIND, artifact_ids: [] };
-  const artifactId = `accounting_${ctx.correlation_id}_${Date.now()}.stub.json`;
-  mkdirSync(artifactsDir, { recursive: true });
-  writeFileSync(
-    join(artifactsDir, artifactId),
-    JSON.stringify({
-      stub: true,
+  const reportsDir = ctx.reports_dir || "";
+  const artifactIds = [];
+  if (artifactsDir) {
+    const artifactId = `accounting_${ctx.correlation_id}_${Date.now()}.stub.json`;
+    mkdirSync(artifactsDir, { recursive: true });
+    writeFileSync(
+      join(artifactsDir, artifactId),
+      JSON.stringify({
+        stub: true,
+        kind: KIND,
+        correlation_id: ctx.correlation_id,
+        workflow_id: ctx.workflow_id,
+        at: new Date().toISOString()
+      }, null, 2),
+      "utf-8"
+    );
+    artifactIds.push(artifactId);
+  }
+  if (reportsDir) {
+    const indexDir = join(reportsDir, "index");
+    mkdirSync(indexDir, { recursive: true });
+    const line = JSON.stringify({
+      ts: new Date().toISOString(),
+      type: "sync_draft",
       kind: KIND,
       correlation_id: ctx.correlation_id,
       workflow_id: ctx.workflow_id,
+      step_id: stepId,
       at: new Date().toISOString()
-    }, null, 2),
-    "utf-8"
-  );
-  return { ok: true, step_id: stepId, kind: KIND, artifact_ids: [artifactId] };
+    }) + "\n";
+    appendFileSync(join(indexDir, "billing_drafts.jsonl"), line, "utf-8");
+  }
+  return { ok: true, step_id: stepId, kind: KIND, artifact_ids: artifactIds };
 }
 
 export default { kind: KIND, version: "1.0.0", capabilities: ["stub"], run };

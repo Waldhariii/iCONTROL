@@ -3,7 +3,7 @@
  */
 import { register } from "./registry.mjs";
 import { storageWrite, storageRead } from "./adapters/storage.fs.mjs";
-import pdfStub from "./adapters/pdf.stub.mjs";
+import pdfLocal from "./adapters/pdf.local.mjs";
 import ocrStub from "./adapters/ocr.stub.mjs";
 import accountingStub from "./adapters/accounting.stub.mjs";
 import notifyStub from "./adapters/notify.stub.mjs";
@@ -14,7 +14,7 @@ export function bootstrapAdapters() {
   if (bootstrapped) return;
   register("storage.write", storageWrite);
   register("storage.read", storageRead);
-  register("pdf.generate", pdfStub);
+  register("pdf.generate", pdfLocal);
   register("ocr.ingest", ocrStub);
   register("accounting.sync", accountingStub);
   register("notify.send", notifyStub);
