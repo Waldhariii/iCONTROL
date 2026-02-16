@@ -1,5 +1,6 @@
 /**
- * Phase AS: Autonomous scheduler — one-shot deep-clean, evidence pack, optional gates. Outputs under runtime/ only.
+ * Phase AS: Autonomous scheduler — one-shot deep-clean, evidence pack, optional gates.
+ * Outputs under runtime/reports only (scheduler/, index/scheduler_latest.jsonl).
  */
 import { mkdirSync, writeFileSync, appendFileSync, existsSync } from "fs";
 import { join } from "path";
