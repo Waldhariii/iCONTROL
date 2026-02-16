@@ -16,6 +16,7 @@ function copyDir(src, dest) {
     const s = join(src, entry.name);
     const d = join(dest, entry.name);
     if (s.includes("/changes/snapshots")) continue;
+    if (entry.isSymbolicLink()) continue;
     if (entry.isDirectory()) copyDir(s, d);
     else writeFileSync(d, readFileSync(s));
   }

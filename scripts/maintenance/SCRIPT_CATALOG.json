@@ -736,8 +736,8 @@
   {
     "id": "scripts:ci:test-workflow-execute-localfs.mjs",
     "path": "scripts/ci/test-workflow-execute-localfs.mjs",
-    "purpose": "CI: Phase AF workflow execute mode, artifacts runtime/artifacts + runtime/reports/workflows, index jsonl",
-    "outputs": ["runtime/reports/index/workflows_latest.jsonl", "runtime/reports/workflows", "runtime/artifacts"],
+    "purpose": "CI: Phase AF workflow execute mode, runtime/reports/workflows + index jsonl (artifacts under runtime/artifacts not declared)",
+    "outputs": ["runtime/reports/index/workflows_latest.jsonl", "runtime/reports/workflows"],
     "forbidden_outputs": ["CI_REPORT.md", "platform/runtime/reports"],
     "requires_api": true,
     "s2s_scopes": [],

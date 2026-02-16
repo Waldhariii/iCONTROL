@@ -95,6 +95,7 @@ const CORE_ALLOWLIST_PREFIXES = [
   "platform/ssot/studio/forms/",
   "platform/ssot/changes/changesets/",
   "apps/backend-api/server.mjs",
+  "apps/control-plane/",
   "apps/control-plane/public/styles.css",
   "apps/control-plane/public/app.js",
   "apps/client-app/public/styles.css",
