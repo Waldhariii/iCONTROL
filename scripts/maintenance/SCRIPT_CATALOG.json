@@ -723,6 +723,17 @@
     "category": "ci"
   },
   {
+    "id": "scripts:ci:test-workflow-runner-dryrun.mjs",
+    "path": "scripts/ci/test-workflow-runner-dryrun.mjs",
+    "purpose": "CI: Phase AE workflow runner dry-run via POST /api/studio/workflows/run, index jsonl correlation_id",
+    "outputs": ["runtime/reports/index/workflows_latest.jsonl"],
+    "forbidden_outputs": ["CI_REPORT.md", "platform/runtime/reports"],
+    "requires_api": true,
+    "s2s_scopes": [],
+    "safety": "api-local",
+    "category": "ci"
+  },
+  {
     "id": "scripts:ci:test-manifest-determinism.mjs",
     "path": "scripts/ci/test-manifest-determinism.mjs",
     "purpose": "CI: temp SSOT double compile, assert identical meta.fingerprint.sha256",
