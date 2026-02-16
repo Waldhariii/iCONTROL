@@ -1034,6 +1034,17 @@
     "category": "ci"
   },
   {
+    "id": "scripts:ci:test-extension-compat.mjs",
+    "path": "scripts/ci/test-extension-compat.mjs",
+    "purpose": "CI: Phase AP extension compat gate + semver + compat matrix",
+    "outputs": [],
+    "forbidden_outputs": ["CI_REPORT.md", "platform/runtime/reports"],
+    "requires_api": false,
+    "s2s_scopes": [],
+    "safety": "local",
+    "category": "ci"
+  },
+  {
     "id": "scripts:ci:test-governance-authz.mjs",
     "path": "scripts/ci/test-governance-authz.mjs",
     "purpose": "script",

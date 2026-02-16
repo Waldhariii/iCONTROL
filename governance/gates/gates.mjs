@@ -1409,6 +1409,18 @@ export function marketplaceImpactGate({ ssotDir }) {
   return { ok, gate: "Marketplace Impact Gate", details: ok ? "" : "Missing export masking controls" };
 }
 
+export function extensionCompatGate({ ssotDir }) {
+  const bad = [];
+  const extVersions = readJson(`${ssotDir}/extensions/extension_versions.json`);
+  for (const v of extVersions || []) {
+    if (!isValidSemver(v.version)) bad.push(`${v.extension_id}@${v.version}:invalid_semver`);
+  }
+  const compat = readJson(`${ssotDir}/compat/compatibility_matrix.json`);
+  if (!compat || compat.length === 0) bad.push("compatibility_matrix_empty");
+  const ok = bad.length === 0;
+  return { ok, gate: "Extension Compat Gate", details: ok ? "" : bad.join(", ") };
+}
+
 export function marketplaceCompatGate({ ssotDir }) {
   const activations = readJson(`${ssotDir}/modules/module_activations.json`);
   const versions = readJson(`${ssotDir}/modules/domain_module_versions.json`);
