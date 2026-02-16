@@ -5,5 +5,6 @@
   {"workflow_id": "workflow:pdf_export_quote", "name": "PDF Export Quote", "module_id": "module:pdf_exports", "status": "active"},
   {"workflow_id": "workflow:pdf_export_report", "name": "PDF Export Report", "module_id": "module:pdf_exports", "status": "active"},
   {"workflow_id": "workflow:ocr_ingest", "name": "OCR Ingest", "module_id": "module:ocr_pipeline", "status": "active"},
-  {"workflow_id": "workflow:ocr_normalize", "name": "OCR Normalize", "module_id": "module:ocr_pipeline", "status": "active"}
+  {"workflow_id": "workflow:ocr_normalize", "name": "OCR Normalize", "module_id": "module:ocr_pipeline", "status": "active"},
+  {"workflow_id": "workflow:accounting_sync_run", "name": "Accounting Sync Run", "module_id": "module:accounting_sync", "status": "active"}
 ]
