@@ -2297,10 +2297,36 @@ const server = http.createServer(async (req, res) => {
       const ctx = getContext();
       const correlationId = ctx.request_id || randomUUID();
       const payload = await bodyToJson(req).catch(() => ({}));
-      const result = dispatchAction(
+      const reportsDir = getReportsDir();
+      const artifactsBaseDir = join(ROOT, "runtime", "artifacts");
+      const active = readActiveRelease();
+      const result = await dispatchAction(
         { action_id: payload.action_id, kind: payload.kind, policy_id: payload.policy_id, input_schema_ref: payload.input_schema_ref, handler_ref: payload.handler_ref },
-        { correlation_id: correlationId, tenant_id: payload.tenant_id }
+        {
+          correlation_id: correlationId,
+          tenant_id: payload.tenant_id || ctx.tenant_id,
+          request_id: ctx.request_id,
+          release_id: active?.active_release_id,
+          actor: ctx.actor_id || payload.actor || "system",
+          reports_dir: reportsDir,
+          artifacts_base_dir: artifactsBaseDir,
+          page_id: payload.page_id,
+          safe_mode: process.env.SAFE_MODE === "1",
+          inputs: payload.inputs || {}
+        }
       );
+      if (result.workflow_result) {
+        const indexPath = join(reportsDir, "index", "workflows_latest.jsonl");
+        appendJsonl(indexPath, {
+          ts: new Date().toISOString(),
+          correlation_id: correlationId,
+          workflow_id: result.workflow_result.workflow_id,
+          mode: result.workflow_result.mode || "execute",
+          ok: result.workflow_result.ok,
+          request_id: ctx.request_id,
+          actor: ctx.actor_id || "system"
+        });
+      }
       appendAudit({
         event: "studio_action_dispatch",
         action_id: payload.action_id,
