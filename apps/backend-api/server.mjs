@@ -12,6 +12,7 @@ import { planTenantCreate, planTenantClone, dryRunCreate, applyCreate, readFacto
 import { analyzeInstall } from "../../platform/runtime/marketplace/impact.mjs";
 import { diffManifests, diffSsotFiles } from "../../platform/runtime/studio/diff-engine.mjs";
 import { dispatchAction } from "../../platform/runtime/studio/action-bus.mjs";
+import { runWorkflow } from "../../platform/runtime/studio/workflow-runner.mjs";
 import { computeInvoice, persistDraft, publishInvoice, billingMode } from "../../platform/runtime/billing/invoice-engine.mjs";
 import { handleStripeWebhook } from "../../platform/runtime/billing/providers/stripe_webhook.mjs";
 import { sha256, stableStringify } from "../../platform/compilers/utils.mjs";
@@ -2283,6 +2284,46 @@ const server = http.createServer(async (req, res) => {
       });
       if (result.refused) return json(res, 400, { ok: false, refused: true, reason: result.reason });
       return json(res, 200, { ok: true, correlation_id: correlationId });
+    }
+
+    if (req.method === "POST" && req.url === "/api/studio/workflows/run") {
+      requirePermission(req, "studio.pages.view");
+      const ctx = getContext();
+      const correlationId = ctx.request_id || randomUUID();
+      const payload = await bodyToJson(req).catch(() => ({}));
+      const workflow_id = typeof payload.workflow_id === "string" ? payload.workflow_id.trim() : "";
+      if (!workflow_id) return json(res, 400, { ok: false, error: "workflow_id required" });
+      const definitions = readJsonIfExists(ssotPath("studio/workflows/workflow_definitions.json"));
+      const list = Array.isArray(definitions) ? definitions : (definitions?.workflows || []);
+      const allowed = new Set(list.map((w) => w.workflow_id || w.id).filter(Boolean));
+      if (!allowed.has(workflow_id)) return json(res, 400, { ok: false, error: "workflow_id not found in definitions" });
+      const mode = payload.mode === "live" ? "live" : "dry_run";
+      const result = runWorkflow({
+        workflow_id,
+        inputs: payload.inputs || {},
+        mode,
+        correlation_id: payload.correlation_id || correlationId,
+        actor: ctx.actor_id || payload.actor || "system"
+      });
+      const indexPath = join(getReportsDir(), "index", "workflows_latest.jsonl");
+      appendJsonl(indexPath, {
+        ts: new Date().toISOString(),
+        correlation_id: correlationId,
+        workflow_id,
+        mode: result.mode,
+        ok: result.ok,
+        request_id: ctx.request_id,
+        actor: ctx.actor_id || "system"
+      });
+      appendAudit({
+        event: "studio_workflow_run",
+        workflow_id,
+        mode: result.mode,
+        correlation_id: correlationId,
+        ok: result.ok,
+        at: new Date().toISOString()
+      });
+      return json(res, 200, { ...result, correlation_id: correlationId });
     }
 
     if (req.method === "GET" && req.url?.startsWith("/api/studio/diff/manifest")) {
