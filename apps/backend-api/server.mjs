@@ -1480,17 +1480,23 @@ const server = http.createServer(async (req, res) => {
       marketplace: "marketplace_events.jsonl",
       billing: "billing_drafts.jsonl",
       webhook: "webhook_verify.jsonl",
-      ops: "ops_events.jsonl"
+      ops: "ops_events.jsonl",
+      releases: "releases_latest.jsonl",
+      scheduler: "scheduler_latest.jsonl",
+      breakglass: "breakglass_latest.jsonl",
+      quorum: "quorum_latest.jsonl"
     };
+    const REPORTS_INDEX_SUBDIR = { breakglass: "governance", quorum: "governance" };
     if (req.method === "GET" && req.url?.startsWith("/api/reports/latest")) {
       requirePermission(req, "observability.read");
       const url = new URL(req.url, "http://localhost");
       const kind = url.searchParams.get("kind") || "";
       const filename = REPORTS_INDEX_WHITELIST[kind];
-      if (!filename) return json(res, 400, { error: "kind required; one of: gates, workflows, marketplace, billing, webhook, ops" });
+      if (!filename || filename.includes("/")) return json(res, 400, { error: "kind required; one of: gates, workflows, marketplace, billing, webhook, ops, releases, scheduler, breakglass, quorum" });
       const limit = Math.min(100, Math.max(1, Number(url.searchParams.get("limit")) || 50));
-      const indexPath = join(getReportsDir(), "index", filename);
-      if (normalize(indexPath) !== normalize(join(getReportsDir(), "index", filename))) return json(res, 400, { error: "invalid path" });
+      const subdir = REPORTS_INDEX_SUBDIR[kind] || "index";
+      const indexPath = join(getReportsDir(), subdir, filename);
+      if (normalize(indexPath) !== normalize(join(getReportsDir(), subdir, filename))) return json(res, 400, { error: "invalid path" });
       const lines = readJsonl(indexPath, { limit });
       return json(res, 200, { kind, lines });
     }

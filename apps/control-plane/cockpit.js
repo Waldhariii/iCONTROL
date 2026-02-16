@@ -3,7 +3,7 @@
  */
 (function () {
   const DEFAULT_API_BASE = "http://127.0.0.1:7070";
-  const kinds = ["gates", "workflows", "marketplace", "billing", "webhook", "ops"];
+  const kinds = ["gates", "workflows", "marketplace", "billing", "webhook", "ops", "releases", "scheduler", "breakglass", "quorum"];
 
   function el(id) {
     return document.getElementById(id);
@@ -31,6 +31,12 @@
 
   function renderActiveRelease(data) {
     const pre = el("activeReleaseOut");
+    if (!pre) return;
+    pre.textContent = data ? JSON.stringify(data, null, 2) : "-";
+  }
+
+  function renderFreeze(data) {
+    const pre = el("freezeOut");
     if (!pre) return;
     pre.textContent = data ? JSON.stringify(data, null, 2) : "-";
   }
@@ -67,6 +73,17 @@
     }
   }
 
+  async function loadFreeze() {
+    try {
+      const data = await fetchJson("/api/studio/freeze");
+      renderFreeze(data);
+      return true;
+    } catch (e) {
+      renderFreeze({ error: String(e.message) });
+      return false;
+    }
+  }
+
   async function loadIndex(kind) {
     try {
       const data = await fetchJson("/api/reports/latest?kind=" + encodeURIComponent(kind) + "&limit=50");
@@ -81,6 +98,7 @@
   async function loadAll() {
     await loadHealth();
     await loadActiveRelease();
+    await loadFreeze();
     for (var i = 0; i < kinds.length; i++) await loadIndex(kinds[i]);
   }
 

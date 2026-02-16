@@ -1089,6 +1089,17 @@
     "category": "maintenance"
   },
   {
+    "id": "scripts:ci:test-cockpit-panels.mjs",
+    "path": "scripts/ci/test-cockpit-panels.mjs",
+    "purpose": "CI: Phase AT cockpit v2 panels (releases, freeze, scheduler, workflows from index)",
+    "outputs": [],
+    "forbidden_outputs": ["CI_REPORT.md", "platform/runtime/reports"],
+    "requires_api": true,
+    "s2s_scopes": ["observability.read", "studio.*"],
+    "safety": "api-local",
+    "category": "ci"
+  },
+  {
     "id": "scripts:ci:test-governance-authz.mjs",
     "path": "scripts/ci/test-governance-authz.mjs",
     "purpose": "script",

@@ -9,7 +9,8 @@
       "runtime.read",
       "security.read",
       "tenancy.factory.*",
-      "ops.*"
+      "ops.*",
+      "observability.read"
     ],
     "tenant_scope": "platform:*",
     "status": "active",
