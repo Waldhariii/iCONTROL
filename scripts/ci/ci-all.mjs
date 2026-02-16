@@ -55,6 +55,7 @@ const steps = [
   "node scripts/ci/test-bizdocs-actions-workflows.mjs",
   "node scripts/ci/test-workflow-runner-dryrun.mjs",
   "node scripts/ci/test-workflow-execute-localfs.mjs",
+  "node scripts/ci/test-cp-cockpit-smoke.mjs",
   "node scripts/ci/test-pdf-export-action-policy.mjs",
   "node scripts/ci/test-manifest-determinism.mjs",
   "node scripts/ci/test-diff-noise-gate.mjs",
