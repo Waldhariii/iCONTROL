@@ -1056,6 +1056,17 @@
     "category": "ci"
   },
   {
+    "id": "scripts:ci:test-ocr-contract.mjs",
+    "path": "scripts/ci/test-ocr-contract.mjs",
+    "purpose": "CI: Phase AR OCR artifact fingerprint + schema validation",
+    "outputs": ["runtime/artifacts", "runtime/reports/index/ocr_latest.jsonl"],
+    "forbidden_outputs": ["CI_REPORT.md", "platform/runtime/reports"],
+    "requires_api": false,
+    "s2s_scopes": [],
+    "safety": "local",
+    "category": "ci"
+  },
+  {
     "id": "scripts:ci:test-governance-authz.mjs",
     "path": "scripts/ci/test-governance-authz.mjs",
     "purpose": "script",

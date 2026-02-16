@@ -1,0 +1,15 @@
+{
+  "$id": "ocr_normalize_artifact.v1",
+  "type": "object",
+  "required": ["fingerprint", "datasource_id", "correlation_id", "created_at"],
+  "properties": {
+    "fingerprint": { "type": "string", "minLength": 1 },
+    "datasource_id": { "type": "string", "minLength": 1 },
+    "correlation_id": { "type": "string" },
+    "created_at": { "type": "string", "minLength": 1 },
+    "normalized": { "type": "boolean" },
+    "kind": { "type": "string" },
+    "workflow_id": { "type": "string" },
+    "ingest_artifact_path": { "type": "string" }
+  }
+}

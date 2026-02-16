@@ -99,5 +99,7 @@
   "typography_set.v1": "core/contracts/schemas/typography_set.schema.json",
   "webhook.v1": "core/contracts/schemas/webhook.schema.json",
   "widget_node_v2.v1": "core/contracts/schemas/widget_node_v2.schema.json",
-  "workflow_dags.v1": "core/contracts/schemas/workflow_dags.schema.json"
+  "workflow_dags.v1": "core/contracts/schemas/workflow_dags.schema.json",
+  "ocr_ingest_artifact.v1": "core/contracts/schemas/ocr_ingest_artifact.schema.json",
+  "ocr_normalize_artifact.v1": "core/contracts/schemas/ocr_normalize_artifact.schema.json"
 }

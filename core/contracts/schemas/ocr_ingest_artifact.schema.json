@@ -1,0 +1,15 @@
+{
+  "$id": "ocr_ingest_artifact.v1",
+  "type": "object",
+  "required": ["fingerprint", "datasource_id", "correlation_id", "created_at"],
+  "properties": {
+    "fingerprint": { "type": "string", "minLength": 1 },
+    "datasource_id": { "type": "string", "minLength": 1 },
+    "correlation_id": { "type": "string" },
+    "created_at": { "type": "string", "minLength": 1 },
+    "ingested": { "type": "boolean" },
+    "kind": { "type": "string" },
+    "workflow_id": { "type": "string" },
+    "document_path": { "type": "string" }
+  }
+}
