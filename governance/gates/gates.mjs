@@ -74,6 +74,7 @@ const CORE_ALLOWLIST_PREFIXES = [
   "platform/runtime/release/",
   "platform/runtime/tenancy/provisioner.mjs",
   "platform/runtime/ops/auto-freeze.mjs",
+  "platform/runtime/governance/",
   "platform/runtime/studio/",
   "platform/runtime/testing/",
   "core/contracts/schemas/nav_spec.schema.json",

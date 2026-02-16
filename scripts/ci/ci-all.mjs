@@ -63,6 +63,7 @@ const steps = [
   "node scripts/ci/test-tenant-provision-hermetic.mjs",
   "node scripts/ci/test-auto-freeze-trigger.mjs",
   "node scripts/ci/test-extension-compat.mjs",
+  "node scripts/ci/test-accounting-breakglass.mjs",
   "node scripts/ci/test-pdf-export-action-policy.mjs",
   "node scripts/ci/test-manifest-determinism.mjs",
   "node scripts/ci/test-diff-noise-gate.mjs",

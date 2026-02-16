@@ -1045,6 +1045,17 @@
     "category": "ci"
   },
   {
+    "id": "scripts:ci:test-accounting-breakglass.mjs",
+    "path": "scripts/ci/test-accounting-breakglass.mjs",
+    "purpose": "CI: Phase AQ accounting execute guard (423 without approval, 200 with breakglass)",
+    "outputs": ["runtime/reports/governance/breakglass_latest.jsonl", "runtime/reports/governance/quorum_latest.jsonl"],
+    "forbidden_outputs": ["CI_REPORT.md", "platform/runtime/reports"],
+    "requires_api": true,
+    "s2s_scopes": ["studio.*"],
+    "safety": "api-local",
+    "category": "ci"
+  },
+  {
     "id": "scripts:ci:test-governance-authz.mjs",
     "path": "scripts/ci/test-governance-authz.mjs",
     "purpose": "script",

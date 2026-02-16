@@ -17,6 +17,8 @@ import { promoteRelease } from "../../platform/runtime/release/promote.mjs";
 import { rollbackRelease } from "../../platform/runtime/release/rollback.mjs";
 import { provisionTenant } from "../../platform/runtime/tenancy/provisioner.mjs";
 import { evaluateAndFreeze } from "../../platform/runtime/ops/auto-freeze.mjs";
+import { checkBreakglass, appendBreakglassEvent, ACTION_ACCOUNTING_EXECUTE } from "../../platform/runtime/governance/breakglass.mjs";
+import { checkQuorum, appendQuorumEvent } from "../../platform/runtime/governance/quorum-ledger.mjs";
 import { computeInvoice, persistDraft, publishInvoice, billingMode } from "../../platform/runtime/billing/invoice-engine.mjs";
 import { handleStripeWebhook } from "../../platform/runtime/billing/providers/stripe_webhook.mjs";
 import { sha256, stableStringify } from "../../platform/compilers/utils.mjs";
@@ -2364,6 +2366,18 @@ const server = http.createServer(async (req, res) => {
         if (!freezeAllows({ changeFreeze: gov.changeFreeze, action: "studio.workflows.run" })) {
           appendAudit({ event: "freeze_denied", action: "studio.workflows.run", at: new Date().toISOString() });
           return json(res, 423, { ok: false, error: "Change Freeze active", code: "freeze" });
+        }
+        if (workflow_id === "workflow:accounting_sync_run") {
+          const reportsDir = getReportsDir();
+          const scope = getContext().scope || "platform:*";
+          const bgOk = checkBreakglass(SSOT_DIR, ACTION_ACCOUNTING_EXECUTE, { scope });
+          appendBreakglassEvent(reportsDir, { ts: new Date().toISOString(), action: ACTION_ACCOUNTING_EXECUTE, allowed: bgOk, correlation_id: correlationId });
+          const quorumOk = !bgOk && checkQuorum(SSOT_DIR, "accounting.execute", workflow_id, { required: 2 });
+          appendQuorumEvent(reportsDir, { ts: new Date().toISOString(), action: "accounting.execute", target_id: workflow_id, met: quorumOk, correlation_id: correlationId });
+          if (!bgOk && !quorumOk) {
+            appendAudit({ event: "accounting_execute_denied", workflow_id, correlation_id: correlationId, at: new Date().toISOString() });
+            return json(res, 423, { ok: false, error: "Accounting execute requires breakglass or quorum", code: "accounting_guard" });
+          }
         }
       }
       const reportsDir = getReportsDir();
