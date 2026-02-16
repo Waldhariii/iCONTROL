@@ -60,6 +60,7 @@ const steps = [
   "node scripts/ci/test-manifest-determinism.mjs",
   "node scripts/ci/test-diff-noise-gate.mjs",
   "node scripts/ci/test-execute-freeze-blocks.mjs",
+  "node scripts/ci/test-action-export-pdf-end2end.mjs",
   "node scripts/ci/test-freeze-designer-blocks-apply.mjs",
   "node scripts/ci/test-no-tabs-routes.mjs",
   "node scripts/ci/test-delete-flow.mjs",

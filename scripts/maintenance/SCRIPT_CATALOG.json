@@ -756,6 +756,17 @@
     "category": "ci"
   },
   {
+    "id": "scripts:ci:test-action-export-pdf-end2end.mjs",
+    "path": "scripts/ci/test-action-export-pdf-end2end.mjs",
+    "purpose": "CI: Phase AI action export_pdf -> workflow execute end2end",
+    "outputs": ["runtime/reports/index/workflows_latest.jsonl", "runtime/reports/workflows", "runtime/artifacts"],
+    "forbidden_outputs": ["CI_REPORT.md", "platform/runtime/reports"],
+    "requires_api": true,
+    "s2s_scopes": [],
+    "safety": "api-local",
+    "category": "ci"
+  },
+  {
     "id": "scripts:ci:test-cp-cockpit-smoke.mjs",
     "path": "scripts/ci/test-cp-cockpit-smoke.mjs",
     "purpose": "CI: Phase AG control-plane cockpit smoke, API health + active-release + reports/latest",
