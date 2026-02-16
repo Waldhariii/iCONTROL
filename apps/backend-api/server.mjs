@@ -16,6 +16,7 @@ import { runWorkflow } from "../../platform/runtime/studio/workflow-runner.mjs";
 import { promoteRelease } from "../../platform/runtime/release/promote.mjs";
 import { rollbackRelease } from "../../platform/runtime/release/rollback.mjs";
 import { provisionTenant } from "../../platform/runtime/tenancy/provisioner.mjs";
+import { evaluateAndFreeze } from "../../platform/runtime/ops/auto-freeze.mjs";
 import { computeInvoice, persistDraft, publishInvoice, billingMode } from "../../platform/runtime/billing/invoice-engine.mjs";
 import { handleStripeWebhook } from "../../platform/runtime/billing/providers/stripe_webhook.mjs";
 import { sha256, stableStringify } from "../../platform/compilers/utils.mjs";
@@ -2988,6 +2989,20 @@ const server = http.createServer(async (req, res) => {
       const url = new URL(req.url, "http://localhost");
       const day = url.searchParams.get("day") || undefined;
       return json(res, 200, { events: listTimeline(day) });
+    }
+
+    if (req.method === "POST" && req.url === "/api/ops/auto-freeze/evaluate") {
+      if (!req.s2s) return json(res, 403, { ok: false, error: "S2S only" });
+      const payload = await bodyToJson(req).catch(() => ({}));
+      const correlation_id = payload.correlation_id || requestContext.getStore()?.request_id || randomUUID();
+      const result = evaluateAndFreeze({
+        tenant_id: payload.tenant_id,
+        signals: payload.signals || {},
+        correlation_id,
+        ssotDir: SSOT_DIR,
+        reportsDir: getReportsDir()
+      });
+      return json(res, 200, { ok: true, applied: result.applied, freeze_enabled: result.freeze_enabled, correlation_id: result.correlation_id });
     }
 
     if (req.method === "POST" && req.url === "/api/tenancy/factory/plan") {

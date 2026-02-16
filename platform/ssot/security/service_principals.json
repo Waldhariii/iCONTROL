@@ -8,7 +8,8 @@
       "release.*",
       "runtime.read",
       "security.read",
-      "tenancy.factory.*"
+      "tenancy.factory.*",
+      "ops.*"
     ],
     "tenant_scope": "platform:*",
     "status": "active",

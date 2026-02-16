@@ -18,7 +18,7 @@
           "release.*",
           "runtime.read",
           "security.read",
-          "tenancy.factory.*"
+          "tenancy.factory.*","ops.*"
         ]
       },
       {

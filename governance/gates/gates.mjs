@@ -73,6 +73,7 @@ const CORE_ALLOWLIST_PREFIXES = [
   "platform/runtime/changes/patch-engine.mjs",
   "platform/runtime/release/",
   "platform/runtime/tenancy/provisioner.mjs",
+  "platform/runtime/ops/auto-freeze.mjs",
   "platform/runtime/studio/",
   "platform/runtime/testing/",
   "core/contracts/schemas/nav_spec.schema.json",
@@ -105,7 +106,9 @@ const CORE_ALLOWLIST_PREFIXES = [
   "apps/client-app/public/app.js",
   "platform/ssot/studio/routes/route_specs.json",
   "platform/ssot/studio/nav/nav_specs.json",
-  "platform/ssot/studio/pages/page_definitions.json"
+  "platform/ssot/studio/pages/page_definitions.json",
+  "platform/ssot/security/service_principals.json",
+  "platform/ssot/security/token_exchange_policies.json"
 ];
 const CORE_IGNORE_PATHS = ["platform/ssot/governance/audit_ledger.json"];
 
@@ -338,6 +341,22 @@ export function tenantProvisionGate() {
   }
   const ok = details.length === 0;
   return { ok, gate: "Tenant Provision Gate", details: details.join(" | ") || "" };
+}
+
+export function autoFreezeEvidenceGate() {
+  const root = process.cwd();
+  const details = [];
+  const path = join(root, "platform/runtime/ops/auto-freeze.mjs");
+  if (!existsSync(path)) {
+    details.push("Missing platform/runtime/ops/auto-freeze.mjs");
+    return { ok: false, gate: "Auto-Freeze Evidence Gate", details: details.join(" | ") || "" };
+  }
+  const content = readFileSync(path, "utf-8");
+  if (!content.includes("AUTO_FREEZE_REPORT") || !content.includes("ops_latest.jsonl") || !content.includes("correlation_id")) {
+    details.push("auto-freeze must produce report + index ops_latest.jsonl with correlation_id");
+  }
+  const ok = details.length === 0;
+  return { ok, gate: "Auto-Freeze Evidence Gate", details: details.join(" | ") || "" };
 }
 
 export function coreChangeGate() {

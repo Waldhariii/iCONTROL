@@ -1023,6 +1023,17 @@
     "category": "ci"
   },
   {
+    "id": "scripts:ci:test-auto-freeze-trigger.mjs",
+    "path": "scripts/ci/test-auto-freeze-trigger.mjs",
+    "purpose": "CI: Phase AO auto-freeze evaluate + publish 423",
+    "outputs": ["runtime/reports/ops", "runtime/reports/index/ops_latest.jsonl"],
+    "forbidden_outputs": ["CI_REPORT.md", "platform/runtime/reports"],
+    "requires_api": true,
+    "s2s_scopes": ["ops.*", "studio.*"],
+    "safety": "api-local",
+    "category": "ci"
+  },
+  {
     "id": "scripts:ci:test-governance-authz.mjs",
     "path": "scripts/ci/test-governance-authz.mjs",
     "purpose": "script",
