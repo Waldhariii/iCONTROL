@@ -745,6 +745,17 @@
     "category": "ci"
   },
   {
+    "id": "scripts:ci:test-execute-freeze-blocks.mjs",
+    "path": "scripts/ci/test-execute-freeze-blocks.mjs",
+    "purpose": "CI: Phase AH freeze blocks workflow execute (423)",
+    "outputs": [],
+    "forbidden_outputs": ["CI_REPORT.md", "platform/runtime/reports"],
+    "requires_api": true,
+    "s2s_scopes": [],
+    "safety": "api-local",
+    "category": "ci"
+  },
+  {
     "id": "scripts:ci:test-cp-cockpit-smoke.mjs",
     "path": "scripts/ci/test-cp-cockpit-smoke.mjs",
     "purpose": "CI: Phase AG control-plane cockpit smoke, API health + active-release + reports/latest",

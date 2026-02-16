@@ -97,6 +97,8 @@ async function run() {
   if (!existsSync(artifactsDir)) throw new Error(`missing runtime/artifacts/${corr}`);
   const artifactFiles = readdirSync(artifactsDir);
   if (artifactFiles.length === 0) throw new Error(`no artifact files in runtime/artifacts/${corr}`);
+  const hasPdf = artifactFiles.some((f) => f.endsWith(".pdf"));
+  if (!hasPdf) throw new Error(`expected at least one .pdf artifact in runtime/artifacts/${corr}, got: ${artifactFiles.join(", ")}`);
 
   const afterLines = existsSync(indexPath) ? readFileSync(indexPath, "utf-8").trim().split("\n").filter(Boolean) : [];
   const added = afterLines.length - beforeLines;
