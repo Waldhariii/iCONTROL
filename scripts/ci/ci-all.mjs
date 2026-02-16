@@ -34,6 +34,8 @@ function assertNoRootGeneratedFiles(when) {
   }
 }
 
+const MAX_TEST_TIME = 120000;
+
 const steps = [
   "pnpm install",
   "node scripts/maintenance/generate-keys.mjs",
@@ -42,6 +44,7 @@ const steps = [
   "node scripts/ci/compile.mjs dev-001 dev",
   "node scripts/ci/run-gates.mjs dev-001",
   "node scripts/ci/test-gates.mjs",
+  "node scripts/ci/test-runtime-hermeticity.mjs",
   "node scripts/ci/test-api.mjs",
   "node scripts/ci/test-studio-flow.mjs",
   "node scripts/ci/test-diff-engine-smoke.mjs",
@@ -175,7 +178,7 @@ assertNoRootGeneratedFiles("pre-run");
 const report = [];
 for (const cmd of steps) {
   try {
-    execSync(cmd, { stdio: "inherit", env: { ...process.env, STRICT_SCHEMA: "1" } });
+    execSync(cmd, { stdio: "inherit", env: { ...process.env, STRICT_SCHEMA: "1" }, timeout: MAX_TEST_TIME });
     report.push({ cmd, status: "PASS" });
   } catch (err) {
     report.push({ cmd, status: "FAIL" });

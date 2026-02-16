@@ -990,6 +990,17 @@
     "s2s_scopes": []
   },
   {
+    "id": "scripts:ci:test-runtime-hermeticity.mjs",
+    "path": "scripts/ci/test-runtime-hermeticity.mjs",
+    "purpose": "CI: Phase AK runtime hermeticity (PORT=0, spawn helper, kill server)",
+    "outputs": [],
+    "forbidden_outputs": ["CI_REPORT.md", "platform/runtime/reports"],
+    "requires_api": true,
+    "s2s_scopes": [],
+    "safety": "api-local",
+    "category": "ci"
+  },
+  {
     "id": "scripts:ci:test-governance-authz.mjs",
     "path": "scripts/ci/test-governance-authz.mjs",
     "purpose": "script",

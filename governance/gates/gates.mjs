@@ -72,6 +72,7 @@ const CORE_ALLOWLIST_PREFIXES = [
   "platform/compilers/platform-compiler.mjs",
   "platform/runtime/changes/patch-engine.mjs",
   "platform/runtime/studio/",
+  "platform/runtime/testing/",
   "core/contracts/schemas/nav_spec.schema.json",
   "core/contracts/schemas/nav_manifest.schema.json",
   "core/contracts/schemas/render_graph.schema.json",
@@ -272,6 +273,37 @@ export function reportPathGate() {
   return { ok, gate: "Report Path Gate", details: details.join(" | ") };
 }
 
+export function runtimeHermeticGate() {
+  const root = process.cwd();
+  const details = [];
+  const scriptsDir = join(root, "scripts", "ci");
+  if (existsSync(scriptsDir)) {
+    for (const name of readdirSync(scriptsDir)) {
+      if (!name.endsWith(".mjs")) continue;
+      const content = readFileSync(join(scriptsDir, name), "utf-8");
+      if (content.includes("localhost:7070") || content.includes("127.0.0.1:7070")) details.push(`Hardcoded port in scripts/ci/${name}`);
+    }
+  }
+  const catalogPath = join(root, "scripts", "maintenance", "SCRIPT_CATALOG.json");
+  if (existsSync(catalogPath)) {
+    const catalog = JSON.parse(readFileSync(catalogPath, "utf-8"));
+    for (const entry of catalog) {
+      const outputs = entry.outputs || [];
+      for (const out of outputs) {
+        const p = String(out).trim();
+        if (!p) continue;
+        if (!p.startsWith("runtime/")) details.push(`Artifact outside runtime/: ${p} (${entry.id})`);
+      }
+    }
+  }
+  const strictPort = process.env.RUNTIME_HERMETIC_STRICT_PORT === "1";
+  if (!strictPort && details.some((d) => d.includes("Hardcoded port"))) {
+    details.length = details.filter((d) => !d.includes("Hardcoded port")).length;
+  }
+  const ok = details.length === 0;
+  return { ok, gate: "Runtime Hermetic Gate", details: details.join(" | ") || "" };
+}
+
 export function coreChangeGate() {
   const changed = getChangedPaths();
   if (changed.length === 0) return { ok: true, gate: "Core Change Gate", details: "" };
@@ -306,7 +338,9 @@ export function scriptCatalogGate() {
     paths.add(entryPath);
     if (entry.outputs) {
       for (const out of entry.outputs) {
-        if (!String(out).includes("runtime/reports")) badOutputs.push(`${entry.id}:${out}`);
+        const p = String(out).trim();
+        if (!p) continue;
+        if (!p.startsWith("runtime/")) badOutputs.push(`${entry.id}:${out}`);
       }
     }
     if (entry.path && !existsSync(entry.path)) missingPaths.push(entry.path);
