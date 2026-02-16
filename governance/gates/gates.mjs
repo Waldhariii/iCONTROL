@@ -71,6 +71,8 @@ const CORE_ALLOWLIST_PREFIXES = [
   "platform/compilers/token-compiler.mjs",
   "platform/compilers/platform-compiler.mjs",
   "platform/runtime/changes/patch-engine.mjs",
+  "platform/runtime/release/",
+  "platform/runtime/tenancy/provisioner.mjs",
   "platform/runtime/studio/",
   "platform/runtime/testing/",
   "core/contracts/schemas/nav_spec.schema.json",
@@ -304,6 +306,40 @@ export function runtimeHermeticGate() {
   return { ok, gate: "Runtime Hermetic Gate", details: details.join(" | ") || "" };
 }
 
+export function releaseOpsGate() {
+  const root = process.cwd();
+  const details = [];
+  const promotePath = join(root, "platform/runtime/release/promote.mjs");
+  const rollbackPath = join(root, "platform/runtime/release/rollback.mjs");
+  if (!existsSync(promotePath)) details.push("Missing platform/runtime/release/promote.mjs");
+  if (!existsSync(rollbackPath)) details.push("Missing platform/runtime/release/rollback.mjs");
+  for (const [label, p] of [["promote", promotePath], ["rollback", rollbackPath]]) {
+    if (!existsSync(p)) continue;
+    const content = readFileSync(p, "utf-8");
+    if (!content.includes("reports") || !content.includes("releases_latest.jsonl") || !content.includes("correlation_id")) {
+      details.push(`${label} must log to reports + index releases_latest.jsonl with correlation_id`);
+    }
+  }
+  const ok = details.length === 0;
+  return { ok, gate: "Release Ops Gate", details: details.join(" | ") || "" };
+}
+
+export function tenantProvisionGate() {
+  const root = process.cwd();
+  const details = [];
+  const provisionerPath = join(root, "platform/runtime/tenancy/provisioner.mjs");
+  if (!existsSync(provisionerPath)) {
+    details.push("Missing platform/runtime/tenancy/provisioner.mjs");
+    return { ok: false, gate: "Tenant Provision Gate", details: details.join(" | ") || "" };
+  }
+  const content = readFileSync(provisionerPath, "utf-8");
+  if (!content.includes("PROVISION_REPORT") || !content.includes("tenants_latest.jsonl") || !content.includes("correlation_id")) {
+    details.push("provisioner must produce PROVISION_REPORT + index tenants_latest.jsonl with correlation_id");
+  }
+  const ok = details.length === 0;
+  return { ok, gate: "Tenant Provision Gate", details: details.join(" | ") || "" };
+}
+
 export function coreChangeGate() {
   const changed = getChangedPaths();
   if (changed.length === 0) return { ok: true, gate: "Core Change Gate", details: "" };
@@ -316,7 +352,7 @@ export function coreChangeGate() {
   const ok = violations.length === 0;
   const details = ok
     ? ""
-    : `Restricted core changes detected: ${violations.join(", ")} | Allowed: gates/docs/ssot modules/studio module authoring/scripts/maintenance`;
+    : `Restricted core changes detected: ${violations.join(", ")} | Allowed: gates/docs/ssot modules/studio platform/runtime/release scripts/maintenance`;
   return { ok, gate: "Core Change Gate", details };
 }
 

@@ -1001,6 +1001,28 @@
     "category": "ci"
   },
   {
+    "id": "scripts:ci:test-release-promote-rollback-smoke.mjs",
+    "path": "scripts/ci/test-release-promote-rollback-smoke.mjs",
+    "purpose": "CI: Phase AL release promote/rollback smoke (S2S, reports + index)",
+    "outputs": ["runtime/reports/releases", "runtime/reports/index/releases_latest.jsonl"],
+    "forbidden_outputs": ["CI_REPORT.md", "platform/runtime/reports"],
+    "requires_api": true,
+    "s2s_scopes": ["release.*"],
+    "safety": "api-local",
+    "category": "ci"
+  },
+  {
+    "id": "scripts:ci:test-tenant-provision-hermetic.mjs",
+    "path": "scripts/ci/test-tenant-provision-hermetic.mjs",
+    "purpose": "CI: Phase AM tenant provision hermetic (S2S, PROVISION_REPORT + index)",
+    "outputs": ["runtime/reports/tenants", "runtime/reports/index/tenants_latest.jsonl"],
+    "forbidden_outputs": ["CI_REPORT.md", "platform/runtime/reports"],
+    "requires_api": true,
+    "s2s_scopes": ["tenancy.factory.*"],
+    "safety": "api-local",
+    "category": "ci"
+  },
+  {
     "id": "scripts:ci:test-governance-authz.mjs",
     "path": "scripts/ci/test-governance-authz.mjs",
     "purpose": "script",

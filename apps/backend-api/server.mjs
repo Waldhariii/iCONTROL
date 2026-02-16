@@ -13,6 +13,9 @@ import { analyzeInstall } from "../../platform/runtime/marketplace/impact.mjs";
 import { diffManifests, diffSsotFiles } from "../../platform/runtime/studio/diff-engine.mjs";
 import { dispatchAction } from "../../platform/runtime/studio/action-bus.mjs";
 import { runWorkflow } from "../../platform/runtime/studio/workflow-runner.mjs";
+import { promoteRelease } from "../../platform/runtime/release/promote.mjs";
+import { rollbackRelease } from "../../platform/runtime/release/rollback.mjs";
+import { provisionTenant } from "../../platform/runtime/tenancy/provisioner.mjs";
 import { computeInvoice, persistDraft, publishInvoice, billingMode } from "../../platform/runtime/billing/invoice-engine.mjs";
 import { handleStripeWebhook } from "../../platform/runtime/billing/providers/stripe_webhook.mjs";
 import { sha256, stableStringify } from "../../platform/compilers/utils.mjs";
@@ -421,7 +424,9 @@ function requiredScopeForPath(method, path) {
     { prefix: "/api/changesets", scope: "studio.*" },
     { prefix: "/api/studio", scope: "studio.*" },
     { prefix: "/api/releases", scope: "release.*" },
+    { prefix: "/api/release", scope: "release.*" },
     { prefix: "/api/tenancy/factory", scope: "tenancy.factory.*" },
+    { prefix: "/api/tenants", scope: "tenancy.factory.*" },
     { prefix: "/api/integrations", scope: "integrations.*" },
     { prefix: "/api/packs", scope: "ops.packs.*" },
     { prefix: "/api/auth/token", scope: null },
@@ -2743,6 +2748,61 @@ const server = http.createServer(async (req, res) => {
       });
       appendAudit({ event: "export_request", tenant_id: tenantId, export_type: exportType, masked_fields: maskedCount, at: new Date().toISOString() });
       return json(res, 200, { ok: true, masked_fields: maskedCount, records: out });
+    }
+
+    if (req.method === "POST" && req.url === "/api/release/promote") {
+      if (!req.s2s) return json(res, 403, { ok: false, error: "S2S only" });
+      requirePermission(req, "release.promote");
+      const payload = await bodyToJson(req).catch(() => ({}));
+      const from = payload.from != null ? String(payload.from) : readActiveRelease().active_release_id || "";
+      const to = payload.to != null ? String(payload.to).trim() : "";
+      if (!to) return json(res, 400, { ok: false, error: "to required" });
+      const correlation_id = payload.correlation_id || requestContext.getStore()?.request_id || randomUUID();
+      const result = promoteRelease({
+        from,
+        to,
+        canary_policy_id: payload.canary_policy_id,
+        correlation_id,
+        ssotDir: SSOT_DIR,
+        reportsDir: getReportsDir()
+      });
+      return json(res, 200, { ok: true, from: result.from, to: result.to, correlation_id: result.correlation_id });
+    }
+
+    if (req.method === "POST" && req.url === "/api/release/rollback") {
+      if (!req.s2s) return json(res, 403, { ok: false, error: "S2S only" });
+      requirePermission(req, "release.rollback");
+      const payload = await bodyToJson(req).catch(() => ({}));
+      const to = payload.to != null ? String(payload.to).trim() : "";
+      if (!to) return json(res, 400, { ok: false, error: "to required" });
+      const reason = payload.reason != null ? String(payload.reason) : "manual";
+      const correlation_id = payload.correlation_id || requestContext.getStore()?.request_id || randomUUID();
+      const result = rollbackRelease({
+        to,
+        reason,
+        correlation_id,
+        ssotDir: SSOT_DIR,
+        reportsDir: getReportsDir()
+      });
+      return json(res, 200, { ok: true, to: result.to, correlation_id: result.correlation_id });
+    }
+
+    if (req.method === "POST" && req.url === "/api/tenants/provision") {
+      if (!req.s2s) return json(res, 403, { ok: false, error: "S2S only" });
+      const payload = await bodyToJson(req).catch(() => ({}));
+      const tenant_id = payload.tenant_id != null ? String(payload.tenant_id).trim() : "";
+      if (!tenant_id) return json(res, 400, { ok: false, error: "tenant_id required" });
+      const correlation_id = payload.correlation_id || requestContext.getStore()?.request_id || randomUUID();
+      const result = provisionTenant({
+        tenant_id,
+        template_id: payload.template_id,
+        plan_id: payload.plan_id,
+        correlation_id,
+        ssotDir: SSOT_DIR,
+        reportsDir: getReportsDir()
+      });
+      if (!result.ok) return json(res, 400, { ok: false, error: result.error, correlation_id: result.correlation_id });
+      return json(res, 200, { ok: true, tenant_id: result.tenant_id, correlation_id: result.correlation_id });
     }
 
     if (req.method === "POST" && req.url?.startsWith("/api/releases/") && req.url?.endsWith("/activate")) {
