@@ -1067,6 +1067,28 @@
     "category": "ci"
   },
   {
+    "id": "scripts:ci:test-scheduler.mjs",
+    "path": "scripts/ci/test-scheduler.mjs",
+    "purpose": "CI: Phase AS scheduler one-shot report + index",
+    "outputs": ["runtime/reports/scheduler", "runtime/reports/index/scheduler_latest.jsonl"],
+    "forbidden_outputs": ["CI_REPORT.md", "platform/runtime/reports"],
+    "requires_api": false,
+    "s2s_scopes": [],
+    "safety": "local",
+    "category": "ci"
+  },
+  {
+    "id": "scripts:maintenance:scheduler.mjs",
+    "path": "scripts/maintenance/scheduler.mjs",
+    "purpose": "Phase AS autonomous scheduler — deep-clean, evidence pack, optional gates",
+    "outputs": ["runtime/reports/scheduler", "runtime/reports/index/scheduler_latest.jsonl"],
+    "forbidden_outputs": ["CI_REPORT.md", "platform/runtime/reports"],
+    "requires_api": false,
+    "s2s_scopes": [],
+    "safety": "local",
+    "category": "maintenance"
+  },
+  {
     "id": "scripts:ci:test-governance-authz.mjs",
     "path": "scripts/ci/test-governance-authz.mjs",
     "purpose": "script",
