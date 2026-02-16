@@ -3,7 +3,15 @@ import { writeFileSync, mkdirSync } from "fs";
 import { join, dirname } from "path";
 import { createTempSsot, getS2SToken } from "./test-utils.mjs";
 
-const api = "http://localhost:7070/api";
+function __icParseBoundLine(line) {
+  const m = String(line || "").match(/__IC_BOUND__=(\{.*\})/);
+  if (!m) return null;
+  try {
+    return JSON.parse(m[1]);
+  } catch {
+    return null;
+  }
+}
 
 function sleep(ms) {
   return new Promise((r) => setTimeout(r, ms));
@@ -28,20 +36,41 @@ async function run() {
   mkdirSync(snapDir, { recursive: true });
 
   const server = spawn("node", ["apps/backend-api/server.mjs"], {
-    stdio: "inherit",
+    stdio: ["ignore", "pipe", "inherit"],
     env: {
       ...process.env,
       SSOT_DIR: temp.ssotDir,
       S2S_CP_HMAC: "dummy",
       S2S_TOKEN_SIGN: "dummy",
+      CI: "true",
+      HOST: "127.0.0.1",
+      PORT: "0",
       ARTIFACT_PREVIEW_DIR: previewDir,
       ARTIFACT_SNAPSHOT_DIR: snapDir
     }
   });
-  await sleep(500);
+
+  let baseUrl = "";
+  const chunks = [];
+  server.stdout.on("data", (chunk) => chunks.push(chunk));
+  const deadline = Date.now() + 10000;
+  while (!baseUrl && Date.now() < deadline) {
+    await sleep(50);
+    const out = Buffer.concat(chunks).toString("utf-8");
+    for (const line of out.split(/\r?\n/)) {
+      const bound = __icParseBoundLine(line);
+      if (bound) {
+        baseUrl = `http://${bound.host || "127.0.0.1"}:${bound.port || 7070}`;
+        break;
+      }
+    }
+  }
+  if (!baseUrl) baseUrl = "http://127.0.0.1:7070";
+  const api = `${baseUrl}/api`;
+  await sleep(200);
 
   try {
-    const token = await getS2SToken({ baseUrl: "http://localhost:7070", principalId: "svc:cp", secret: "dummy", scopes: ["studio.*", "runtime.read", "release.*"] });
+    const token = await getS2SToken({ baseUrl, principalId: "svc:cp", secret: "dummy", scopes: ["studio.*", "runtime.read", "release.*"] });
     const authHeaders = { authorization: `Bearer ${token}` };
     const cs = await fetch(`${api}/changesets`, { method: "POST", headers: authHeaders }).then((r) => r.json());
 
