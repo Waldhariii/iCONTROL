@@ -1,0 +1,25 @@
+{
+  "extension_id": "ext:extermination",
+  "name": "Extermination Official Extension",
+  "version": "0.1.0",
+  "semver": "0.1.0",
+  "scopes": ["content.read", "content.write", "observability.read"],
+  "compat_matrix": {
+    "platform_min": "11.0.0",
+    "platform_max": "11.x"
+  },
+  "datagov_declaration": {
+    "data_classes": ["operational", "customer", "documents"],
+    "retention_days_default": 365
+  },
+  "isolation_declaration": {
+    "tenant_isolation": "strict",
+    "no_cross_tenant_reads": true
+  },
+  "packs": [
+    {
+      "pack_id": "pack:extermination:v1",
+      "ssot_root": "ssot/packs/extermination_v1"
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+[
+  {
+    "page_id": "page:cp_vertical_home",
+    "module_id": "module:vertical_core",
+    "version": "1.0.0",
+    "status": "released",
+    "layout_instance_id": "layout-1",
+    "widget_instance_ids": [],
+    "nav_binding_ids": [],
+    "design_version_lock": "v1",
+    "checksum": "seed",
+    "rollback_ref": "",
+    "created_by": "bootstrap",
+    "created_at": "2026-02-16T00:00:00.000Z",
+    "diff_ref": ""
+  }
+]

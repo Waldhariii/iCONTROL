@@ -1,0 +1,8 @@
+{
+  "widget_id": "widget:alert_feed",
+  "name": "Alert Feed",
+  "kind": "alert_feed",
+  "surface": "cp",
+  "extension_id": "ext:extermination",
+  "status": "active"
+}

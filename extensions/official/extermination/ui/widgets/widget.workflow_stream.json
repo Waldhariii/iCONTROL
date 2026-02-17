@@ -1,0 +1,8 @@
+{
+  "widget_id": "widget:workflow_stream",
+  "name": "Workflow Stream",
+  "kind": "workflow_stream",
+  "surface": "cp",
+  "extension_id": "ext:extermination",
+  "status": "active"
+}

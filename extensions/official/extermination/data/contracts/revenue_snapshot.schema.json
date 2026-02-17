@@ -1,0 +1,1 @@
+{"$schema":"https://json-schema.org/draft/2020-12/schema","$id":"revenue_snapshot.v1","type":"object","required":["period","amount_cents","currency"],"properties":{"period":{"type":"string"},"amount_cents":{"type":"integer"},"currency":{"type":"string"}}}

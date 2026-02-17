@@ -1,0 +1,8 @@
+{
+  "widget_id": "widget:data_table",
+  "name": "Data Table",
+  "kind": "data_table",
+  "surface": "cp",
+  "extension_id": "ext:extermination",
+  "status": "active"
+}

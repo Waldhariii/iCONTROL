@@ -1,0 +1,9 @@
+{
+  "color-surface": "{color.gray.900}",
+  "color-panel": "{color.gray.850}",
+  "color-border": "{color.gray.700}",
+  "color-text-primary": "{color.gray.100}",
+  "color-control": "{color.brand.primary}",
+  "color-danger": "{color.red.500}",
+  "color-success": "{color.green.500}"
+}

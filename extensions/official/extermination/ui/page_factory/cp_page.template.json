@@ -1,0 +1,39 @@
+{
+  "page_definition": {
+    "id": "",
+    "surface": "cp",
+    "key": "",
+    "slug": "",
+    "title_key": "",
+    "module_id": "module:vertical_core",
+    "default_layout_template_id": "layout-1",
+    "capabilities_required": ["studio.access"],
+    "owner_team": "vertical",
+    "tags": [],
+    "state": "active"
+  },
+  "route_spec": {
+    "route_id": "",
+    "surface": "cp",
+    "path": "",
+    "page_id": "",
+    "guard_pack_id": "guard:default",
+    "flag_gate_id": "flag:default",
+    "entitlement_gate_id": "entitlement:default",
+    "priority": 10,
+    "canonical": true,
+    "aliases": [],
+    "deprecation_date": "",
+    "redirect_to": ""
+  },
+  "nav_spec": {
+    "id": "",
+    "surface": "cp",
+    "label": "",
+    "path": "",
+    "module_id": "module:vertical_core"
+  },
+  "widgets": [],
+  "queries": [],
+  "workflows": []
+}

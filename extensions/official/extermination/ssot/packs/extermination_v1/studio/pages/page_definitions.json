@@ -1,0 +1,15 @@
+[
+  {
+    "id": "page:cp_vertical_home",
+    "surface": "cp",
+    "key": "vertical.home",
+    "slug": "vertical-home",
+    "title_key": "vertical.home",
+    "module_id": "module:vertical_core",
+    "default_layout_template_id": "layout-1",
+    "capabilities_required": ["studio.access"],
+    "owner_team": "vertical",
+    "tags": [],
+    "state": "active"
+  }
+]

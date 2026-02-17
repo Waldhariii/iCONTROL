@@ -1,0 +1,8 @@
+{
+  "widget_id": "widget:graph_timeseries",
+  "name": "Graph Time Series",
+  "kind": "graph_timeseries",
+  "surface": "cp",
+  "extension_id": "ext:extermination",
+  "status": "active"
+}

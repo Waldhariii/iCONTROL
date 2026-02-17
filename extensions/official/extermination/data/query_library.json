@@ -1,0 +1,40 @@
+{
+  "description": "Centralized query library. No inline queries inside widgets.",
+  "queries": [
+    {
+      "query_id": "query:vertical.kpi_summary",
+      "datasource_id": "ds:jobs",
+      "name": "Vertical KPI Summary",
+      "sql": "SELECT 1 AS ok",
+      "status": "active"
+    },
+    {
+      "query_id": "query:vertical.job_summary",
+      "datasource_id": "ds:jobs",
+      "name": "Job Summary",
+      "sql": "SELECT job_id, status, created_at FROM jobs LIMIT 50",
+      "status": "active"
+    },
+    {
+      "query_id": "query:vertical.revenue_snapshot",
+      "datasource_id": "ds:billing",
+      "name": "Revenue Snapshot",
+      "sql": "SELECT period, amount_cents, currency FROM revenue LIMIT 1",
+      "status": "active"
+    },
+    {
+      "query_id": "query:vertical.tenant_health",
+      "datasource_id": "ds:tenancy",
+      "name": "Tenant Health",
+      "sql": "SELECT tenant_id, status, checked_at FROM tenant_health LIMIT 100",
+      "status": "active"
+    },
+    {
+      "query_id": "query:vertical.workflow_status",
+      "datasource_id": "ds:workflows",
+      "name": "Workflow Status",
+      "sql": "SELECT workflow_id, run_id, status, updated_at FROM workflow_runs LIMIT 50",
+      "status": "active"
+    }
+  ]
+}

@@ -1,4 +1,4 @@
-import { readFileSync, existsSync, readdirSync } from "fs";
+import { readFileSync, existsSync, readdirSync, statSync } from "fs";
 import { execSync } from "child_process";
 import { join } from "path";
 import { stableStringify, sha256, verifyPayload } from "../../platform/compilers/utils.mjs";
@@ -412,6 +412,43 @@ export function platformFreezeGate() {
 }
 
 /**
+ * Visual OS: fail if extensions define raw colors, tokens bypassed, or CSS outside runtime/theme.
+ */
+export function visualGovernanceGate() {
+  const root = process.cwd();
+  const details = [];
+  const semanticPath = join(root, "design-system", "tokens", "semantic.tokens.json");
+  const themeCssPath = join(root, "runtime", "theme", "theme_vars.css");
+  if (!existsSync(semanticPath)) details.push("design-system/tokens/semantic.tokens.json missing");
+  if (!existsSync(themeCssPath)) details.push("runtime/theme/theme_vars.css missing (run theme-compiler)");
+  const extDir = join(root, "extensions");
+  const hexRe = /#[0-9a-fA-F]{3,8}\b/g;
+  const rgbRe = /rgb\s*\(/g;
+  const rgbaRe = /rgba\s*\(/g;
+  function walkExt(dir, rel = "") {
+    if (!existsSync(dir)) return;
+    for (const name of readdirSync(dir)) {
+      const full = join(dir, name);
+      const r = rel ? `${rel}/${name}` : name;
+      try {
+        const st = statSync(full);
+        if (st.isDirectory()) walkExt(full, r);
+        else if (/\.(css|html|json|mjs|js)$/.test(name)) {
+          const content = readFileSync(full, "utf-8");
+          const fileRel = r ? `${r}/${name}` : name;
+          if (hexRe.test(content)) details.push(`extensions/${fileRel}: raw hex color`);
+          if (rgbRe.test(content)) details.push(`extensions/${fileRel}: rgb()`);
+          if (rgbaRe.test(content)) details.push(`extensions/${fileRel}: rgba()`);
+        }
+      } catch {}
+    }
+  }
+  if (existsSync(extDir)) walkExt(extDir);
+  const ok = details.length === 0;
+  return { ok, gate: "Visual Governance Gate", details: details.join(" | ") || "" };
+}
+
+/**
  * Level 11: Platform Version Gate — FAIL if core changes without version bump, or MAJOR bump without ADR.
  */
 export function platformVersionGate() {
@@ -597,7 +634,8 @@ export function gaReadinessGate({ ssotDir, manifestsDir, releaseId }) {
     () => isolationGate({ ssotDir, manifestsDir, releaseId }),
     () => dataGovCoverageGate({ ssotDir }),
     () => driftGate({ manifestsDir, releaseId }),
-    () => platformFreezeGate()
+    () => platformFreezeGate(),
+    () => visualGovernanceGate()
   ];
   const failures = [];
   for (const run of pack) {

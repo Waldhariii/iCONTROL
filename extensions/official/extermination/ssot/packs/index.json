@@ -1,0 +1,8 @@
+{
+  "packs": [
+    {
+      "pack_id": "pack:extermination:v1",
+      "root": "ssot/packs/extermination_v1"
+    }
+  ]
+}

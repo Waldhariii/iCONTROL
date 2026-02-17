@@ -1,0 +1,8 @@
+{
+  "widget_id": "widget:kpi_card",
+  "name": "KPI Card",
+  "kind": "kpi_card",
+  "surface": "cp",
+  "extension_id": "ext:extermination",
+  "status": "active"
+}

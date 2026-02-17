@@ -1,0 +1,16 @@
+[
+  {
+    "route_id": "route:cp_vertical_home",
+    "surface": "cp",
+    "path": "/cp/vertical-home",
+    "page_id": "page:cp_vertical_home",
+    "guard_pack_id": "guard:default",
+    "flag_gate_id": "flag:default",
+    "entitlement_gate_id": "entitlement:default",
+    "priority": 10,
+    "canonical": true,
+    "aliases": [],
+    "deprecation_date": "",
+    "redirect_to": ""
+  }
+]
