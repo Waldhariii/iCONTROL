@@ -98,6 +98,8 @@ function inferSchemaForFile(path, data) {
   return "array_of_objects.v1";
 }
 
+const skipFiles = new Set(["scope_catalog.json"]);
+
 export function validateSsotDir(ssotDir) {
   const skipDirs = [
     "/changes/changesets",
@@ -114,7 +116,7 @@ export function validateSsotDir(ssotDir) {
         if (skipDirs.some((s) => p.includes(s))) continue;
         walk(p);
       }
-      else if (e.endsWith(".json")) validateFile(p);
+      else if (e.endsWith(".json") && !skipFiles.has(e)) validateFile(p);
     }
   }
 

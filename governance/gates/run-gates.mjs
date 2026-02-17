@@ -91,6 +91,7 @@ import {
   widgetIsolationGate,
   bindingGate,
   actionPolicyGate,
+  widgetContractGate,
   manifestFingerprintGate
 } from "./gates.mjs";
 
@@ -192,6 +193,7 @@ const gates = [
   () => widgetIsolationGate({ ssotDir }),
   () => bindingGate({ ssotDir }),
   () => actionPolicyGate({ ssotDir }),
+  () => widgetContractGate({ rootDir: process.cwd() }),
   () => manifestFingerprintGate({ manifestsDir, releaseId }),
   () => artifactBudgetGate()
 ];

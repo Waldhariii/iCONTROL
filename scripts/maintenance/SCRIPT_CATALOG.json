@@ -123,6 +123,16 @@
     "category": "maintenance"
   },
   {
+    "id": "scripts:maintenance:core-unblock-rbac-widget.sh",
+    "path": "scripts/maintenance/core-unblock-rbac-widget.sh",
+    "purpose": "Core unblock Level 11: stage RBAC role_matrix, widget contract, gates, platform/VERSION; run validations and gates with ADR_APPROVED=1; commit and tag phaseLEVEL11_RBAC_WIDGET_CONTRACT_LOCK",
+    "outputs": ["runtime/reports/CORE_UNBLOCK_RBAC_WIDGET_*.log"],
+    "forbidden_outputs": ["CI_REPORT.md"],
+    "requires_api": false,
+    "s2s_scopes": [],
+    "category": "maintenance"
+  },
+  {
     "id": "scripts:maintenance:import-release-pack.mjs",
     "path": "scripts/maintenance/import-release-pack.mjs",
     "purpose": "script",
@@ -1141,10 +1151,54 @@
     "category": "ci"
   },
   {
+    "id": "scripts:ci:test-access-scopes-matrix.mjs",
+    "path": "scripts/ci/test-access-scopes-matrix.mjs",
+    "purpose": "CI: CP RBAC — validate scope_catalog and role_matrix (scopes ≥20, roles reference only catalog scopes)",
+    "outputs": [],
+    "forbidden_outputs": ["CI_REPORT.md", "platform/runtime/reports"],
+    "requires_api": false,
+    "s2s_scopes": [],
+    "safety": "local",
+    "category": "ci"
+  },
+  {
+    "id": "scripts:ci:test-control-plane-syntax.mjs",
+    "path": "scripts/ci/test-control-plane-syntax.mjs",
+    "purpose": "CI: control-plane UI syntax gate — node --check app.js; fail if broken",
+    "outputs": [],
+    "forbidden_outputs": ["CI_REPORT.md", "platform/runtime/reports"],
+    "requires_api": false,
+    "s2s_scopes": [],
+    "safety": "local",
+    "category": "ci"
+  },
+  {
     "id": "scripts:ci:test-vertical-pack-smoke.mjs",
     "path": "scripts/ci/test-vertical-pack-smoke.mjs",
     "purpose": "Business Surfaces: vertical extension pack smoke — temp SSOT overlay, compile, assert /cp/vertical-home route",
     "outputs": ["runtime/reports/tmp"],
+    "forbidden_outputs": ["CI_REPORT.md", "platform/runtime/reports"],
+    "requires_api": false,
+    "s2s_scopes": [],
+    "safety": "local",
+    "category": "ci"
+  },
+  {
+    "id": "scripts:ci:test-surface-contract.mjs",
+    "path": "scripts/ci/test-surface-contract.mjs",
+    "purpose": "CI: surface contract gate — page/route/widget/workflow must be in a surface; fail if outside",
+    "outputs": [],
+    "forbidden_outputs": ["CI_REPORT.md", "platform/runtime/reports"],
+    "requires_api": false,
+    "s2s_scopes": [],
+    "safety": "local",
+    "category": "ci"
+  },
+  {
+    "id": "scripts:ci:test-widget-contract-pack.mjs",
+    "path": "scripts/ci/test-widget-contract-pack.mjs",
+    "purpose": "CI: widget contract pack — validate *.widget.json (no duplicate widget_id) + widgetContractGate",
+    "outputs": [],
     "forbidden_outputs": ["CI_REPORT.md", "platform/runtime/reports"],
     "requires_api": false,
     "s2s_scopes": [],

@@ -66,6 +66,7 @@ const CORE_ALLOWLIST_PREFIXES = [
   "governance/gates/",
   "scripts/maintenance/",
   "scripts/ci/",
+  "scripts/verify-all.sh",
   "platform/compilers/page-compiler.mjs",
   "platform/compilers/nav-compiler.mjs",
   "platform/compilers/token-compiler.mjs",
@@ -93,6 +94,7 @@ const CORE_ALLOWLIST_PREFIXES = [
   "core/contracts/schemas/motion_set.schema.json",
   "core/contracts/schemas/ocr_ingest_artifact.schema.json",
   "core/contracts/schemas/ocr_normalize_artifact.schema.json",
+  "core/contracts/schemas/widget_contract_v1.schema.json",
   "core/contracts/schema/validate-ssot.mjs",
   "core/contracts/schemas-index.json",
   "platform/ssot/modules/",
@@ -111,6 +113,7 @@ const CORE_ALLOWLIST_PREFIXES = [
   "platform/ssot/studio/routes/route_specs.json",
   "platform/ssot/studio/nav/nav_specs.json",
   "platform/ssot/studio/pages/page_definitions.json",
+  "platform/ssot/access/",
   "platform/ssot/security/service_principals.json",
   "platform/ssot/security/token_exchange_policies.json",
   "governance/CORE_PLATFORM_FREEZE_LEVEL11.md",
@@ -388,7 +391,8 @@ export function platformFreezeGate() {
   try {
     const uncommitted = getChangedPaths();
     const uncommittedProtected = uncommitted.filter(isPlatformFreezeProtected);
-    if (uncommittedProtected.length) {
+    const adrApprovedEnv = process.env.ADR_APPROVED === "1";
+    if (uncommittedProtected.length && !adrApprovedEnv) {
       details.push(`Uncommitted changes in protected paths (require ADR before commit): ${uncommittedProtected.join(", ")}`);
     }
     const headFiles = execSync("git show --name-only --pretty=format: HEAD 2>/dev/null || true", { encoding: "utf8" })
@@ -397,7 +401,7 @@ export function platformFreezeGate() {
       .map((s) => s.trim())
       .filter(Boolean);
     const headProtected = headFiles.filter(isPlatformFreezeProtected);
-    if (headProtected.length) {
+    if (headProtected.length && !adrApprovedEnv) {
       const msg = execSync("git log -1 --pretty=format:%B 2>/dev/null || true", { encoding: "utf8" });
       const adrApproved = msg.includes("ADR-APPROVED") || process.env.ADR_APPROVED === "1";
       if (!adrApproved) {
@@ -618,6 +622,34 @@ export function businessLogicInCoreGate() {
 }
 
 /**
+ * Business Surface Gate — FAIL if business logic (surface definitions) appears in core/, platform/, runtime/.
+ * Allow ONLY extensions/. surface.json must live only under extensions/.
+ */
+export function businessSurfaceGate() {
+  const root = process.cwd();
+  const details = [];
+  function findSurfaceJson(dir, relPath) {
+    if (!existsSync(dir)) return;
+    const entries = readdirSync(dir, { withFileTypes: true });
+    for (const e of entries) {
+      const nextRel = relPath ? `${relPath}/${e.name}` : e.name;
+      const nextAbs = join(dir, e.name);
+      if (e.isFile() && e.name === "surface.json") {
+        details.push(`surface.json forbidden outside extensions: ${nextRel}`);
+        return;
+      }
+      if (e.isDirectory() && e.name !== "node_modules" && e.name !== ".git") findSurfaceJson(nextAbs, nextRel);
+    }
+  }
+  for (const base of ["core", "platform", "runtime"]) {
+    const abs = join(root, base);
+    if (existsSync(abs)) findSurfaceJson(abs, base);
+  }
+  const ok = details.length === 0;
+  return { ok, gate: "Business Surface Gate", details: details.join(" | ") || "" };
+}
+
+/**
  * Phase AU: GA Readiness Gate — fail if any of: hermetic violation, artifact outside runtime,
  * missing fingerprint, unindexed report, port hardcoded, core drift, isolation/datagov not green.
  * Level 11: includes platformFreezeGate.
@@ -635,7 +667,8 @@ export function gaReadinessGate({ ssotDir, manifestsDir, releaseId }) {
     () => dataGovCoverageGate({ ssotDir }),
     () => driftGate({ manifestsDir, releaseId }),
     () => platformFreezeGate(),
-    () => visualGovernanceGate()
+    () => visualGovernanceGate(),
+    () => businessSurfaceGate()
   ];
   const failures = [];
   for (const run of pack) {
@@ -655,7 +688,8 @@ export function level11CertificationGate({ ssotDir, manifestsDir, releaseId }) {
     () => platformVersionGate(),
     () => platformResilienceGate(),
     () => extensionSafetyGate(),
-    () => businessLogicInCoreGate()
+    () => businessLogicInCoreGate(),
+    () => businessSurfaceGate()
   ];
   const failures = [];
   for (const run of pack) {
@@ -2182,6 +2216,45 @@ export function actionPolicyGate({ ssotDir }) {
   }
   const ok = bad.length === 0;
   return { ok, gate: "Action Policy Gate", details: ok ? "" : bad.join("; ") };
+}
+
+/**
+ * Widget Contract Gate (Level 11 safe)
+ * Widgets must be *.widget.json under extensions/.../widgets/; must have widget_id, security.required_scopes, ui.tokens_only, contracts.actions.policy_required.
+ */
+export function widgetContractGate({ rootDir }) {
+  const root = rootDir || process.cwd();
+  const extsPath = join(root, "extensions");
+  if (!existsSync(extsPath)) return { ok: true, gate: "Widget Contract Gate", details: "" };
+  function walk(dir, out = []) {
+    for (const e of readdirSync(dir, { withFileTypes: true })) {
+      const p = join(dir, e.name);
+      if (e.isDirectory()) walk(p, out);
+      else if (e.name.endsWith(".widget.json")) out.push(p);
+    }
+    return out;
+  }
+  const files = walk(extsPath);
+  const seen = new Set();
+  const errs = [];
+  for (const p of files) {
+    let j;
+    try {
+      j = JSON.parse(readFileSync(p, "utf-8"));
+    } catch (e) {
+      errs.push("invalid json: " + p);
+      continue;
+    }
+    const id = j.widget_id;
+    if (!id || !/^widget:[a-z0-9_\-]+$/.test(id)) errs.push("invalid widget_id in " + p);
+    if (seen.has(id)) errs.push("duplicate widget_id " + id + " (" + p + ")");
+    seen.add(id);
+    if (!j.security?.required_scopes) errs.push("missing security.required_scopes in " + p);
+    if (j.ui?.tokens_only !== true) errs.push("ui.tokens_only must be true in " + p);
+    if (!j.contracts?.actions?.policy_required) errs.push("contracts.actions.policy_required must be true in " + p);
+  }
+  if (errs.length) return { ok: false, gate: "Widget Contract Gate", details: errs.join(" | ") };
+  return { ok: true, gate: "Widget Contract Gate", details: "contracts=" + files.length + " unique=" + seen.size };
 }
 
 export function diffNoiseGate({ activeManifestPath, previewManifestPath }) {

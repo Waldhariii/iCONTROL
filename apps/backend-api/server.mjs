@@ -35,6 +35,51 @@ if (!Number.isFinite(__IC_PORT) || __IC_PORT < 0) throw new Error(`Invalid PORT=
 const PORT = __IC_PORT;
 const ROOT = process.cwd();
 const SSOT_DIR = process.env.SSOT_DIR ? normalize(process.env.SSOT_DIR) : normalize(join(ROOT, "platform/ssot"));
+
+/* __IC_ACCESS_EFFECTIVE_ENDPOINT__ */
+function __icNormalizeRoleMatrix(roleMatrixJson) {
+  if (Array.isArray(roleMatrixJson)) return roleMatrixJson;
+  if (roleMatrixJson && Array.isArray(roleMatrixJson.roles)) return roleMatrixJson.roles;
+  if (roleMatrixJson && typeof roleMatrixJson === "object") {
+    const keys = Object.keys(roleMatrixJson).filter((k) => k.startsWith("role:"));
+    if (keys.length) return keys.map((k) => ({ role_id: k, name: k, ...(roleMatrixJson[k] || {}), scopes: roleMatrixJson[k]?.scopes || [] }));
+  }
+  return [];
+}
+function __icLoadAccessSsot(root) {
+  const catP = join(root, "platform/ssot/access/scope_catalog.json");
+  const roleP = join(root, "platform/ssot/access/role_matrix.json");
+  if (!existsSync(catP) || !existsSync(roleP)) return null;
+  const cat = JSON.parse(readFileSync(catP, "utf-8"));
+  const roleMatrixRaw = JSON.parse(readFileSync(roleP, "utf-8"));
+  const rolesArray = __icNormalizeRoleMatrix(roleMatrixRaw);
+  const scopes = new Set(cat.scopes || []);
+  const roleMap = new Map(rolesArray.map((r) => [r.role_id, r]));
+  return { scopes, roleMap };
+}
+function __icResolveScopes({ role_ids, scopes, roleMap }) {
+  const out = new Set();
+  const reasons = [];
+  for (const rid of role_ids || []) {
+    const r = roleMap.get(rid);
+    if (!r) {
+      reasons.push({ kind: "unknown_role", role_id: rid });
+      continue;
+    }
+    for (const sc of r.scopes || []) {
+      if (sc === "*") {
+        out.add("*");
+        continue;
+      }
+      if (!scopes.has(sc)) {
+        reasons.push({ kind: "unknown_scope_ref", role_id: rid, scope: sc });
+        continue;
+      }
+      out.add(sc);
+    }
+  }
+  return { effective_scopes: Array.from(out).sort(), reasons };
+}
 const RUNTIME_DIR = process.env.RUNTIME_DIR ? normalize(process.env.RUNTIME_DIR) : normalize(join(dirname(SSOT_DIR), "runtime"));
 const ssotPath = (p) => join(SSOT_DIR, p);
 const REPORTS_DIR = join(ROOT, "runtime", "reports");
@@ -418,6 +463,7 @@ function requiredScopeForPath(method, path) {
   const p = path.split("?")[0];
   const rules = [
     { prefix: "/api/health", scope: null },
+    { prefix: "/api/access/effective", scope: null },
     { prefix: "/api/runtime/active-release", scope: null },
     { prefix: "/api/marketplace", scope: "marketplace.*" },
     { prefix: "/api/billing", scope: "billing.*" },
@@ -1468,6 +1514,26 @@ const server = http.createServer(async (req, res) => {
 
     if (req.method === "GET" && (req.url === "/api/health" || req.url === "/api/health/")) {
       return json(res, 200, { ok: true, at: new Date().toISOString() });
+    }
+
+    if (req.method === "GET" && (req.url === "/api/access/effective" || req.url?.startsWith("/api/access/effective?"))) {
+      try {
+        const accessSsot = __icLoadAccessSsot(ROOT);
+        if (!accessSsot) return json(res, 503, { ok: false, error: "Access SSOT not available" });
+        const { scopes, roleMap } = accessSsot;
+        const raw = (req.headers["x-ic-role-ids"] || "").toString().trim();
+        const role_ids = raw ? raw.split(",").map((s) => s.trim()).filter(Boolean) : ["role:viewer"];
+        const { effective_scopes, reasons } = __icResolveScopes({ role_ids, scopes, roleMap });
+        return json(res, 200, {
+          ok: true,
+          actor: { request_id: req.headers["x-request-id"] || null },
+          role_ids,
+          effective_scopes,
+          reasons
+        });
+      } catch (e) {
+        return json(res, 500, { ok: false, error: String(e && e.message ? e.message : e) });
+      }
     }
 
     if (req.method === "GET" && req.url?.startsWith("/api/runtime/active-release")) {
