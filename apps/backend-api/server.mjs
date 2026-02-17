@@ -1,10 +1,8 @@
 import http from "http";
 
 /**
- * DEV cockpit gate (v7): single entry for CORS + S2S bypass.
- * Called EARLY in createServer, before any auth. Loopback + Origin allowlist + dev flag (header or query).
- * Paths: /api/reports/latest, /api/releases/active, /api/runtime/active-release, /api/studio/freeze.
- * @returns {{ handled: boolean, s2s?: object }}
+ * DevCockpitGate: single source-of-truth for DEV cockpit (loopback + origin allowlist).
+ * No custom header/query required. CORS + OPTIONS 204 + S2S bypass for cockpit endpoints.
  */
 function __icDevCockpitGate(req, res) {
   const out = { handled: false };
@@ -18,20 +16,13 @@ function __icDevCockpitGate(req, res) {
     const originOk = origin === "http://127.0.0.1:5173" || origin === "http://localhost:5173";
     if (!originOk) return out;
 
-    const devHeader = String(req.headers?.["x-ic-dev"] || "").trim() === "1";
-    let devQuery = false;
-    try {
-      const u = new URL(req.url || "", "http://localhost");
-      devQuery = u.searchParams.get("ic_dev") === "1";
-    } catch {}
-    if (!devHeader && !devQuery) return out;
-
-    const urlPath = (req.url || "").split("?")[0];
+    const path = (req.url || "").split("?")[0];
     const pathOk =
-      (req.url || "").startsWith("/api/reports/latest") ||
-      (req.url || "").startsWith("/api/releases/active") ||
+      path === "/api/health" ||
+      path === "/api/releases/active" ||
       (req.url || "").startsWith("/api/runtime/active-release") ||
-      urlPath === "/api/studio/freeze";
+      (req.url || "").startsWith("/api/reports/latest") ||
+      path === "/api/studio/freeze";
     if (!pathOk) return out;
 
     if (res.headersSent || res.writableEnded) return out;
@@ -1624,6 +1615,9 @@ const server = http.createServer(async (req, res) => {
     }
 
     if (req.method === "GET" && req.url?.startsWith("/api/runtime/active-release")) {
+      return json(res, 200, readActiveRelease());
+    }
+    if (req.method === "GET" && (req.url === "/api/releases/active" || req.url?.startsWith("/api/releases/active?"))) {
       return json(res, 200, readActiveRelease());
     }
 

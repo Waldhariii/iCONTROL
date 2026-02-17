@@ -233,6 +233,16 @@
     "category": "maintenance"
   },
   {
+    "id": "scripts:maintenance:dev-cockpit-hardfix-v9.sh",
+    "path": "scripts/maintenance/dev-cockpit-hardfix-v9.sh",
+    "purpose": "DEV Cockpit Hardfix V9: CORS + loopback bypass (no x-ic-dev required) + cockpit debug UI (__ic_fetch_debug_v9.last); patch backend + CP, smoke health/preflight/feeds 200, start API 7070 + CP 5173",
+    "outputs": ["runtime/reports/DEV_COCKPIT_HARDFIX_V9_*.log", "runtime/reports/API_DEV_7070.*.stdout.log", "runtime/reports/API_DEV_7070.*.stderr.log", "runtime/reports/CP_DEV_5173.*.stdout.log", "runtime/reports/CP_DEV_5173.*.stderr.log"],
+    "forbidden_outputs": ["CI_REPORT.md"],
+    "requires_api": false,
+    "s2s_scopes": [],
+    "category": "maintenance"
+  },
+  {
     "id": "scripts:maintenance:dev-cockpit-runbook.sh",
     "path": "scripts/maintenance/dev-cockpit-runbook.sh",
     "purpose": "DEV Cockpit runbook: run dev-cockpit-hook-bypass.sh, start API 7070 + CP 5173, prove cockpit feeds 200, optional gates; instructions to open 127.0.0.1:5173 and set API base 127.0.0.1:7070",
@@ -1324,7 +1334,18 @@
   {
     "id": "scripts:ci:test-cockpit-dev-bypass.mjs",
     "path": "scripts/ci/test-cockpit-dev-bypass.mjs",
-    "purpose": "CI: Cockpit DEV bypass — OPTIONS 204, GET with ic_dev=1 => 200 (releases/active, reports/latest, studio/freeze), GET without => 401/403",
+    "purpose": "CI: Cockpit DEV bypass — OPTIONS 204, GET with Origin => 200, GET without Origin => 401/403",
+    "outputs": [],
+    "forbidden_outputs": ["CI_REPORT.md", "platform/runtime/reports"],
+    "requires_api": true,
+    "s2s_scopes": [],
+    "safety": "api-local",
+    "category": "ci"
+  },
+  {
+    "id": "scripts:ci:test-cockpit-browser-contract.mjs",
+    "path": "scripts/ci/test-cockpit-browser-contract.mjs",
+    "purpose": "CI: Cockpit browser contract — OPTIONS 204, GET 200 on health/releases/active/reports/latest/studio/freeze with Origin; GET without Origin => 401/403",
     "outputs": [],
     "forbidden_outputs": ["CI_REPORT.md", "platform/runtime/reports"],
     "requires_api": true,

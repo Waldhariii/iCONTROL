@@ -1,5 +1,60 @@
+(function () {
+  if (typeof window === "undefined") return;
+  function getApiBaseUrl() {
+    try {
+      const inp = document.getElementById("apiBase");
+      const v = inp && inp.value && String(inp.value).trim();
+      if (v) return v.replace(/\/+$/, "");
+      const o = window.location?.origin || "";
+      if (o.indexOf("127.0.0.1") !== -1 || o.indexOf("localhost") !== -1) return "http://127.0.0.1:7070";
+      return "";
+    } catch { return ""; }
+  }
+  const _fetch = window.fetch;
+  window.fetch = function (input, init) {
+    let url = typeof input === "string" ? input : (input && input.url);
+    const base = getApiBaseUrl();
+    if (base && url && String(url).startsWith("/api/")) {
+      const absolute = base + (url.startsWith("/") ? url : "/" + url);
+      try {
+        if (typeof input === "string") input = absolute;
+        else input = new Request(absolute, input);
+      } catch (_) { input = absolute; }
+    }
+    return _fetch.call(this, input, init).then(function (res) {
+      if (!res.ok && typeof window !== "undefined") {
+        window.__ic_last_fetch_error = { url: res.url, status: res.status, statusText: res.statusText, hint: "CORS or auth? Check API Base URL and Network tab." };
+      }
+      return res;
+    }, function (err) {
+      if (typeof window !== "undefined") {
+        window.__ic_last_fetch_error = { url: (input && input.url) || String(input), err: err && err.message, hint: "Network/CORS? Ensure API (e.g. 7070) is up and API Base URL is correct." };
+      }
+      throw err;
+    });
+  };
+})();
+
+function getApiBaseUrl() {
+  try {
+    const inp = document.getElementById("apiBase");
+    const v = inp && inp.value && String(inp.value).trim();
+    if (v) return v.replace(/\/+$/, "");
+    const o = typeof window !== "undefined" ? (window.location?.origin || "") : "";
+    if (o.indexOf("127.0.0.1") !== -1 || o.indexOf("localhost") !== -1) return "http://127.0.0.1:7070";
+    return "";
+  } catch { return ""; }
+}
 const apiBase = "/api";
-const headers = { "Content-Type": "application/json" };
+
+function __icIsLoopbackOrigin(origin) {
+  try { return String(origin || "").includes("127.0.0.1") || String(origin || "").includes("localhost"); } catch { return false; }
+}
+function __icDevHeadersFor(origin) {
+  return __icIsLoopbackOrigin(origin) ? { "x-ic-dev": "1" } : {};
+}
+const headers = { ...__icDevHeadersFor(typeof window !== "undefined" ? window.location?.origin : ""), "Content-Type": "application/json" };
+
 
 
 let manifest = null;

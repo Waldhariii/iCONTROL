@@ -28,8 +28,8 @@ async function run() {
   const api = baseUrl + "/api";
   await sleep(200);
 
-  // OPTIONS preflight with Origin allowlist + dev flag (same URL as GET will use) => 204
-  const optRes = await fetch(api + "/reports/latest?kind=gates&limit=50&ic_dev=1", {
+  // OPTIONS preflight with Origin allowlist => 204 (no custom header required)
+  const optRes = await fetch(api + "/reports/latest?kind=gates&limit=50", {
     method: "OPTIONS",
     headers: {
       Origin: ORIGIN,
@@ -38,37 +38,29 @@ async function run() {
     }
   });
   if (optRes.status !== 204) {
-    throw new Error(`OPTIONS /api/reports/latest?ic_dev=1 expected 204, got ${optRes.status}`);
+    throw new Error(`OPTIONS /api/reports/latest expected 204, got ${optRes.status}`);
   }
 
-  // GET with ic_dev=1 + Origin => 200 (active release; backend uses /api/runtime/active-release)
-  const activeRes = await fetch(api + "/runtime/active-release?ic_dev=1", {
-    headers: { Origin: ORIGIN }
-  });
+  // GET with Origin only => 200
+  const activeRes = await fetch(api + "/runtime/active-release", { headers: { Origin: ORIGIN } });
   if (activeRes.status !== 200) {
-    throw new Error(`GET /api/runtime/active-release?ic_dev=1 expected 200, got ${activeRes.status}`);
+    throw new Error(`GET /api/runtime/active-release expected 200, got ${activeRes.status}`);
   }
 
-  const reportsRes = await fetch(api + "/reports/latest?kind=gates&limit=50&ic_dev=1", {
-    headers: { Origin: ORIGIN }
-  });
+  const reportsRes = await fetch(api + "/reports/latest?kind=gates&limit=50", { headers: { Origin: ORIGIN } });
   if (reportsRes.status !== 200) {
-    throw new Error(`GET /api/reports/latest?kind=gates&ic_dev=1 expected 200, got ${reportsRes.status}`);
+    throw new Error(`GET /api/reports/latest?kind=gates expected 200, got ${reportsRes.status}`);
   }
 
-  const freezeRes = await fetch(api + "/studio/freeze?ic_dev=1", {
-    headers: { Origin: ORIGIN }
-  });
+  const freezeRes = await fetch(api + "/studio/freeze", { headers: { Origin: ORIGIN } });
   if (freezeRes.status !== 200) {
-    throw new Error(`GET /api/studio/freeze?ic_dev=1 expected 200, got ${freezeRes.status}`);
+    throw new Error(`GET /api/studio/freeze expected 200, got ${freezeRes.status}`);
   }
 
-  // Negative: no ic_dev, no x-ic-dev => 401 or 403
-  const noDevRes = await fetch(api + "/reports/latest?kind=gates&limit=50", {
-    headers: { Origin: ORIGIN }
-  });
-  if (noDevRes.status !== 401 && noDevRes.status !== 403) {
-    throw new Error(`GET /api/reports/latest without ic_dev expected 401 or 403, got ${noDevRes.status}`);
+  // Negative: no Origin => 401 or 403
+  const noOriginRes = await fetch(api + "/reports/latest?kind=gates&limit=50");
+  if (noOriginRes.status !== 401 && noOriginRes.status !== 403) {
+    throw new Error(`GET /api/reports/latest without Origin expected 401 or 403, got ${noOriginRes.status}`);
   }
 
   killServer(server);
