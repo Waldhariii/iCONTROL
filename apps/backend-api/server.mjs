@@ -1,4 +1,45 @@
 import http from "http";
+
+/* __IC_DEV_CORS_PREFLIGHT_FN__ */
+function __icDevCors(req, res) {
+  // Loopback-only DEV CORS for CP cockpit (5173 -> 7070).
+  // Needed because custom headers (x-ic-dev) trigger OPTIONS preflight.
+  const origin = String(req.headers?.origin || "");
+  const hostHdr = String(req.headers?.host || "");
+  const host = hostHdr.split(":")[0] || "";
+  const isLoop = (host === "127.0.0.1" || host === "::1" || host === "localhost");
+  const isDev = (process.env.CI === "true") || (process.env.NODE_ENV !== "production");
+  const isLocalOrigin =
+    origin.startsWith("http://127.0.0.1:") ||
+    origin.startsWith("http://localhost:") ||
+    origin.startsWith("http://[::1]:");
+  if (!(isDev && isLoop && isLocalOrigin)) return false;
+
+  res.setHeader("Access-Control-Allow-Origin", origin);
+  res.setHeader("Vary", "Origin");
+  res.setHeader("Access-Control-Allow-Credentials", "true");
+  res.setHeader("Access-Control-Allow-Methods", "GET,POST,PUT,PATCH,DELETE,OPTIONS");
+  res.setHeader(
+    "Access-Control-Allow-Headers",
+    [
+      "Content-Type",
+      "Authorization",
+      "x-ic-dev",
+      "x-ic-role-ids",
+      "x-request-id",
+      "x-ic-tenant-id",
+      "x-ic-release-id"
+    ].join(", ")
+  );
+  res.setHeader("Access-Control-Max-Age", "600");
+  if (req.method === "OPTIONS") {
+    res.statusCode = 204;
+    res.end();
+    return true; // handled
+  }
+  return false; // not handled (headers set, continue main handler)
+}
+
 import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync, statSync } from "fs";
 import { join, normalize, dirname } from "path";
 import { execSync } from "child_process";
@@ -1264,7 +1305,10 @@ function loadActiveManifest() {
 }
 
 const server = http.createServer(async (req, res) => {
-  const inboundReqId = req.headers["x-request-id"] || req.headers["x-trace-id"];
+  
+  /* __IC_DEV_CORS_PREFLIGHT_APPLY__ */
+  __icDevCors(req, res);
+const inboundReqId = req.headers["x-request-id"] || req.headers["x-trace-id"];
   const requestId = typeof inboundReqId === "string" && inboundReqId ? inboundReqId : randomUUID();
   const traceId = typeof req.headers["x-trace-id"] === "string" && req.headers["x-trace-id"] ? req.headers["x-trace-id"] : requestId;
   const actorId = req.headers["x-user-id"] || "system";

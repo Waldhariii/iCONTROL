@@ -133,10 +133,60 @@
     "category": "maintenance"
   },
   {
+    "id": "scripts:maintenance:mission-control-runbook.sh",
+    "path": "scripts/maintenance/mission-control-runbook.sh",
+    "purpose": "Mission Control runbook: run go-mission-control, sanity tests, SSOT, gates, wire panels to CP assets, router fallback in app.js, API smoke (PORT=0), optional full CI, optional DO_COMMIT=1 commit+tag",
+    "outputs": ["runtime/reports/CURSOR_MISSION_CONTROL_RUN_*.log", "runtime/reports/API_MC_*.stdout.log", "runtime/reports/API_MC_*.stderr.log"],
+    "forbidden_outputs": ["CI_REPORT.md"],
+    "requires_api": false,
+    "s2s_scopes": [],
+    "category": "maintenance"
+  },
+  {
+    "id": "scripts:maintenance:go-mission-control.sh",
+    "path": "scripts/maintenance/go-mission-control.sh",
+    "purpose": "GO MISSION CONTROL CP dominant v1: Mission Control panels manifest, layouts, SSOT page/route/nav, 12 widget contracts (permission-first); wires test-mission-control-panels into ci-all and catalog; Level 11 safe",
+    "outputs": ["runtime/reports/GO_MISSION_CONTROL_*.log"],
+    "forbidden_outputs": ["CI_REPORT.md"],
+    "requires_api": false,
+    "s2s_scopes": [],
+    "category": "maintenance"
+  },
+  {
     "id": "scripts:maintenance:go-dashboard-cp-cockpit-v1.sh",
     "path": "scripts/maintenance/go-dashboard-cp-cockpit-v1.sh",
     "purpose": "GO DASHBOARD CP Cockpit Dominant V1: extension-first, tokens-only, permission-first (RBAC) cockpit; creates extermination pack, panels, CP shell patch; Level 11 safe",
     "outputs": [],
+    "forbidden_outputs": ["CI_REPORT.md"],
+    "requires_api": false,
+    "s2s_scopes": [],
+    "category": "maintenance"
+  },
+  {
+    "id": "scripts:maintenance:dev-cockpit-cors-rescue.sh",
+    "path": "scripts/maintenance/dev-cockpit-cors-rescue.sh",
+    "purpose": "DEV Cockpit CORS rescue: loopback-only CORS preflight + no-crash json() guard in server.mjs; smoke API 7070 + OPTIONS 204 + GET feeds; gates",
+    "outputs": ["runtime/reports/DEV_COCKPIT_CORS_RESCUE_*.log", "runtime/reports/API_DEV_7070.*.stdout.log", "runtime/reports/API_DEV_7070.*.stderr.log"],
+    "forbidden_outputs": ["CI_REPORT.md"],
+    "requires_api": false,
+    "s2s_scopes": [],
+    "category": "maintenance"
+  },
+  {
+    "id": "scripts:maintenance:dev-cockpit-cors-rescue.sh",
+    "path": "scripts/maintenance/dev-cockpit-cors-rescue.sh",
+    "purpose": "DEV Cockpit CORS rescue: loopback-only CORS preflight + no-crash json() guard in server.mjs; smoke API 7070 + OPTIONS 204 + feeds 200; gates",
+    "outputs": ["runtime/reports/DEV_COCKPIT_CORS_RESCUE_*.log", "runtime/reports/API_DEV_7070.*.stdout.log", "runtime/reports/API_DEV_7070.*.stderr.log"],
+    "forbidden_outputs": ["CI_REPORT.md"],
+    "requires_api": false,
+    "s2s_scopes": [],
+    "category": "maintenance"
+  },
+  {
+    "id": "scripts:maintenance:dev-cockpit-auth-fix.sh",
+    "path": "scripts/maintenance/dev-cockpit-auth-fix.sh",
+    "purpose": "DEV Cockpit Auth Fix: backend allows cockpit feeds in DEV (loopback + x-ic-dev:1); CP sends x-ic-dev for local origin; smoke API on 7070; gates + commit + tag",
+    "outputs": ["runtime/reports/DEV_COCKPIT_AUTH_FIX_*.log", "runtime/reports/API_DEV_7070.*.stdout.log", "runtime/reports/API_DEV_7070.*.stderr.log"],
     "forbidden_outputs": ["CI_REPORT.md"],
     "requires_api": false,
     "s2s_scopes": [],
