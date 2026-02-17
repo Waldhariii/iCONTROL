@@ -16,7 +16,10 @@
     "path": "scripts/maintenance/ab-finalize.sh",
     "purpose": "AB finalize: clean worktree, CI full pass, optional patch tag",
     "outputs": [],
-    "forbidden_outputs": ["CI_REPORT.md", "platform/runtime/reports"],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
     "requires_api": false,
     "s2s_scopes": []
   },
@@ -96,8 +99,13 @@
     "id": "design-system:compiler:theme-compiler.mjs",
     "path": "design-system/compiler/theme-compiler.mjs",
     "purpose": "Visual OS: merge tokens, semantic, density, extension themes; output runtime/theme/theme_vars.css",
-    "outputs": ["runtime/theme/theme_vars.css"],
-    "forbidden_outputs": ["CI_REPORT.md", "platform/runtime/reports"],
+    "outputs": [
+      "runtime/theme/theme_vars.css"
+    ],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
     "requires_api": false,
     "s2s_scopes": [],
     "category": "design-system"
@@ -106,8 +114,14 @@
     "id": "scripts:maintenance:generate-level11-snapshot.mjs",
     "path": "scripts/maintenance/generate-level11-snapshot.mjs",
     "purpose": "Level 11 forensic baseline: LEVEL11_ARCH_SNAPSHOT.json + level11_latest.jsonl",
-    "outputs": ["runtime/reports/LEVEL11_ARCH_SNAPSHOT.json", "runtime/reports/index/level11_latest.jsonl"],
-    "forbidden_outputs": ["CI_REPORT.md", "platform/runtime/reports"],
+    "outputs": [
+      "runtime/reports/LEVEL11_ARCH_SNAPSHOT.json",
+      "runtime/reports/index/level11_latest.jsonl"
+    ],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
     "requires_api": false,
     "s2s_scopes": [],
     "category": "maintenance"
@@ -117,7 +131,10 @@
     "path": "scripts/maintenance/certify-level11.sh",
     "purpose": "Level 11 platform certification: verify fileset, snapshot, commit ADR-APPROVED, run gates, tag phaseLEVEL11_PLATFORM_CERTIFIED",
     "outputs": [],
-    "forbidden_outputs": ["CI_REPORT.md", "platform/runtime/reports"],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
     "requires_api": false,
     "s2s_scopes": [],
     "category": "maintenance"
@@ -126,8 +143,12 @@
     "id": "scripts:maintenance:core-unblock-rbac-widget.sh",
     "path": "scripts/maintenance/core-unblock-rbac-widget.sh",
     "purpose": "Core unblock Level 11: stage RBAC role_matrix, widget contract, gates, platform/VERSION; run validations and gates with ADR_APPROVED=1; commit and tag phaseLEVEL11_RBAC_WIDGET_CONTRACT_LOCK",
-    "outputs": ["runtime/reports/CORE_UNBLOCK_RBAC_WIDGET_*.log"],
-    "forbidden_outputs": ["CI_REPORT.md"],
+    "outputs": [
+      "runtime/reports/CORE_UNBLOCK_RBAC_WIDGET_*.log"
+    ],
+    "forbidden_outputs": [
+      "CI_REPORT.md"
+    ],
     "requires_api": false,
     "s2s_scopes": [],
     "category": "maintenance"
@@ -136,8 +157,14 @@
     "id": "scripts:maintenance:mission-control-runbook.sh",
     "path": "scripts/maintenance/mission-control-runbook.sh",
     "purpose": "Mission Control runbook: run go-mission-control, sanity tests, SSOT, gates, wire panels to CP assets, router fallback in app.js, API smoke (PORT=0), optional full CI, optional DO_COMMIT=1 commit+tag",
-    "outputs": ["runtime/reports/CURSOR_MISSION_CONTROL_RUN_*.log", "runtime/reports/API_MC_*.stdout.log", "runtime/reports/API_MC_*.stderr.log"],
-    "forbidden_outputs": ["CI_REPORT.md"],
+    "outputs": [
+      "runtime/reports/CURSOR_MISSION_CONTROL_RUN_*.log",
+      "runtime/reports/API_MC_*.stdout.log",
+      "runtime/reports/API_MC_*.stderr.log"
+    ],
+    "forbidden_outputs": [
+      "CI_REPORT.md"
+    ],
     "requires_api": false,
     "s2s_scopes": [],
     "category": "maintenance"
@@ -146,8 +173,12 @@
     "id": "scripts:maintenance:go-mission-control.sh",
     "path": "scripts/maintenance/go-mission-control.sh",
     "purpose": "GO MISSION CONTROL CP dominant v1: Mission Control panels manifest, layouts, SSOT page/route/nav, 12 widget contracts (permission-first); wires test-mission-control-panels into ci-all and catalog; Level 11 safe",
-    "outputs": ["runtime/reports/GO_MISSION_CONTROL_*.log"],
-    "forbidden_outputs": ["CI_REPORT.md"],
+    "outputs": [
+      "runtime/reports/GO_MISSION_CONTROL_*.log"
+    ],
+    "forbidden_outputs": [
+      "CI_REPORT.md"
+    ],
     "requires_api": false,
     "s2s_scopes": [],
     "category": "maintenance"
@@ -157,7 +188,9 @@
     "path": "scripts/maintenance/go-dashboard-cp-cockpit-v1.sh",
     "purpose": "GO DASHBOARD CP Cockpit Dominant V1: extension-first, tokens-only, permission-first (RBAC) cockpit; creates extermination pack, panels, CP shell patch; Level 11 safe",
     "outputs": [],
-    "forbidden_outputs": ["CI_REPORT.md"],
+    "forbidden_outputs": [
+      "CI_REPORT.md"
+    ],
     "requires_api": false,
     "s2s_scopes": [],
     "category": "maintenance"
@@ -166,8 +199,14 @@
     "id": "scripts:maintenance:dev-cockpit-cors-rescue.sh",
     "path": "scripts/maintenance/dev-cockpit-cors-rescue.sh",
     "purpose": "DEV Cockpit CORS rescue: loopback-only CORS preflight + no-crash json() guard in server.mjs; smoke API 7070 + OPTIONS 204 + GET feeds; gates",
-    "outputs": ["runtime/reports/DEV_COCKPIT_CORS_RESCUE_*.log", "runtime/reports/API_DEV_7070.*.stdout.log", "runtime/reports/API_DEV_7070.*.stderr.log"],
-    "forbidden_outputs": ["CI_REPORT.md"],
+    "outputs": [
+      "runtime/reports/DEV_COCKPIT_CORS_RESCUE_*.log",
+      "runtime/reports/API_DEV_7070.*.stdout.log",
+      "runtime/reports/API_DEV_7070.*.stderr.log"
+    ],
+    "forbidden_outputs": [
+      "CI_REPORT.md"
+    ],
     "requires_api": false,
     "s2s_scopes": [],
     "category": "maintenance"
@@ -176,8 +215,14 @@
     "id": "scripts:maintenance:dev-cockpit-headers-query-v3.sh",
     "path": "scripts/maintenance/dev-cockpit-headers-query-v3.sh",
     "purpose": "DEV Cockpit Headers+Query V3: backend accepts DEV via x-ic-dev header OR ic_dev=1 query (__icDevFlagOn); CP wraps fetch to add ic_dev=1 on loopback URLs; proof health + preflight + feeds 200; gates",
-    "outputs": ["runtime/reports/DEV_COCKPIT_HEADERS_V3_*.log", "runtime/reports/API_DEV_7070.*.stdout.log", "runtime/reports/API_DEV_7070.*.stderr.log"],
-    "forbidden_outputs": ["CI_REPORT.md"],
+    "outputs": [
+      "runtime/reports/DEV_COCKPIT_HEADERS_V3_*.log",
+      "runtime/reports/API_DEV_7070.*.stdout.log",
+      "runtime/reports/API_DEV_7070.*.stderr.log"
+    ],
+    "forbidden_outputs": [
+      "CI_REPORT.md"
+    ],
     "requires_api": false,
     "s2s_scopes": [],
     "category": "maintenance"
@@ -186,8 +231,14 @@
     "id": "scripts:maintenance:dev-cockpit-observe.sh",
     "path": "scripts/maintenance/dev-cockpit-observe.sh",
     "purpose": "DEV Cockpit Observe + Fix: broaden __icDevOriginAllowedV2 (127.0.0.1 + localhost 5173); add __icDevCockpitObserveV1 (log url, origin, x-ic-dev, remoteAddress, hasS2S); manual step to open CP and refresh; grep observer lines; curl comparison",
-    "outputs": ["runtime/reports/DEV_COCKPIT_OBSERVE_*.log", "runtime/reports/API_DEV_7070.*.stdout.log", "runtime/reports/API_DEV_7070.*.stderr.log"],
-    "forbidden_outputs": ["CI_REPORT.md"],
+    "outputs": [
+      "runtime/reports/DEV_COCKPIT_OBSERVE_*.log",
+      "runtime/reports/API_DEV_7070.*.stdout.log",
+      "runtime/reports/API_DEV_7070.*.stderr.log"
+    ],
+    "forbidden_outputs": [
+      "CI_REPORT.md"
+    ],
     "requires_api": false,
     "s2s_scopes": [],
     "category": "maintenance"
@@ -196,8 +247,14 @@
     "id": "scripts:maintenance:dev-cockpit-bypass-v2.sh",
     "path": "scripts/maintenance/dev-cockpit-bypass-v2.sh",
     "purpose": "DEV Cockpit Bypass V2: reports + studio/freeze; loopback + x-ic-dev:1 + Origin allowlist; inject __icDevCockpitBypassV2 + hook; smoke health + OPTIONS 204 + GET feeds + /api/studio/freeze 200; gates",
-    "outputs": ["runtime/reports/DEV_COCKPIT_BYPASS_V2_*.log", "runtime/reports/API_DEV_7070.*.stdout.log", "runtime/reports/API_DEV_7070.*.stderr.log"],
-    "forbidden_outputs": ["CI_REPORT.md"],
+    "outputs": [
+      "runtime/reports/DEV_COCKPIT_BYPASS_V2_*.log",
+      "runtime/reports/API_DEV_7070.*.stdout.log",
+      "runtime/reports/API_DEV_7070.*.stderr.log"
+    ],
+    "forbidden_outputs": [
+      "CI_REPORT.md"
+    ],
     "requires_api": false,
     "s2s_scopes": [],
     "category": "maintenance"
@@ -206,8 +263,14 @@
     "id": "scripts:maintenance:dev-cockpit-bypass-v4.sh",
     "path": "scripts/maintenance/dev-cockpit-bypass-v4.sh",
     "purpose": "DEV Cockpit Bypass V4: fix 401 — backend loopback+origin bypass for /api/reports/latest, /api/releases/active, /api/studio/freeze (no x-ic-dev); CP wrap fetch to resolve relative /api/.. to API Base URL + ic_dev=1 on loopback; smoke 200 (Origin only); gates",
-    "outputs": ["runtime/reports/DEV_COCKPIT_BYPASS_V4_*.log", "runtime/reports/API_DEV_7070.*.stdout.log", "runtime/reports/API_DEV_7070.*.stderr.log"],
-    "forbidden_outputs": ["CI_REPORT.md"],
+    "outputs": [
+      "runtime/reports/DEV_COCKPIT_BYPASS_V4_*.log",
+      "runtime/reports/API_DEV_7070.*.stdout.log",
+      "runtime/reports/API_DEV_7070.*.stderr.log"
+    ],
+    "forbidden_outputs": [
+      "CI_REPORT.md"
+    ],
     "requires_api": false,
     "s2s_scopes": [],
     "category": "maintenance"
@@ -216,8 +279,14 @@
     "id": "scripts:maintenance:dev-cockpit-bypass-v5.sh",
     "path": "scripts/maintenance/dev-cockpit-bypass-v5.sh",
     "purpose": "DEV Cockpit Bypass V5: fix 401 from relative /api/* (Vite proxy). CP: bind API Base input id=ic_api_base, sync window.__ic_api_base, fetch wrapper rewrites /api/.. to absolute; backend stays V4. Smoke 200 on feeds (absolute+Origin).",
-    "outputs": ["runtime/reports/DEV_COCKPIT_BYPASS_V5_*.log", "runtime/reports/API_DEV_7070.*.stdout.log", "runtime/reports/API_DEV_7070.*.stderr.log"],
-    "forbidden_outputs": ["CI_REPORT.md"],
+    "outputs": [
+      "runtime/reports/DEV_COCKPIT_BYPASS_V5_*.log",
+      "runtime/reports/API_DEV_7070.*.stdout.log",
+      "runtime/reports/API_DEV_7070.*.stderr.log"
+    ],
+    "forbidden_outputs": [
+      "CI_REPORT.md"
+    ],
     "requires_api": false,
     "s2s_scopes": [],
     "category": "maintenance"
@@ -226,8 +295,12 @@
     "id": "scripts:maintenance:dev-cockpit-bypass-v6.sh",
     "path": "scripts/maintenance/dev-cockpit-bypass-v6.sh",
     "purpose": "DEV Cockpit Bypass V6: hard fix 401 on /api/* (proxy drift). CP-only: default base 127.0.0.1:7070, sync window.__ic_api_base + localStorage, fetch rewrites all /api/.. to absolute + ic_dev=1 loopback; observability console + window.__ic_last_api_rewrite. No smoke.",
-    "outputs": ["runtime/reports/DEV_COCKPIT_BYPASS_V6_*.log"],
-    "forbidden_outputs": ["CI_REPORT.md"],
+    "outputs": [
+      "runtime/reports/DEV_COCKPIT_BYPASS_V6_*.log"
+    ],
+    "forbidden_outputs": [
+      "CI_REPORT.md"
+    ],
     "requires_api": false,
     "s2s_scopes": [],
     "category": "maintenance"
@@ -236,8 +309,16 @@
     "id": "scripts:maintenance:dev-cockpit-hardfix-v9.sh",
     "path": "scripts/maintenance/dev-cockpit-hardfix-v9.sh",
     "purpose": "DEV Cockpit Hardfix V9: CORS + loopback bypass (no x-ic-dev required) + cockpit debug UI (__ic_fetch_debug_v9.last); patch backend + CP, smoke health/preflight/feeds 200, start API 7070 + CP 5173",
-    "outputs": ["runtime/reports/DEV_COCKPIT_HARDFIX_V9_*.log", "runtime/reports/API_DEV_7070.*.stdout.log", "runtime/reports/API_DEV_7070.*.stderr.log", "runtime/reports/CP_DEV_5173.*.stdout.log", "runtime/reports/CP_DEV_5173.*.stderr.log"],
-    "forbidden_outputs": ["CI_REPORT.md"],
+    "outputs": [
+      "runtime/reports/DEV_COCKPIT_HARDFIX_V9_*.log",
+      "runtime/reports/API_DEV_7070.*.stdout.log",
+      "runtime/reports/API_DEV_7070.*.stderr.log",
+      "runtime/reports/CP_DEV_5173.*.stdout.log",
+      "runtime/reports/CP_DEV_5173.*.stderr.log"
+    ],
+    "forbidden_outputs": [
+      "CI_REPORT.md"
+    ],
     "requires_api": false,
     "s2s_scopes": [],
     "category": "maintenance"
@@ -246,8 +327,15 @@
     "id": "scripts:maintenance:dev-cockpit-runbook.sh",
     "path": "scripts/maintenance/dev-cockpit-runbook.sh",
     "purpose": "DEV Cockpit runbook: run dev-cockpit-hook-bypass.sh, start API 7070 + CP 5173, prove cockpit feeds 200, optional gates; instructions to open 127.0.0.1:5173 and set API base 127.0.0.1:7070",
-    "outputs": ["runtime/reports/API_DEV_7070.RUNTIME.*.stdout.log", "runtime/reports/API_DEV_7070.RUNTIME.*.stderr.log", "runtime/reports/CP_DEV_5173.RUNTIME.*.stdout.log", "runtime/reports/CP_DEV_5173.RUNTIME.*.stderr.log"],
-    "forbidden_outputs": ["CI_REPORT.md"],
+    "outputs": [
+      "runtime/reports/API_DEV_7070.RUNTIME.*.stdout.log",
+      "runtime/reports/API_DEV_7070.RUNTIME.*.stderr.log",
+      "runtime/reports/CP_DEV_5173.RUNTIME.*.stdout.log",
+      "runtime/reports/CP_DEV_5173.RUNTIME.*.stderr.log"
+    ],
+    "forbidden_outputs": [
+      "CI_REPORT.md"
+    ],
     "requires_api": false,
     "s2s_scopes": [],
     "category": "maintenance"
@@ -256,8 +344,16 @@
     "id": "scripts:maintenance:dev-cockpit-runbook-v2.sh",
     "path": "scripts/maintenance/dev-cockpit-runbook-v2.sh",
     "purpose": "DEV Cockpit Runbook V2: patch CP (V6), run test-cockpit-dev-bypass.mjs, start API 7070 + CP 5173, checklist; log DEV_COCKPIT_RUNBOOK_V2_*.log",
-    "outputs": ["runtime/reports/DEV_COCKPIT_RUNBOOK_V2_*.log", "runtime/reports/API_DEV_7070.RUNTIME.*.stdout.log", "runtime/reports/API_DEV_7070.RUNTIME.*.stderr.log", "runtime/reports/CP_DEV_5173.RUNTIME.*.stdout.log", "runtime/reports/CP_DEV_5173.RUNTIME.*.stderr.log"],
-    "forbidden_outputs": ["CI_REPORT.md"],
+    "outputs": [
+      "runtime/reports/DEV_COCKPIT_RUNBOOK_V2_*.log",
+      "runtime/reports/API_DEV_7070.RUNTIME.*.stdout.log",
+      "runtime/reports/API_DEV_7070.RUNTIME.*.stderr.log",
+      "runtime/reports/CP_DEV_5173.RUNTIME.*.stdout.log",
+      "runtime/reports/CP_DEV_5173.RUNTIME.*.stderr.log"
+    ],
+    "forbidden_outputs": [
+      "CI_REPORT.md"
+    ],
     "requires_api": false,
     "s2s_scopes": [],
     "category": "maintenance"
@@ -266,8 +362,14 @@
     "id": "scripts:maintenance:dev-cockpit-hook-bypass.sh",
     "path": "scripts/maintenance/dev-cockpit-hook-bypass.sh",
     "purpose": "DEV Cockpit hook + bypass: ensure __icDevCorsApply helper + hook before url parsing + restricted dev auth bypass (s2s) for /api/releases/active and /api/reports/latest; json() guard; health + OPTIONS 204 + GET feeds 200",
-    "outputs": ["runtime/reports/DEV_COCKPIT_HOOK_BYPASS_*.log", "runtime/reports/API_DEV_7070.*.stdout.log", "runtime/reports/API_DEV_7070.*.stderr.log"],
-    "forbidden_outputs": ["CI_REPORT.md"],
+    "outputs": [
+      "runtime/reports/DEV_COCKPIT_HOOK_BYPASS_*.log",
+      "runtime/reports/API_DEV_7070.*.stdout.log",
+      "runtime/reports/API_DEV_7070.*.stderr.log"
+    ],
+    "forbidden_outputs": [
+      "CI_REPORT.md"
+    ],
     "requires_api": false,
     "s2s_scopes": [],
     "category": "maintenance"
@@ -276,8 +378,14 @@
     "id": "scripts:maintenance:dev-cors-apply-fix.sh",
     "path": "scripts/maintenance/dev-cors-apply-fix.sh",
     "purpose": "DEV CORS apply fix: inject __icDevCorsApply (loopback + x-ic-dev + allowed origin 5173), syntax check, free 7070, start API, health + OPTIONS 204 + GET feeds, no __icDevCorsApply undefined",
-    "outputs": ["runtime/reports/DEV_CORS_APPLY_FIX_*.log", "runtime/reports/API_DEV_7070.*.stdout.log", "runtime/reports/API_DEV_7070.*.stderr.log"],
-    "forbidden_outputs": ["CI_REPORT.md"],
+    "outputs": [
+      "runtime/reports/DEV_CORS_APPLY_FIX_*.log",
+      "runtime/reports/API_DEV_7070.*.stdout.log",
+      "runtime/reports/API_DEV_7070.*.stderr.log"
+    ],
+    "forbidden_outputs": [
+      "CI_REPORT.md"
+    ],
     "requires_api": false,
     "s2s_scopes": [],
     "category": "maintenance"
@@ -286,8 +394,14 @@
     "id": "scripts:maintenance:dev-cockpit-auth-fix.sh",
     "path": "scripts/maintenance/dev-cockpit-auth-fix.sh",
     "purpose": "DEV Cockpit Auth Fix: backend allows cockpit feeds in DEV (loopback + x-ic-dev:1); CP sends x-ic-dev for local origin; smoke API on 7070; gates + commit + tag",
-    "outputs": ["runtime/reports/DEV_COCKPIT_AUTH_FIX_*.log", "runtime/reports/API_DEV_7070.*.stdout.log", "runtime/reports/API_DEV_7070.*.stderr.log"],
-    "forbidden_outputs": ["CI_REPORT.md"],
+    "outputs": [
+      "runtime/reports/DEV_COCKPIT_AUTH_FIX_*.log",
+      "runtime/reports/API_DEV_7070.*.stdout.log",
+      "runtime/reports/API_DEV_7070.*.stderr.log"
+    ],
+    "forbidden_outputs": [
+      "CI_REPORT.md"
+    ],
     "requires_api": false,
     "s2s_scopes": [],
     "category": "maintenance"
@@ -296,8 +410,12 @@
     "id": "scripts:maintenance:cp-cockpit-commit-proof.sh",
     "path": "scripts/maintenance/cp-cockpit-commit-proof.sh",
     "purpose": "Next step after GO DASHBOARD: commit + proof + tag for CP Cockpit Dominant V1; sanity checks, SSOT, gates (ADR_APPROVED=1), optional full CI, stage cockpit files, commit and tag phaseCP_COCKPIT_DOMINANT_V1",
-    "outputs": ["runtime/reports/CP_COCKPIT_COMMIT_PROOF_*.log"],
-    "forbidden_outputs": ["CI_REPORT.md"],
+    "outputs": [
+      "runtime/reports/CP_COCKPIT_COMMIT_PROOF_*.log"
+    ],
+    "forbidden_outputs": [
+      "CI_REPORT.md"
+    ],
     "requires_api": false,
     "s2s_scopes": [],
     "category": "maintenance"
@@ -871,7 +989,10 @@
     "path": "scripts/ci/test-designer-sections-tabs-flow.mjs",
     "purpose": "CI: designer sections/tabs flow, sections_v2, no-tabs-routes, run-gates",
     "outputs": [],
-    "forbidden_outputs": ["CI_REPORT.md", "platform/runtime/reports"],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
     "requires_api": false,
     "s2s_scopes": [],
     "safety": "temp-ssot",
@@ -882,7 +1003,10 @@
     "path": "scripts/ci/test-designer-widget-binding-action.mjs",
     "purpose": "CI: designer widget binding + action (policy_id), preview, run-gates",
     "outputs": [],
-    "forbidden_outputs": ["CI_REPORT.md", "platform/runtime/reports"],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
     "requires_api": false,
     "s2s_scopes": [],
     "safety": "temp-ssot",
@@ -893,7 +1017,10 @@
     "path": "scripts/ci/test-business-docs-modules-present.mjs",
     "purpose": "CI: temp SSOT compile, assert manifest includes 4 business-docs domain modules",
     "outputs": [],
-    "forbidden_outputs": ["CI_REPORT.md", "platform/runtime/reports"],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
     "requires_api": false,
     "s2s_scopes": [],
     "safety": "temp-ssot",
@@ -904,7 +1031,10 @@
     "path": "scripts/ci/test-pdf-export-action-policy.mjs",
     "purpose": "CI: temp SSOT changeset widget action kind=export_pdf+policy_id, run-gates ActionPolicyGate PASS",
     "outputs": [],
-    "forbidden_outputs": ["CI_REPORT.md", "platform/runtime/reports"],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
     "requires_api": false,
     "s2s_scopes": [],
     "safety": "temp-ssot",
@@ -915,7 +1045,10 @@
     "path": "scripts/ci/test-bizdocs-pages-present.mjs",
     "purpose": "CI: temp SSOT bizdocs pages/routes/nav present, run-gates Collision/Policy/Isolation/ActionPolicy/Binding/PerfBudget",
     "outputs": [],
-    "forbidden_outputs": ["CI_REPORT.md", "platform/runtime/reports"],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
     "requires_api": false,
     "s2s_scopes": [],
     "safety": "temp-ssot",
@@ -926,7 +1059,10 @@
     "path": "scripts/ci/test-bizdocs-actions-workflows.mjs",
     "purpose": "CI: temp SSOT bizdocs widget actions export_pdf+call_workflow policy_id, run-gates ActionPolicyGate PASS",
     "outputs": [],
-    "forbidden_outputs": ["CI_REPORT.md", "platform/runtime/reports"],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
     "requires_api": false,
     "s2s_scopes": [],
     "safety": "temp-ssot",
@@ -936,8 +1072,13 @@
     "id": "scripts:ci:test-workflow-runner-dryrun.mjs",
     "path": "scripts/ci/test-workflow-runner-dryrun.mjs",
     "purpose": "CI: Phase AE workflow runner dry-run via POST /api/studio/workflows/run, index jsonl correlation_id",
-    "outputs": ["runtime/reports/index/workflows_latest.jsonl"],
-    "forbidden_outputs": ["CI_REPORT.md", "platform/runtime/reports"],
+    "outputs": [
+      "runtime/reports/index/workflows_latest.jsonl"
+    ],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
     "requires_api": true,
     "s2s_scopes": [],
     "safety": "api-local",
@@ -947,8 +1088,14 @@
     "id": "scripts:ci:test-workflow-execute-localfs.mjs",
     "path": "scripts/ci/test-workflow-execute-localfs.mjs",
     "purpose": "CI: Phase AF workflow execute mode, runtime/reports/workflows + index jsonl (artifacts under runtime/artifacts not declared)",
-    "outputs": ["runtime/reports/index/workflows_latest.jsonl", "runtime/reports/workflows"],
-    "forbidden_outputs": ["CI_REPORT.md", "platform/runtime/reports"],
+    "outputs": [
+      "runtime/reports/index/workflows_latest.jsonl",
+      "runtime/reports/workflows"
+    ],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
     "requires_api": true,
     "s2s_scopes": [],
     "safety": "api-local",
@@ -959,7 +1106,10 @@
     "path": "scripts/ci/test-execute-freeze-blocks.mjs",
     "purpose": "CI: Phase AH freeze blocks workflow execute (423)",
     "outputs": [],
-    "forbidden_outputs": ["CI_REPORT.md", "platform/runtime/reports"],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
     "requires_api": true,
     "s2s_scopes": [],
     "safety": "api-local",
@@ -969,8 +1119,15 @@
     "id": "scripts:ci:test-ocr-pipeline-local-stub.mjs",
     "path": "scripts/ci/test-ocr-pipeline-local-stub.mjs",
     "purpose": "CI: Phase AJ ocr_ingest + ocr_normalize execute, artifacts + ocr_latest.jsonl",
-    "outputs": ["runtime/reports/index/ocr_latest.jsonl", "runtime/reports/workflows", "runtime/artifacts"],
-    "forbidden_outputs": ["CI_REPORT.md", "platform/runtime/reports"],
+    "outputs": [
+      "runtime/reports/index/ocr_latest.jsonl",
+      "runtime/reports/workflows",
+      "runtime/artifacts"
+    ],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
     "requires_api": true,
     "s2s_scopes": [],
     "safety": "api-local",
@@ -980,8 +1137,15 @@
     "id": "scripts:ci:test-action-export-pdf-end2end.mjs",
     "path": "scripts/ci/test-action-export-pdf-end2end.mjs",
     "purpose": "CI: Phase AI action export_pdf -> workflow execute end2end",
-    "outputs": ["runtime/reports/index/workflows_latest.jsonl", "runtime/reports/workflows", "runtime/artifacts"],
-    "forbidden_outputs": ["CI_REPORT.md", "platform/runtime/reports"],
+    "outputs": [
+      "runtime/reports/index/workflows_latest.jsonl",
+      "runtime/reports/workflows",
+      "runtime/artifacts"
+    ],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
     "requires_api": true,
     "s2s_scopes": [],
     "safety": "api-local",
@@ -992,9 +1156,14 @@
     "path": "scripts/ci/test-cp-cockpit-smoke.mjs",
     "purpose": "CI: Phase AG control-plane cockpit smoke, API health + active-release + reports/latest",
     "outputs": [],
-    "forbidden_outputs": ["CI_REPORT.md", "platform/runtime/reports"],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
     "requires_api": true,
-    "s2s_scopes": ["observability.read"],
+    "s2s_scopes": [
+      "observability.read"
+    ],
     "safety": "api-local",
     "category": "ci"
   },
@@ -1003,7 +1172,10 @@
     "path": "scripts/ci/test-manifest-determinism.mjs",
     "purpose": "CI: temp SSOT double compile, assert identical meta.fingerprint.sha256",
     "outputs": [],
-    "forbidden_outputs": ["CI_REPORT.md", "platform/runtime/reports"],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
     "requires_api": false,
     "s2s_scopes": [],
     "safety": "temp-ssot",
@@ -1014,7 +1186,10 @@
     "path": "scripts/ci/test-diff-noise-gate.mjs",
     "purpose": "CI: classifyDiffNoise two manifests (only generated_at differs) => noiseOnly true",
     "outputs": [],
-    "forbidden_outputs": ["CI_REPORT.md", "platform/runtime/reports"],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
     "requires_api": false,
     "s2s_scopes": [],
     "safety": "temp-ssot",
@@ -1025,7 +1200,10 @@
     "path": "scripts/ci/test-freeze-designer-blocks-apply.mjs",
     "purpose": "CI: freeze blocks apply/publish (423), temp SSOT",
     "outputs": [],
-    "forbidden_outputs": ["CI_REPORT.md", "platform/runtime/reports"],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
     "requires_api": false,
     "s2s_scopes": [],
     "safety": "temp-ssot",
@@ -1204,7 +1382,10 @@
     "path": "scripts/ci/test-runtime-hermeticity.mjs",
     "purpose": "CI: Phase AK runtime hermeticity (PORT=0, spawn helper, kill server)",
     "outputs": [],
-    "forbidden_outputs": ["CI_REPORT.md", "platform/runtime/reports"],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
     "requires_api": true,
     "s2s_scopes": [],
     "safety": "api-local",
@@ -1214,10 +1395,18 @@
     "id": "scripts:ci:test-release-promote-rollback-smoke.mjs",
     "path": "scripts/ci/test-release-promote-rollback-smoke.mjs",
     "purpose": "CI: Phase AL release promote/rollback smoke (S2S, reports + index)",
-    "outputs": ["runtime/reports/releases", "runtime/reports/index/releases_latest.jsonl"],
-    "forbidden_outputs": ["CI_REPORT.md", "platform/runtime/reports"],
+    "outputs": [
+      "runtime/reports/releases",
+      "runtime/reports/index/releases_latest.jsonl"
+    ],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
     "requires_api": true,
-    "s2s_scopes": ["release.*"],
+    "s2s_scopes": [
+      "release.*"
+    ],
     "safety": "api-local",
     "category": "ci"
   },
@@ -1225,10 +1414,18 @@
     "id": "scripts:ci:test-tenant-provision-hermetic.mjs",
     "path": "scripts/ci/test-tenant-provision-hermetic.mjs",
     "purpose": "CI: Phase AM tenant provision hermetic (S2S, PROVISION_REPORT + index)",
-    "outputs": ["runtime/reports/tenants", "runtime/reports/index/tenants_latest.jsonl"],
-    "forbidden_outputs": ["CI_REPORT.md", "platform/runtime/reports"],
+    "outputs": [
+      "runtime/reports/tenants",
+      "runtime/reports/index/tenants_latest.jsonl"
+    ],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
     "requires_api": true,
-    "s2s_scopes": ["tenancy.factory.*"],
+    "s2s_scopes": [
+      "tenancy.factory.*"
+    ],
     "safety": "api-local",
     "category": "ci"
   },
@@ -1236,10 +1433,19 @@
     "id": "scripts:ci:test-auto-freeze-trigger.mjs",
     "path": "scripts/ci/test-auto-freeze-trigger.mjs",
     "purpose": "CI: Phase AO auto-freeze evaluate + publish 423",
-    "outputs": ["runtime/reports/ops", "runtime/reports/index/ops_latest.jsonl"],
-    "forbidden_outputs": ["CI_REPORT.md", "platform/runtime/reports"],
+    "outputs": [
+      "runtime/reports/ops",
+      "runtime/reports/index/ops_latest.jsonl"
+    ],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
     "requires_api": true,
-    "s2s_scopes": ["ops.*", "studio.*"],
+    "s2s_scopes": [
+      "ops.*",
+      "studio.*"
+    ],
     "safety": "api-local",
     "category": "ci"
   },
@@ -1248,7 +1454,10 @@
     "path": "scripts/ci/test-extension-compat.mjs",
     "purpose": "CI: Phase AP extension compat gate + semver + compat matrix",
     "outputs": [],
-    "forbidden_outputs": ["CI_REPORT.md", "platform/runtime/reports"],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
     "requires_api": false,
     "s2s_scopes": [],
     "safety": "local",
@@ -1258,10 +1467,18 @@
     "id": "scripts:ci:test-accounting-breakglass.mjs",
     "path": "scripts/ci/test-accounting-breakglass.mjs",
     "purpose": "CI: Phase AQ accounting execute guard (423 without approval, 200 with breakglass)",
-    "outputs": ["runtime/reports/governance/breakglass_latest.jsonl", "runtime/reports/governance/quorum_latest.jsonl"],
-    "forbidden_outputs": ["CI_REPORT.md", "platform/runtime/reports"],
+    "outputs": [
+      "runtime/reports/governance/breakglass_latest.jsonl",
+      "runtime/reports/governance/quorum_latest.jsonl"
+    ],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
     "requires_api": true,
-    "s2s_scopes": ["studio.*"],
+    "s2s_scopes": [
+      "studio.*"
+    ],
     "safety": "api-local",
     "category": "ci"
   },
@@ -1269,8 +1486,14 @@
     "id": "scripts:ci:test-ocr-contract.mjs",
     "path": "scripts/ci/test-ocr-contract.mjs",
     "purpose": "CI: Phase AR OCR artifact fingerprint + schema validation",
-    "outputs": ["runtime/artifacts", "runtime/reports/index/ocr_latest.jsonl"],
-    "forbidden_outputs": ["CI_REPORT.md", "platform/runtime/reports"],
+    "outputs": [
+      "runtime/artifacts",
+      "runtime/reports/index/ocr_latest.jsonl"
+    ],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
     "requires_api": false,
     "s2s_scopes": [],
     "safety": "local",
@@ -1280,8 +1503,14 @@
     "id": "scripts:ci:test-scheduler.mjs",
     "path": "scripts/ci/test-scheduler.mjs",
     "purpose": "CI: Phase AS scheduler one-shot report + index",
-    "outputs": ["runtime/reports/scheduler", "runtime/reports/index/scheduler_latest.jsonl"],
-    "forbidden_outputs": ["CI_REPORT.md", "platform/runtime/reports"],
+    "outputs": [
+      "runtime/reports/scheduler",
+      "runtime/reports/index/scheduler_latest.jsonl"
+    ],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
     "requires_api": false,
     "s2s_scopes": [],
     "safety": "local",
@@ -1291,8 +1520,14 @@
     "id": "scripts:maintenance:scheduler.mjs",
     "path": "scripts/maintenance/scheduler.mjs",
     "purpose": "Phase AS autonomous scheduler — deep-clean, evidence pack, optional gates",
-    "outputs": ["runtime/reports/scheduler", "runtime/reports/index/scheduler_latest.jsonl"],
-    "forbidden_outputs": ["CI_REPORT.md", "platform/runtime/reports"],
+    "outputs": [
+      "runtime/reports/scheduler",
+      "runtime/reports/index/scheduler_latest.jsonl"
+    ],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
     "requires_api": false,
     "s2s_scopes": [],
     "safety": "local",
@@ -1303,9 +1538,15 @@
     "path": "scripts/ci/test-cockpit-panels.mjs",
     "purpose": "CI: Phase AT cockpit v2 panels (releases, freeze, scheduler, workflows from index)",
     "outputs": [],
-    "forbidden_outputs": ["CI_REPORT.md", "platform/runtime/reports"],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
     "requires_api": true,
-    "s2s_scopes": ["observability.read", "studio.*"],
+    "s2s_scopes": [
+      "observability.read",
+      "studio.*"
+    ],
     "safety": "api-local",
     "category": "ci"
   },
@@ -1314,7 +1555,10 @@
     "path": "scripts/ci/test-ga-readiness-pack.mjs",
     "purpose": "CI: Phase AU GA Readiness — run gates with RUNTIME_HERMETIC_STRICT_PORT=1, verify GA report and index",
     "outputs": [],
-    "forbidden_outputs": ["CI_REPORT.md", "platform/runtime/reports"],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
     "requires_api": false,
     "s2s_scopes": [],
     "safety": "local",
@@ -1325,7 +1569,10 @@
     "path": "scripts/ci/test-access-scopes-matrix.mjs",
     "purpose": "CI: CP RBAC — validate scope_catalog and role_matrix (scopes ≥20, roles reference only catalog scopes)",
     "outputs": [],
-    "forbidden_outputs": ["CI_REPORT.md", "platform/runtime/reports"],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
     "requires_api": false,
     "s2s_scopes": [],
     "safety": "local",
@@ -1336,7 +1583,10 @@
     "path": "scripts/ci/test-cockpit-dev-bypass.mjs",
     "purpose": "CI: Cockpit DEV bypass — OPTIONS 204, GET with Origin => 200, GET without Origin => 401/403",
     "outputs": [],
-    "forbidden_outputs": ["CI_REPORT.md", "platform/runtime/reports"],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
     "requires_api": true,
     "s2s_scopes": [],
     "safety": "api-local",
@@ -1347,7 +1597,10 @@
     "path": "scripts/ci/test-cockpit-browser-contract.mjs",
     "purpose": "CI: Cockpit browser contract — OPTIONS 204, GET 200 on health/releases/active/reports/latest/studio/freeze with Origin; GET without Origin => 401/403",
     "outputs": [],
-    "forbidden_outputs": ["CI_REPORT.md", "platform/runtime/reports"],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
     "requires_api": true,
     "s2s_scopes": [],
     "safety": "api-local",
@@ -1358,7 +1611,10 @@
     "path": "scripts/ci/test-control-plane-syntax.mjs",
     "purpose": "CI: control-plane UI syntax gate — node --check app.js; fail if broken",
     "outputs": [],
-    "forbidden_outputs": ["CI_REPORT.md", "platform/runtime/reports"],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
     "requires_api": false,
     "s2s_scopes": [],
     "safety": "local",
@@ -1368,8 +1624,13 @@
     "id": "scripts:ci:test-vertical-pack-smoke.mjs",
     "path": "scripts/ci/test-vertical-pack-smoke.mjs",
     "purpose": "Business Surfaces: vertical extension pack smoke — temp SSOT overlay, compile, assert /cp/vertical-home route",
-    "outputs": ["runtime/reports/tmp"],
-    "forbidden_outputs": ["CI_REPORT.md", "platform/runtime/reports"],
+    "outputs": [
+      "runtime/reports/tmp"
+    ],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
     "requires_api": false,
     "s2s_scopes": [],
     "safety": "local",
@@ -1380,7 +1641,10 @@
     "path": "scripts/ci/test-surface-contract.mjs",
     "purpose": "CI: surface contract gate — page/route/widget/workflow must be in a surface; fail if outside",
     "outputs": [],
-    "forbidden_outputs": ["CI_REPORT.md", "platform/runtime/reports"],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
     "requires_api": false,
     "s2s_scopes": [],
     "safety": "local",
@@ -1391,7 +1655,10 @@
     "path": "scripts/ci/test-widget-contract-pack.mjs",
     "purpose": "CI: widget contract pack — validate *.widget.json (no duplicate widget_id) + widgetContractGate",
     "outputs": [],
-    "forbidden_outputs": ["CI_REPORT.md", "platform/runtime/reports"],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
     "requires_api": false,
     "s2s_scopes": [],
     "safety": "local",
@@ -1402,7 +1669,10 @@
     "path": "scripts/ci/test-extension-no-core-leak.mjs",
     "purpose": "CI Guard: fail if extensions/** import from platform/core/governance/runtime",
     "outputs": [],
-    "forbidden_outputs": ["CI_REPORT.md", "platform/runtime/reports"],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
     "requires_api": false,
     "s2s_scopes": [],
     "safety": "local",
@@ -1413,7 +1683,10 @@
     "path": "scripts/ci/test-no-hardcoded-styles.mjs",
     "purpose": "Token gate: fail if hex/rgb/inline styles outside design-system",
     "outputs": [],
-    "forbidden_outputs": ["CI_REPORT.md", "platform/runtime/reports"],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
     "requires_api": false,
     "s2s_scopes": [],
     "safety": "local",
@@ -1424,7 +1697,10 @@
     "path": "scripts/ci/test-token-contrast-gate.mjs",
     "purpose": "CI: WCAG AA contrast gate for token pairs (text/surface, text/panel, controls/surface)",
     "outputs": [],
-    "forbidden_outputs": ["CI_REPORT.md", "platform/runtime/reports"],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
     "requires_api": false,
     "s2s_scopes": [],
     "safety": "local",
@@ -1435,7 +1711,10 @@
     "path": "scripts/ci/test-brand-source-any-hex.mjs",
     "purpose": "CI smoke: any valid hex in brand-source produces palette; contrast gate passes",
     "outputs": [],
-    "forbidden_outputs": ["CI_REPORT.md", "platform/runtime/reports"],
+    "forbidden_outputs": [
+      "CI_REPORT.md",
+      "platform/runtime/reports"
+    ],
     "requires_api": false,
     "s2s_scopes": [],
     "safety": "local",
@@ -2275,7 +2554,9 @@
     "id": "ci-test-theme-vars-present-in-pack",
     "path": "scripts/ci/test-theme-vars-present-in-pack.mjs",
     "purpose": "CI: ensure theme_vars css included in release pack",
-    "outputs": ["runtime/reports/packs/"],
+    "outputs": [
+      "runtime/reports/packs/"
+    ],
     "forbidden_outputs": [
       "./CI_REPORT.md",
       "platform/runtime/reports"
@@ -2316,6 +2597,18 @@
       "./CI_REPORT.md",
       "platform/runtime/reports"
     ],
+    "requires_api": false,
+    "s2s_scopes": []
+  },
+  {
+    "id": "remote-rebind-and-push",
+    "path": "scripts/maintenance/remote-rebind-and-push.sh",
+    "purpose": "Rebind origin remote safely then push main+tags (PUSH=1), optional WIP branch from stash; supports DRY=1.",
+    "category": "maintenance",
+    "outputs": [
+      "runtime/reports/REMOTE_REBIND_AND_PUSH_*.log"
+    ],
+    "forbidden_outputs": [],
     "requires_api": false,
     "s2s_scopes": []
   }
