@@ -1,43 +1,57 @@
 import http from "http";
 
-/* __IC_DEV_CORS_PREFLIGHT_FN__ */
-function __icDevCors(req, res) {
-  // Loopback-only DEV CORS for CP cockpit (5173 -> 7070).
-  // Needed because custom headers (x-ic-dev) trigger OPTIONS preflight.
-  const origin = String(req.headers?.origin || "");
-  const hostHdr = String(req.headers?.host || "");
-  const host = hostHdr.split(":")[0] || "";
-  const isLoop = (host === "127.0.0.1" || host === "::1" || host === "localhost");
-  const isDev = (process.env.CI === "true") || (process.env.NODE_ENV !== "production");
-  const isLocalOrigin =
-    origin.startsWith("http://127.0.0.1:") ||
-    origin.startsWith("http://localhost:") ||
-    origin.startsWith("http://[::1]:");
-  if (!(isDev && isLoop && isLocalOrigin)) return false;
+/**
+ * DEV cockpit gate (v7): single entry for CORS + S2S bypass.
+ * Called EARLY in createServer, before any auth. Loopback + Origin allowlist + dev flag (header or query).
+ * Paths: /api/reports/latest, /api/releases/active, /api/runtime/active-release, /api/studio/freeze.
+ * @returns {{ handled: boolean, s2s?: object }}
+ */
+function __icDevCockpitGate(req, res) {
+  const out = { handled: false };
+  try {
+    if (!req || !res) return out;
+    const ra = String(req.socket?.remoteAddress || req.connection?.remoteAddress || "");
+    const loopback = ra === "127.0.0.1" || ra === "::1" || ra.endsWith("::ffff:127.0.0.1");
+    if (!loopback) return out;
 
-  res.setHeader("Access-Control-Allow-Origin", origin);
-  res.setHeader("Vary", "Origin");
-  res.setHeader("Access-Control-Allow-Credentials", "true");
-  res.setHeader("Access-Control-Allow-Methods", "GET,POST,PUT,PATCH,DELETE,OPTIONS");
-  res.setHeader(
-    "Access-Control-Allow-Headers",
-    [
-      "Content-Type",
-      "Authorization",
-      "x-ic-dev",
-      "x-ic-role-ids",
-      "x-request-id",
-      "x-ic-tenant-id",
-      "x-ic-release-id"
-    ].join(", ")
-  );
-  res.setHeader("Access-Control-Max-Age", "600");
-  if (req.method === "OPTIONS") {
-    res.statusCode = 204;
-    res.end();
-    return true; // handled
+    const origin = String(req.headers?.origin || req.headers?.Origin || "").trim();
+    const originOk = origin === "http://127.0.0.1:5173" || origin === "http://localhost:5173";
+    if (!originOk) return out;
+
+    const devHeader = String(req.headers?.["x-ic-dev"] || "").trim() === "1";
+    let devQuery = false;
+    try {
+      const u = new URL(req.url || "", "http://localhost");
+      devQuery = u.searchParams.get("ic_dev") === "1";
+    } catch {}
+    if (!devHeader && !devQuery) return out;
+
+    const urlPath = (req.url || "").split("?")[0];
+    const pathOk =
+      (req.url || "").startsWith("/api/reports/latest") ||
+      (req.url || "").startsWith("/api/releases/active") ||
+      (req.url || "").startsWith("/api/runtime/active-release") ||
+      urlPath === "/api/studio/freeze";
+    if (!pathOk) return out;
+
+    if (res.headersSent || res.writableEnded) return out;
+    res.setHeader("Access-Control-Allow-Origin", origin);
+    res.setHeader("Vary", "Origin");
+    res.setHeader("Access-Control-Allow-Methods", "GET,POST,PUT,PATCH,DELETE,OPTIONS");
+    res.setHeader("Access-Control-Allow-Headers", "content-type,x-ic-dev,x-ic-role-ids,authorization");
+    res.setHeader("Access-Control-Allow-Credentials", "true");
+
+    if (String(req.method || "").toUpperCase() === "OPTIONS") {
+      res.statusCode = 204;
+      res.end();
+      return { handled: true };
+    }
+
+    out.s2s = { principal_id: "dev_cockpit", scopes: ["*"], scope: "platform:*", auth_type: "dev" };
+    return out;
+  } catch {
+    return out;
   }
-  return false; // not handled (headers set, continue main handler)
 }
 
 import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync, statSync } from "fs";
@@ -65,6 +79,7 @@ import { handleStripeWebhook } from "../../platform/runtime/billing/providers/st
 import { sha256, stableStringify } from "../../platform/compilers/utils.mjs";
 import { compareSemver } from "../../platform/runtime/compat/semver.mjs";
 import { createHmac, timingSafeEqual, randomUUID } from "crypto";
+
 
 /* IC_BIND_CFG */
 const __IC_CI = String(process.env.CI || "").toLowerCase() === "true" || String(process.env.IC_CI || "") === "1";
@@ -187,13 +202,36 @@ function writeJson(path, data) {
   writeFileSync(path, JSON.stringify(data, null, 2) + "\n", "utf-8");
 }
 
-function json(res, code, payload) {
-  const ctx = getContext();
-  const headers = { "Content-Type": "application/json" };
-  if (ctx.request_id) headers["x-request-id"] = ctx.request_id;
-  res.writeHead(code, headers);
-  res.end(JSON.stringify(payload));
+
+function json(res, status, payload) {
+
+  // absolute guard
+  if (!res || res.headersSent || res.writableEnded) {
+    return;
+  }
+
+  try {
+
+    const body = JSON.stringify(payload ?? {});
+
+    res.statusCode = status;
+    res.setHeader("Content-Type", "application/json");
+    res.setHeader("Content-Length", Buffer.byteLength(body));
+
+    res.end(body);
+
+  } catch (err) {
+
+    // last-chance fallback — NEVER throw
+    try {
+      if (!res.writableEnded) {
+        res.statusCode = 500;
+        res.end('{"error":"json_failure"}');
+      }
+    } catch {}
+  }
 }
+
 
 function bodyToJson(req) {
   return getRawBody(req).then((body) => {
@@ -317,6 +355,7 @@ function parseSecretRef(ref) {
 
 function scopePatternMatch(pattern, value) {
   if (pattern === value) return true;
+  if (pattern === "*") return true;
   if (pattern.endsWith(".*")) return value.startsWith(pattern.slice(0, -2));
   return false;
 }
@@ -1305,10 +1344,11 @@ function loadActiveManifest() {
 }
 
 const server = http.createServer(async (req, res) => {
-  
-  /* __IC_DEV_CORS_PREFLIGHT_APPLY__ */
-  __icDevCors(req, res);
-const inboundReqId = req.headers["x-request-id"] || req.headers["x-trace-id"];
+  const dev = __icDevCockpitGate(req, res);
+  if (dev.handled) return;
+  if (dev.s2s && !req.s2s) req.s2s = dev.s2s;
+
+  const inboundReqId = req.headers["x-request-id"] || req.headers["x-trace-id"];
   const requestId = typeof inboundReqId === "string" && inboundReqId ? inboundReqId : randomUUID();
   const traceId = typeof req.headers["x-trace-id"] === "string" && req.headers["x-trace-id"] ? req.headers["x-trace-id"] : requestId;
   const actorId = req.headers["x-user-id"] || "system";
@@ -1324,7 +1364,8 @@ const inboundReqId = req.headers["x-request-id"] || req.headers["x-trace-id"];
         const requiredScope = req.url ? requiredScopeForPath(req.method, req.url) : null;
         const authHeader = req.headers["authorization"];
         const hasUserAuth = Boolean(req.headers["x-user-id"]);
-        let s2s = null;
+
+        let s2s = req.s2s || null;
         if (typeof authHeader === "string" && authHeader.startsWith("Bearer ")) {
           try {
             requireMtlsIfEnabled(req);
@@ -1549,10 +1590,12 @@ const inboundReqId = req.headers["x-request-id"] || req.headers["x-trace-id"];
           : manifestsDir.replace(/\/runtime\/manifests$/, "/platform/runtime/build_artifacts");
       const cssPath = join(buildDir, `theme_vars.${releaseId}.css`);
       if (!existsSync(cssPath)) {
-        res.writeHead(404, { "Content-Type": "text/plain" });
+        res.statusCode = 404;
+        res.setHeader("Content-Type", "text/plain");
         return res.end("Theme vars not found");
       }
-      res.writeHead(200, { "Content-Type": "text/css" });
+      res.statusCode = 200;
+      res.setHeader("Content-Type", "text/css");
       return res.end(readFileSync(cssPath, "utf-8"));
     }
 
@@ -2369,7 +2412,7 @@ const inboundReqId = req.headers["x-request-id"] || req.headers["x-trace-id"];
       return json(res, 200, readJson(ssotPath("studio/nav/nav_specs.json")));
     }
 
-    if (req.method === "GET" && req.url === "/api/studio/freeze") {
+    if (req.method === "GET" && req.url?.startsWith("/api/studio/freeze") && req.url.split("?")[0] === "/api/studio/freeze") {
       requirePermission(req, "studio.pages.view");
       const freeze = readJson(ssotPath("governance/change_freeze.json"));
       return json(res, 200, { enabled: !!freeze.enabled, scopes: freeze.scopes || {}, allow_actions: freeze.allow_actions || [] });

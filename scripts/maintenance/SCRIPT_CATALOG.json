@@ -173,10 +173,100 @@
     "category": "maintenance"
   },
   {
-    "id": "scripts:maintenance:dev-cockpit-cors-rescue.sh",
-    "path": "scripts/maintenance/dev-cockpit-cors-rescue.sh",
-    "purpose": "DEV Cockpit CORS rescue: loopback-only CORS preflight + no-crash json() guard in server.mjs; smoke API 7070 + OPTIONS 204 + feeds 200; gates",
-    "outputs": ["runtime/reports/DEV_COCKPIT_CORS_RESCUE_*.log", "runtime/reports/API_DEV_7070.*.stdout.log", "runtime/reports/API_DEV_7070.*.stderr.log"],
+    "id": "scripts:maintenance:dev-cockpit-headers-query-v3.sh",
+    "path": "scripts/maintenance/dev-cockpit-headers-query-v3.sh",
+    "purpose": "DEV Cockpit Headers+Query V3: backend accepts DEV via x-ic-dev header OR ic_dev=1 query (__icDevFlagOn); CP wraps fetch to add ic_dev=1 on loopback URLs; proof health + preflight + feeds 200; gates",
+    "outputs": ["runtime/reports/DEV_COCKPIT_HEADERS_V3_*.log", "runtime/reports/API_DEV_7070.*.stdout.log", "runtime/reports/API_DEV_7070.*.stderr.log"],
+    "forbidden_outputs": ["CI_REPORT.md"],
+    "requires_api": false,
+    "s2s_scopes": [],
+    "category": "maintenance"
+  },
+  {
+    "id": "scripts:maintenance:dev-cockpit-observe.sh",
+    "path": "scripts/maintenance/dev-cockpit-observe.sh",
+    "purpose": "DEV Cockpit Observe + Fix: broaden __icDevOriginAllowedV2 (127.0.0.1 + localhost 5173); add __icDevCockpitObserveV1 (log url, origin, x-ic-dev, remoteAddress, hasS2S); manual step to open CP and refresh; grep observer lines; curl comparison",
+    "outputs": ["runtime/reports/DEV_COCKPIT_OBSERVE_*.log", "runtime/reports/API_DEV_7070.*.stdout.log", "runtime/reports/API_DEV_7070.*.stderr.log"],
+    "forbidden_outputs": ["CI_REPORT.md"],
+    "requires_api": false,
+    "s2s_scopes": [],
+    "category": "maintenance"
+  },
+  {
+    "id": "scripts:maintenance:dev-cockpit-bypass-v2.sh",
+    "path": "scripts/maintenance/dev-cockpit-bypass-v2.sh",
+    "purpose": "DEV Cockpit Bypass V2: reports + studio/freeze; loopback + x-ic-dev:1 + Origin allowlist; inject __icDevCockpitBypassV2 + hook; smoke health + OPTIONS 204 + GET feeds + /api/studio/freeze 200; gates",
+    "outputs": ["runtime/reports/DEV_COCKPIT_BYPASS_V2_*.log", "runtime/reports/API_DEV_7070.*.stdout.log", "runtime/reports/API_DEV_7070.*.stderr.log"],
+    "forbidden_outputs": ["CI_REPORT.md"],
+    "requires_api": false,
+    "s2s_scopes": [],
+    "category": "maintenance"
+  },
+  {
+    "id": "scripts:maintenance:dev-cockpit-bypass-v4.sh",
+    "path": "scripts/maintenance/dev-cockpit-bypass-v4.sh",
+    "purpose": "DEV Cockpit Bypass V4: fix 401 — backend loopback+origin bypass for /api/reports/latest, /api/releases/active, /api/studio/freeze (no x-ic-dev); CP wrap fetch to resolve relative /api/.. to API Base URL + ic_dev=1 on loopback; smoke 200 (Origin only); gates",
+    "outputs": ["runtime/reports/DEV_COCKPIT_BYPASS_V4_*.log", "runtime/reports/API_DEV_7070.*.stdout.log", "runtime/reports/API_DEV_7070.*.stderr.log"],
+    "forbidden_outputs": ["CI_REPORT.md"],
+    "requires_api": false,
+    "s2s_scopes": [],
+    "category": "maintenance"
+  },
+  {
+    "id": "scripts:maintenance:dev-cockpit-bypass-v5.sh",
+    "path": "scripts/maintenance/dev-cockpit-bypass-v5.sh",
+    "purpose": "DEV Cockpit Bypass V5: fix 401 from relative /api/* (Vite proxy). CP: bind API Base input id=ic_api_base, sync window.__ic_api_base, fetch wrapper rewrites /api/.. to absolute; backend stays V4. Smoke 200 on feeds (absolute+Origin).",
+    "outputs": ["runtime/reports/DEV_COCKPIT_BYPASS_V5_*.log", "runtime/reports/API_DEV_7070.*.stdout.log", "runtime/reports/API_DEV_7070.*.stderr.log"],
+    "forbidden_outputs": ["CI_REPORT.md"],
+    "requires_api": false,
+    "s2s_scopes": [],
+    "category": "maintenance"
+  },
+  {
+    "id": "scripts:maintenance:dev-cockpit-bypass-v6.sh",
+    "path": "scripts/maintenance/dev-cockpit-bypass-v6.sh",
+    "purpose": "DEV Cockpit Bypass V6: hard fix 401 on /api/* (proxy drift). CP-only: default base 127.0.0.1:7070, sync window.__ic_api_base + localStorage, fetch rewrites all /api/.. to absolute + ic_dev=1 loopback; observability console + window.__ic_last_api_rewrite. No smoke.",
+    "outputs": ["runtime/reports/DEV_COCKPIT_BYPASS_V6_*.log"],
+    "forbidden_outputs": ["CI_REPORT.md"],
+    "requires_api": false,
+    "s2s_scopes": [],
+    "category": "maintenance"
+  },
+  {
+    "id": "scripts:maintenance:dev-cockpit-runbook.sh",
+    "path": "scripts/maintenance/dev-cockpit-runbook.sh",
+    "purpose": "DEV Cockpit runbook: run dev-cockpit-hook-bypass.sh, start API 7070 + CP 5173, prove cockpit feeds 200, optional gates; instructions to open 127.0.0.1:5173 and set API base 127.0.0.1:7070",
+    "outputs": ["runtime/reports/API_DEV_7070.RUNTIME.*.stdout.log", "runtime/reports/API_DEV_7070.RUNTIME.*.stderr.log", "runtime/reports/CP_DEV_5173.RUNTIME.*.stdout.log", "runtime/reports/CP_DEV_5173.RUNTIME.*.stderr.log"],
+    "forbidden_outputs": ["CI_REPORT.md"],
+    "requires_api": false,
+    "s2s_scopes": [],
+    "category": "maintenance"
+  },
+  {
+    "id": "scripts:maintenance:dev-cockpit-runbook-v2.sh",
+    "path": "scripts/maintenance/dev-cockpit-runbook-v2.sh",
+    "purpose": "DEV Cockpit Runbook V2: patch CP (V6), run test-cockpit-dev-bypass.mjs, start API 7070 + CP 5173, checklist; log DEV_COCKPIT_RUNBOOK_V2_*.log",
+    "outputs": ["runtime/reports/DEV_COCKPIT_RUNBOOK_V2_*.log", "runtime/reports/API_DEV_7070.RUNTIME.*.stdout.log", "runtime/reports/API_DEV_7070.RUNTIME.*.stderr.log", "runtime/reports/CP_DEV_5173.RUNTIME.*.stdout.log", "runtime/reports/CP_DEV_5173.RUNTIME.*.stderr.log"],
+    "forbidden_outputs": ["CI_REPORT.md"],
+    "requires_api": false,
+    "s2s_scopes": [],
+    "category": "maintenance"
+  },
+  {
+    "id": "scripts:maintenance:dev-cockpit-hook-bypass.sh",
+    "path": "scripts/maintenance/dev-cockpit-hook-bypass.sh",
+    "purpose": "DEV Cockpit hook + bypass: ensure __icDevCorsApply helper + hook before url parsing + restricted dev auth bypass (s2s) for /api/releases/active and /api/reports/latest; json() guard; health + OPTIONS 204 + GET feeds 200",
+    "outputs": ["runtime/reports/DEV_COCKPIT_HOOK_BYPASS_*.log", "runtime/reports/API_DEV_7070.*.stdout.log", "runtime/reports/API_DEV_7070.*.stderr.log"],
+    "forbidden_outputs": ["CI_REPORT.md"],
+    "requires_api": false,
+    "s2s_scopes": [],
+    "category": "maintenance"
+  },
+  {
+    "id": "scripts:maintenance:dev-cors-apply-fix.sh",
+    "path": "scripts/maintenance/dev-cors-apply-fix.sh",
+    "purpose": "DEV CORS apply fix: inject __icDevCorsApply (loopback + x-ic-dev + allowed origin 5173), syntax check, free 7070, start API, health + OPTIONS 204 + GET feeds, no __icDevCorsApply undefined",
+    "outputs": ["runtime/reports/DEV_CORS_APPLY_FIX_*.log", "runtime/reports/API_DEV_7070.*.stdout.log", "runtime/reports/API_DEV_7070.*.stderr.log"],
     "forbidden_outputs": ["CI_REPORT.md"],
     "requires_api": false,
     "s2s_scopes": [],
@@ -1229,6 +1319,17 @@
     "requires_api": false,
     "s2s_scopes": [],
     "safety": "local",
+    "category": "ci"
+  },
+  {
+    "id": "scripts:ci:test-cockpit-dev-bypass.mjs",
+    "path": "scripts/ci/test-cockpit-dev-bypass.mjs",
+    "purpose": "CI: Cockpit DEV bypass — OPTIONS 204, GET with ic_dev=1 => 200 (releases/active, reports/latest, studio/freeze), GET without => 401/403",
+    "outputs": [],
+    "forbidden_outputs": ["CI_REPORT.md", "platform/runtime/reports"],
+    "requires_api": true,
+    "s2s_scopes": [],
+    "safety": "api-local",
     "category": "ci"
   },
   {

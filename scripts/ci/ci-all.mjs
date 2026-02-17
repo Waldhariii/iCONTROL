@@ -44,6 +44,7 @@ const steps = [
   "node scripts/ci/compile.mjs dev-001 dev",
   "node scripts/ci/run-gates.mjs dev-001",
   "node scripts/ci/test-access-scopes-matrix.mjs",
+  "node scripts/ci/test-cockpit-dev-bypass.mjs",
   "node scripts/ci/test-control-plane-syntax.mjs",
   "node scripts/ci/test-gates.mjs",
   "node scripts/ci/test-runtime-hermeticity.mjs",
