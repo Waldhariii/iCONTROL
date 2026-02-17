@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # GOAL:
-# - Ensure repo has a valid 'origin' remote (via discovery or GIT_URL override)
+# - Ensure repo has a valid 'origin' remote (explicit GIT_URL when missing; no discovery)
 # - Push main + tags safely (requires explicit PUSH=1 unless already configured)
 # - Optionally materialize latest stash into a WIP branch and push it
 #
@@ -68,35 +68,24 @@ fi
 
 echo
 echo "=== 2) Ensure origin exists ==="
-if git remote | grep -qx "origin"; then
-  ORIGIN_URL="$(git config --get remote.origin.url || true)"
-  echo "OK: origin exists: ${ORIGIN_URL:-"(unknown)"}"
+if git remote get-url origin >/dev/null 2>&1; then
+  ORIGIN_URL="$(git remote get-url origin || true)"
+  echo "OK: origin=$ORIGIN_URL"
 else
-  echo "origin missing -> discovery/override"
-  CAND=""
-
-  # A) operator override
-  if [ -n "${GIT_URL:-}" ]; then CAND="$GIT_URL"; fi
-
-  # B) best-effort discovery in repo text (non-fatal)
-  if [ -z "$CAND" ]; then
-    CAND="$(grep -RhoE '(https|ssh)://[^[:space:]]+|git@[^[:space:]]+:[^[:space:]]+' . 2>/dev/null \
-      | grep -Ei '(github|gitlab|bitbucket|azure|devops).*(\.git)?' \
-      | head -n 1 || true)"
-  fi
-
-  echo "DISCOVERED_CANDIDATE=${CAND:-"(none)"}"
-  if [ -z "$CAND" ]; then
-    echo
-    echo "ERR: cannot infer remote URL."
-    echo "Provide one:"
-    echo "  export GIT_URL='git@github.com:<org>/<repo>.git'  # recommended"
-    echo "  PUSH=1 $0"
+  echo "origin missing -> explicit bind required (no discovery allowed)"
+  if [ -z "${GIT_URL:-}" ]; then
+    echo "ERR: origin is missing and GIT_URL is not set."
+    echo "Fix:"
+    echo "  export GIT_URL='git@github.com:<org>/<repo>.git'"
+    echo "  DRY=1 PUSH=1 ./scripts/maintenance/remote-rebind-and-push.sh"
     exit 2
   fi
-
-  run "git remote add origin \"${CAND}\""
-  git remote -v
+  # Trim accidental trailing punctuation/spaces (e.g. comma from copy/paste)
+  GIT_URL="${GIT_URL%,}"
+  GIT_URL="${GIT_URL% }"
+  run git remote add origin "$GIT_URL"
+  ORIGIN_URL="$(git remote get-url origin || true)"
+  echo "OK: origin=$ORIGIN_URL"
 fi
 
 echo
