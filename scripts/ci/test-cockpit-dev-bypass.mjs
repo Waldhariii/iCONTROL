@@ -1,6 +1,6 @@
 /**
- * CI: Cockpit DEV bypass — OPTIONS 204, GET with ic_dev=1 => 200, GET without => 401/403.
- * Spawns backend with PORT=0, then asserts loopback+origin+dev gate behavior.
+ * CI: Cockpit DEV bypass V10 — OPTIONS 204, GET with Origin (no x-ic-dev) => 200, GET without => 401/403.
+ * Spawns backend with PORT=0, asserts loopback+origin allowlist only.
  */
 import { createTempSsot } from "./test-utils.mjs";
 import { spawnServer, waitForBound, getBaseUrl, killServer } from "../../platform/runtime/testing/spawn-server.mjs";

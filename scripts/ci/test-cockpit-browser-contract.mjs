@@ -1,6 +1,7 @@
 /**
- * CI: Cockpit browser contract — OPTIONS 204, GET 200 with Origin (no custom header).
- * DevCockpitGate: loopback + origin allowlist only.
+ * CI: Cockpit browser contract — OPTIONS 204, GET 200 with Origin (no x-ic-dev).
+ * Dev gate V10: loopback + origin allowlist only; GET /api/studio/freeze => 200 + JSON (frozen/enabled).
+ * Negative: no Origin => 401/403.
  */
 import { createTempSsot } from "./test-utils.mjs";
 import { spawnServer, waitForBound, getBaseUrl, killServer } from "../../platform/runtime/testing/spawn-server.mjs";
@@ -55,6 +56,13 @@ async function run() {
     if (res.status !== 200) throw new Error(`GET ${name} expected 200, got ${res.status}`);
   }
 
+  const freezeRes = await fetch(api + "/studio/freeze", { headers: originHeaders });
+  const freezeJson = await freezeRes.json();
+  if (freezeRes.status !== 200) throw new Error(`GET /api/studio/freeze expected 200, got ${freezeRes.status}`);
+  if (typeof freezeJson.frozen !== "boolean" && typeof freezeJson.enabled !== "boolean") {
+    throw new Error("GET /api/studio/freeze JSON must contain frozen or enabled boolean");
+  }
+
   for (const kind of REPORT_KINDS) {
     const res = await fetch(api + "/reports/latest?kind=" + kind + "&limit=50", { headers: originHeaders });
     if (res.status !== 200) throw new Error(`GET reports/latest?kind=${kind} expected 200, got ${res.status}`);
@@ -63,6 +71,11 @@ async function run() {
   const noOrigin = await fetch(api + "/reports/latest?kind=gates&limit=50");
   if (noOrigin.status !== 401 && noOrigin.status !== 403) {
     throw new Error("GET without Origin expected 401 or 403, got " + noOrigin.status);
+  }
+
+  const freezeNoOrigin = await fetch(api + "/studio/freeze");
+  if (freezeNoOrigin.status !== 401 && freezeNoOrigin.status !== 403) {
+    throw new Error("GET /api/studio/freeze without Origin expected 401 or 403, got " + freezeNoOrigin.status);
   }
 
   killServer(server);

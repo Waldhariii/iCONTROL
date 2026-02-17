@@ -1,10 +1,11 @@
 import http from "http";
 
 /**
- * DevCockpitGate: single source-of-truth for DEV cockpit (loopback + origin allowlist).
- * No custom header/query required. CORS + OPTIONS 204 + S2S bypass for cockpit endpoints.
+ * Dev gate V10: single source-of-truth for DEV cockpit (loopback + origin allowlist).
+ * No x-ic-dev required. CORS strict (GET, OPTIONS; content-type, x-ic-dev). OPTIONS => 204.
+ * For allowlist paths with loopback+origin: inject req.s2s so AuthZ uses it (no Forbidden).
  */
-function __icDevCockpitGate(req, res) {
+function __icDevGateV10(req, res) {
   const out = { handled: false };
   try {
     if (!req || !res) return out;
@@ -28,9 +29,8 @@ function __icDevCockpitGate(req, res) {
     if (res.headersSent || res.writableEnded) return out;
     res.setHeader("Access-Control-Allow-Origin", origin);
     res.setHeader("Vary", "Origin");
-    res.setHeader("Access-Control-Allow-Methods", "GET,POST,PUT,PATCH,DELETE,OPTIONS");
-    res.setHeader("Access-Control-Allow-Headers", "content-type,x-ic-dev,x-ic-role-ids,authorization");
-    res.setHeader("Access-Control-Allow-Credentials", "true");
+    res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
+    res.setHeader("Access-Control-Allow-Headers", "content-type, x-ic-dev");
 
     if (String(req.method || "").toUpperCase() === "OPTIONS") {
       res.statusCode = 204;
@@ -38,7 +38,7 @@ function __icDevCockpitGate(req, res) {
       return { handled: true };
     }
 
-    out.s2s = { principal_id: "dev_cockpit", scopes: ["*"], scope: "platform:*", auth_type: "dev" };
+    out.s2s = { principal_id: "dev_cockpit", auth_type: "dev", scopes: ["*"], scope: "platform:*" };
     return out;
   } catch {
     return out;
@@ -315,7 +315,7 @@ function getGovernanceData() {
     policies: readJson(ssotPath("governance/policies.json")),
     bindings: readJson(ssotPath("governance/policy_bindings.json")),
     breakGlass: readJson(ssotPath("governance/break_glass.json")),
-    changeFreeze: readJson(ssotPath("governance/change_freeze.json"))
+    changeFreeze: readJsonIfExists(ssotPath("governance/change_freeze.json")) || { enabled: false }
   };
 }
 
@@ -1166,11 +1166,16 @@ function requireQuorum(action, targetId, required = 2) {
 }
 
 function authorizeOrDeny(req, action, resource = {}) {
-  const userId = req.headers["x-user-id"] || "user:admin";
+  const userId = req.headers["x-user-id"] || req.s2s?.principal_id || "user:admin";
   const tenantId = req.headers["x-tenant-id"];
   const scope = req.headers["x-scope"] || (tenantId ? `tenant:${tenantId}:*` : "platform:*");
-  const gov = getGovernanceData();
   setContext({ action, scope, tenant_id: tenantId || null, actor_id: userId });
+  if (req.s2s?.auth_type === "dev" && actionAllowedByScopes(action, req.s2s.scopes || [])) {
+    appendPolicyDecision({ decision: "allow", action, scope: req.s2s.scope || scope, reason_codes: ["dev_gate_allow"] });
+    appendAudit({ event: "s2s_authz_decision", action, scope: req.s2s.scope || scope, user_id: req.s2s.principal_id, decision: "allow", reason_codes: ["dev_gate_allow"], at: new Date().toISOString() });
+    return;
+  }
+  const gov = getGovernanceData();
   if (!freezeAllows({ changeFreeze: gov.changeFreeze, action })) {
     appendPolicyDecision({ decision: "deny", action, scope, reason_codes: ["freeze"] });
     appendAudit({ event: "freeze_denied", action, scope, user_id: userId, at: new Date().toISOString() });
@@ -1335,9 +1340,9 @@ function loadActiveManifest() {
 }
 
 const server = http.createServer(async (req, res) => {
-  const dev = __icDevCockpitGate(req, res);
+  const dev = __icDevGateV10(req, res);
   if (dev.handled) return;
-  if (dev.s2s && !req.s2s) req.s2s = dev.s2s;
+  if (dev.s2s) req.s2s = req.s2s || dev.s2s;
 
   const inboundReqId = req.headers["x-request-id"] || req.headers["x-trace-id"];
   const requestId = typeof inboundReqId === "string" && inboundReqId ? inboundReqId : randomUUID();
@@ -2408,8 +2413,17 @@ const server = http.createServer(async (req, res) => {
 
     if (req.method === "GET" && req.url?.startsWith("/api/studio/freeze") && req.url.split("?")[0] === "/api/studio/freeze") {
       requirePermission(req, "studio.pages.view");
-      const freeze = readJson(ssotPath("governance/change_freeze.json"));
-      return json(res, 200, { enabled: !!freeze.enabled, scopes: freeze.scopes || {}, allow_actions: freeze.allow_actions || [] });
+      const freeze = readJsonIfExists(ssotPath("governance/change_freeze.json"));
+      const enabled = !!(freeze && freeze.enabled);
+      return json(res, 200, {
+        ok: true,
+        enabled,
+        frozen: enabled,
+        scope: (freeze && freeze.scope) || "platform:*",
+        scopes: (freeze && freeze.scopes) || {},
+        allow_actions: (freeze && freeze.allow_actions) || [],
+        at: new Date().toISOString()
+      });
     }
 
     if (req.method === "GET" && req.url?.startsWith("/api/studio/pages") && req.url.split("?")[0] === "/api/studio/pages") {
