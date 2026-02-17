@@ -1,6 +1,7 @@
 const apiBase = "/api";
 const headers = { "Content-Type": "application/json" };
 
+
 let manifest = null;
 let currentRelease = "dev-001";
 const STRICT_MANIFEST_MODE = window.STRICT_MANIFEST_MODE !== false;
@@ -516,7 +517,7 @@ async function renderPageDesignerView() {
     fetch(`${apiBase}/studio/freeze`, { headers }).then((r) => r.json()).catch(() => ({ enabled: false })),
     fetch(`${apiBase}/studio/pages`, { headers }).then((r) => r.json()).catch(() => ({ pages: [] })),
     fetch(`${apiBase}/studio/widgets/catalog`, { headers }).then((r) => r.json()).catch(() => []),
-    fetch(`${apiBase}/studio/queries`, { headers }).then((r) => r.json()).catch(() => ({ queries: [], budgets: [] })))
+    fetch(`${apiBase}/studio/queries`, { headers }).then((r) => r.json()).catch(() => ({ queries: [], budgets: [] }))
   ]);
   const freeze = freezeRes.enabled && (freezeRes.scopes?.content_mutations === true);
   const inventory = pagesRes.pages || [];
@@ -781,4 +782,84 @@ window.onhashchange = () => {
 
 if (STRICT_MANIFEST_MODE) {
   renderLocked();
+}
+
+
+
+
+
+/*__IC_CP_PANELS_V1__*/
+async function icFetchEffectiveScopes(roleIdsCsv) {
+  const headers = {};
+  if (roleIdsCsv) headers["x-ic-role-ids"] = roleIdsCsv;
+  const r = await fetch("/api/access/effective", { headers });
+  const j = await r.json();
+  return j && j.ok ? j : { ok: false, effective_scopes: [], reasons: ["access_endpoint_failed"] };
+}
+
+function icHasScopes(effective, required) {
+  const eff = new Set(effective || []);
+  if (eff.has("*")) return true;
+  for (const sc of (required || [])) if (!eff.has(sc)) return false;
+  return true;
+}
+
+function icFilterPanels(panels, effective) {
+  const eff = effective || [];
+  const visible = [];
+  const hidden = [];
+  for (const p of (panels || [])) {
+    const req = p.required_scopes || [];
+    if (icHasScopes(eff, req)) visible.push(p);
+    else hidden.push({ panel: p, missing: req.filter(x => !eff.includes(x)) });
+  }
+  return { visible, hidden };
+}
+
+async function icLoadPanelsCockpit() {
+  const r = await fetch("/assets/panels/panels.cockpit.v1.json");
+  const j = await r.json();
+  return (j && Array.isArray(j.panels)) ? j.panels : [];
+}
+
+function icRenderPanels(el, result) {
+  const { visible, hidden } = result;
+  const v = visible.map(p => `<li><b>${p.title}</b> <span class="ic-muted">(${p.panel_id})</span></li>`).join("");
+  const h = hidden.map(x => `<li><b>${x.panel.title}</b> <span class="ic-muted">hidden</span> <code>${(x.missing||[]).join(",")}</code></li>`).join("");
+  el.innerHTML = `
+    <div class="ic-panel">
+      <div class="ic-title">Cockpit Panels</div>
+      <div class="ic-body">
+        <div><b>Visible</b><ul>${v || "<li>none</li>"}</ul></div>
+        <div style="margin-top:12px"><b>Hidden (missing scopes)</b><ul>${h || "<li>none</li>"}</ul></div>
+      </div>
+    </div>`;
+}
+
+
+/*__IC_CP_COCKPIT_BOOT__*/
+window.__icBootCockpit = async function __icBootCockpit() {
+  const mount = document.querySelector("#app") || document.body;
+  const roleIds = (window.localStorage.getItem("ic.role_ids") || "role:viewer");
+  const access = await icFetchEffectiveScopes(roleIds);
+  const panels = await icLoadPanelsCockpit();
+  const filtered = icFilterPanels(panels, access.effective_scopes || []);
+  const host = document.createElement("div");
+  host.className = "ic-root";
+  host.innerHTML = `
+    <div class="ic-header">
+      <div class="ic-h1">CP Cockpit (permission-first)</div>
+      <div class="ic-muted">roles: <code>${roleIds}</code></div>
+      <div class="ic-muted">Try: localStorage.setItem("ic.role_ids","role:operator"); location.reload()</div>
+    </div>
+    <div id="ic-panels"></div>`;
+  mount.innerHTML = "";
+  mount.appendChild(host);
+  icRenderPanels(host.querySelector("#ic-panels"), filtered);
+};
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", () => window.__icBootCockpit());
+} else {
+  window.__icBootCockpit();
 }

@@ -1,20 +1,8 @@
 [
   {
-    "workflow_id": "workflow:vertical_refresh_kpis",
-    "name": "Vertical Refresh KPIs",
-    "module_id": "module:vertical_core",
-    "status": "active"
-  },
-  {
-    "workflow_id": "workflow:vertical_health_scan",
-    "name": "Vertical Health Scan",
-    "module_id": "module:vertical_core",
-    "status": "active"
-  },
-  {
-    "workflow_id": "workflow:tenant_score_compute",
-    "name": "Tenant Score Compute",
-    "module_id": "module:vertical_core",
+    "workflow_id": "workflow:cp_refresh_kpis",
+    "name": "CP Refresh KPIs",
+    "module_id": "module:control_plane",
     "status": "active"
   }
 ]

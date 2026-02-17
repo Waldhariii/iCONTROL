@@ -1,42 +1,12 @@
 [
   {
-    "id": "nav:cp_vertical",
-    "surface": "cp",
-    "label": "Vertical",
-    "path": "/cp/vertical-home",
-    "module_id": "module:vertical_core",
-    "order": 10
-  },
-  {
-    "id": "nav:cp_vertical_dashboard",
-    "surface": "cp",
-    "label": "Dashboard",
-    "path": "/cp/vertical-home",
-    "module_id": "module:vertical_core",
-    "order": 10
-  },
-  {
-    "id": "nav:cp_vertical_operations",
-    "surface": "cp",
-    "label": "Operations",
-    "path": "/cp/vertical/operations",
-    "module_id": "module:vertical_core",
-    "order": 20
-  },
-  {
-    "id": "nav:cp_vertical_workflows",
-    "surface": "cp",
-    "label": "Workflows",
-    "path": "/cp/vertical/workflows",
-    "module_id": "module:vertical_core",
-    "order": 30
-  },
-  {
-    "id": "nav:cp_vertical_intelligence",
-    "surface": "cp",
-    "label": "Intelligence",
-    "path": "/cp/vertical/intelligence",
-    "module_id": "module:vertical_core",
-    "order": 40
+    "version": "nav_spec.v1",
+    "nav_id": "nav:cp:cockpit",
+    "section": "Control Plane",
+    "label": "Cockpit",
+    "path": "/cp/cockpit",
+    "icon": "dashboard",
+    "owner": "extension:official:extermination",
+    "status": "active"
   }
 ]

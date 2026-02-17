@@ -133,6 +133,26 @@
     "category": "maintenance"
   },
   {
+    "id": "scripts:maintenance:go-dashboard-cp-cockpit-v1.sh",
+    "path": "scripts/maintenance/go-dashboard-cp-cockpit-v1.sh",
+    "purpose": "GO DASHBOARD CP Cockpit Dominant V1: extension-first, tokens-only, permission-first (RBAC) cockpit; creates extermination pack, panels, CP shell patch; Level 11 safe",
+    "outputs": [],
+    "forbidden_outputs": ["CI_REPORT.md"],
+    "requires_api": false,
+    "s2s_scopes": [],
+    "category": "maintenance"
+  },
+  {
+    "id": "scripts:maintenance:cp-cockpit-commit-proof.sh",
+    "path": "scripts/maintenance/cp-cockpit-commit-proof.sh",
+    "purpose": "Next step after GO DASHBOARD: commit + proof + tag for CP Cockpit Dominant V1; sanity checks, SSOT, gates (ADR_APPROVED=1), optional full CI, stage cockpit files, commit and tag phaseCP_COCKPIT_DOMINANT_V1",
+    "outputs": ["runtime/reports/CP_COCKPIT_COMMIT_PROOF_*.log"],
+    "forbidden_outputs": ["CI_REPORT.md"],
+    "requires_api": false,
+    "s2s_scopes": [],
+    "category": "maintenance"
+  },
+  {
     "id": "scripts:maintenance:import-release-pack.mjs",
     "path": "scripts/maintenance/import-release-pack.mjs",
     "purpose": "script",

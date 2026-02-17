@@ -1,16 +1,12 @@
 [
   {
-    "route_id": "route:cp_vertical_home",
-    "surface": "cp",
-    "path": "/cp/vertical-home",
-    "page_id": "page:cp_vertical_home",
+    "version": "route_spec.v1",
+    "route_id": "route:cp:cockpit",
+    "path": "/cp/cockpit",
+    "page_id": "page:cp_cockpit",
     "guard_pack_id": "guard:default",
-    "flag_gate_id": "flag:default",
-    "entitlement_gate_id": "entitlement:default",
-    "priority": 10,
-    "canonical": true,
-    "aliases": [],
-    "deprecation_date": "",
-    "redirect_to": ""
+    "surface_id": "surface:cp",
+    "owner": "extension:official:extermination",
+    "status": "active"
   }
 ]

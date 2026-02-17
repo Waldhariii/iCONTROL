@@ -1,0 +1,42 @@
+{
+  "version": "cp_panels.v1",
+  "page_id": "page:cp_cockpit",
+  "panels": [
+    {
+      "panel_id": "panel:kpi.health",
+      "title": "Platform Health",
+      "required_scopes": ["observability.read"],
+      "layout_hint": { "row": "A", "span": 3 },
+      "datagov_scope": "datagov:platform",
+      "isolation_profile": "iso:cp_read",
+      "widget_contracts": ["widget:vertical_kpi_health@v1"]
+    },
+    {
+      "panel_id": "panel:ops.freeze",
+      "title": "Freeze Status",
+      "required_scopes": ["release.freeze.evaluate"],
+      "layout_hint": { "row": "A", "span": 3 },
+      "datagov_scope": "datagov:platform",
+      "isolation_profile": "iso:cp_ops",
+      "widget_contracts": []
+    },
+    {
+      "panel_id": "panel:releases.active",
+      "title": "Active Release",
+      "required_scopes": ["release.read"],
+      "layout_hint": { "row": "B", "span": 6 },
+      "datagov_scope": "datagov:platform",
+      "isolation_profile": "iso:cp_read",
+      "widget_contracts": []
+    },
+    {
+      "panel_id": "panel:security.audit",
+      "title": "Audit Feed",
+      "required_scopes": ["audit.read"],
+      "layout_hint": { "row": "C", "span": 12 },
+      "datagov_scope": "datagov:security",
+      "isolation_profile": "iso:cp_security",
+      "widget_contracts": []
+    }
+  ]
+}
