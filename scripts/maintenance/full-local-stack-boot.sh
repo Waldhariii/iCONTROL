@@ -1,4 +1,30 @@
 #!/usr/bin/env bash
+### ICONTROL_NODE22_ENFORCE_V1 ###
+# Enforce Node 22 inside this script (prevents native module ABI mismatch)
+ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
+cd "$ROOT_DIR"
+
+if command -v fnm >/dev/null 2>&1; then
+  # Apple Silicon default install path already present in your machine
+  eval "$(fnm env --use-on-cd 2>/dev/null || fnm env 2>/dev/null)"
+  if [ -f "$ROOT_DIR/.nvmrc" ]; then
+    fnm use --silent-if-unchanged || fnm use || true
+  else
+    fnm use --silent-if-unchanged 22 || fnm use 22 || true
+  fi
+fi
+
+NODEV="$(node -v 2>/dev/null || true)"
+case "$NODEV" in
+  v22.*) : ;;
+  *)
+    echo "❌ BOOT refuses to run under Node != 22 (got $NODEV)."
+    echo "Fix: ensure fnm installed + .nvmrc contains 22, then re-run."
+    exit 22
+  ;;
+esac
+echo "✅ BOOT Node enforced: $NODEV"
+### /ICONTROL_NODE22_ENFORCE_V1 ###
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" && pwd)"
