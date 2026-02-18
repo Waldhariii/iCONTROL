@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-ROOT="/Users/danygaudreault/iCONTROLapp"
+ROOT="/Users/danygaudreault/iCONTROL"
 cd "$ROOT" || exit 1
 
 ts_utc(){ date -u +%Y%m%d_%H%M%S; }

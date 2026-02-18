@@ -1,4 +1,4 @@
-# iCONTROLapp — Structure Boundaries (SSOT)
+# iCONTROL — Structure Boundaries (SSOT)
 
 ## Objective
 Reduce human error and architectural drift by making folder responsibilities explicit.

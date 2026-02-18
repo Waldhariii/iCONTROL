@@ -11,6 +11,6 @@ Single source of truth for:
 
 ## Non-negotiables
 - No duplicate route IDs
-- No parallel path roots outside /Users/danygaudreault/iCONTROLapp
+- No parallel path roots outside /Users/danygaudreault/iCONTROL
 - Modules cannot import from app/src or server/src
 - Storage keys must be namespaced and declared here

@@ -1,6 +1,6 @@
 CANONICAL STRUCTURE — DO NOT DRIFT
 
-Single-root: /Users/danygaudreault/iCONTROLapp
+Single-root: /Users/danygaudreault/iCONTROL
 
 No parallel roots, no duplicate trees, no shadow "app2/", "main_system/", etc.
 

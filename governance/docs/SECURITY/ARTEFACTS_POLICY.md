@@ -1,4 +1,4 @@
-# iCONTROLapp — Artefacts Policy (Root Cleanroom)
+# iCONTROL — Artefacts Policy (Root Cleanroom)
 
 ## Rule
 Repo root must remain clean and professional. No build outputs or transient logs at root.
