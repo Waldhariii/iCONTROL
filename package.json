@@ -183,7 +183,9 @@
     "gate:no-direct-writes": "bash scripts/gates/gate-no-direct-writes.sh",
     "gate:tenant-scoping": "bash scripts/gates/gate-tenant-scoping.sh",
     "gate:no-inline-styles": "bash scripts/gates/gate-no-inline-styles.sh",
-    "validate:isolation": "npm run gate:no-cross-page-imports && npm run gate:no-direct-writes && npm run gate:tenant-scoping && npm run gate:no-inline-styles"
+    "validate:isolation": "npm run gate:no-cross-page-imports && npm run gate:no-direct-writes && npm run gate:tenant-scoping && npm run gate:no-inline-styles",
+    "icontrol:start": "bash scripts/maintenance/full-local-stack-boot.sh",
+    "icontrol:stop": "bash scripts/maintenance/icontrol-restart-stack.sh stop 2>/dev/null || true"
   },
   "devDependencies": {
     "@types/react": "18.3.28",
@@ -217,5 +219,11 @@
     "semver": "7.7.4",
     "strip-json-comments": "3.1.1",
     "undici-types": "7.16.0"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "better-sqlite3",
+      "esbuild"
+    ]
   }
 }
