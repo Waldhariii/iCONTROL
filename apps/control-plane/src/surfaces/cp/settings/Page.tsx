@@ -5,30 +5,39 @@ import catalog from "@config/ssot/ROUTE_CATALOG.json";
 import { applyThemeModePreference, getStoredThemeModePreference, installAutoThemeModeListener } from "@/platform/theme/themeMode";
 import { ICONTROL_KEYS } from "@/core/runtime/storageKeys";
 import { webStorage } from "@/platform/storage/webStorage";
-import { getApiBase } from "@/core/runtime/apiBase";
-import { getSession } from "@/localAuth";
-import { resolveRuntimeContext } from "@/platform/runtimeContext";
+import { useCpPref } from "@/platform/prefs/useCpPref";
 
 import { enforceCpEntitlementsSurface } from "../../../core/ports/cpSurfaceEnforcement.entitlements";
 import { governedRedirect } from "../../../core/runtime/governedRedirect";
 
+const NAV_MODE_KEY = "cp.nav.displayMode";
+const NAV_OPEN_KEY = "cp.nav.drawerOpen";
+const DASH_PREF_KEY = "cp.dashboard.prefs";
+
 export function CpSettingsPage() {
   const [allowed, setAllowed] = React.useState<boolean | null>(null);
-  const [navMode, setNavMode] = React.useState<"labels" | "icons">("labels");
-  const [drawerDefaultOpen, setDrawerDefaultOpen] = React.useState<boolean>(true);
-  const [dashPrefs, setDashPrefs] = React.useState<DashboardPrefs>(DASH_DEFAULTS);
+  const [navMode, setNavModeFromPref] = useCpPref<"labels" | "icons">(NAV_MODE_KEY, "labels");
+  const [drawerDefaultOpen, setDrawerOpenFromPref] = useCpPref<boolean>(NAV_OPEN_KEY, true);
+  const [dashPrefs, setDashPrefsFromPref] = useCpPref<DashboardPrefs>(DASH_PREF_KEY, DASH_DEFAULTS);
+  const [densityPref, setDensityPref] = useCpPref<{ value?: string }>("cp_density", { value: "normal" });
   const [themeMode, setThemeMode] = React.useState<"dark" | "light" | "auto">("dark");
   const [language, setLanguage] = React.useState<string>("fr");
-  const [density, setDensity] = React.useState<"normal" | "compact" | "dense">("normal");
   const [densitySaving, setDensitySaving] = React.useState<boolean>(false);
   const [motion, setMotion] = React.useState<"on" | "off">("on");
   const [notifications, setNotifications] = React.useState<"on" | "off">("on");
   const [shortcuts, setShortcuts] = React.useState<"on" | "off">("on");
   const [homeRoute, setHomeRoute] = React.useState<string>("#/dashboard");
 
-  const NAV_MODE_KEY = "cp.nav.displayMode";
-  const NAV_OPEN_KEY = "cp.nav.drawerOpen";
-  const DASH_PREF_KEY = "cp.dashboard.prefs";
+  const density = (densityPref?.value === "compact" || densityPref?.value === "dense" ? densityPref.value : "normal") as "normal" | "compact" | "dense";
+  const setDensity = React.useCallback(
+    (next: "normal" | "compact" | "dense") => {
+      setDensitySaving(true);
+      setDensityPref({ value: next });
+      setDensitySaving(false);
+      window.dispatchEvent(new CustomEvent("cp-settings:density", { detail: next }));
+    },
+    [setDensityPref]
+  );
 
   React.useEffect(() => {
     let alive = true;
@@ -56,23 +65,6 @@ export function CpSettingsPage() {
 
   React.useEffect(() => {
     try {
-      const v = localStorage.getItem(NAV_MODE_KEY);
-      if (v === "icons" || v === "labels") setNavMode(v);
-      const d = localStorage.getItem(NAV_OPEN_KEY);
-      if (d === "false") setDrawerDefaultOpen(false);
-      if (d === "true") setDrawerDefaultOpen(true);
-      const dp = localStorage.getItem(DASH_PREF_KEY);
-      if (dp) {
-        const parsed = JSON.parse(dp) as Partial<DashboardPrefs>;
-        setDashPrefs({
-          period: parsed.period === "24h" || parsed.period === "30d" ? parsed.period : "7d",
-          hidden: Array.isArray(parsed.hidden) ? parsed.hidden.map(String) : [],
-          gridOrder: Array.isArray(parsed.gridOrder) ? parsed.gridOrder.map(String) : [...DASH_DEFAULTS.gridOrder],
-          chartOrder: Array.isArray(parsed.chartOrder) ? parsed.chartOrder.map(String) : [...DASH_DEFAULTS.chartOrder],
-          tabsOrder: Array.isArray(parsed.tabsOrder) ? parsed.tabsOrder.map(String) : [],
-          tabsHidden: Array.isArray(parsed.tabsHidden) ? parsed.tabsHidden.map(String) : []
-        });
-      }
       const tm = getStoredThemeModePreference();
       if (tm === "dark" || tm === "light" || tm === "auto") setThemeMode(tm);
       const lang = webStorage.get(ICONTROL_KEYS.settings.language);
@@ -96,37 +88,24 @@ export function CpSettingsPage() {
   }, [motion]);
 
   const applyNavMode = (mode: "labels" | "icons") => {
-    setNavMode(mode);
-    try {
-      localStorage.setItem(NAV_MODE_KEY, mode);
-    } catch {}
+    setNavModeFromPref(mode);
     window.dispatchEvent(new CustomEvent("cp-settings:nav-mode", { detail: mode }));
   };
 
   const applyDrawerDefault = (open: boolean) => {
-    setDrawerDefaultOpen(open);
-    try {
-      localStorage.setItem(NAV_OPEN_KEY, open ? "true" : "false");
-    } catch {}
+    setDrawerOpenFromPref(open);
     window.dispatchEvent(new CustomEvent("cp-settings:drawer-open", { detail: open }));
   };
 
   const resetDisplay = () => {
-    try {
-      localStorage.removeItem(NAV_MODE_KEY);
-      localStorage.removeItem(NAV_OPEN_KEY);
-    } catch {}
-    setNavMode("labels");
-    setDrawerDefaultOpen(true);
+    setNavModeFromPref("labels");
+    setDrawerOpenFromPref(true);
     window.dispatchEvent(new CustomEvent("cp-settings:nav-mode", { detail: "labels" }));
     window.dispatchEvent(new CustomEvent("cp-settings:drawer-open", { detail: true }));
   };
 
   const writeDashPrefs = (next: DashboardPrefs) => {
-    setDashPrefs(next);
-    try {
-      localStorage.setItem(DASH_PREF_KEY, JSON.stringify(next));
-    } catch {}
+    setDashPrefsFromPref(next);
     window.dispatchEvent(new CustomEvent("cp-settings:dashboard-prefs", { detail: next }));
   };
 
@@ -264,66 +243,9 @@ export function CpSettingsPage() {
     if (mode === "dense") root.classList.add("ic-density-dense");
   };
 
-  const loadDensity = React.useCallback(async () => {
-    try {
-      const ctx = resolveRuntimeContext({ fallbackAppKind: "CP" });
-      const tenantId = ctx.tenantId || "default";
-      const API_BASE = getApiBase();
-      const s = getSession();
-      const userId = String((s as any)?.username || (s as any)?.userId || "");
-      const role = String((s as any)?.role || "USER").toUpperCase();
-      const res = await fetch(`${API_BASE}/api/cp/prefs/cp_density`, {
-        headers: {
-          "x-tenant-id": tenantId,
-          "x-user-id": userId,
-          "x-user-role": role,
-        },
-      });
-      if (!res.ok) return;
-      const json = (await res.json()) as { success: boolean; data?: { value?: string } | null };
-      const mode = json?.data?.value;
-      if (mode === "compact" || mode === "dense" || mode === "normal") {
-        setDensity(mode);
-        applyDensityClass(mode);
-      }
-    } catch {
-      // ignore
-    }
-  }, []);
-
   React.useEffect(() => {
-    void loadDensity();
-  }, [loadDensity]);
-
-  const saveDensity = async (next: "normal" | "compact" | "dense") => {
-    setDensity(next);
-    applyDensityClass(next);
-    try {
-      setDensitySaving(true);
-      const ctx = resolveRuntimeContext({ fallbackAppKind: "CP" });
-      const tenantId = ctx.tenantId || "default";
-      const API_BASE = getApiBase();
-      const s = getSession();
-      const userId = String((s as any)?.username || (s as any)?.userId || "");
-      const role = String((s as any)?.role || "USER").toUpperCase();
-      await fetch(`${API_BASE}/api/cp/prefs/cp_density`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          "x-tenant-id": tenantId,
-          "x-user-id": userId,
-          "x-user-role": role,
-        },
-        body: JSON.stringify({ value: next }),
-      });
-      try {
-        const storageKey = `icontrol:cp:density:${tenantId}:${userId || "anonymous"}`;
-        localStorage.setItem(storageKey, next);
-      } catch {}
-    } finally {
-      setDensitySaving(false);
-    }
-  };
+    applyDensityClass(density);
+  }, [density]);
 
   if (allowed !== true) {
     return (
@@ -438,7 +360,7 @@ export function CpSettingsPage() {
               <select
                 className="ic-settings-select"
                 value={density}
-                onChange={(e) => saveDensity((e.target.value as any) || "normal")}
+                onChange={(e) => setDensity((e.target.value as "normal" | "compact" | "dense") || "normal")}
               >
                 <option value="normal">Standard</option>
                 <option value="compact">Compact</option>

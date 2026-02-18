@@ -1,10 +1,11 @@
 import React from "react";
+import styles from "../../sections/SectionPlaceholder.module.css";
 
 export function TenantsSegments() {
   return (
-    <div style={{ padding: "20px" }}>
-      <h2 style={{ color: "var(--text-primary)", marginBottom: "16px" }}>Segments & Tags</h2>
-      <p style={{ color: "var(--text-muted)" }}>À implémenter : gestion des segments et tags tenants</p>
+    <div className={styles.root}>
+      <h2 className={styles.title}>Segments & Tags</h2>
+      <p className={styles.subtitle}>À implémenter : gestion des segments et tags tenants</p>
     </div>
   );
 }
