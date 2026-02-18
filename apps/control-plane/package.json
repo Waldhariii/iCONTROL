@@ -9,7 +9,7 @@
     "build:app": "VITE_APP_KIND=APP vite build",
     "build:cp": "VITE_APP_KIND=CONTROL_PLANE vite build",
     "build:ui": "npm run -s build:app && npm run -s build:cp",
-    "dev": "vite",
+    "dev": "vite --port 5173 --strictPort",
     "lint": "eslint . --ext .ts,.tsx --max-warnings 0 --ignore-path .eslintignore",
     "preview": "vite preview",
     "server:smoke": "node ../platform/api/smoke-runtime-config.mjs",

@@ -71,7 +71,7 @@ echo "=== 4) Start Control Plane (5173 strict) ==="
 cd "$CP_DIR"
 
 # Vite uses --port, not PORT env; CONTROL_PLANE for cockpit surface
-VITE_APP_KIND=CONTROL_PLANE pnpm dev -- --port 5173 --strictPort &
+VITE_APP_KIND=CONTROL_PLANE pnpm dev &
 CP_PID=$!
 
 sleep 3
