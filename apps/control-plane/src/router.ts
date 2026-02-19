@@ -91,19 +91,11 @@ function __clientV2GuardHashRoute(hashRoute: string) {
 
 import { getSession, isLoggedIn, logout } from "./localAuth";
 import { warn } from "./platform/observability/logger";
-import {
-  canAccessSettings,
-  canAccessThemeStudio,
-  canAccessTenants,
-  canAccessProviders,
-  canAccessPolicies,
-  canAccessSecurity
-} from "./runtime/rbac";
 import { navigate as coreNavigate } from "./runtime/navigate";
 import { applyVersionPolicyBootGuards } from "./policies/version_policy.runtime";
 import { getGlobalWindow } from "./core/utils/types";
 import { getLogger } from "./platform/observability/logger";
-import { ADMIN_ROUTE_ALLOWLIST, CLIENT_ROUTE_ALLOWLIST } from "./core/ssot/routeCatalogLoader";
+import { ADMIN_ROUTE_ALLOWLIST, CLIENT_ROUTE_ALLOWLIST, CP_PATH_TO_ROUTE_ID, APP_PATH_TO_ROUTE_ID } from "./core/ssot/routeCatalogLoader";
 import { isDevOnlyAllowed } from "./core/policies/devOnly";
 import { auditWarnOnce } from "./platform/audit/auditOnce";
 import { guardCpSurface } from "./core/runtime/cpSurfaceGuard";
@@ -280,124 +272,38 @@ function __icontrolIsClientRouteAllowed__(hash: string): boolean {
   const h = __icontrolNormalizeHash__(hash);
   return CLIENT_ROUTE_ALLOWLIST.has(h);
 }
+/** Dérivé entièrement de ROUTE_CATALOG.json (CP_PATH_TO_ROUTE_ID / APP_PATH_TO_ROUTE_ID). Aucun mapping hardcodé. */
 export function getRouteId(): RouteId {
-  // Complete separation: APP and CP routes are globally unique with _app/_cp suffix
   const kind = __icontrolResolveAppKind();
   const rawHash = String(location.hash || "");
   const h = (kind === "APP" ? (__clientV2GuardHashRoute(rawHash) || rawHash) : rawHash).replace(/^#\/?/, "");
-  const seg = (h.split("?")[0] || "").trim();
-  
-  if (kind === "APP") {
-    // APP-only routes (suffix _app)
-    if (!seg) return "home_app";
-    if (seg === "home-app" || seg === "home_app") return "home_app";
-    if (seg === "dashboard") return "dashboard_app";
-    if (seg === "login") return "login_app";
-    if (seg === "account") return "account_app";
-    if (seg === "settings") return "settings_app";
-    if (seg === "clients") return "clients_app";
-    if (seg === "jobs") return "jobs_app";
-    if (seg === "registry") return "registry_app";
-    if (seg === "gallery") return "gallery_app";
-    if (seg === "client-disabled" || seg === "client_disabled") return "client_disabled_app";
-    if (seg === "client-catalog" || seg === "client_catalog" || seg === "__ui-catalog-client") return "client_catalog_app";
-    if (seg === "pages-inventory" || seg === "pages_inventory") return "pages_inventory_app";
-    if (seg === "access-denied") return "access_denied_app";
-    if (seg === "notfound") return "notfound_app";
-    return "notfound_app";
-  } else {
-    // CP-only routes (suffix _cp)
-    if (!seg) return "dashboard_cp";
-    if (seg === "login") return "login_cp";
-    if (seg === "dashboard") return "dashboard_cp";
-    if (seg === "users") return "users_cp";
-    if (seg === "account") return "account_cp";
-    if (seg === "developer" || seg === "dev") return "developer_cp";
-    if (seg === "access-denied") return "access_denied_cp";
-    if (seg === "toolbox" || seg === "dev-tools" || seg === "devtools") return "toolbox_cp";
-    if (seg === "system") return "system_cp";
-    if (seg === "system/overview") return "system_overview_cp";
-    if (seg === "system/subscriptions") return "system_subscriptions_cp";
-    if (seg === "system/plans") return "system_plans_cp";
-    if (seg === "system/storage") return "system_storage_cp";
-    if (seg === "system/integrations") return "system_integrations_cp";
-    if (seg === "system/config") return "system_config_cp";
-    if (seg === "logs") return "logs_cp";
-    if (seg === "verification" || seg === "verify") return "verification_cp";
-    if (seg === "security") return canAccessSecurity() ? "security_cp" : "dashboard_cp";
-    if (seg === "policies") return canAccessPolicies() ? "policies_cp" : "dashboard_cp";
-    if (seg === "providers") return canAccessProviders() ? "providers_cp" : "dashboard_cp";
-    if (seg === "tenants") return canAccessTenants() ? "tenants_cp" : "dashboard_cp";
-    if (seg === "settings") return canAccessSettings() ? "settings_cp" : "dashboard_cp";
-    if (seg === "entitlements") return "entitlements_cp";
-    if (seg === "pages") return "pages_cp";
-    if (seg === "audit") return "audit_cp";
-    if (seg === "blocked") return "blocked_cp";
-    if (seg === "login-theme" || seg === "theme-studio") return canAccessThemeStudio() ? "login_theme_cp" : "dashboard_cp";
-    if (seg === "ui-showcase") {
-  /* ICONTROL_CP_UI_SHOWCASE_ROUTER_GUARD */
-  if (!isDevOnlyAllowed()) {
-    auditWarnOnce("WARN_DEV_ONLY_ROUTE_BLOCKED", { scope: "cp", route: "ui-showcase" });
-    return "dashboard_cp";
+  const clean = (h.split("?")[0] || "").trim();
+  const map = kind === "CP" ? CP_PATH_TO_ROUTE_ID : APP_PATH_TO_ROUTE_ID;
+  const notfound: RouteId = kind === "CP" ? "notfound_cp" : "notfound_app";
+  if (!clean) return kind === "CP" ? "dashboard_cp" : "home_app";
+  const rid = map.get(clean);
+  if (rid) return rid as RouteId;
+  /* ICONTROL_CP_UI_SHOWCASE_ROUTER_GUARD: dev-only route may be blocked */
+  if (kind === "CP" && clean === "ui-showcase") {
+    if (!isDevOnlyAllowed()) {
+      auditWarnOnce("WARN_DEV_ONLY_ROUTE_BLOCKED", { scope: "cp", route: "ui-showcase" });
+      return "dashboard_cp";
+    }
+    const fb = guardDevOnlyRouteByKey("ui-showcase") as RouteId | null;
+    if (fb) return fb;
   }
-  const fb = guardDevOnlyRouteByKey("ui-showcase") as RouteId | null;
-      if (fb) return fb;
-            return "ui_showcase_cp";
-}
-    return "notfound_cp";
-  }
+  return notfound;
 }
 
-/** Déduit le route_id à partir du hash (pour guardRouteAccess, sans canAccessSettings). */
+/** Déduit le route_id à partir du hash. Dérivé entièrement de ROUTE_CATALOG.json (pas de switch hardcodé). */
 export function getRouteIdFromHash(hash: string): RouteId {
-  // Complete separation: APP and CP routes are globally unique with _app/_cp suffix
   const kind = __icontrolResolveAppKind();
   const h = String(hash || "").replace(/^#\/?/, "");
-  const seg = (h.split("?")[0] || "").trim();
-  
-  if (kind === "APP") {
-    // APP-only routes (suffix _app)
-    if (!seg) return "home_app";
-    if (seg === "home-app" || seg === "home_app") return "home_app";
-    if (seg === "dashboard") return "dashboard_app";
-    if (seg === "login") return "login_app";
-    if (seg === "account") return "account_app";
-    if (seg === "settings") return "settings_app";
-    if (seg === "clients") return "clients_app";
-    if (seg === "jobs") return "jobs_app";
-    if (seg === "registry") return "registry_app";
-    if (seg === "gallery") return "gallery_app";
-    if (seg === "client-disabled" || seg === "client_disabled") return "client_disabled_app";
-    if (seg === "client-catalog" || seg === "client_catalog" || seg === "__ui-catalog-client") return "client_catalog_app";
-    if (seg === "pages-inventory" || seg === "pages_inventory") return "pages_inventory_app";
-    if (seg === "access-denied") return "access_denied_app";
-    if (seg === "notfound") return "notfound_app";
-    return "notfound_app";
-  } else {
-    // CP-only routes (suffix _cp)
-    if (!seg) return "dashboard_cp";
-    if (seg === "login") return "login_cp";
-    if (seg === "dashboard") return "dashboard_cp";
-    if (seg === "users") return "users_cp";
-    if (seg === "account") return "account_cp";
-    if (seg === "developer" || seg === "dev") return "developer_cp";
-    if (seg === "access-denied") return "access_denied_cp";
-    if (seg === "toolbox" || seg === "dev-tools" || seg === "devtools") return "toolbox_cp";
-    if (seg === "system") return "system_cp";
-    if (seg === "logs") return "logs_cp";
-    if (seg === "verification" || seg === "verify") return "verification_cp";
-    if (seg === "security") return "security_cp";
-    if (seg === "policies") return "policies_cp";
-    if (seg === "providers") return "providers_cp";
-    if (seg === "settings") return "settings_cp";
-    if (seg === "tenants") return "tenants_cp";
-    if (seg === "entitlements") return "entitlements_cp";
-    if (seg === "pages") return "pages_cp";
-    if (seg === "audit") return "audit_cp";
-    if (seg === "blocked") return "blocked_cp";
-    if (seg === "login-theme" || seg === "theme-studio") return "login_theme_cp";
-    return "notfound_cp";
-  }
+  const clean = (h.split("?")[0] || "").trim();
+  const map = kind === "CP" ? CP_PATH_TO_ROUTE_ID : APP_PATH_TO_ROUTE_ID;
+  const notfound: RouteId = kind === "CP" ? "notfound_cp" : "notfound_app";
+  if (!clean) return kind === "CP" ? "dashboard_cp" : "home_app";
+  return (map.get(clean) as RouteId) ?? notfound;
 }
 
 function resolveCpSurfaceKeyFromRid(rid: RouteId): string | null {
