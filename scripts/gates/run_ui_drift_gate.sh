@@ -73,7 +73,7 @@ fi
 
 # Exception Lot 8: couleurs sémantiques intentionnelles (pas de token généré disponible)
 # success=#10b981, error=#ef4444, warning=#f59e0b, info=#3b82f6, purple=#8b5cf6, gray=#6b7280
-SEMANTIC_COLORS=("#10b981" "#ef4444" "#f59e0b" "#3b82f6" "#8b5cf6" "#6b7280" "#9aa3ad" "#5a8fff" "#6D28D9" "#6b7280")
+SEMANTIC_COLORS=("#10b981" "#ef4444" "#f59e0b" "#3b82f6" "#8b5cf6" "#6b7280" "#9aa3ad" "#5a8fff" "#6D28D9" "rgba(59,130,246" "rgba(255,255,255,0.8)")
 if [[ -n "$HITS" ]]; then
   for sc in "${SEMANTIC_COLORS[@]}"; do
     HITS=$(printf "%s\n" "$HITS" | (rg -v --fixed-strings "$sc" 2>/dev/null || true) || true)
