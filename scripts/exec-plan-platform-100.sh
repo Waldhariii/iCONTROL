@@ -40,7 +40,7 @@ log "- All mutations (POST/PUT/PATCH/DELETE to /api) go through Write Gateway"
 log "- Zero-Trust: all /api/* require Authorization Bearer except /api/health + /api/auth/*; tenantId from JWT tid; scopes enforced"
 log "- Multi-tenant: every tenant-relevant table has tenant_id; all SELECT/UPDATE/DELETE tenant-scoped"
 log "- Performance: cursor pagination everywhere; caching read-heavy GET only, tenant-safe; p95 < 120ms on /api/cp/audit"
-log "- Gates: gate:no-direct-writes, gate:no-inline-styles, gate:tenant-scoping, gate:write-gateway-enforcement, gate:governance-100 OK"
+log "- Gates: gate:npmrc-policy, gate:no-direct-writes, gate:no-inline-styles, gate:tenant-scoping, gate:write-gateway-enforcement, gate:governance-100 OK"
 log ""
 
 # -------------------------------------------------------
