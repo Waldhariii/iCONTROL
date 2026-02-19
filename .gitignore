@@ -247,3 +247,6 @@ dist/
 # Rapports temporaires
 *AUDIT*.txt
 *RAPPORT*.md
+
+# local safety backups (never commit)
+apps/control-plane/src/router.ts.backup

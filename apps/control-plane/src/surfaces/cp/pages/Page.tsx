@@ -15,6 +15,7 @@ import { getPagesInventory, type PageInventoryEntry } from "/src/core/pagesInven
 import { getApiBase } from "/src/core/runtime/apiBase";
 import { getSession } from "/src/localAuth";
 import { getPermissionClaims, hasPermission } from "/src/runtime/rbac";
+import { syncCatalog, publishPage, revertPage, activatePage, deactivatePage } from "@/platform/commands/pagesCommands";
 import { LocalStorageProvider } from "/src/core/control-plane/storage";
 
 const CP_PAGES = getPagesInventory("CP");
@@ -400,16 +401,9 @@ export function renderPages(root: HTMLElement): void {
       studioStatus.textContent = "Droits insuffisants (sync).";
       return;
     }
-    const res = await fetch(`${getApiBase()}/api/cp/pages/sync-catalog`, {
-      method: "POST",
-      headers: getAuthHeaders(),
-    });
-    const json = (await res.json()) as { success: boolean; error?: string };
-    if (!res.ok || !json.success) {
-      studioStatus.textContent = json.error || "Erreur sync.";
-      return;
-    }
-    studioStatus.textContent = "Sync ROUTE_CATALOG effectuée.";
+    const result = await syncCatalog();
+    studioStatus.textContent = result.ok ? "Sync ROUTE_CATALOG effectuée." : (result.error || "Erreur sync.");
+    if (result.ok) await loadRows();
   };
 
   const renderStudioTable = () => {
@@ -583,19 +577,9 @@ export function renderPages(root: HTMLElement): void {
             studioStatus.textContent = "Droits insuffisants (publish).";
             return;
           }
-          const res = await fetch(`${getApiBase()}/api/cp/pages/${encodeURIComponent(row.id)}/publish`, {
-            method: "POST",
-            headers: getAuthHeaders(),
-            body: JSON.stringify({ expected_version: row.version ?? 0 }),
-          });
-          const json = (await res.json()) as { success: boolean; error?: string };
-          if (!res.ok || !json.success) {
-            studioStatus.textContent = json.error === "ERR_VERSION_CONFLICT"
-              ? "Conflit de version: actualiser avant publier."
-              : json.error || "Erreur publish.";
-            return;
-          }
-          await loadRows();
+          const result = await publishPage(row.id, row.version ?? 0);
+          studioStatus.textContent = result.ok ? "Publié." : (result.error ?? "Erreur publish.");
+          if (result.ok) await loadRows();
         },
       });
       out.push({
@@ -609,18 +593,11 @@ export function renderPages(root: HTMLElement): void {
             studioStatus.textContent = "Publier avant activation.";
             return;
           }
-          const endpoint = row.is_active ? "deactivate" : "activate";
-          const res = await fetch(`${getApiBase()}/api/cp/pages/${encodeURIComponent(row.id)}/${endpoint}`, {
-            method: "POST",
-            headers: getAuthHeaders(),
-            body: JSON.stringify({ expected_version: row.version ?? 0 }),
-          });
-          const json = (await res.json()) as { success: boolean; error?: string };
-          if (!res.ok || !json.success) {
-            studioStatus.textContent = json.error || "Erreur activation.";
-            return;
-          }
-          await loadRows();
+          const result = row.is_active
+            ? await deactivatePage(row.id, row.version ?? 0)
+            : await activatePage(row.id, row.version ?? 0);
+          studioStatus.textContent = result.ok ? (row.is_active ? "Désactivé." : "Activé.") : (result.error ?? "Erreur.");
+          if (result.ok) await loadRows();
         },
       });
       if (row.published_json) {
@@ -631,16 +608,9 @@ export function renderPages(root: HTMLElement): void {
               studioStatus.textContent = "Droits insuffisants (update).";
               return;
             }
-            const res = await fetch(`${getApiBase()}/api/cp/pages/${encodeURIComponent(row.id)}/revert`, {
-              method: "POST",
-              headers: getAuthHeaders(),
-            });
-            const json = (await res.json()) as { success: boolean; error?: string };
-            if (!res.ok || !json.success) {
-              studioStatus.textContent = json.error || "Erreur revert.";
-              return;
-            }
-            await loadRows();
+            const result = await revertPage(row.id);
+            studioStatus.textContent = result.ok ? "Revert effectué." : (result.error ?? "Erreur revert.");
+            if (result.ok) await loadRows();
           },
         });
       }
