@@ -1,0 +1,60 @@
+name: platform-100
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch: {}
+
+concurrency:
+  group: platform-100-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  platform-100:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node (from .nvmrc)
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Install deps (root)
+        run: pnpm -s install --frozen-lockfile
+
+      - name: Governance gates (platform-100)
+        run: |
+          pnpm -s gate:governance-100
+          pnpm -s gate:npmrc-policy
+          pnpm -s gate:routing:ssot
+          pnpm -s gate:write-gateway-enforcement
+          pnpm -s gate:no-inline-styles
+          pnpm -s gate:no-direct-writes
+
+      - name: API tests
+        run: npm -C platform/api test
+
+      - name: Upload reports/artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: platform-100-reports
+          if-no-files-found: ignore
+          path: |
+            runtime/reports/**
+            docs/audit/reports/**
+            docs/ssot/**

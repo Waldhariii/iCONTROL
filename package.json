@@ -190,7 +190,8 @@
     "gate:no-inline-styles": "bash scripts/gates/gate-no-inline-styles.sh",
     "validate:isolation": "npm run gate:no-cross-page-imports && npm run gate:no-direct-writes && npm run gate:tenant-scoping && npm run gate:no-inline-styles",
     "icontrol:start": "bash scripts/maintenance/full-local-stack-boot.sh",
-    "icontrol:stop": "bash scripts/maintenance/icontrol-restart-stack.sh stop 2>/dev/null || true"
+    "icontrol:stop": "bash scripts/maintenance/icontrol-restart-stack.sh stop 2>/dev/null || true",
+    "gate:npmrc-policy": "node scripts/gates/gate-npmrc-policy.mjs"
   },
   "devDependencies": {
     "@types/react": "18.3.28",
