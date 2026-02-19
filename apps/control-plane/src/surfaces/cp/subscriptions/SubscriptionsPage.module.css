@@ -34,7 +34,7 @@
 .btnSecondary { padding: 6px 12px; background: var(--surface-0); color: var(--text-primary); border: 1px solid var(--surface-border); border-radius: 4px; cursor: pointer; margin-right: 8px; }
 .btnDanger { padding: 6px 12px; background: var(--color-error, #f85149); color: white; border: none; border-radius: 4px; cursor: pointer; }
 .tdRight { padding: 12px; text-align: right; }
-.overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 9999; display: flex; justify-content: flex-end; }
+.overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: var(--ic-surfaceOverlay); z-index: 9999; display: flex; justify-content: flex-end; }
 .drawer { width: 500px; background: var(--surface-0); padding: 24px; overflow-y: auto; }
 .drawerHeader { display: flex; justify-content: space-between; margin-bottom: 24px; }
 .drawerTitle { margin: 0; color: var(--text-primary); }
