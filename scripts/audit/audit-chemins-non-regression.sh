@@ -217,7 +217,7 @@ PY
 # 5) CLIENT_V2 SSOT detection: rapport (non-bloquant)
 # ------------------------------------------------------------
 echo "== Scan: CLIENT_V2 SSOT marker (CLIENT_V2_ROUTE_IDS) =="
-rg -n --hidden --no-ignore-vcs "CLIENT_V2_ROUTE_IDS" apps/control-plane/src > "$OUT_DIR/AUDIT_client_v2_ssot.txt" || true
+rg -n --hidden "CLIENT_V2_ROUTE_IDS" apps/control-plane/src > "$OUT_DIR/AUDIT_client_v2_ssot.txt" || true
 
 python3 - <<'PY'
 import re, pathlib
@@ -233,6 +233,17 @@ for l in lines:
     if re.search(r"\bconst\s+CLIENT_V2_ROUTE_IDS\s*=", l):
         m = re.match(r"^([^:]+):\d+:", l)
         if m: ssot_files.add(m.group(1))
+
+# Filter: ignore local backups + anything gitignored (align scan with shipping set)
+import subprocess
+
+def _is_git_ignored(path: str) -> bool:
+    try:
+        return subprocess.run(["git", "check-ignore", "-q", path]).returncode == 0
+    except Exception:
+        return False
+
+ssot_files = {f for f in ssot_files if (not f.endswith(".backup")) and (not _is_git_ignored(f))}
 
 print("CLIENT_V2_DEF_FILES_COUNT=", len(ssot_files))
 for f in sorted(ssot_files)[:50]:
