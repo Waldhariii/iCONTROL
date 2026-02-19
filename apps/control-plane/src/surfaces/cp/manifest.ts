@@ -1,9 +1,6 @@
 import type { RouteId } from "../../router";
 import type { ComponentType } from "react";
 import { TenantProvider } from "@/core/tenant/tenantContext";
-import { PaymentSettingsSurface } from "./payment-settings/adapter";
-import { SubscriptionsSurface } from "./subscriptions/adapter";
-import { ObservabilitySurface } from "./observability/adapter";
 
 async function renderReactPage(root: HTMLElement, Page: ComponentType) {
   root.innerHTML = "";
@@ -23,174 +20,192 @@ async function renderReactPage(root: HTMLElement, Page: ComponentType) {
   );
 }
 
-export async function renderCpPage(rid: RouteId, root: HTMLElement): Promise<void> {
-  if (rid === "dashboard_cp") {
+function setError(root: HTMLElement, message: string) {
+  root.innerHTML = `<div class="error-state">${message}</div>`;
+}
+
+/** Registry dérivé du catalogue CP : route_id → loader (root) => Promise<void>. Aucun switch explicite. */
+const CP_PAGE_REGISTRY: Record<string, (root: HTMLElement) => Promise<void>> = {
+  dashboard_cp: async (root) => {
     root.innerHTML = '<div class="loading-state">Chargement...</div>';
     try {
       const module = await import("./dashboard/Page");
-      if (typeof module.renderDashboard !== "function") {
-        root.innerHTML = '<div class="error-state">Error loading page</div>';
-        return;
-      }
-      try {
-        await module.renderDashboard(root);
-      } catch (err) {
-        root.innerHTML = '<div class="error-state">Error loading page</div>';
-        console.error("Dashboard render failed:", err);
-      }
+      if (typeof module.renderDashboard === "function") await module.renderDashboard(root);
+      else setError(root, "Error loading page");
     } catch (err) {
-      root.innerHTML = '<div class="error-state">Error loading page</div>';
-      console.error("Failed to load dashboard page:", err);
+      setError(root, "Error loading page");
+      console.error("Dashboard render failed:", err);
     }
-    return;
-  }
-
-  if (rid === "login_theme_cp") {
+  },
+  login_cp: async (root) => {
+    try {
+      const module = await import("./login/Page");
+      await renderReactPage(root, module.CpLoginPage);
+    } catch (err) {
+      setError(root, "Error loading page");
+      console.error("Failed to load login page:", err);
+    }
+  },
+  login_theme_cp: async (root) => {
     root.innerHTML = '<div class="loading-state">Chargement...</div>';
     try {
       const module = await import("./login-theme/Page");
-      const Page = module.default;
-      await renderReactPage(root, Page);
+      await renderReactPage(root, module.default);
     } catch (err) {
-      root.innerHTML = '<div class="error-state">Error loading page</div>';
+      setError(root, "Error loading page");
       console.error("Failed to load login-theme page:", err);
     }
-    return;
-  }
-
-  if (rid === "settings_cp") {
+  },
+  account_cp: async (root) => {
+    root.innerHTML = '<div class="loading-state">Chargement...</div>';
+    try {
+      const module = await import("./account/Page");
+      await renderReactPage(root, module.CpAccountPage);
+    } catch (err) {
+      setError(root, "Error loading page");
+      console.error("Failed to load account page:", err);
+    }
+  },
+  settings_cp: async (root) => {
     root.innerHTML = '<div class="loading-state">Chargement...</div>';
     try {
       const module = await import("./settings/Page");
-      const Page = module.CpSettingsPage;
-      await renderReactPage(root, Page);
+      await renderReactPage(root, module.CpSettingsPage);
     } catch (err) {
-      root.innerHTML = '<div class="error-state">Error loading page</div>';
+      setError(root, "Error loading page");
       console.error("Failed to load settings page:", err);
     }
-    return;
-  }
-
-  if (rid === "pages_cp") {
+  },
+  payment_settings_cp: async (root) => {
+    root.innerHTML = '<div class="loading-state">Chargement...</div>';
+    try {
+      const { PaymentSettingsSurface } = await import("./payment-settings/adapter");
+      PaymentSettingsSurface.render(root);
+    } catch (err) {
+      setError(root, "Error loading page");
+      console.error("Failed to load payment-settings page:", err);
+    }
+  },
+  tenants_cp: async (root) => {
+    root.innerHTML = '<div class="loading-state">Chargement...</div>';
+    try {
+      const module = await import("./tenants/Page");
+      await renderReactPage(root, module.default);
+    } catch (err) {
+      setError(root, "Error loading page");
+      console.error("Failed to load tenants page:", err);
+    }
+  },
+  users_cp: async (root) => {
+    root.innerHTML = '<div class="loading-state">Chargement...</div>';
+    try {
+      const module = await import("./users/Page");
+      if (typeof module.renderUsersCp === "function") module.renderUsersCp(root);
+      else setError(root, "Error loading page");
+    } catch (err) {
+      setError(root, "Error loading page");
+      console.error("Failed to load users page:", err);
+    }
+  },
+  security_cp: async (root) => {
+    root.innerHTML = '<div class="loading-state">Chargement...</div>';
+    try {
+      const module = await import("./security/Page");
+      await renderReactPage(root, module.default);
+    } catch (err) {
+      setError(root, "Error loading page");
+      console.error("Failed to load security page:", err);
+    }
+  },
+  policies_cp: async (root) => {
+    root.innerHTML = '<div class="loading-state">Chargement...</div>';
+    try {
+      const module = await import("./policies/Page");
+      await renderReactPage(root, module.default);
+    } catch (err) {
+      setError(root, "Error loading page");
+      console.error("Failed to load policies page:", err);
+    }
+  },
+  providers_cp: async (root) => {
+    root.innerHTML = '<div class="loading-state">Chargement...</div>';
+    try {
+      const module = await import("./providers/Page");
+      await renderReactPage(root, module.default);
+    } catch (err) {
+      setError(root, "Error loading page");
+      console.error("Failed to load providers page:", err);
+    }
+  },
+  entitlements_cp: async (root) => {
+    root.innerHTML = '<div class="loading-state">Chargement...</div>';
+    try {
+      const module = await import("./entitlements/Page");
+      await renderReactPage(root, module.default);
+    } catch (err) {
+      setError(root, "Error loading page");
+      console.error("Failed to load entitlements page:", err);
+    }
+  },
+  pages_cp: async (root) => {
     root.innerHTML = '<div class="loading-state">Chargement...</div>';
     try {
       const module = await import("./pages/Page");
       module.renderPages(root);
     } catch (err) {
-      root.innerHTML = '<div class="error-state">Error loading page</div>';
+      setError(root, "Error loading page");
       console.error("Failed to load pages page:", err);
     }
-    return;
-  }
-
-  if (rid === "tenants_cp") {
-    root.innerHTML = '<div class="loading-state">Chargement...</div>';
-    try {
-      const module = await import("./tenants/Page");
-      const Page = module.default;
-      await renderReactPage(root, Page);
-    } catch (err) {
-      root.innerHTML = '<div class="error-state">Error loading page</div>';
-      console.error("Failed to load tenants page:", err);
-    }
-    return;
-  }
-
-  if (rid === "security_cp") {
-    root.innerHTML = '<div class="loading-state">Chargement...</div>';
-    try {
-      const module = await import("./security/Page");
-      const Page = module.default;
-      await renderReactPage(root, Page);
-    } catch (err) {
-      root.innerHTML = '<div class="error-state">Error loading page</div>';
-      console.error("Failed to load security page:", err);
-    }
-    return;
-  }
-
-  if (rid === "policies_cp") {
-    root.innerHTML = '<div class="loading-state">Chargement...</div>';
-    try {
-      const module = await import("./policies/Page");
-      const Page = module.default;
-      await renderReactPage(root, Page);
-    } catch (err) {
-      root.innerHTML = '<div class="error-state">Error loading page</div>';
-      console.error("Failed to load policies page:", err);
-    }
-    return;
-  }
-
-  if (rid === "providers_cp") {
-    root.innerHTML = '<div class="loading-state">Chargement...</div>';
-    try {
-      const module = await import("./providers/Page");
-      const Page = module.default;
-      await renderReactPage(root, Page);
-    } catch (err) {
-      root.innerHTML = '<div class="error-state">Error loading page</div>';
-      console.error("Failed to load providers page:", err);
-    }
-    return;
-  }
-
-  if (rid === "entitlements_cp") {
-    root.innerHTML = '<div class="loading-state">Chargement...</div>';
-    try {
-      const module = await import("./entitlements/Page");
-      const Page = module.default;
-      await renderReactPage(root, Page);
-    } catch (err) {
-      root.innerHTML = '<div class="error-state">Error loading page</div>';
-      console.error("Failed to load entitlements page:", err);
-    }
-    return;
-  }
-
-  if (rid === "audit_cp") {
+  },
+  audit_cp: async (root) => {
     root.innerHTML = '<div class="loading-state">Chargement...</div>';
     try {
       const module = await import("./audit/Page");
-      if (typeof module.renderAudit === "function") {
-        module.renderAudit(root);
-        return;
-      }
-      root.innerHTML = '<div class="error-state">Error loading audit page</div>';
+      if (typeof module.renderAudit === "function") module.renderAudit(root);
+      else setError(root, "Error loading audit page");
     } catch (err) {
-      root.innerHTML = '<div class="error-state">Error loading audit page</div>';
+      setError(root, "Error loading audit page");
       console.error("Failed to load audit page:", err);
     }
-    return;
-  }
-
-  if (rid === "notfound_cp") {
+  },
+  subscriptions_cp: async (root) => {
+    root.innerHTML = '<div class="loading-state">Chargement...</div>';
+    try {
+      const { SubscriptionsSurface } = await import("./subscriptions/adapter");
+      SubscriptionsSurface.render(root);
+    } catch (err) {
+      setError(root, "Error loading page");
+      console.error("Failed to load subscriptions page:", err);
+    }
+  },
+  observability_cp: async (root) => {
+    root.innerHTML = '<div class="loading-state">Chargement...</div>';
+    try {
+      const { ObservabilitySurface } = await import("./observability/adapter");
+      ObservabilitySurface.render(root);
+    } catch (err) {
+      setError(root, "Error loading page");
+      console.error("Failed to load observability page:", err);
+    }
+  },
+  notfound_cp: async (root) => {
     root.innerHTML = '<div class="loading-state">Chargement...</div>';
     try {
       const module = await import("./notfound/Page");
-      if (typeof module.renderNotFoundCp === "function") {
-        module.renderNotFoundCp(root);
-        return;
-      }
-      root.innerHTML = '<div class="error-state">Error loading page</div>';
+      if (typeof module.renderNotFoundCp === "function") module.renderNotFoundCp(root);
+      else setError(root, "Error loading page");
     } catch (err) {
-      root.innerHTML = '<div class="error-state">Error loading page</div>';
+      setError(root, "Error loading page");
       console.error("Failed to load notfound page:", err);
     }
-    return;
-  }
+  },
+};
 
-  if (rid === "login_cp") {
-    try {
-      const module = await import("./login/Page");
-      const Page = module.CpLoginPage;
-      await renderReactPage(root, Page);
-    } catch (err) {
-      root.innerHTML = '<div class="error-state">Error loading page</div>';
-      console.error("Failed to load login page:", err);
-    }
-    return;
-  } else {
+export async function renderCpPage(rid: RouteId, root: HTMLElement): Promise<void> {
+  const loader = CP_PAGE_REGISTRY[rid];
+  if (!loader) {
     root.innerHTML = '<div class="page-not-found">Page not implemented</div>';
+    return;
   }
+  await loader(root);
 }
