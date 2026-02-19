@@ -1,0 +1,3 @@
+.root { padding: 20px; }
+.title { color: var(--text-primary); margin-bottom: 16px; }
+.subtitle { color: var(--text-muted); }

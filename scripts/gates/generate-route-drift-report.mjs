@@ -7,7 +7,7 @@
  * Usage: node scripts/gates/generate-route-drift-report.mjs
  * Puis: npm run gate:route-drift (vérifie « Routes extra » = 0).
  */
-import { readFileSync, writeFileSync } from "node:fs";
+import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import { resolve } from "node:path";
 
 const ROOT = resolve(process.cwd());
@@ -16,62 +16,42 @@ const APP = resolve(ROOT, "apps/control-plane/src");
 function collectCodeRoutes() {
   const codeSet = new Set(); // "route_id|app_surface"
 
-  // 1) CP_PAGES_REGISTRY (apps/control-plane/src/surfaces/cp/registry.ts)
-  const cpReg = readFileSync(resolve(APP, "pages/cp/registry.ts"), "utf8");
-  const cpMatch = cpReg.match(/export const CP_PAGES_REGISTRY[^=]*=\s*\{([\s\S]*?)\n\};/);
-  if (cpMatch) {
-    const block = cpMatch[1];
-    const keyRe = /^\s*(["']?)([\w-]+)\1\s*:\s*\{/gm;
-    let m;
-    while ((m = keyRe.exec(block)) !== null) {
-      codeSet.add(m[2] + "|CP");
+  // 1) CP_PAGE_REGISTRY (surfaces/cp/manifest.ts)
+  const cpManifestPath = resolve(APP, "surfaces/cp/manifest.ts");
+  if (existsSync(cpManifestPath)) {
+    const cpManifest = readFileSync(cpManifestPath, "utf8");
+    const cpMatch = cpManifest.match(/const CP_PAGE_REGISTRY[^=]*=\s*\{([\s\S]*?)\n\};/);
+    if (cpMatch) {
+      const keyRe = /^\s*(\w+)\s*:\s*async/gm;
+      let m;
+      while ((m = keyRe.exec(cpMatch[1])) !== null) codeSet.add(m[1] + "|CP");
     }
   }
 
-  // 2) APP_PAGES_REGISTRY (apps/control-plane/src/surfaces/app/registry.ts)
-  const appReg = readFileSync(resolve(APP, "pages/app/registry.ts"), "utf8");
-  const appMatch = appReg.match(/export const APP_PAGES_REGISTRY[^=]*=\s*\{([\s\S]*?)\n\};/);
-  const appRegKeys = new Set();
-  if (appMatch) {
-    const block = appMatch[1];
-    const keyRe = /^\s*(["']?)([\w-]+)\1\s*:\s*\{/gm;
-    let m;
-    while ((m = keyRe.exec(block)) !== null) {
-      appRegKeys.add(m[2]);
-      codeSet.add(m[2] + "|CLIENT");
+  // 2) Catalogue = source de vérité (router dérive path→route_id du catalogue)
+  const catalogPath = resolve(ROOT, "runtime/configs/ssot/ROUTE_CATALOG.json");
+  if (existsSync(catalogPath)) {
+    const catalog = JSON.parse(readFileSync(catalogPath, "utf8"));
+    for (const r of catalog.routes || []) {
+      const id = String(r.route_id || "").trim();
+      let surface = String(r.app_surface || "").trim().toUpperCase();
+      if (surface === "APP") surface = "CLIENT";
+      if (id && (surface === "CP" || surface === "CLIENT")) codeSet.add(id + "|" + surface);
     }
   }
 
-  // 3) __CLIENT_V2_ROUTES__ (path → route_id)
-  const clientV2Re = /path:\s*["']\/([\w-]+)["']/g;
-  let vm;
-  while ((vm = clientV2Re.exec(appReg)) !== null) {
-    codeSet.add(vm[1] + "|CLIENT");
-  }
-
-  // 4) moduleLoader.renderRoute — (r, CP) pour tous; (r, CLIENT) seulement pour ceux aussi servis en APP
-  const ml = readFileSync(resolve(APP, "moduleLoader.ts"), "utf8");
-  const mlIds = new Set();
-  const ridRe = /(?:rid|\(rid as any\))\s*===\s*["']([^"']+)["']/g;
-  let rm;
-  while ((rm = ridRe.exec(ml)) !== null) mlIds.add(rm[1]);
-  const mlClientOnly = new Set(["login", "dashboard", "account", "settings", "access_denied"]);
-  for (const r of mlIds) {
-    codeSet.add(r + "|CP");
-    if (mlClientOnly.has(r)) codeSet.add(r + "|CLIENT");
-  }
-  // __CLIENT_V2_ROUTES__ et APP_PAGES_REGISTRY ont déjà (r, CLIENT) pour dashboard, account, settings, users, system, client_disabled, access_denied, client_catalog, notfound
-
-  // 5) RouteId (router.ts) — route_ids ex. shell-debug non couverts par registries/moduleLoader. Ne pas ajouter (r, CP) pour les route_ids uniquement APP (appRegKeys).
-  const router = readFileSync(resolve(APP, "router.ts"), "utf8");
-  const typeLine = router.match(/export type RouteId = [^;]+;/)?.[0] || "";
-  const routeIdRe = /["']([\w-]+)["']/g;
-  let rt;
-  const fromType = new Set();
-  while ((rt = routeIdRe.exec(typeLine)) !== null) fromType.add(rt[1]);
-  for (const r of fromType) {
-    const hasCp = Array.from(codeSet).some((e) => e.startsWith(r + "|CP"));
-    if (!hasCp && !appRegKeys.has(r)) codeSet.add(r + "|CP");
+  // 3) RouteId (router.ts) — union type pour couverture
+  const routerPath = resolve(APP, "router.ts");
+  if (existsSync(routerPath)) {
+    const router = readFileSync(routerPath, "utf8");
+    const typeLine = router.match(/export type RouteId = [^;]+;/)?.[0] || "";
+    const routeIdRe = /["']([\w_]+)["']/g;
+    let rt;
+    while ((rt = routeIdRe.exec(typeLine)) !== null) {
+      const r = rt[1];
+      if (r.endsWith("_cp")) codeSet.add(r + "|CP");
+      if (r.endsWith("_app")) codeSet.add(r + "|CLIENT");
+    }
   }
 
   return codeSet;
@@ -114,7 +94,7 @@ function main() {
 
 ## Méthode
 
-- **Code:** \`router.getRouteId\`, \`getRouteIdFromHash\`, \`CP_PAGES_REGISTRY\`, \`APP_PAGES_REGISTRY\`, \`__CLIENT_V2_ROUTES__\`, \`moduleLoader.renderRoute\`.
+- **Code:** \`router.getRouteId\` (dérivé catalogue), \`CP_PAGE_REGISTRY\` (manifest), \`ROUTE_CATALOG.json\`.
 - **Catalogue:** \`runtime/configs/ssot/ROUTE_CATALOG.json\`.
 
 ## Résultat

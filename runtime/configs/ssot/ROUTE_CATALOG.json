@@ -598,6 +598,17 @@
       "tenant_visibility": "all",
       "status": "ACTIVE",
       "nav_visibility": "sidebar"
+    },
+    {
+      "route_id": "ui_showcase_cp",
+      "path": "#/ui-showcase",
+      "app_surface": "CP",
+      "page_module_id": "cp.ui_showcase",
+      "permissions_required": [],
+      "feature_flag_id": null,
+      "tenant_visibility": "all",
+      "status": "EXPERIMENTAL",
+      "nav_visibility": null
     }
   ]
 }

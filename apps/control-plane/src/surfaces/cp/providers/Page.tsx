@@ -1,11 +1,13 @@
 import React from "react";
 import { useTenantContext } from "@/core/tenant/tenantContext";
-import { LocalStorageProvider } from "@/core/control-plane/storage";
+import { useCpPref } from "@/platform/prefs/useCpPref";
 import { useProvidersQuery } from "./queries";
 import { useProvidersCommands } from "./commands";
+import { Sparkline } from "./components/Sparkline";
 import { canAccessProviders, canWriteProviders } from "@/runtime/rbac";
 import { getSession } from "@/localAuth";
 import { getApiBase } from "@/core/runtime/apiBase";
+import styles from "./ProvidersPage.module.css";
 
 const DEFAULT_DAYS = 14;
 
@@ -38,54 +40,22 @@ function buildHash(path: string, params: URLSearchParams) {
   return q ? `${path}?${q}` : path;
 }
 
-function Sparkline({ values, labels }: { values: number[]; labels: string[] }) {
-  const [hoverIndex, setHoverIndex] = React.useState<number | null>(null);
-  const width = 120;
-  const height = 28;
-  const max = Math.max(1, ...values);
-  const points = values
-    .map((v, i) => {
-      const x = values.length === 1 ? width / 2 : (i / (values.length - 1)) * width;
-      const y = height - (v / max) * height;
-      return `${x.toFixed(2)},${y.toFixed(2)}`;
-    })
-    .join(" ");
-  const activeIndex = hoverIndex ?? values.length - 1;
-  const activeValue = values[activeIndex] ?? 0;
-  const activeLabel = labels[activeIndex] ?? "";
-  return (
-    <div className="ic-admin-sparkline-wrap">
-      <svg
-        className="ic-admin-sparkline"
-        viewBox={`0 0 ${width} ${height}`}
-        aria-hidden="true"
-        onMouseMove={(e) => {
-          const rect = (e.currentTarget as SVGSVGElement).getBoundingClientRect();
-          const x = Math.max(0, Math.min(width, e.clientX - rect.left));
-          const idx = values.length <= 1 ? 0 : Math.round((x / width) * (values.length - 1));
-          setHoverIndex(idx);
-        }}
-        onMouseLeave={() => setHoverIndex(null)}
-      >
-        <polyline points={points} />
-        {values.map((v, i) => {
-          const x = values.length === 1 ? width / 2 : (i / (values.length - 1)) * width;
-          const y = height - (v / max) * height;
-          return <circle key={i} cx={x} cy={y} r={i === activeIndex ? 2.6 : 1.6} />;
-        })}
-      </svg>
-      <div className="ic-admin-sparkline-tooltip">
-        <span>{activeLabel}</span>
-        <strong>{activeValue}</strong>
-      </div>
-    </div>
-  );
-}
+const DEFAULT_PREFS: ProvidersPrefs = {
+  type: "all",
+  status: "all",
+  health: "all",
+  search: "",
+  sort: [{ key: "name", dir: "asc" }],
+  days: DEFAULT_DAYS,
+  compact: "normal",
+  syncDensity: true,
+};
 
 export default function ProvidersPage() {
   const { tenantId } = useTenantContext();
-  const [days, setDays] = React.useState<number>(DEFAULT_DAYS);
-  const { data, isLoading, error, refresh, metrics } = useProvidersQuery(days);
+  const [prefs, setPrefs, { loading: prefsLoading }] = useCpPref<ProvidersPrefs>("providers_ui", DEFAULT_PREFS);
+  const hasHydrated = !prefsLoading;
+  const { data, isLoading, error, refresh, metrics } = useProvidersQuery(prefs?.days ?? DEFAULT_DAYS);
   const { createProvider, updateProvider, deleteProvider } = useProvidersCommands();
 
   const [form, setForm] = React.useState({
@@ -102,23 +72,26 @@ export default function ProvidersPage() {
   const [fallbackMap, setFallbackMap] = React.useState<Record<string, string>>({});
   const [configMap, setConfigMap] = React.useState<Record<string, string>>({});
   const [expandedId, setExpandedId] = React.useState<string | null>(null);
-  const [filterType, setFilterType] = React.useState<string>("all");
-  const [filterStatus, setFilterStatus] = React.useState<string>("all");
-  const [filterHealth, setFilterHealth] = React.useState<string>("all");
-  const [filterSearch, setFilterSearch] = React.useState<string>("");
-  const [sortSpecs, setSortSpecs] = React.useState<SortSpec[]>([{ key: "name", dir: "asc" }]);
-  const [compact, setCompact] = React.useState<"normal" | "compact" | "dense">("normal");
-  const [syncDensity, setSyncDensity] = React.useState(true);
-  const [hasHydrated, setHasHydrated] = React.useState(false);
+  const filterType = prefs?.type ?? "all";
+  const filterStatus = prefs?.status ?? "all";
+  const filterHealth = prefs?.health ?? "all";
+  const filterSearch = prefs?.search ?? "";
+  const sortSpecs = prefs?.sort ?? [{ key: "name" as const, dir: "asc" as const }];
+  const days = prefs?.days ?? DEFAULT_DAYS;
+  const compact = prefs?.compact ?? "normal";
+  const syncDensity = prefs?.syncDensity ?? true;
+  const setFilterType = (v: string) => setPrefs((p) => ({ ...DEFAULT_PREFS, ...p, type: v }));
+  const setFilterStatus = (v: string) => setPrefs((p) => ({ ...DEFAULT_PREFS, ...p, status: v }));
+  const setFilterHealth = (v: string) => setPrefs((p) => ({ ...DEFAULT_PREFS, ...p, health: v }));
+  const setFilterSearch = (v: string) => setPrefs((p) => ({ ...DEFAULT_PREFS, ...p, search: v }));
+  const setSortSpecs = (v: SortSpec[] | ((prev: SortSpec[]) => SortSpec[])) =>
+    setPrefs((p) => ({ ...DEFAULT_PREFS, ...p, sort: typeof v === "function" ? v(p?.sort ?? DEFAULT_PREFS.sort) : v }));
+  const setDays = (v: number) => setPrefs((p) => ({ ...DEFAULT_PREFS, ...p, days: v }));
+  const setCompact = (v: "normal" | "compact" | "dense") => setPrefs((p) => ({ ...DEFAULT_PREFS, ...p, compact: v }));
+  const setSyncDensity = (v: boolean) => setPrefs((p) => ({ ...DEFAULT_PREFS, ...p, syncDensity: v }));
   const [busyId, setBusyId] = React.useState<string | null>(null);
   const [message, setMessage] = React.useState<string | null>(null);
   const canWrite = canAccessProviders() && canWriteProviders();
-  const storage = React.useMemo(() => new LocalStorageProvider(""), []);
-  const prefsKey = React.useMemo(() => {
-    const s = getSession();
-    const user = String((s as any)?.username || (s as any)?.userId || "anonymous");
-    return `icontrol:cp:providers:prefs:${tenantId}:${user}`;
-  }, [tenantId]);
 
   const applyGlobalDensity = React.useCallback(async () => {
     try {
@@ -180,110 +153,12 @@ export default function ProvidersPage() {
       }
     };
 
-    (async () => {
-      try {
-        const raw = storage.getItem(prefsKey);
-        if (raw) {
-          const parsed = JSON.parse(raw) as ProvidersPrefs;
-          if (parsed?.type) setFilterType(parsed.type);
-          if (parsed?.status) setFilterStatus(parsed.status);
-          if (parsed?.health) setFilterHealth(parsed.health);
-          if (typeof parsed?.search === "string") setFilterSearch(parsed.search);
-          if (Array.isArray(parsed?.sort) && parsed.sort.length > 0) setSortSpecs(parsed.sort);
-          if (parsed?.days) setDays(parsed.days);
-          if (parsed?.compact === "normal" || parsed?.compact === "compact" || parsed?.compact === "dense") {
-            setCompact(parsed.compact);
-          }
-          if (typeof parsed?.syncDensity === "boolean") {
-            setSyncDensity(parsed.syncDensity);
-          }
-        }
-      } catch {
-        // ignore prefs errors
-      }
-
-      try {
-        const API_BASE = getApiBase();
-        const s = getSession();
-        const userId = String((s as any)?.username || (s as any)?.userId || "");
-        const role = String((s as any)?.role || "USER").toUpperCase();
-        const res = await fetch(`${API_BASE}/api/cp/prefs/providers_ui`, {
-          headers: {
-            "x-tenant-id": tenantId,
-            "x-user-id": userId,
-            "x-user-role": role,
-          },
-        });
-        if (res.ok) {
-          const json = (await res.json()) as { success: boolean; data?: ProvidersPrefs };
-          const parsed = json?.data;
-          if (parsed) {
-            if (parsed?.type) setFilterType(parsed.type);
-            if (parsed?.status) setFilterStatus(parsed.status);
-            if (parsed?.health) setFilterHealth(parsed.health);
-            if (typeof parsed?.search === "string") setFilterSearch(parsed.search);
-            if (Array.isArray(parsed?.sort) && parsed.sort.length > 0) setSortSpecs(parsed.sort);
-            if (parsed?.days) setDays(parsed.days);
-            if (parsed?.compact === "normal" || parsed?.compact === "compact" || parsed?.compact === "dense") {
-              setCompact(parsed.compact);
-            }
-            if (typeof parsed?.syncDensity === "boolean") {
-              setSyncDensity(parsed.syncDensity);
-            }
-          }
-        }
-      } catch {
-        // ignore server prefs errors
-      }
-
-      applyFromHash();
-      await applyGlobalDensity();
-      setHasHydrated(true);
-    })();
-
+    applyFromHash();
     window.addEventListener("hashchange", applyFromHash);
     return () => window.removeEventListener("hashchange", applyFromHash);
-  }, [prefsKey, applyGlobalDensity, storage]);
+  }, []);
 
-  React.useEffect(() => {
-    if (!hasHydrated) return;
-    const payload: ProvidersPrefs = {
-      type: filterType,
-      status: filterStatus,
-      health: filterHealth,
-      search: filterSearch,
-      sort: sortSpecs,
-      days,
-      compact,
-      syncDensity,
-    };
-    try {
-      storage.setItem(prefsKey, JSON.stringify(payload));
-    } catch {
-      // ignore storage errors
-    }
-    const timer = window.setTimeout(async () => {
-      try {
-        const API_BASE = getApiBase();
-        const s = getSession();
-        const userId = String((s as any)?.username || (s as any)?.userId || "");
-        const role = String((s as any)?.role || "USER").toUpperCase();
-        await fetch(`${API_BASE}/api/cp/prefs/providers_ui`, {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            "x-tenant-id": tenantId,
-            "x-user-id": userId,
-            "x-user-role": role,
-          },
-          body: JSON.stringify(payload),
-        });
-      } catch {
-        // ignore server prefs errors
-      }
-    }, 400);
-    return () => window.clearTimeout(timer);
-  }, [filterType, filterStatus, filterHealth, filterSearch, sortSpecs, days, compact, syncDensity, prefsKey, hasHydrated, tenantId, storage]);
+  /* Prefs persistence handled by useCpPref */
 
   React.useEffect(() => {
     if (syncDensity) {

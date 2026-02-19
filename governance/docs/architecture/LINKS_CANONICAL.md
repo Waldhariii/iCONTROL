@@ -1,7 +1,7 @@
 # LINKS CANONICAL (SSOT)
 
 ## Root
-- ROOT: /Users/danygaudreault/iCONTROLapp
+- ROOT: /Users/danygaudreault/iCONTROL
 - APP: ./app
 - SERVER: ./server
 - CORE KERNEL: ./core-kernel

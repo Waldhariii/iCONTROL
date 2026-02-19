@@ -10,23 +10,23 @@ import { getSession } from "@/localAuth";
 import { LocalStorageProvider } from "@/core/control-plane/storage";
 
 const BASE_FIELDS: Array<{ key: string; label: string; placeholder: string }> = [
-  { key: "--app-bg-primary", label: "App background", placeholder: "#0f1115" },
-  { key: "--app-bg-secondary", label: "Background secondary", placeholder: "#0a0c10" },
+  { key: "--app-bg-primary", label: "App background", placeholder: "var(--app-bg-primary)" },
+  { key: "--app-bg-secondary", label: "Background secondary", placeholder: "var(--app-bg-secondary)" },
   { key: "--app-bg-gradient", label: "Background gradient", placeholder: "linear-gradient(...)" },
-  { key: "--surface-0", label: "Surface 0", placeholder: "#151a1f" },
-  { key: "--surface-1", label: "Surface 1", placeholder: "#171c22" },
-  { key: "--surface-border", label: "Surface border", placeholder: "#262d35" },
-  { key: "--text-primary", label: "Text primary", placeholder: "#e6e9ee" },
-  { key: "--text-muted", label: "Text muted", placeholder: "#9aa3ad" },
-  { key: "--accent-primary", label: "Accent primary", placeholder: "#5a8fff" },
-  { key: "--accent-glow", label: "Accent glow", placeholder: "rgba(90,143,255,0.25)" },
+  { key: "--surface-0", label: "Surface 0", placeholder: "var(--surface-0)" },
+  { key: "--surface-1", label: "Surface 1", placeholder: "var(--surface-1)" },
+  { key: "--surface-border", label: "Surface border", placeholder: "var(--surface-border)" },
+  { key: "--text-primary", label: "Text primary", placeholder: "var(--text-primary)" },
+  { key: "--text-muted", label: "Text muted", placeholder: "var(--text-muted)" },
+  { key: "--accent-primary", label: "Accent primary", placeholder: "var(--accent-primary)" },
+  { key: "--accent-glow", label: "Accent glow", placeholder: "var(--accent-glow)" },
 ];
 
 const CP_LOGIN_FIELDS: Array<{ key: string; label: string; placeholder: string }> = [
   { key: "--cp-login-page-bg", label: "Login page background", placeholder: "var(--app-bg-primary)" },
   { key: "--cp-login-panel-bg", label: "Login panel background", placeholder: "var(--surface-0)" },
   { key: "--cp-login-card-bg", label: "Login card background", placeholder: "var(--surface-1)" },
-  { key: "--cp-login-input-bg", label: "Login input background", placeholder: "#101419" },
+  { key: "--cp-login-input-bg", label: "Login input background", placeholder: "var(--cp-login-input-bg)" },
   { key: "--cp-login-button-bg", label: "Login button", placeholder: "var(--accent-primary)" },
 ];
 

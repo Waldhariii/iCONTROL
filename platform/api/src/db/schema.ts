@@ -110,6 +110,15 @@ export function ensureBaselineTables(db: DB) {
       created_at TEXT NOT NULL,
       delivered_at TEXT
     );
+
+    CREATE TABLE IF NOT EXISTS refresh_tokens (
+      jti TEXT PRIMARY KEY,
+      user_id TEXT NOT NULL,
+      tenant_id TEXT NOT NULL,
+      expires_at TEXT NOT NULL,
+      revoked INTEGER DEFAULT 0,
+      created_at TEXT NOT NULL
+    );
   `);
 }
 
@@ -143,6 +152,11 @@ export function ensureSchema(_db: any) {
     ensureColumn("audit_presets", "is_shared", "is_shared INTEGER");
     ensureColumn("audit_presets", "created_by", "created_by TEXT");
     ensureColumn("audit_presets", "usage_count", "usage_count INTEGER");
+
+    // Pagination / perf: cursor + tenant scoping
+    db.exec(`CREATE INDEX IF NOT EXISTS idx_audit_logs_tenant_id ON audit_logs(tenant_id, id DESC)`);
+    db.exec(`CREATE INDEX IF NOT EXISTS idx_providers_updated_at ON providers(updated_at DESC)`);
+    db.exec(`CREATE INDEX IF NOT EXISTS idx_cp_pages_updated_at ON cp_pages(updated_at DESC)`);
   } catch {
     // keep boot resilient
   }

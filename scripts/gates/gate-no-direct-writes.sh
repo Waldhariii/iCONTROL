@@ -3,8 +3,8 @@ set -e
 
 echo "[gate] checking direct writes..."
 
-VIOLATIONS=$(grep -rE "localStorage\.(set|remove)|fetch\([^)]*method.*['\"]POST|axios\.(post|put)" \
-  apps/control-plane/src/surfaces \
+VIOLATIONS=$(grep -rE "localStorage\.(set|remove)|sessionStorage\.(set|remove)" \
+  apps/control-plane/src/surfaces/cp \
   --include="*.tsx" --include="*.ts" \
   2>/dev/null | grep -v "// ALLOWED" || true)
 

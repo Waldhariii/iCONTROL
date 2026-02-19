@@ -7,7 +7,7 @@ set -euo pipefail
 #   MODE=revert : on revient EXACTEMENT à HEAD (annule suppressions/modifs) + nettoyage untracked (sauf ce que tu whitelistes)
 #   MODE=adopt  : on assume la refonte (rename/move) => on stage tout (add -A) pour que Git puisse détecter les renommages, puis commit
 
-ROOT="/Users/danygaudreault/iCONTROLapp"
+ROOT="/Users/danygaudreault/iCONTROL"
 cd "$ROOT"
 
 TS="$(date -u +"%Y%m%d_%H%M%S")"

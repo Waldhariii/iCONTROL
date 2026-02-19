@@ -33,7 +33,7 @@ export async function renderCpPage(rid: RouteId, root: HTMLElement): Promise<voi
         return;
       }
       try {
-        module.renderDashboard(root);
+        await module.renderDashboard(root);
       } catch (err) {
         root.innerHTML = '<div class="error-state">Error loading page</div>';
         console.error("Dashboard render failed:", err);

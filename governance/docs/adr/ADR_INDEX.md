@@ -1,4 +1,4 @@
-# ADR Index — iCONTROLapp
+# ADR Index — iCONTROL
 
 Purpose: Architecture Decision Records (ADRs) are the SSOT of *why* we built things this way.
 They prevent drift, reduce regressions, and make platform decisions auditable.

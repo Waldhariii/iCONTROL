@@ -1,4 +1,5 @@
 import React from "react";
+import styles from "./WebhooksPage.module.css";
 
 // Mock data pour démonstration
 const MOCK_WEBHOOKS = [
@@ -45,7 +46,7 @@ export default function WebhooksPage() {
   const [selectedWebhook, setSelectedWebhook] = React.useState<any>(null);
   const [filterStatus, setFilterStatus] = React.useState<string>("all");
 
-  const filteredWebhooks = webhooks.filter(wh => 
+  const filteredWebhooks = webhooks.filter(wh =>
     filterStatus === "all" || wh.status === filterStatus
   );
 
@@ -56,115 +57,86 @@ export default function WebhooksPage() {
     pending: webhooks.filter(w => w.status === "pending").length,
   };
 
+  const badgeClass = (status: string) => {
+    if (status === "success") return `${styles.badge} ${styles.badgeSuccess}`;
+    if (status === "failed") return `${styles.badge} ${styles.badgeFailed}`;
+    return `${styles.badge} ${styles.badgePending}`;
+  };
+
   return (
-    <div style={{ padding: "40px 20px", maxWidth: "1400px", margin: "0 auto" }}>
-      {/* Header */}
-      <div style={{ marginBottom: "32px" }}>
-        <h1 style={{ color: "var(--text-primary)", fontSize: "28px", fontWeight: "700", margin: "0 0 8px 0" }}>
-          Webhooks
-        </h1>
-        <p style={{ color: "var(--text-muted)", margin: 0 }}>
+    <div className={styles.root}>
+      <div className={styles.header}>
+        <h1 className={styles.title}>Webhooks</h1>
+        <p className={styles.subtitle}>
           Historique des webhooks reçus des providers de paiement
         </p>
       </div>
 
-      {/* KPI */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "16px", marginBottom: "32px" }}>
-        <div style={{ padding: "20px", background: "var(--surface-1)", border: "1px solid var(--surface-border)", borderRadius: "8px" }}>
-          <div style={{ fontSize: "12px", color: "var(--text-muted)", marginBottom: "8px" }}>Total</div>
-          <div style={{ fontSize: "28px", fontWeight: "700", color: "var(--text-primary)" }}>{stats.total}</div>
+      <div className={styles.kpiGrid}>
+        <div className={styles.kpiCard}>
+          <div className={styles.kpiLabel}>Total</div>
+          <div className={styles.kpiValue}>{stats.total}</div>
         </div>
-        <div style={{ padding: "20px", background: "var(--surface-1)", border: "1px solid var(--surface-border)", borderRadius: "8px" }}>
-          <div style={{ fontSize: "12px", color: "var(--text-muted)", marginBottom: "8px" }}>Succès</div>
-          <div style={{ fontSize: "28px", fontWeight: "700", color: "#10b981" }}>{stats.success}</div>
+        <div className={styles.kpiCard}>
+          <div className={styles.kpiLabel}>Succès</div>
+          <div className={styles.kpiValueSuccess}>{stats.success}</div>
         </div>
-        <div style={{ padding: "20px", background: "var(--surface-1)", border: "1px solid var(--surface-border)", borderRadius: "8px" }}>
-          <div style={{ fontSize: "12px", color: "var(--text-muted)", marginBottom: "8px" }}>Échecs</div>
-          <div style={{ fontSize: "28px", fontWeight: "700", color: "#ef4444" }}>{stats.failed}</div>
+        <div className={styles.kpiCard}>
+          <div className={styles.kpiLabel}>Échecs</div>
+          <div className={styles.kpiValueFailed}>{stats.failed}</div>
         </div>
-        <div style={{ padding: "20px", background: "var(--surface-1)", border: "1px solid var(--surface-border)", borderRadius: "8px" }}>
-          <div style={{ fontSize: "12px", color: "var(--text-muted)", marginBottom: "8px" }}>En attente</div>
-          <div style={{ fontSize: "28px", fontWeight: "700", color: "#f59e0b" }}>{stats.pending}</div>
+        <div className={styles.kpiCard}>
+          <div className={styles.kpiLabel}>En attente</div>
+          <div className={styles.kpiValuePending}>{stats.pending}</div>
         </div>
       </div>
 
-      {/* Filtres */}
-      <div style={{ display: "flex", gap: "8px", marginBottom: "24px" }}>
+      <div className={styles.filters}>
         {["all", "success", "failed", "pending"].map(status => (
           <button
             key={status}
+            type="button"
             onClick={() => setFilterStatus(status)}
-            style={{
-              padding: "8px 16px",
-              background: filterStatus === status ? "var(--accent-primary)" : "var(--surface-1)",
-              color: filterStatus === status ? "white" : "var(--text-primary)",
-              border: "1px solid var(--surface-border)",
-              borderRadius: "6px",
-              cursor: "pointer",
-              fontSize: "14px",
-              textTransform: "capitalize"
-            }}
+            className={filterStatus === status ? `${styles.filterBtn} ${styles.filterBtnActive}` : styles.filterBtn}
           >
             {status === "all" ? "Tous" : status}
           </button>
         ))}
       </div>
 
-      {/* Table */}
-      <div style={{ background: "var(--surface-1)", border: "1px solid var(--surface-border)", borderRadius: "8px", overflow: "hidden" }}>
-        <table style={{ width: "100%", borderCollapse: "collapse" }}>
+      <div className={styles.tableWrap}>
+        <table className={styles.table}>
           <thead>
-            <tr style={{ background: "var(--surface-0)", borderBottom: "1px solid var(--surface-border)" }}>
-              <th style={{ padding: "12px", textAlign: "left", color: "var(--text-primary)" }}>ID</th>
-              <th style={{ padding: "12px", textAlign: "left", color: "var(--text-primary)" }}>Provider</th>
-              <th style={{ padding: "12px", textAlign: "left", color: "var(--text-primary)" }}>Type</th>
-              <th style={{ padding: "12px", textAlign: "left", color: "var(--text-primary)" }}>Tenant</th>
-              <th style={{ padding: "12px", textAlign: "left", color: "var(--text-primary)" }}>Reçu</th>
-              <th style={{ padding: "12px", textAlign: "left", color: "var(--text-primary)" }}>Status</th>
-              <th style={{ padding: "12px", textAlign: "right", color: "var(--text-primary)" }}>Actions</th>
+            <tr className={styles.theadRow}>
+              <th className={styles.th}>ID</th>
+              <th className={styles.th}>Provider</th>
+              <th className={styles.th}>Type</th>
+              <th className={styles.th}>Tenant</th>
+              <th className={styles.th}>Reçu</th>
+              <th className={styles.th}>Status</th>
+              <th className={styles.thRight}>Actions</th>
             </tr>
           </thead>
           <tbody>
             {filteredWebhooks.map(webhook => (
-              <tr key={webhook.id} style={{ borderBottom: "1px solid var(--surface-border)" }}>
-                <td style={{ padding: "12px", color: "var(--text-primary)", fontFamily: "monospace", fontSize: "13px" }}>
-                  {webhook.id}
-                </td>
-                <td style={{ padding: "12px", color: "var(--text-primary)", textTransform: "capitalize" }}>
-                  {webhook.provider}
-                </td>
-                <td style={{ padding: "12px", color: "var(--text-muted)", fontSize: "13px" }}>
-                  {webhook.eventType}
-                </td>
-                <td style={{ padding: "12px", color: "var(--text-primary)" }}>
-                  {webhook.tenantId || "-"}
-                </td>
-                <td style={{ padding: "12px", color: "var(--text-muted)", fontSize: "13px" }}>
+              <tr key={webhook.id} className={styles.tbodyRow}>
+                <td className={styles.tdMono}>{webhook.id}</td>
+                <td className={styles.tdCapitalize}>{webhook.provider}</td>
+                <td className={styles.tdMuted}>{webhook.eventType}</td>
+                <td className={styles.td}>{webhook.tenantId || "-"}</td>
+                <td className={styles.tdMuted}>
                   {new Date(webhook.receivedAt).toLocaleString()}
                 </td>
-                <td style={{ padding: "12px" }}>
-                  <span style={{
-                    padding: "4px 8px",
-                    background: webhook.status === "success" ? "#10b981" : webhook.status === "failed" ? "#ef4444" : "#f59e0b",
-                    color: "white",
-                    borderRadius: "4px",
-                    fontSize: "11px",
-                    textTransform: "uppercase"
-                  }}>
+                <td className={styles.td}>
+                  <span className={badgeClass(webhook.status)}>
                     {webhook.status}
                   </span>
                 </td>
-                <td style={{ padding: "12px", textAlign: "right" }}>
+                <td className={styles.tdRight}>
                   <button
+                    type="button"
                     onClick={() => setSelectedWebhook(webhook)}
-                    style={{
-                      padding: "6px 12px",
-                      background: "var(--surface-0)",
-                      color: "var(--text-primary)",
-                      border: "1px solid var(--surface-border)",
-                      borderRadius: "4px",
-                      cursor: "pointer"
-                    }}
+                    className={styles.btnDetail}
                   >
                     Détails
                   </button>
@@ -175,61 +147,55 @@ export default function WebhooksPage() {
         </table>
       </div>
 
-      {/* Drawer Détails */}
       {selectedWebhook && (
         <div
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: "rgba(0,0,0,0.7)",
-            zIndex: 9999,
-            display: "flex",
-            justifyContent: "flex-end"
-          }}
+          className={styles.overlay}
           onClick={() => setSelectedWebhook(null)}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Détails webhook"
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            style={{
-              width: "600px",
-              background: "var(--surface-0)",
-              padding: "24px",
-              overflowY: "auto"
-            }}
+            className={styles.drawer}
           >
-            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "24px" }}>
-              <h3 style={{ color: "var(--text-primary)", margin: 0 }}>Détails Webhook</h3>
-              <button onClick={() => setSelectedWebhook(null)} style={{ background: "none", border: "none", fontSize: "24px", cursor: "pointer" }}>×</button>
+            <div className={styles.drawerHeader}>
+              <h3 className={styles.drawerTitle}>Détails Webhook</h3>
+              <button
+                type="button"
+                onClick={() => setSelectedWebhook(null)}
+                className={styles.drawerClose}
+                aria-label="Fermer"
+              >
+                ×
+              </button>
             </div>
 
-            <div style={{ marginBottom: "24px" }}>
-              <div style={{ fontSize: "12px", color: "var(--text-muted)", marginBottom: "4px" }}>ID</div>
-              <div style={{ fontFamily: "monospace", fontSize: "14px" }}>{selectedWebhook.id}</div>
+            <div className={styles.field}>
+              <div className={styles.fieldLabel}>ID</div>
+              <div className={styles.fieldValueMono}>{selectedWebhook.id}</div>
             </div>
 
-            <div style={{ marginBottom: "24px" }}>
-              <div style={{ fontSize: "12px", color: "var(--text-muted)", marginBottom: "4px" }}>Provider</div>
-              <div style={{ textTransform: "capitalize" }}>{selectedWebhook.provider}</div>
+            <div className={styles.field}>
+              <div className={styles.fieldLabel}>Provider</div>
+              <div className={styles.fieldValueCapitalize}>{selectedWebhook.provider}</div>
             </div>
 
-            <div style={{ marginBottom: "24px" }}>
-              <div style={{ fontSize: "12px", color: "var(--text-muted)", marginBottom: "4px" }}>Type</div>
-              <div>{selectedWebhook.eventType}</div>
+            <div className={styles.field}>
+              <div className={styles.fieldLabel}>Type</div>
+              <div className={styles.fieldValue}>{selectedWebhook.eventType}</div>
             </div>
 
-            <div style={{ marginBottom: "24px" }}>
-              <div style={{ fontSize: "12px", color: "var(--text-muted)", marginBottom: "4px" }}>Actions exécutées</div>
+            <div className={styles.field}>
+              <div className={styles.fieldLabel}>Actions exécutées</div>
               {selectedWebhook.actions.length === 0 ? (
-                <div style={{ color: "var(--text-muted)" }}>Aucune action</div>
+                <div className={styles.emptyActions}>Aucune action</div>
               ) : (
-                <ul style={{ margin: 0, paddingLeft: "20px" }}>
+                <ul className={styles.actionsList}>
                   {selectedWebhook.actions.map((action: any, i: number) => (
-                    <li key={i} style={{ marginBottom: "8px" }}>
+                    <li key={i} className={styles.actionsItem}>
                       <strong>{action.type}</strong>
-                      <pre style={{ fontSize: "12px", background: "var(--surface-1)", padding: "8px", borderRadius: "4px", marginTop: "4px" }}>
+                      <pre className={styles.prePayload}>
                         {JSON.stringify(action.payload, null, 2)}
                       </pre>
                     </li>
@@ -239,7 +205,7 @@ export default function WebhooksPage() {
             </div>
 
             {selectedWebhook.error && (
-              <div style={{ padding: "12px", background: "#ef4444", color: "white", borderRadius: "6px" }}>
+              <div className={styles.errorBlock}>
                 Erreur : {selectedWebhook.error}
               </div>
             )}

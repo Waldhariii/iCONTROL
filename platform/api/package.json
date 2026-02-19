@@ -4,7 +4,8 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "start": "node dist/index.js"
+    "start": "node dist/index.js",
+    "test": "npm run build && if [ -d dist/__tests__ ]; then FILES=$(find dist/__tests__ -type f \\( -name \"*.test.js\" -o -name \"*.spec.js\" \\) | sort | tr '\\n' ' '); if [ -z \"$FILES\" ]; then echo \"[SKIP] api tests: no dist/__tests__/*.test.js (Lot L2 not merged or no compiled tests)\"; else node --test $FILES; fi; else echo \"[SKIP] api tests: dist/__tests__ missing (Lot L2 not merged)\"; fi"
   },
   "dependencies": {
     "better-sqlite3": "^11.10.0",

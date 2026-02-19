@@ -22,6 +22,7 @@ import { createLineChart, createAreaChart, createDonutChart } from "../../../cor
 import { createKpiCard } from "../../../core/ui/kpi";
 import { createGovernanceFooter, createDemoDataBanner } from "../_shared/cpLayout";
 import { formatRelative } from "/src/core/utils/dateFormat";
+import { getPref } from "@/platform/prefs/cpPrefs";
 import { getApiBase } from "/src/core/runtime/apiBase";
 import { hasPermission } from "/src/runtime/rbac";
 // @ts-ignore
@@ -99,18 +100,17 @@ function hasRouteAccess(routeId: string): boolean {
   return perms.every((p) => hasPermission(p));
 }
 
-function getDashboardPrefs(): DashboardPrefs {
+async function getDashboardPrefsAsync(): Promise<DashboardPrefs> {
   try {
-    const raw = localStorage.getItem(DASH_PREF_KEY);
-    if (!raw) return { ...DASH_DEFAULTS };
-    const parsed = JSON.parse(raw) as Partial<DashboardPrefs>;
+    const data = await getPref<Partial<DashboardPrefs>>(DASH_PREF_KEY);
+    if (!data) return { ...DASH_DEFAULTS };
     return {
-      period: parsed.period === "24h" || parsed.period === "30d" ? parsed.period : "7d",
-      hidden: Array.isArray(parsed.hidden) ? parsed.hidden.map(String) : [],
-      gridOrder: Array.isArray(parsed.gridOrder) ? parsed.gridOrder.map(String) : [...DASH_DEFAULTS.gridOrder],
-      chartOrder: Array.isArray(parsed.chartOrder) ? parsed.chartOrder.map(String) : [...DASH_DEFAULTS.chartOrder],
-      tabsOrder: Array.isArray(parsed.tabsOrder) ? parsed.tabsOrder.map(String) : [],
-      tabsHidden: Array.isArray(parsed.tabsHidden) ? parsed.tabsHidden.map(String) : []
+      period: data.period === "24h" || data.period === "30d" ? data.period : "7d",
+      hidden: Array.isArray(data.hidden) ? data.hidden.map(String) : [],
+      gridOrder: Array.isArray(data.gridOrder) ? data.gridOrder.map(String) : [...DASH_DEFAULTS.gridOrder],
+      chartOrder: Array.isArray(data.chartOrder) ? data.chartOrder.map(String) : [...DASH_DEFAULTS.chartOrder],
+      tabsOrder: Array.isArray(data.tabsOrder) ? data.tabsOrder.map(String) : [],
+      tabsHidden: Array.isArray(data.tabsHidden) ? data.tabsHidden.map(String) : []
     };
   } catch {
     return { ...DASH_DEFAULTS };
@@ -146,22 +146,22 @@ function renderTabContent(container: HTMLElement): void {
   }
 }
 
-export function renderDashboard(root: HTMLElement): void {
+export async function renderDashboard(root: HTMLElement): Promise<void> {
   let resolved = false;
   let hardFallback: number | null = null;
-  const prefs = getDashboardPrefs();
+  const prefs = await getDashboardPrefsAsync();
 
   const attachPrefsListener = () => {
     const anyRoot = root as any;
     if (anyRoot.__dashPrefsListenerAttached) return;
     anyRoot.__dashPrefsListenerAttached = true;
     window.addEventListener("cp-settings:dashboard-prefs", () => {
-      renderDashboard(root);
+      void renderDashboard(root);
     });
   };
   attachPrefsListener();
 
-  const tabs = getDashboardTabs();
+  const tabs = getDashboardTabs(prefs);
 
   const renderLoading = () => {
     root.innerHTML = coreBaseStyles();
@@ -439,7 +439,7 @@ for (let i = 0; i < 4; i += 1) {
         actions: [
           {
             label: "Rafraîchir",
-            onClick: () => { renderDashboard(root); }
+            onClick: () => { void renderDashboard(root); }
           }
         ]
       });
@@ -513,9 +513,8 @@ function titleizeRouteId(routeId: string): string {
     .join(" ");
 }
 
-function getDashboardTabs(): DashboardTab[] {
+function getDashboardTabs(prefs: DashboardPrefs): DashboardTab[] {
   const routes = (catalog as any)?.routes ?? [];
-  const prefs = getDashboardPrefs();
   const rawTabs = routes
     .filter((r: any) => r && r.app_surface === "CP")
     .map((r: any) => {

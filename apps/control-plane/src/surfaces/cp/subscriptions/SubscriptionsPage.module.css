@@ -1,0 +1,46 @@
+.root { padding: 40px 20px; max-width: 1400px; margin: 0 auto; }
+.header { margin-bottom: 32px; }
+.title { color: var(--text-primary); font-size: 28px; font-weight: 700; margin: 0 0 8px 0; }
+.subtitle { color: var(--text-muted); margin: 0; }
+.kpiGrid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; margin-bottom: 32px; }
+.kpiCard { padding: 20px; background: var(--surface-1); border: 1px solid var(--surface-border); border-radius: 8px; }
+.kpiCardAccent { background: var(--accent-primary); border-color: var(--accent-primary); }
+.kpiLabel { font-size: 12px; color: var(--text-muted); margin-bottom: 8px; }
+.kpiLabelLight { color: rgba(255,255,255,0.8); }
+.kpiValue { font-size: 28px; font-weight: 700; color: var(--text-primary); }
+.kpiValueSuccess { font-size: 28px; font-weight: 700; color: var(--color-success, #22c55e); }
+.kpiValueWarning { font-size: 28px; font-weight: 700; color: var(--color-warning, #f59e0b); }
+.kpiValueMuted { font-size: 28px; font-weight: 700; color: var(--text-muted); }
+.kpiValueWhite { font-size: 28px; font-weight: 700; color: white; }
+.filters { display: flex; gap: 16px; margin-bottom: 24px; }
+.filterLabel { font-size: 12px; color: var(--text-muted); margin-bottom: 4px; display: block; }
+.select { padding: 8px 12px; background: var(--surface-1); border: 1px solid var(--surface-border); border-radius: 6px; color: var(--text-primary); }
+.tableWrap { background: var(--surface-1); border: 1px solid var(--surface-border); border-radius: 8px; overflow: hidden; }
+.table { width: 100%; border-collapse: collapse; }
+.theadRow { background: var(--surface-0); border-bottom: 1px solid var(--surface-border); }
+.th { padding: 12px; text-align: left; color: var(--text-primary); }
+.thRight { padding: 12px; text-align: right; color: var(--text-primary); }
+.tbodyRow { border-bottom: 1px solid var(--surface-border); }
+.td { padding: 12px; }
+.tdPrimary { padding: 12px; color: var(--text-primary); font-weight: 600; }
+.tdMuted { padding: 12px; color: var(--text-muted); font-size: 13px; }
+.tdCapitalize { padding: 12px; color: var(--text-muted); text-transform: capitalize; }
+.tenantName { color: var(--text-primary); font-weight: 600; }
+.tenantId { font-size: 12px; color: var(--text-muted); }
+.badge { padding: 4px 8px; color: white; border-radius: 4px; font-size: 11px; text-transform: uppercase; }
+.badgeActive { background: var(--color-success, #22c55e); }
+.badgePastDue { background: var(--color-warning, #f59e0b); }
+.badgeCanceled { background: var(--text-muted); }
+.btnSecondary { padding: 6px 12px; background: var(--surface-0); color: var(--text-primary); border: 1px solid var(--surface-border); border-radius: 4px; cursor: pointer; margin-right: 8px; }
+.btnDanger { padding: 6px 12px; background: var(--color-error, #f85149); color: white; border: none; border-radius: 4px; cursor: pointer; }
+.tdRight { padding: 12px; text-align: right; }
+.overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: var(--ic-surfaceOverlay); z-index: 9999; display: flex; justify-content: flex-end; }
+.drawer { width: 500px; background: var(--surface-0); padding: 24px; overflow-y: auto; }
+.drawerHeader { display: flex; justify-content: space-between; margin-bottom: 24px; }
+.drawerTitle { margin: 0; color: var(--text-primary); }
+.drawerClose { background: none; border: none; font-size: 24px; cursor: pointer; color: var(--text-primary); }
+.field { margin-bottom: 16px; }
+.fieldLabel { font-size: 12px; color: var(--text-muted); }
+.fieldValue { font-size: 14px; font-family: monospace; }
+.fieldValueBold { font-size: 18px; font-weight: 700; color: var(--text-primary); }
+.warningBlock { padding: 12px; background: var(--color-warning, #f59e0b); color: white; border-radius: 6px; margin-bottom: 16px; }

@@ -132,9 +132,10 @@ function getSourceFile(routeId: string, appSurface: "CP" | "CLIENT"): string {
   }
 }
 
+/** Aligné sur ROUTE_CATALOG : CP → app_surface "CP", CLIENT → app_surface "APP". */
 export function getPagesInventory(appSurface: "CP" | "CLIENT"): PageInventoryEntry[] {
   const routes = (catalog as { routes: RouteEntry[] }).routes;
-  const surface = appSurface === "CP" ? "CP" : "CLIENT";
+  const surface = appSurface === "CP" ? "CP" : "APP";
   
   const entries: PageInventoryEntry[] = [];
   const seenRouteIds = new Set<string>();
@@ -159,7 +160,7 @@ export function getPagesInventory(appSurface: "CP" | "CLIENT"): PageInventoryEnt
       sourceFile: getSourceFile(route.route_id, appSurface),
       duplicateGroup: null,
       notes: inRegistry ? "" : "⚠️ Not in registry",
-      appSurface: surface,
+      appSurface: appSurface,
       path: route.path,
       pageModuleId: route.page_module_id,
       inRegistry,

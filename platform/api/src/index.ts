@@ -4,6 +4,13 @@ import path from 'path';
 import fs from 'fs';
 import crypto from 'crypto';
 import { openDb } from './db/db';
+import { tenantBoundary } from './middleware/tenantBoundary';
+import { authBoundary } from './middleware/authBoundary';
+import type { AuthRequest } from './middleware/authBoundary';
+import { registerAuthRoutes } from './auth/routes';
+import { parseLimit, parseCursor, buildPage } from './utils/paginate';
+import { etagMiddleware } from './middleware/etag';
+import { get as cacheGet, set as cacheSet, cacheKey } from './utils/cache';
 
 const app = express();
 app.use(cors());
@@ -17,9 +24,14 @@ app.use((req, res, next) => {
   next();
 });
 
+// Zero-trust: auth first (Bearer token → userId, tenantId, scopes), then tenant check (req.tenantId only)
+app.use("/api", authBoundary);
+app.use("/api", tenantBoundary);
+
 // Chemin absolu vers la DB
 const dbPath = path.join(__dirname, '..', 'icontrol.db');
 const db = openDb(process.env.ICONTROL_DB_FILE || dbPath);
+registerAuthRoutes(app, db);
 
 type Role = "USER" | "ADMIN" | "SYSADMIN" | "DEVELOPER";
 type AuditRow = {
@@ -40,25 +52,21 @@ const ROLE_RANK: Record<Role, number> = {
 };
 
 function getRole(req: express.Request): Role {
-  const raw = String(req.headers["x-user-role"] || "USER").toUpperCase();
+  const raw = String((req as AuthRequest).userRole || "USER").toUpperCase();
   if (raw === "ADMIN" || raw === "SYSADMIN" || raw === "DEVELOPER") return raw as Role;
   return "USER";
 }
 
 function getPermissions(req: express.Request): string[] {
-  const raw = String(req.headers["x-user-permissions"] || "");
-  return raw
-    .split(",")
-    .map((p) => p.trim())
-    .filter(Boolean);
+  return (req as AuthRequest).scopes ?? [];
 }
 
 function getUserId(req: express.Request): string {
-  return String(req.headers["x-user-id"] || "");
+  return String((req as AuthRequest).userId ?? "");
 }
 
 function getTenantId(req: express.Request): string {
-  return String(req.headers["x-tenant-id"] || "default");
+  return String((req as AuthRequest).tenantId ?? "default");
 }
 
 function getCorrelationId(req: express.Request): string {
@@ -80,6 +88,17 @@ function requirePermission(req: express.Request, res: express.Response, opts: { 
   if (requireAnyRole(req, res, opts.roles)) return true;
   sendError(res, 403, "FORBIDDEN", "FORBIDDEN", { permission: opts.permission, role: getRole(req) });
   return false;
+}
+
+function requireScope(req: express.Request, res: express.Response, scope: string): boolean {
+  const scopes = (req as AuthRequest).scopes ?? [];
+  if (scopes.includes(scope)) return true;
+  sendError(res, 403, "FORBIDDEN", "Missing scope", { scope, code: "SCOPE_REQUIRED" });
+  return false;
+}
+
+function requireRole(req: express.Request, res: express.Response, role: Role): boolean {
+  return requireAnyRole(req, res, [role]);
 }
 
 function sendError(
@@ -119,11 +138,10 @@ const BRANDING_PERMS = {
   write: { roles: ["ADMIN", "SYSADMIN", "DEVELOPER"] as Role[], permission: "cp.branding.write" },
 };
 
+/** SSOT unique : runtime/configs/ssot uniquement (pas de fallback config/ssot). */
 function resolveSsotPath(file: string): string {
   const repoRoot = path.resolve(__dirname, "..", "..", "..");
-  const runtimePath = path.join(repoRoot, "runtime", "configs", "ssot", file);
-  if (fs.existsSync(runtimePath)) return runtimePath;
-  return path.resolve(__dirname, "..", "..", "config", "ssot", file);
+  return path.join(repoRoot, "runtime", "configs", "ssot", file);
 }
 
 function validateCpPagePayload(payload: any): { ok: boolean; error?: string } {
@@ -197,9 +215,10 @@ function auditWrite(req: express.Request, action: string, resourceType: string, 
     const tenantId = getTenantId(req);
     const userId = getUserId(req) || "unknown";
     const role = getRole(req);
+    const scopes = getPermissions(req);
     const correlationId = getCorrelationId(req);
     const now = new Date().toISOString();
-    const payload = JSON.stringify({ role, correlationId, ...(metadata || {}) });
+    const payload = JSON.stringify({ role, scopes, correlationId, ...(metadata || {}) });
     db.prepare(
       `INSERT INTO audit_logs (tenant_id, user_id, action, resource_type, metadata, created_at)
        VALUES (?, ?, ?, ?, ?, ?)`
@@ -289,11 +308,12 @@ app.get('/api/health', (req, res) => {
 });
 
 app.get('/api/cp/audit', (req, res) => {
+  if (!requireScope(req, res, "cp:read")) return;
   try {
-    const limit = Math.max(1, Math.min(1000, Number(req.query.limit || 200)));
-    const offset = Math.max(0, Number(req.query.offset || 0));
+    const tenantId = getTenantId(req);
+    const limit = parseLimit(req, 50, 200);
+    const cursor = parseCursor(req);
     const q = String(req.query.q || "");
-    const tenantId = String(req.query.tenant_id || "");
     const userId = String(req.query.user_id || "");
     const role = String(req.query.role || "");
     const start = String(req.query.start || "");
@@ -301,10 +321,12 @@ app.get('/api/cp/audit', (req, res) => {
     const action = String(req.query.action || "");
     const resource = String(req.query.resource_type || "");
 
-    const where: string[] = [];
-    const args: any[] = [];
-
-    if (tenantId) { where.push("tenant_id = ?"); args.push(tenantId); }
+    const where: string[] = ["tenant_id = ?"];
+    const args: any[] = [tenantId];
+    if (cursor !== null) {
+      where.push("id < ?");
+      args.push(cursor);
+    }
     if (userId) { where.push("user_id = ?"); args.push(userId); }
     if (role) { where.push("metadata LIKE ?"); args.push(`%\"role\":\"${role}\"%`); }
     if (action) { where.push("action = ?"); args.push(action); }
@@ -312,42 +334,45 @@ app.get('/api/cp/audit', (req, res) => {
     if (start) { where.push("created_at >= ?"); args.push(start); }
     if (end) { where.push("created_at <= ?"); args.push(end); }
     if (q) {
-      where.push("(action LIKE ? OR resource_type LIKE ? OR user_id LIKE ? OR tenant_id LIKE ? OR metadata LIKE ?)");
+      where.push("(action LIKE ? OR resource_type LIKE ? OR user_id LIKE ? OR metadata LIKE ?)");
       const like = `%${q}%`;
-      args.push(like, like, like, like, like);
+      args.push(like, like, like, like);
     }
 
+    const whereClause = "WHERE " + where.join(" AND ");
     const baseSql = `
       SELECT id, tenant_id, user_id, action, resource_type, metadata, created_at
       FROM audit_logs
-      ${where.length ? "WHERE " + where.join(" AND ") : ""}
-    `;
-    const countSql = `SELECT COUNT(*) as c FROM audit_logs ${where.length ? "WHERE " + where.join(" AND ") : ""}`;
-    const total = (db.prepare(countSql).get(...args) as { c: number })?.c ?? 0;
-
-    const sql = `
-      ${baseSql}
+      ${whereClause}
       ORDER BY id DESC
-      LIMIT ? OFFSET ?
+      LIMIT ?
     `;
-    args.push(limit, offset);
-
-    const rows = db.prepare(sql).all(...args);
-    res.json({ success: true, data: rows, meta: { total, limit, offset } });
+    args.push(limit + 1);
+    const rows = db.prepare(baseSql).all(...args) as AuditRow[];
+    const hasMore = rows.length > limit;
+    const data = rows.slice(0, limit);
+    const nextCursor = hasMore ? (data[data.length - 1]?.id ?? null) : null;
+    res.json({ success: true, data, page: buildPage(nextCursor, hasMore, limit) });
   } catch (err) {
     return sendError(res, 500, "ERR_INTERNAL", String(err));
   }
 });
 
 app.get('/api/cp/logs', (req, res) => {
+  if (!requireScope(req, res, "cp:read")) return;
   try {
-    const limit = Math.max(1, Math.min(500, Number(req.query.limit || 100)));
+    const tenantId = getTenantId(req);
+    const limit = parseLimit(req, 50, 200);
+    const cursor = parseCursor(req);
+    const whereClause = cursor !== null ? "WHERE tenant_id = ? AND id < ?" : "WHERE tenant_id = ?";
+    const args = cursor !== null ? [tenantId, cursor, limit + 1] : [tenantId, limit + 1];
     const rows = db.prepare(
       `SELECT id, tenant_id, user_id, action, resource_type, metadata, created_at
        FROM audit_logs
+       ${whereClause}
        ORDER BY id DESC
        LIMIT ?`
-    ).all(limit) as Array<{
+    ).all(...args) as Array<{
       id: number;
       tenant_id: string | null;
       user_id: string | null;
@@ -357,7 +382,11 @@ app.get('/api/cp/logs', (req, res) => {
       created_at: string;
     }>;
 
-    const out = rows.map((r) => {
+    const hasMore = rows.length > limit;
+    const slice = rows.slice(0, limit);
+    const nextCursor = hasMore ? (slice[slice.length - 1]?.id ?? null) : null;
+
+    const out = slice.map((r) => {
       let level = "info";
       let correlationId: string | undefined;
       let message = r.action || "LOG";
@@ -381,51 +410,53 @@ app.get('/api/cp/logs', (req, res) => {
       };
     });
 
-    res.json(out);
+    res.json({ success: true, data: out, page: buildPage(nextCursor, hasMore, limit) });
   } catch (err) {
     return sendError(res, 500, "ERR_INTERNAL", String(err));
   }
 });
 
 app.get('/api/cp/metrics', (req, res) => {
+  if (!requireScope(req, res, "cp:read")) return;
   try {
+    const tenantId = getTenantId(req);
     const now = new Date();
     const since24 = new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString();
     const since14 = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000).toISOString();
 
     const total24 = (db.prepare(
-      `SELECT COUNT(*) as c FROM audit_logs WHERE created_at >= ?`
-    ).get(since24) as { c: number })?.c ?? 0;
+      `SELECT COUNT(*) as c FROM audit_logs WHERE tenant_id = ? AND created_at >= ?`
+    ).get(tenantId, since24) as { c: number })?.c ?? 0;
 
     const activeUsers = (db.prepare(
-      `SELECT COUNT(DISTINCT user_id) as c FROM audit_logs WHERE created_at >= ?`
-    ).get(since24) as { c: number })?.c ?? 0;
+      `SELECT COUNT(DISTINCT user_id) as c FROM audit_logs WHERE tenant_id = ? AND created_at >= ?`
+    ).get(tenantId, since24) as { c: number })?.c ?? 0;
 
     const warn24h = (db.prepare(
-      `SELECT COUNT(*) as c FROM audit_logs WHERE created_at >= ? AND (action LIKE 'WARN%' OR metadata LIKE '%\"level\":\"warn\"%')`
-    ).get(since24) as { c: number })?.c ?? 0;
+      `SELECT COUNT(*) as c FROM audit_logs WHERE tenant_id = ? AND created_at >= ? AND (action LIKE 'WARN%' OR metadata LIKE '%\"level\":\"warn\"%')`
+    ).get(tenantId, since24) as { c: number })?.c ?? 0;
 
     const err24h = (db.prepare(
-      `SELECT COUNT(*) as c FROM audit_logs WHERE created_at >= ? AND (action LIKE 'ERR%' OR action LIKE 'ERROR%' OR metadata LIKE '%\"level\":\"error\"%')`
-    ).get(since24) as { c: number })?.c ?? 0;
+      `SELECT COUNT(*) as c FROM audit_logs WHERE tenant_id = ? AND created_at >= ? AND (action LIKE 'ERR%' OR action LIKE 'ERROR%' OR metadata LIKE '%\"level\":\"error\"%')`
+    ).get(tenantId, since24) as { c: number })?.c ?? 0;
 
     const topModuleRow = db.prepare(
       `SELECT resource_type as rt, COUNT(*) as c
        FROM audit_logs
-       WHERE created_at >= ?
+       WHERE tenant_id = ? AND created_at >= ?
        GROUP BY resource_type
        ORDER BY c DESC
        LIMIT 1`
-    ).get(since24) as { rt?: string } | undefined;
+    ).get(tenantId, since24) as { rt?: string } | undefined;
 
     const peakRow = db.prepare(
       `SELECT MAX(cnt) as peak FROM (
          SELECT strftime('%Y-%m-%d %H', created_at) as h, COUNT(*) as cnt
          FROM audit_logs
-         WHERE created_at >= ?
+         WHERE tenant_id = ? AND created_at >= ?
          GROUP BY h
        )`
-    ).get(since24) as { peak?: number } | undefined;
+    ).get(tenantId, since24) as { peak?: number } | undefined;
 
     const providersActive = (db.prepare(
       `SELECT COUNT(*) as c FROM providers WHERE status = 'ACTIVE'`
@@ -438,10 +469,10 @@ app.get('/api/cp/metrics', (req, res) => {
     const dailyRows = db.prepare(
       `SELECT substr(created_at,1,10) as d, COUNT(*) as c
        FROM audit_logs
-       WHERE created_at >= ?
+       WHERE tenant_id = ? AND created_at >= ?
        GROUP BY d
        ORDER BY d ASC`
-    ).all(since14) as Array<{ d: string; c: number }>;
+    ).all(tenantId, since14) as Array<{ d: string; c: number }>;
 
     const byDay = new Map(dailyRows.map((r) => [r.d, r.c]));
     const series: number[] = [];
@@ -477,6 +508,7 @@ app.get('/api/cp/metrics', (req, res) => {
 });
 
 app.get('/api/cp/audit-presets', (req, res) => {
+  if (!requireScope(req, res, "cp:read")) return;
   if (!requireAnyRole(req, res, ["ADMIN", "SYSADMIN", "DEVELOPER"])) return;
   try {
     const tenantId = getTenantId(req);
@@ -578,6 +610,7 @@ app.post('/api/cp/audit-presets/:id/use', (req, res) => {
 });
 
 app.get('/api/cp/rbac', (req, res) => {
+  if (!requireScope(req, res, "cp:read")) return;
   if (!requireAnyRole(req, res, ["ADMIN", "SYSADMIN"])) return;
   try {
     const tenantId = getTenantId(req);
@@ -623,6 +656,7 @@ app.put('/api/cp/rbac', (req, res) => {
 });
 
 app.get('/api/cp/outbox', (req, res) => {
+  if (!requireScope(req, res, "cp:read")) return;
   if (!requireAnyRole(req, res, ["SYSADMIN", "ADMIN"])) return;
   try {
     const rows = db.prepare(
@@ -647,9 +681,10 @@ app.post('/api/cp/outbox/:id/ack', (req, res) => {
 });
 
 app.get('/api/cp/audit.csv', (req, res) => {
+  if (!requireScope(req, res, "cp:read")) return;
   try {
+    const tenantId = getTenantId(req);
     const q = String(req.query.q || "");
-    const tenantId = String(req.query.tenant_id || "");
     const userId = String(req.query.user_id || "");
     const role = String(req.query.role || "");
     const start = String(req.query.start || "");
@@ -657,10 +692,9 @@ app.get('/api/cp/audit.csv', (req, res) => {
     const action = String(req.query.action || "");
     const resource = String(req.query.resource_type || "");
 
-    const where: string[] = [];
-    const args: any[] = [];
+    const where: string[] = ["tenant_id = ?"];
+    const args: any[] = [tenantId];
 
-    if (tenantId) { where.push("tenant_id = ?"); args.push(tenantId); }
     if (userId) { where.push("user_id = ?"); args.push(userId); }
     if (role) { where.push("metadata LIKE ?"); args.push(`%\"role\":\"${role}\"%`); }
     if (action) { where.push("action = ?"); args.push(action); }
@@ -668,15 +702,16 @@ app.get('/api/cp/audit.csv', (req, res) => {
     if (start) { where.push("created_at >= ?"); args.push(start); }
     if (end) { where.push("created_at <= ?"); args.push(end); }
     if (q) {
-      where.push("(action LIKE ? OR resource_type LIKE ? OR user_id LIKE ? OR tenant_id LIKE ? OR metadata LIKE ?)");
+      where.push("(action LIKE ? OR resource_type LIKE ? OR user_id LIKE ? OR metadata LIKE ?)");
       const like = `%${q}%`;
-      args.push(like, like, like, like, like);
+      args.push(like, like, like, like);
     }
 
+    const whereClause = "WHERE " + where.join(" AND ");
     const sql = `
       SELECT id, tenant_id, user_id, action, resource_type, metadata, created_at
       FROM audit_logs
-      ${where.length ? "WHERE " + where.join(" AND ") : ""}
+      ${whereClause}
       ORDER BY id DESC
     `;
     const header = ["id","tenant_id","user_id","action","resource_type","metadata","created_at"];
@@ -710,9 +745,10 @@ app.get('/api/cp/audit.csv', (req, res) => {
 });
 
 app.get('/api/cp/audit.json', (req, res) => {
+  if (!requireScope(req, res, "cp:read")) return;
   try {
+    const tenantId = getTenantId(req);
     const q = String(req.query.q || "");
-    const tenantId = String(req.query.tenant_id || "");
     const userId = String(req.query.user_id || "");
     const role = String(req.query.role || "");
     const start = String(req.query.start || "");
@@ -720,10 +756,9 @@ app.get('/api/cp/audit.json', (req, res) => {
     const action = String(req.query.action || "");
     const resource = String(req.query.resource_type || "");
 
-    const where: string[] = [];
-    const args: any[] = [];
+    const where: string[] = ["tenant_id = ?"];
+    const args: any[] = [tenantId];
 
-    if (tenantId) { where.push("tenant_id = ?"); args.push(tenantId); }
     if (userId) { where.push("user_id = ?"); args.push(userId); }
     if (role) { where.push("metadata LIKE ?"); args.push(`%\"role\":\"${role}\"%`); }
     if (action) { where.push("action = ?"); args.push(action); }
@@ -731,15 +766,16 @@ app.get('/api/cp/audit.json', (req, res) => {
     if (start) { where.push("created_at >= ?"); args.push(start); }
     if (end) { where.push("created_at <= ?"); args.push(end); }
     if (q) {
-      where.push("(action LIKE ? OR resource_type LIKE ? OR user_id LIKE ? OR tenant_id LIKE ? OR metadata LIKE ?)");
+      where.push("(action LIKE ? OR resource_type LIKE ? OR user_id LIKE ? OR metadata LIKE ?)");
       const like = `%${q}%`;
-      args.push(like, like, like, like, like);
+      args.push(like, like, like, like);
     }
 
+    const whereClause = "WHERE " + where.join(" AND ");
     const sql = `
       SELECT id, tenant_id, user_id, action, resource_type, metadata, created_at
       FROM audit_logs
-      ${where.length ? "WHERE " + where.join(" AND ") : ""}
+      ${whereClause}
       ORDER BY id DESC
     `;
     res.setHeader("Content-Type", "application/json; charset=utf-8");
@@ -766,9 +802,19 @@ app.get('/api/cp/audit.json', (req, res) => {
 });
 
 app.get('/api/tenants', (req, res) => {
+  if (!requireScope(req, res, "cp:read")) return;
   try {
-    const rows = db.prepare(`SELECT id, name, plan, created_at, updated_at FROM tenants ORDER BY name ASC`).all();
-    res.json({ success: true, data: rows });
+    const limit = parseLimit(req, 50, 200);
+    const cursor = parseCursor(req);
+    const whereClause = cursor !== null ? "WHERE id > ?" : "";
+    const args = cursor !== null ? [cursor, limit + 1] : [limit + 1];
+    const rows = db.prepare(
+      `SELECT id, name, plan, created_at, updated_at FROM tenants ${whereClause} ORDER BY id ASC LIMIT ?`
+    ).all(...args) as Array<{ id: string; name: string; plan: string; created_at: string; updated_at: string }>;
+    const hasMore = rows.length > limit;
+    const data = rows.slice(0, limit);
+    const nextCursor = hasMore ? (data[data.length - 1]?.id ?? null) : null;
+    res.json({ success: true, data, page: buildPage(nextCursor, hasMore, limit) });
   } catch (err) {
     return sendError(res, 500, "ERR_INTERNAL", String(err));
   }
@@ -793,6 +839,7 @@ app.post('/api/tenants', (req, res) => {
 });
 
 app.get('/api/tenants/:id', (req, res) => {
+  if (!requireScope(req, res, "cp:read")) return;
   const { id } = req.params;
   try {
     const row = db.prepare(`SELECT id, name, plan, created_at, updated_at FROM tenants WHERE id = ?`).get(id);
@@ -833,22 +880,60 @@ app.delete('/api/tenants/:id', (req, res) => {
   }
 });
 
-app.get('/api/cp/providers', (req, res) => {
+const CACHE_TTL_MS = 5000; // 5s for read-heavy GET
+
+app.get('/api/cp/providers', etagMiddleware, (req, res) => {
+  if (!requireScope(req, res, "cp:read")) return;
   try {
-    const rows = db.prepare(`SELECT id, name, type, status, config_json, health_status, fallback_provider_id, updated_at FROM providers ORDER BY type ASC`).all();
-    res.json({ success: true, data: rows });
+    const tenantId = getTenantId(req);
+    const key = cacheKey(tenantId, "cp/providers", {
+      limit: req.query.limit as string,
+      cursor: req.query.cursor as string,
+    });
+    const cached = cacheGet<{ success: boolean; data: unknown[]; page: { nextCursor: unknown; hasMore: boolean; limit: number } }>(key);
+    if (cached !== undefined) return res.json(cached);
+    const limit = parseLimit(req, 50, 200);
+    const cursor = parseCursor(req);
+    const whereClause = cursor !== null ? "WHERE id < ?" : "";
+    const args = cursor !== null ? [cursor, limit + 1] : [limit + 1];
+    const rows = db.prepare(
+      `SELECT id, name, type, status, config_json, health_status, fallback_provider_id, updated_at FROM providers ${whereClause} ORDER BY id DESC LIMIT ?`
+    ).all(...args) as Array<{ id: string; name: string; type: string; status: string; config_json: string | null; health_status: string | null; fallback_provider_id: string | null; updated_at: string }>;
+    const hasMore = rows.length > limit;
+    const data = rows.slice(0, limit);
+    const nextCursor = hasMore ? (data[data.length - 1]?.id ?? null) : null;
+    const payload = { success: true, data, page: buildPage(nextCursor, hasMore, limit) };
+    cacheSet(key, payload, CACHE_TTL_MS);
+    res.json(payload);
   } catch (err) {
     return sendError(res, 500, "ERR_INTERNAL", String(err));
   }
 });
 
-app.get('/api/cp/pages', (req, res) => {
+app.get('/api/cp/pages', etagMiddleware, (req, res) => {
+  if (!requireScope(req, res, "cp:read")) return;
   try {
+    const tenantId = getTenantId(req);
+    const key = cacheKey(tenantId, "cp/pages", {
+      limit: req.query.limit as string,
+      cursor: req.query.cursor as string,
+    });
+    const cached = cacheGet<{ success: boolean; data: unknown[]; page: { nextCursor: unknown; hasMore: boolean; limit: number } }>(key);
+    if (cached !== undefined) return res.json(cached);
+    const limit = parseLimit(req, 50, 200);
+    const cursor = parseCursor(req);
+    const whereClause = cursor !== null ? "WHERE id < ?" : "";
+    const args = cursor !== null ? [cursor, limit + 1] : [limit + 1];
     const rows = db.prepare(
       `SELECT id, route_id, title, path, status, module_id, permissions_json, feature_flag_id, state, version, published_at, activated_at, is_active, draft_json, published_json, created_at, updated_at
-       FROM cp_pages ORDER BY updated_at DESC`
-    ).all();
-    res.json({ success: true, data: rows });
+       FROM cp_pages ${whereClause} ORDER BY id DESC LIMIT ?`
+    ).all(...args);
+    const hasMore = rows.length > limit;
+    const data = rows.slice(0, limit);
+    const nextCursor = hasMore ? (data[data.length - 1] as { id: string })?.id ?? null : null;
+    const payload = { success: true, data, page: buildPage(nextCursor, hasMore, limit) };
+    cacheSet(key, payload, CACHE_TTL_MS);
+    res.json(payload);
   } catch (err) {
     return sendError(res, 500, "ERR_INTERNAL", String(err));
   }
@@ -1119,7 +1204,9 @@ app.post('/api/cp/pages/sync-catalog', (req, res) => {
 });
 
 app.get('/api/cp/providers/metrics', (req, res) => {
+  if (!requireScope(req, res, "cp:read")) return;
   try {
+    const tenantId = getTenantId(req);
     const days = Math.max(3, Math.min(30, Number(req.query.days ?? 14)));
     const now = new Date();
     const labels: string[] = [];
@@ -1130,8 +1217,8 @@ app.get('/api/cp/providers/metrics', (req, res) => {
     }
     const indexByDay = new Map(labels.map((label, idx) => [label, idx]));
     const startIso = new Date(Date.now() - (days - 1) * 24 * 60 * 60 * 1000).toISOString();
-    const rows = db.prepare(`SELECT metadata, created_at FROM audit_logs WHERE resource_type = ? AND created_at >= ?`)
-      .all("providers", startIso);
+    const rows = db.prepare(`SELECT metadata, created_at FROM audit_logs WHERE tenant_id = ? AND resource_type = ? AND created_at >= ?`)
+      .all(tenantId, "providers", startIso);
     const series: Record<string, number[]> = {};
     rows.forEach((row: any) => {
       if (!row?.metadata || !row?.created_at) return;
@@ -1156,6 +1243,7 @@ app.get('/api/cp/providers/metrics', (req, res) => {
 });
 
 app.get('/api/cp/prefs/:key', (req, res) => {
+  if (!requireScope(req, res, "cp:read")) return;
   try {
     const prefKey = String(req.params.key || "");
     const tenantId = getTenantId(req);
@@ -1174,6 +1262,7 @@ app.get('/api/cp/prefs/:key', (req, res) => {
 });
 
 app.put('/api/cp/prefs/:key', (req, res) => {
+  if (!requireScope(req, res, "cp:read")) return;
   try {
     const prefKey = String(req.params.key || "");
     const tenantId = getTenantId(req);
@@ -1289,6 +1378,7 @@ app.delete('/api/cp/providers/:id', (req, res) => {
 });
 
 app.get('/api/cp/policies', (req, res) => {
+  if (!requireScope(req, res, "cp:read")) return;
   try {
     const rows = db.prepare(`SELECT id, name, status, updated_at FROM policies ORDER BY name ASC`).all();
     res.json({ success: true, data: rows });
@@ -1351,6 +1441,7 @@ app.delete('/api/cp/policies/:id', (req, res) => {
 });
 
 app.get('/api/cp/security', (req, res) => {
+  if (!requireScope(req, res, "cp:read")) return;
   try {
     const rows = db.prepare(`SELECT id, name, status, updated_at FROM security_settings ORDER BY name ASC`).all();
     res.json({ success: true, data: rows });
@@ -1391,7 +1482,8 @@ app.delete('/api/cp/security/:id', (req, res) => {
 });
 
 app.get('/api/cp/branding', (req, res) => {
-  const tenantId = (req.headers['x-tenant-id'] as string) || "default";
+  if (!requireScope(req, res, "cp:read")) return;
+  const tenantId = getTenantId(req);
   try {
     const row = db.prepare(`SELECT tenant_id, logo_url, primary_color, updated_at FROM branding_settings WHERE tenant_id = ?`).get(tenantId);
     if (!row) {
@@ -1406,12 +1498,19 @@ app.get('/api/cp/branding', (req, res) => {
   }
 });
 
-app.get('/api/cp/plans', (req, res) => {
+app.get('/api/cp/plans', etagMiddleware, (req, res) => {
+  if (!requireScope(req, res, "cp:read")) return;
   try {
+    const tenantId = getTenantId(req);
+    const key = cacheKey(tenantId, "cp/plans", "");
+    const cached = cacheGet<{ success: boolean; data: unknown }>(key);
+    if (cached !== undefined) return res.json(cached);
     const plansPath = resolveSsotPath("TENANT_FEATURE_MATRIX.json");
     const raw = fs.readFileSync(plansPath, "utf-8");
     const json = JSON.parse(raw);
-    res.json({ success: true, data: json });
+    const payload = { success: true, data: json };
+    cacheSet(key, payload, CACHE_TTL_MS);
+    res.json(payload);
   } catch (err) {
     return sendError(res, 500, "ERR_INTERNAL", String(err));
   }
@@ -1437,7 +1536,7 @@ app.put('/api/cp/plans', (req, res) => {
 });
 
 app.put('/api/cp/branding', (req, res) => {
-  const tenantId = (req.headers['x-tenant-id'] as string) || "default";
+  const tenantId = getTenantId(req);
   if (!requirePermission(req, res, BRANDING_PERMS.write)) return;
   try {
     const { logo_url, primary_color } = req.body || {};
@@ -1453,14 +1552,18 @@ app.put('/api/cp/branding', (req, res) => {
   }
 });
 
-app.get('/api/cp/settings-summary', (req, res) => {
+app.get('/api/cp/settings-summary', etagMiddleware, (req, res) => {
+  if (!requireScope(req, res, "cp:read")) return;
   try {
+    const tenantId = getTenantId(req);
+    const key = cacheKey(tenantId, "cp/settings-summary", "");
+    const cached = cacheGet<{ success: boolean; data: { tenants: number; providers: number; policies: number; security: number; updatedAt: string } }>(key);
+    if (cached !== undefined) return res.json(cached);
     const tenants = db.prepare(`SELECT COUNT(*) as c FROM tenants`).get() as { c: number };
     const providers = db.prepare(`SELECT COUNT(*) as c FROM providers`).get() as { c: number };
     const policies = db.prepare(`SELECT COUNT(*) as c FROM policies`).get() as { c: number };
     const security = db.prepare(`SELECT COUNT(*) as c FROM security_settings`).get() as { c: number };
-
-    res.json({
+    const payload = {
       success: true,
       data: {
         tenants: tenants?.c ?? 0,
@@ -1469,15 +1572,18 @@ app.get('/api/cp/settings-summary', (req, res) => {
         security: security?.c ?? 0,
         updatedAt: new Date().toISOString()
       }
-    });
+    };
+    cacheSet(key, payload, CACHE_TTL_MS);
+    res.json(payload);
   } catch (err) {
     return sendError(res, 500, "ERR_INTERNAL", String(err));
   }
 });
 
 app.get('/api/pages/:id', (req, res) => {
+  if (!requireScope(req, res, "cp:read")) return;
   const { id } = req.params;
-  const tenantId = req.headers['x-tenant-id'] as string || 'default';
+  const tenantId = getTenantId(req);
   
   try {
     // TODO: Query real page from DB

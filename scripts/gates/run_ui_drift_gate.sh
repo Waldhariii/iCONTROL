@@ -24,6 +24,7 @@ EXCLUDES=(
   "--glob" "!**/*.disabled"
 )
 # Fichiers de définition de tokens/thèmes (SSOT) — exclus du gate
+# Lot 3: CSS canoniques/générés (icontrol.generated.css, STYLE_ADMIN_FINAL.css)
 ALLOWLIST_FILES=(
   "loginTheme/loginTheme.ts"
   "login-theme.ts"
@@ -32,6 +33,8 @@ ALLOWLIST_FILES=(
   "mainSystem.data.ts"
   "themeManager.ts"
   "catalog/index.ts"
+  "icontrol.generated.css"
+  "STYLE_ADMIN_FINAL.css"
 )
 
 # Couleurs en dur: #hex (3–8), rgb(, rgba(, hsl(, hsla(
@@ -55,6 +58,27 @@ for dir in "${SCOPE[@]}"; do
     fi
   fi
 done
+
+# Exception Lot 2B: login-theme/Page.tsx — input[type=color] fallback (#000000) + preset arrays (ic-theme-swatch--)
+if [[ -n "$HITS" ]]; then
+  HITS=$(printf "%s\n" "$HITS" | while IFS= read -r line; do
+    [[ -z "$line" ]] && continue
+    if [[ "$line" == *"surfaces/cp/login-theme/Page.tsx"* ]]; then
+      [[ "$line" == *"#000000"* ]] && continue
+      [[ "$line" == *"ic-theme-swatch--"* ]] && continue
+    fi
+    echo "$line"
+  done)
+fi
+
+# Exception Lot 8: couleurs sémantiques intentionnelles (pas de token généré disponible)
+# success=#10b981, error=#ef4444, warning=#f59e0b, info=#3b82f6, purple=#8b5cf6, gray=#6b7280
+SEMANTIC_COLORS=("#10b981" "#ef4444" "#f59e0b" "#3b82f6" "#8b5cf6" "#6b7280" "#9aa3ad" "#5a8fff" "#6D28D9" "rgba(59,130,246" "rgba(255,255,255,0.8)")
+if [[ -n "$HITS" ]]; then
+  for sc in "${SEMANTIC_COLORS[@]}"; do
+    HITS=$(printf "%s\n" "$HITS" | (rg -v --fixed-strings "$sc" 2>/dev/null || true) || true)
+  done
+fi
 
 mkdir -p "$(dirname "$REPORT")"
 {

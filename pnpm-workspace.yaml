@@ -1,5 +1,5 @@
 packages:
-  - 'apps/*'
-  - 'design-system/components/*'
-  - 'platform/*'
-  - 'modules/*'
+  - apps/*
+  - design-system/components/*
+  - platform/*
+  - modules/*
