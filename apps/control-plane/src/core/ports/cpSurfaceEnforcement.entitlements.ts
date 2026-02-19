@@ -6,7 +6,8 @@
  * - Enforce via ports bootstrap/bind flow.
  * - Produce deterministic allow/deny + reasonCode + governed redirect.
  */
-import { bindPolicyEngine, bootstrapCpEnforcement } from "./index";
+import { bindPolicyEngine } from "./index";
+import { bootstrapCpEnforcement } from "./cpEnforcement.bootstrap";
 import { createRuntimeIdentityPort } from "../runtime/runtimeIdentity.impl";
 import { enforceTenantMatrix } from "./tenantMatrix.enforcement";
 

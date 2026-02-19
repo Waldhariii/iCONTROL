@@ -2,7 +2,8 @@
  * CP Surface Enforcement — v1
  * Boundary-safe: depends only on app ports index + contracts, never core-kernel concrete impl imports.
  */
-import { bindPolicyEngine, bootstrapCpEnforcement } from "./index";
+import { bindPolicyEngine } from "./index";
+import { bootstrapCpEnforcement } from "./cpEnforcement.bootstrap";
 import { buildCpSurfaceRegistryFromCatalog } from "./cpSurfaceRegistry.catalog";
 import type { PolicyDecision } from "./policyEngine.facade";
 
