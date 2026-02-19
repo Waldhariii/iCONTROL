@@ -1,4 +1,4 @@
-.overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.7); z-index: 9999; display: flex; justify-content: flex-end; }
+.overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: var(--ic-surfaceOverlay); z-index: 9999; display: flex; justify-content: flex-end; }
 .panel { width: 90%; max-width: 900px; background: var(--surface-0); box-shadow: -4px 0 24px rgba(0, 0, 0, 0.5); display: flex; flex-direction: column; }
 .header { padding: 20px 24px; border-bottom: 1px solid var(--surface-border); display: flex; justify-content: space-between; align-items: center; }
 .headerTitle { color: var(--text-primary); margin: 0; font-size: 20px; }
