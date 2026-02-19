@@ -1,0 +1,128 @@
+/* ProvidersPage — CSS Modules + tokens. Sections: header, metrics, filters, table, drawer */
+
+.page {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  gap: var(--cp-gap, 1rem);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--cp-gap, 1rem);
+}
+
+.headerTitle {
+  font-size: var(--cp-font-title, 1.25rem);
+  font-weight: 600;
+  margin: 0;
+}
+
+.metrics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--cp-gap, 1rem);
+  padding: var(--cp-pad, 0.75rem);
+  background: var(--cp-bg-card, #f8fafc);
+  border-radius: var(--cp-radius, 6px);
+}
+
+.metricCard {
+  min-width: 100px;
+  padding: var(--cp-pad-sm, 0.5rem);
+  background: var(--cp-bg, #fff);
+  border-radius: var(--cp-radius, 4px);
+  border: 1px solid var(--cp-border, #e2e8f0);
+}
+
+.metricLabel {
+  font-size: var(--cp-font-caption, 0.75rem);
+  color: var(--cp-text-muted, #64748b);
+}
+
+.metricValue {
+  font-size: var(--cp-font-body, 1rem);
+  font-weight: 600;
+}
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--cp-gap, 1rem);
+}
+
+.filters input,
+.filters select {
+  padding: var(--cp-pad-sm, 0.5rem);
+  border: 1px solid var(--cp-border, #e2e8f0);
+  border-radius: var(--cp-radius, 4px);
+}
+
+.tableWrap {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  border: 1px solid var(--cp-border, #e2e8f0);
+  border-radius: var(--cp-radius, 6px);
+}
+
+.drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: min(420px, 100vw);
+  height: 100vh;
+  background: var(--cp-bg, #fff);
+  box-shadow: var(--shadow-md);
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  padding: var(--cp-pad, 1rem);
+}
+
+.drawerBackdrop {
+  position: fixed;
+  inset: 0;
+  background: var(--ic-surfaceOverlay);
+  z-index: 99;
+}
+
+.sparklineWrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.sparklineSvg {
+  fill: none;
+  stroke: var(--cp-primary, #3b82f6);
+  stroke-width: 1.5;
+}
+
+.sparklineTooltip {
+  font-size: var(--cp-font-caption, 0.75rem);
+}
+
+.sparklineTooltip strong {
+  margin-left: 0.25rem;
+}
+
+.message {
+  padding: var(--cp-pad-sm, 0.5rem);
+  border-radius: var(--cp-radius, 4px);
+  font-size: var(--cp-font-caption, 0.75rem);
+}
+
+.messageSuccess {
+  background: var(--cp-bg-success, #dcfce7);
+  color: var(--cp-text-success, #166534);
+}
+
+.messageError {
+  background: var(--cp-bg-error, #fee2e2);
+  color: var(--cp-text-error, #b91c1c);
+}
