@@ -56,6 +56,18 @@ for dir in "${SCOPE[@]}"; do
   fi
 done
 
+# Exception Lot 2B: login-theme/Page.tsx — input[type=color] fallback (#000000) + preset arrays (ic-theme-swatch--)
+if [[ -n "$HITS" ]]; then
+  HITS=$(printf "%s\n" "$HITS" | while IFS= read -r line; do
+    [[ -z "$line" ]] && continue
+    if [[ "$line" == *"surfaces/cp/login-theme/Page.tsx"* ]]; then
+      [[ "$line" == *"#000000"* ]] && continue
+      [[ "$line" == *"ic-theme-swatch--"* ]] && continue
+    fi
+    echo "$line"
+  done)
+fi
+
 mkdir -p "$(dirname "$REPORT")"
 {
   echo "# UI_DRIFT_REPORT"
