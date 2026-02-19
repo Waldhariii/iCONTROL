@@ -81,6 +81,7 @@ function UsersPage(): React.ReactElement {
           type="button"
           className={styles.btnSecondary}
           onClick={() => refreshRbac()}
+  disabled={loading || saving}
         >
           Actualiser
         </button>
@@ -90,9 +91,9 @@ function UsersPage(): React.ReactElement {
         MODE RBAC — Permissions par rôle (utilisateurs non exposés par l’API).
       </div>
 
-      {roleCount >= 0 && (
+      {rows.length > 0 && (
         <div className={styles.kpi}>
-          <span>Rôles: {roleCount}</span>
+          <span>Rôles: {rows.length}</span>
         </div>
       )}
 
