@@ -20,12 +20,23 @@ test -f "$FLAGS_JSON" || fail "Missing flags SSOT: $FLAGS_JSON"
 test -f "$ROUTER_ACTIVE" || fail "Missing active router: $ROUTER_ACTIVE"
 
 # ------------------------------------------------------------
+# Scan targets (exist-only; silence missing dirs)
+# ------------------------------------------------------------
+TARGETS=(
+  "apps/control-plane/src"
+)
+for d in "modules" "platform-services" "server"; do
+  [[ -e "$d" ]] && TARGETS+=("$d")
+done
+
+
+# ------------------------------------------------------------
 # 1) Imports vers runtime/router.ts (parallèle) hors tests
 # ------------------------------------------------------------
 echo "== Scan: imports vers apps/control-plane/src/runtime/router.ts =="
 rg -n --hidden --no-ignore-vcs \
   "from\s+['\"][^'\"]*runtime/router['\"]|runtime/router" \
-  apps/control-plane/src modules platform-services server \
+  "${TARGETS[@]}" \
   > "$OUT_DIR/AUDIT_runtime_router_imports.txt" || true
 
 # Filtrer: exclure tests, scripts shell, fichiers de documentation
