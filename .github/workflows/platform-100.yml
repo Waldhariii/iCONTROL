@@ -38,8 +38,8 @@ jobs:
 
       - name: Governance gates (platform-100)
         run: |
-          pnpm -s gate:governance-100
           pnpm -s gate:npmrc-policy
+          pnpm -s gate:governance-100
           pnpm -s gate:routing:ssot
           pnpm -s gate:write-gateway-enforcement
           pnpm -s gate:no-inline-styles
