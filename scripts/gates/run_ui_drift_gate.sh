@@ -24,6 +24,7 @@ EXCLUDES=(
   "--glob" "!**/*.disabled"
 )
 # Fichiers de définition de tokens/thèmes (SSOT) — exclus du gate
+# Lot 3: CSS canoniques/générés (icontrol.generated.css, STYLE_ADMIN_FINAL.css)
 ALLOWLIST_FILES=(
   "loginTheme/loginTheme.ts"
   "login-theme.ts"
@@ -32,6 +33,8 @@ ALLOWLIST_FILES=(
   "mainSystem.data.ts"
   "themeManager.ts"
   "catalog/index.ts"
+  "icontrol.generated.css"
+  "STYLE_ADMIN_FINAL.css"
 )
 
 # Couleurs en dur: #hex (3–8), rgb(, rgba(, hsl(, hsla(
