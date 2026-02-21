@@ -1,0 +1,17 @@
+LICENSE
+NOTICE
+_audit
+apps
+core
+design-system
+governance
+iCONTROL.code-workspace
+modules
+node_modules
+package-lock.json
+package.json
+platform
+quarantaine
+runtime
+scripts
+tests

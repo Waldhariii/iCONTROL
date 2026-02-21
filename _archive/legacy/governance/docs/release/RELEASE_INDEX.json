@@ -1,0 +1,20 @@
+{
+  "assets_manifest_latest": {
+    "items": 0,
+    "path": "docs/release/ASSETS_MANIFEST_LATEST.json",
+    "sha256": "fc7444e73cb0bcd1dd47bae3700d08ba66b1c19f0fd647b212019108153197d5"
+  },
+  "bundle_refs": {
+    "assets_manifest": "",
+    "branch": "",
+    "commit": "",
+    "tag": ""
+  },
+  "generated_at": "2026-01-30T19:00:58Z",
+  "index_commit_guess": "20260130184216",
+  "index_md": "docs/release/RELEASE_INDEX.md",
+  "release_bundle": {
+    "path": "docs/release/RELEASE_BUNDLE_20260130_133735.json",
+    "sha256": "8428b1ac1842bb0093ca95ec6e6cb454dd1d5ceda1466c2b82697885cfe9def6"
+  }
+}
