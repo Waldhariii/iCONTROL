@@ -250,3 +250,6 @@ dist/
 
 # local safety backups (never commit)
 apps/control-plane/src/router.ts.backup
+
+# macOS
+.DS_Store
