@@ -17,11 +17,23 @@ for forbidden in \
   copy \
   duplicate
 do
-  if find "$ROOT" -maxdepth 1 -type d -name "*$forbidden*" | grep -q .
-  then
-    echo "ERR_PARALLEL_ROOT: forbidden directory detected"
-    exit 1
-  fi
+  case "$forbidden" in
+    system)
+      # avoid false positive: design-system is a canonical root
+      if find "$ROOT" -maxdepth 1 -type d -name "*system*" ! -name "design-system" | grep -q .
+      then
+        echo "ERR_PARALLEL_ROOT: forbidden directory detected"
+        exit 1
+      fi
+      ;;
+    *)
+      if find "$ROOT" -maxdepth 1 -type d -name "*$forbidden*" | grep -q .
+      then
+        echo "ERR_PARALLEL_ROOT: forbidden directory detected"
+        exit 1
+      fi
+      ;;
+  esac
 done
 
 if git ls-files | grep -E '^(_artifacts|_audit)/'
