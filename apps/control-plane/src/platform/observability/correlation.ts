@@ -11,9 +11,23 @@ export function newCorrelationId(prefix = "corr"): string {
   return `${prefix}_${ts}_${rand}`;
 }
 
+/** Alias for newCorrelationId (O1 observability). */
+export function generateCorrelationId(prefix = "corr"): string {
+  return newCorrelationId(prefix);
+}
+
 declare global {
   // eslint-disable-next-line no-var
   var __ICONTROL_CORRELATION_ID__: string | undefined;
+}
+
+function attachCorrelationToRuntime(id: string): void {
+  try {
+    if (typeof window === "undefined") return;
+    const w = window as unknown as { __ICONTROL_RUNTIME__?: Record<string, unknown> };
+    const rt = w.__ICONTROL_RUNTIME__;
+    if (rt && typeof rt === "object") (rt as Record<string, unknown>)["correlationId"] = id;
+  } catch {}
 }
 
 export function getCorrelationId(): string {
@@ -22,5 +36,6 @@ export function getCorrelationId(): string {
 
 export function setCorrelationId(id: string): string {
   (globalThis as any).__ICONTROL_CORRELATION_ID__ = id;
+  attachCorrelationToRuntime(id);
   return id;
 }

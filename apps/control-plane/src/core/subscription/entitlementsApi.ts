@@ -28,9 +28,9 @@ export async function getEntitlementsDiagnosticsForTenant(tenantId: string, nowI
   return {
     tenantId,
     nowIso: now,
-    effectivePlanId: resolved.effectivePlanId,
-    reason: resolved.reason,
-    entitlements: resolved.entitlements,
+    effectivePlanId: resolved["effectivePlanId"],
+    reason: resolved["reason"],
+    entitlements: resolved["entitlements"],
     // optional: include raw subscription record for admin UI if needed
     // FOUNDATION_SHIM: ResolveOutput may not expose subscription in this build
     subscription: ((resolved as any)?.subscription ?? null),

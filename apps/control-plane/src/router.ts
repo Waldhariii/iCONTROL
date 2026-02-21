@@ -1,3 +1,26 @@
+/** Canonical redirects for hashes not in ROUTE_CATALOG or malformed (arch cleanup pack). Applied before route resolution. */
+const HASH_REDIRECTS: Record<string, string> = {
+  "#/app/dashboard": "#/dashboard",
+  "#/cp/system": "#/system",
+  "#/current": "#/dashboard",
+  "#/dashboard.": "#/dashboard",
+  "#/home-cp": "#/dashboard",
+  "#/login-theme": "#/theme-studio",
+  "#/operator": "#/dashboard",
+};
+
+(() => {
+  try {
+    if (typeof window === "undefined") return;
+    const h = String(window.location.hash || "#/").trim();
+    const fixed = HASH_REDIRECTS[h];
+    if (fixed && fixed !== h) {
+      const base = window.location.href.split("#")[0];
+      window.history.replaceState(null, "", base + fixed);
+    }
+  } catch (_) {}
+})();
+
 (() => {
   try {
     if (typeof window === "undefined") return;
@@ -95,6 +118,8 @@ import { navigate as coreNavigate } from "./runtime/navigate";
 import { applyVersionPolicyBootGuards } from "./policies/version_policy.runtime";
 import { getGlobalWindow } from "./core/utils/types";
 import { getLogger } from "./platform/observability/logger";
+import { recordRouteResolution } from "./platform/observability/anomalyGuard";
+import { increment as incrementMetric } from "./platform/observability/metrics";
 import { ADMIN_ROUTE_ALLOWLIST, CLIENT_ROUTE_ALLOWLIST, CP_PATH_TO_ROUTE_ID, APP_PATH_TO_ROUTE_ID } from "./core/ssot/routeCatalogLoader";
 import { isDevOnlyAllowed } from "./core/policies/devOnly";
 import { auditWarnOnce } from "./platform/audit/auditOnce";
@@ -280,19 +305,25 @@ export function getRouteId(): RouteId {
   const clean = (h.split("?")[0] || "").trim();
   const map = kind === "CP" ? CP_PATH_TO_ROUTE_ID : APP_PATH_TO_ROUTE_ID;
   const notfound: RouteId = kind === "CP" ? "notfound_cp" : "notfound_app";
-  if (!clean) return kind === "CP" ? "dashboard_cp" : "home_app";
-  const rid = map.get(clean);
-  if (rid) return rid as RouteId;
-  /* ICONTROL_CP_UI_SHOWCASE_ROUTER_GUARD: dev-only route may be blocked */
-  if (kind === "CP" && clean === "ui-showcase") {
-    if (!isDevOnlyAllowed()) {
-      auditWarnOnce("WARN_DEV_ONLY_ROUTE_BLOCKED", { scope: "cp", route: "ui-showcase" });
-      return "dashboard_cp";
-    }
-    const fb = guardDevOnlyRouteByKey("ui-showcase") as RouteId | null;
-    if (fb) return fb;
+  let rid: RouteId;
+  if (!clean) rid = kind === "CP" ? "dashboard_cp" : "home_app";
+  else {
+    const fromMap = map.get(clean);
+    if (fromMap) rid = fromMap as RouteId;
+    else if (kind === "CP" && clean === "ui-showcase") {
+      if (!isDevOnlyAllowed()) {
+        auditWarnOnce("WARN_DEV_ONLY_ROUTE_BLOCKED", { scope: "cp", route: "ui-showcase" });
+        rid = "dashboard_cp";
+      } else {
+        const fb = guardDevOnlyRouteByKey("ui-showcase") as RouteId | null;
+        rid = fb ?? notfound;
+      }
+    } else rid = notfound;
   }
-  return notfound;
+  recordRouteResolution(rawHash, rid === notfound);
+  if (rid === notfound) incrementMetric("route.fallback.total");
+  logger.info("route_resolution", "route resolution", {}, { routeId: rid, hash: rawHash, isFallback: rid === notfound });
+  return rid;
 }
 
 /** Déduit le route_id à partir du hash. Dérivé entièrement de ROUTE_CATALOG.json (pas de switch hardcodé). */

@@ -2,19 +2,58 @@ import type { LogEvent, LogLevel } from "./types";
 import type { AnyCode } from "./errorCodes";
 import { getCorrelationId } from "./correlation";
 
+const SERVICE_NAME = "control-plane";
+
 function nowIso(): string {
   return new Date().toISOString();
 }
 
+function isDev(): boolean {
+  try {
+    if (typeof import.meta !== "undefined" && (import.meta as { env?: { DEV?: boolean } }).env?.DEV === true) return true;
+    if (typeof window !== "undefined") {
+      const h = window.location?.hostname ?? "";
+      if (h === "localhost" || h === "127.0.0.1") return true;
+    }
+  } catch {}
+  return false;
+}
+
+function getTenantIdFromRuntime(): string | undefined {
+  try {
+    if (typeof window === "undefined") return undefined;
+    const rt = (window as unknown as { __ICONTROL_RUNTIME__?: { tenantId?: string } }).__ICONTROL_RUNTIME__;
+    return rt && typeof rt === "object" ? rt.tenantId : undefined;
+  } catch {}
+  return undefined;
+}
+
+const logBuffer: LogEvent[] = [];
+const LOG_BUFFER_MAX = 500;
+
 function emit(evt: LogEvent): void {
-  // Browser-safe sink: console.* (can be replaced later by gateway sink)
-  const line = JSON.stringify(evt);
-  switch (evt.level) {
-    case "debug": console.debug(line); break;
-    case "info": console.info(line); break;
-    case "warn": console.warn(line); break;
-    case "error": console.error(line); break;
+  const tenant = evt.tenantId ?? getTenantIdFromRuntime();
+  const enriched: LogEvent = {
+    ...evt,
+    service: SERVICE_NAME,
+    ...(tenant !== undefined ? { tenantId: tenant } : {}),
+  };
+  if (isDev()) {
+    const line = JSON.stringify(enriched);
+    switch (enriched.level) {
+      case "debug": console.debug(line); break;
+      case "info": console.info(line); break;
+      case "warn": console.warn(line); break;
+      case "error": console.error(line); break;
+    }
+  } else {
+    logBuffer.push(enriched);
+    if (logBuffer.length > LOG_BUFFER_MAX) logBuffer.shift();
   }
+}
+
+export function getLogBuffer(): LogEvent[] {
+  return [...logBuffer];
 }
 
 export type LogBaseContext = Pick<LogEvent, "tenantId" | "actorId" | "role" | "appKind" | "surface">;

@@ -10,6 +10,8 @@ export type LogEvent = {
 
   correlationId: string;
 
+  // O1 observability
+  service?: string;
   // Governance context (optional, but strongly encouraged)
   tenantId?: string;
   actorId?: string;

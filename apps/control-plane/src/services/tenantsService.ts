@@ -1,5 +1,4 @@
-import { getApiBase } from '../core/runtime/apiBase';
-import { getAuthHeaders } from './authService';
+import { cpFetchJson } from "@/platform/http/cpApi";
 
 export interface Tenant {
   id: string;
@@ -12,52 +11,22 @@ export interface Tenant {
 }
 
 export async function getTenants(): Promise<Tenant[]> {
-  const response = await fetch(`${getApiBase()}/api/tenants`, {
-    headers: getAuthHeaders(),
-  });
-  
-  if (!response.ok) {
-    throw new Error('Failed to fetch tenants');
-  }
-  
-  const result = await response.json();
-  return result.data || [];
+  const result = await cpFetchJson<{ data?: Tenant[] }>("/api/tenants");
+  return result?.data ?? [];
 }
 
 export async function createTenant(data: { id: string; name: string; plan?: string }) {
-  const response = await fetch(`${getApiBase()}/api/tenants`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      ...getAuthHeaders(),
-    },
+  const result = await cpFetchJson<{ data?: Tenant }>("/api/tenants", {
+    method: "POST",
     body: JSON.stringify(data),
   });
-  
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.error || 'Failed to create tenant');
-  }
-  
-  const result = await response.json();
-  return result.data;
+  return result?.data;
 }
 
 export async function updateTenant(id: string, data: { name?: string; plan?: string; status?: string }) {
-  const response = await fetch(`${getApiBase()}/api/tenants/${id}`, {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-      ...getAuthHeaders(),
-    },
+  const result = await cpFetchJson<{ data?: Tenant }>(`/api/tenants/${id}`, {
+    method: "PUT",
     body: JSON.stringify(data),
   });
-  
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.error || 'Failed to update tenant');
-  }
-  
-  const result = await response.json();
-  return result.data;
+  return result?.data;
 }

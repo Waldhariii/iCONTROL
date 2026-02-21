@@ -1,19 +1,96 @@
 import "./styles/tokens.generated.css";
 import { info, warn, error } from "./platform/observability/logger";
+import { generateCorrelationId, setCorrelationId } from "./platform/observability/correlation";
+import { initAnomalyGuard } from "./platform/observability/anomalyGuard";
+import { getMetricsSnapshot, hydrateFromSnapshot, increment } from "./platform/observability/metrics";
+import { getTraceDump } from "./platform/observability/tracer";
+import { getAnomalySnapshot } from "./platform/observability/anomalyGuard";
+import { loadMetricsAsync } from "./platform/observability/metricsStore";
+import { getExportConfig } from "./platform/observability/exportConfig";
+import { initExporter, exportNow, getExporterState } from "./platform/observability/exporter";
 import { resolveRuntimeContext } from "./platform/runtimeContext";
 import { hydrateTenantRuntime } from "./platform/bootstrap";
 import { getBrandResolved } from "./platform/branding/brandService";
 import { getSession, isLoggedIn, clearManagementSession } from "./localAuth";
-import { getApiBase } from "./core/runtime/apiBase";
+import { cpFetchJson } from "./platform/http/cpApi";
 import "./styles/STYLE_ADMIN_FINAL.css";
 import { installIControlDiagnosticDEVOnly } from "./dev/diagnostic";
 import { bootstrapCpEnforcement } from "./core/ports/cpEnforcement.bootstrap";
 import { BillingService, BILLING_CONFIG } from "@modules/core-billing";
 import "./styles/icontrol.generated.css";
 
-// Boot marker + minimal crash surface (helps when console is empty)
+// BOOT GUARD: flag + capture fatales (Safari "Boot bloqué" / unhandledrejection)
 try {
-  (globalThis as any).__ICONTROL_BOOT_OK__ = true;
+  (typeof window !== "undefined" ? window : (globalThis as any)).__ICONTROL_BOOT_OK__ = true;
+} catch {}
+
+// O1 Observability: correlation + anomaly guard (non-breaking)
+try {
+  setCorrelationId(generateCorrelationId());
+  initAnomalyGuard();
+  if (typeof window !== "undefined") {
+    initExporter({ ...getExportConfig(), onIncrement: increment });
+    // O2 Metrics persistence: hydrate from persisted snapshot on boot (no throw)
+    loadMetricsAsync().then((persisted) => {
+      try {
+        if (persisted) hydrateFromSnapshot(persisted);
+      } catch {
+        // silent fallback to memory
+      }
+    }).catch(() => {});
+    const w = window as unknown as {
+      __ICONTROL_METRICS__?: () => ReturnType<typeof getMetricsSnapshot>;
+      __ICONTROL_TRACE_DUMP__?: () => ReturnType<typeof getTraceDump>;
+      __ICONTROL_ANOMALY_SNAPSHOT__?: () => ReturnType<typeof getAnomalySnapshot>;
+      __ICONTROL_EXPORT_NOW__?: () => void;
+      __ICONTROL_EXPORT_STATE__?: () => ReturnType<typeof getExporterState>;
+      __ICONTROL_EXPORT_POLICY_TEST__?: (x: unknown) => unknown;
+    };
+    const isDev = (typeof import.meta !== "undefined" && (import.meta as { env?: { DEV?: boolean } }).env?.DEV) === true;
+    if (isDev) {
+      w.__ICONTROL_METRICS__ = getMetricsSnapshot;
+      w.__ICONTROL_TRACE_DUMP__ = getTraceDump;
+      w.__ICONTROL_ANOMALY_SNAPSHOT__ = getAnomalySnapshot;
+      w.__ICONTROL_EXPORT_NOW__ = () => exportNow("dev_manual");
+      w.__ICONTROL_EXPORT_STATE__ = getExporterState;
+      w.__ICONTROL_EXPORT_POLICY_TEST__ = (x: unknown) => x;
+    }
+  }
+} catch {}
+
+// DEV-only: optional silence of Safari WS "suspension" noise (HMR)
+// Enable by setting: VITE_SILENCE_SAFARI_WS=1
+try {
+  const dev = (typeof import.meta !== "undefined" && (import.meta as any).env?.DEV) === true;
+  const silence = String((typeof import.meta !== "undefined" && (import.meta as any).env?.VITE_SILENCE_SAFARI_WS) ?? "") === "1";
+  if (dev && silence && typeof console !== "undefined") {
+    const origErr = console.error.bind(console);
+    console.error = ((...args: any[]) => {
+      try {
+        const s = args?.map(a => (typeof a === "string" ? a : "")).join(" ");
+        if (s.includes("WebSocket connection") && s.includes("suspension")) return;
+      } catch {}
+      return origErr(...args);
+    }) as any;
+  }
+} catch {}
+
+try {
+  (typeof window !== "undefined" ? window : globalThis).addEventListener("error", (e: ErrorEvent) => {
+    const msg = e.message ?? "Unknown error";
+    const stack = (e.error as Error)?.stack;
+    const filename = e.filename ?? "";
+    const lineno = e.lineno ?? 0;
+    console.error("[ICONTROL_BOOT_ERROR]", { message: msg, stack, filename, lineno, error: e.error });
+    __icontrol_reportBootError__(msg);
+  });
+  (typeof window !== "undefined" ? window : globalThis).addEventListener("unhandledrejection", (e: PromiseRejectionEvent) => {
+    const reason = e.reason;
+    const msg = reason instanceof Error ? reason.message : String(reason ?? "Unhandled rejection");
+    const stack = reason instanceof Error ? reason.stack : undefined;
+    console.error("[ICONTROL_BOOT_UNHANDLEDREJECTION]", { message: msg, reason, stack });
+    __icontrol_reportBootError__(msg);
+  });
 } catch {}
 
 function __icontrol_setBootStage__(msg: string): void {
@@ -36,18 +113,6 @@ function __icontrol_reportBootError__(msg: string): void {
     }
   } catch {}
 }
-
-try {
-  window.addEventListener("error", (e) => {
-    const msg = (e as ErrorEvent).message || "Unknown error";
-    __icontrol_reportBootError__(msg);
-  });
-  window.addEventListener("unhandledrejection", (e) => {
-    const reason = (e as PromiseRejectionEvent).reason;
-    const msg = reason instanceof Error ? reason.message : String(reason || "Unhandled rejection");
-    __icontrol_reportBootError__(msg);
-  });
-} catch {}
 
 /* ICONTROL_SHELL_RECOVERY_V1 (enterprise-grade guardrail)
  * Objectif: empêcher un dashboard CP "sans menu" même si un rendu/route écrase le DOM.
@@ -246,7 +311,6 @@ async function __ICONTROL_APPLY_DENSITY__(): Promise<void> {
     const root = document.documentElement;
     const s = getSession();
     const user = String((s as any)?.username || (s as any)?.userId || "anonymous");
-    const role = String((s as any)?.role || "USER").toUpperCase();
     const storageKey = `icontrol:cp:density:${ctx.tenantId}:${user}`;
 
     const apply = (mode?: string) => {
@@ -261,27 +325,13 @@ async function __ICONTROL_APPLY_DENSITY__(): Promise<void> {
     } catch {}
 
     try {
-      const API_BASE = getApiBase();
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 1500);
-      const res = await fetch(`${API_BASE}/api/cp/prefs/cp_density`, {
-        headers: {
-          "x-tenant-id": ctx.tenantId,
-          "x-user-id": user,
-          "x-user-role": role,
-        },
-        signal: controller.signal,
-      });
-      clearTimeout(timeoutId);
-      if (res.ok) {
-        const json = (await res.json()) as { success: boolean; data?: { value?: string } | null };
-        const mode = json?.data?.value;
-        if (mode) {
-          apply(mode);
-          try {
-            localStorage.setItem(storageKey, mode);
-          } catch {}
-        }
+      const json = await cpFetchJson<{ success: boolean; data?: { value?: string } | null }>("/api/cp/prefs/cp_density");
+      const mode = json?.data?.value;
+      if (mode) {
+        apply(mode);
+        try {
+          localStorage.setItem(storageKey, mode);
+        } catch {}
       }
     } catch {}
   } catch (e) {
