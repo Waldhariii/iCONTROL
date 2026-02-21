@@ -1,0 +1,37 @@
+name: gates-cp
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - master
+
+jobs:
+  gates_cp:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "pnpm"
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: "9"
+
+      - name: Install deps
+        run: pnpm -w install --frozen-lockfile
+
+      - name: Generate module stubs (CP boundary)
+        run: pnpm -w run gen:module-stubs
+
+      - name: Run CP gates
+        run: pnpm -w run gates:cp
