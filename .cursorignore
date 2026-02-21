@@ -1,0 +1,4 @@
+# Masquer node_modules dans Cursor
+node_modules/
+**/node_modules/
+.pnpm-store/
