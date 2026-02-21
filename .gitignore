@@ -253,3 +253,6 @@ apps/control-plane/src/router.ts.backup
 
 # macOS
 .DS_Store
+
+# local gate outputs
+_archive/exports/
