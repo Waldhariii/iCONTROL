@@ -4,7 +4,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "$ROOT"
 
-CAT="docs/ssot/catalog.json"
+CAT="governance/docs/ssot/catalog.json"
 if [ ! -f "$CAT" ]; then
   echo "ERR_SSOT_CATALOG_MISSING: $CAT not found"
   exit 1
@@ -13,7 +13,7 @@ fi
 node - <<'NODE'
 const fs = require("fs");
 
-const cat = JSON.parse(fs.readFileSync("docs/ssot/catalog.json", "utf8"));
+const cat = JSON.parse(fs.readFileSync("governance/docs/ssot/catalog.json", "utf8"));
 const err = (code, msg) => { console.error(code + ": " + msg); process.exit(1); };
 
 if (!cat.surfaces || !Array.isArray(cat.surfaces) || cat.surfaces.length === 0) err("ERR_SSOT_SURFACES", "missing surfaces[]");
