@@ -4,10 +4,10 @@
 Éliminer toute ambigüité sur les chemins attendus par les scripts, gates et procédures Phase 1+.
 
 ## Chemins canoniques (SSOT)
-- Flags (SSOT): `app/src/policies/feature_flags.default.json`
+- Flags (SSOT): `apps/control-plane/src/policies/feature_flags.default.json`
 - Reports (report-only):
-  - `docs/PHASE_1/APPENDIX_COMMAND_OUTPUTS/write_surface_map_report.md`
-  - `docs/PHASE_1/APPENDIX_COMMAND_OUTPUTS/write_gateway_coverage_report.md`
+  - `governance/docs/PHASE_1/APPENDIX_COMMAND_OUTPUTS/write_surface_map_report.md`
+  - `governance/docs/PHASE_1/APPENDIX_COMMAND_OUTPUTS/write_gateway_coverage_report.md`
 - FS pilot Phase 1.15:
   - `modules/core-system/subscription/FileSubscriptionStore.node.ts`
 
